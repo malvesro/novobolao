@@ -92,3 +92,17 @@ Exigira Java 17 e namespaces Jakarta. So iniciar apos ADR aprovado e plano de co
 - [ ] Logs usando o padrao atual.  
 - [ ] Testes atualizados quando existirem.  
 - [ ] ADR criado quando houver decisao arquitetural nao trivial.
+
+## 12. Princípios de Arquitetura a serem seguidos
+
+- código limpo
+
+- arquitetura limpa e DDD no que couber, sem grandes impactos no que já foi construído
+
+- UX simples
+
+- design responsivo 
+
+- dependências mínimas para uma aplicação web. 
+
+- a documentação e os comentários de código deverão ser escritos em Português BR.
