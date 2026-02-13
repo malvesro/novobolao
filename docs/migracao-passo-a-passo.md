@@ -26,8 +26,8 @@ Premissas de compatibilidade (criticas):
 2. [Concluido] Congelar baseline funcional: listar Actions (`src/xwork.xml`), endpoints DWR (`webapp/WEB-INF/dwr.xml`), JSPs (`webapp/`) e fluxos criticos.
 3. [Concluido] Inventariar dependencias atuais (jars em `webapp/WEB-INF/lib/`) e classificar por compatibilidade `javax` vs `jakarta`.
 4. [Concluido] Criar `.gitignore` para ignorar arquivos desnecessarios (ex: `Thumbs.db`, `*:Zone.Identifier`, caches de IDE e artefatos de build).
-5. [Pendente] Rodar analise de risco de bibliotecas (CVE/idade) e documentar trocas obrigatorias (DWR, Acegi, JSTL/taglibs, libs JS antigas).
-6. [Pendente] Definir e registrar no ADR a matriz de versoes alvo: Java 17, Tomcat 10.1+, Struts 7, Spring 6, Hibernate 6.
+5. [Concluido] Rodar analise de risco de bibliotecas (CVE/idade) e documentar trocas obrigatorias (DWR, Acegi, JSTL/taglibs, libs JS antigas).
+6. [Concluido] Definir e registrar no ADR a matriz de versoes alvo: Java 17, Tomcat 10.1, Struts 7, Spring 6, Hibernate 6, Spring Security 6 (avaliar Tomcat 11 apos estabilizacao).
 7. [Pendente] Criar build reproduzivel (Maven ou Gradle) com empacotamento WAR, mantendo `webapp/` e `src/`.
 8. [Pendente] Definir comandos padrao de build e testes (ex: `clean`, `compile`, `test`, `war`) e validar que o WAR sobe no Tomcat atual.
 9. [Pendente] Externalizar configuracoes sensiveis (DB/SMTP) com override por ambiente e fallback local seguro.
@@ -59,3 +59,5 @@ Premissas de compatibilidade (criticas):
 - 2026-02-13: Tarefa 2 concluida (baseline em `docs/baseline-rotas-fluxos.md`).
 - 2026-02-13: Tarefa 3 concluida (baseline em `docs/baseline-dependencias.md`).
 - 2026-02-13: Tarefa 4 concluida (criacao do `.gitignore`).
+- 2026-02-13: Tarefa 5 concluida (analise em `docs/analise-risco-dependencias.md`).
+- 2026-02-13: Tarefa 6 concluida (matriz de versoes registrada no ADR).
