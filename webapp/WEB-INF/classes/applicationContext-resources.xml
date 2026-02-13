@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- Datasource configuration (alternatively you can use the JNDI way) -->
+	<!-- How to use JNDI DS:
+		<bean id="myDataSource1" class="org.springframework.jndi.JndiObjectFactoryBean">
+			<property name="jndiName value="java:comp/env/jdbc/myds"/>
+		</bean>
+	-->
+	<bean name="defaultDataSource"
+		class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/bolao" />
+		<property name="username" value="root" />
+		<property name="password" value="copa2014brasil" />
+		<property name="maxActive" value="100" />
+		<property name="maxIdle" value="30" />
+		<property name="maxWait" value="1000" />
+		<property name="defaultAutoCommit" value="true" />
+		<property name="removeAbandoned" value="true" />
+		<property name="removeAbandonedTimeout" value="60" />
+	</bean>
+
+</beans>

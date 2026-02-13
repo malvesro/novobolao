@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4">
+
+	<context-param>
+		<param-name>javax.servlet.jsp.jstl.fmt.localizationContext</param-name>
+		<param-value>messages</param-value>
+	</context-param>
+	<!-- Fallback locale if no bundles found for browser's preferred locale -->
+	<!-- Force a single locale using param-name 'javax.servlet.jsp.jstl.fmt.locale' -->
+	<context-param>
+		<param-name>javax.servlet.jsp.jstl.fmt.fallbackLocale</param-name>
+		<param-value>en</param-value>
+	</context-param>
+		<context-param>
+		<param-name>horarios</param-name>
+		<param-value>10:00,11:00,12:00,13:00,15:00,16:00</param-value>
+	</context-param>
+	<context-param>
+		<param-name>datas</param-name>
+		<param-value>
+			09/06/2006,10/06/2006,11/06/2006,12/06/2006,13/06/2006,
+			14/06/2006,15/06/2006,16/06/2006,17/06/2006,18/06/2006,
+			19/06/2006,20/06/2006,21/06/2006,22/06/2006,23/06/2006,
+			24/06/2006,25/06/2006,26/06/2006,27/06/2006,30/06/2006,
+			01/07/2006,04/07/2006,05/07/2006,08/07/2006,09/07/2006
+		</param-value>
+	</context-param>
+	<context-param>
+		<param-name>locais</param-name>
+		<param-value>
+			Berlim,Colônia,Dortmund,Frankfurt,Gelsenkirchen,Hamburgo,
+			Hannover,Kaiserslautern,Leipzig,Munique,Nuremberg,Stuttgart
+		</param-value>
+	</context-param>
+	
+	
+	<!-- Context Configuration locations for Spring XML files -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			classpath*:applicationContext-resources.xml,
+			classpath*:applicationContext-hibernate.xml,
+			classpath*:applicationContext-security.xml,
+			classpath*:applicationContext-service.xml,
+			classpath*:applicationContext-action.xml,
+			classpath*:applicationContext-scheduler.xml
+		</param-value>
+	</context-param>
+
+	<filter>
+		<filter-name>hibernateSessionFilter</filter-name>
+		<filter-class>org.springframework.orm.hibernate3.support.OpenSessionInViewFilter</filter-class>
+	</filter>
+	<filter>
+		<filter-name>webworkFilter</filter-name>
+		<filter-class>com.opensymphony.webwork.dispatcher.FilterDispatcher</filter-class>
+	</filter>
+	<filter>
+		<filter-name>securityFilter</filter-name>
+		<filter-class>org.acegisecurity.util.FilterToBeanProxy</filter-class>
+		<init-param>
+			<param-name>targetClass</param-name>
+			<param-value>org.acegisecurity.util.FilterChainProxy</param-value>
+		</init-param>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>securityFilter</filter-name>
+		<url-pattern>/j_security_check</url-pattern>
+	</filter-mapping>
+    <filter-mapping>
+        <filter-name>securityFilter</filter-name>
+        <url-pattern>*.html</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>securityFilter</filter-name>
+        <url-pattern>*.jsp</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>securityFilter</filter-name>
+        <url-pattern>/dwr/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>securityFilter</filter-name>
+        <url-pattern>*.action</url-pattern>
+    </filter-mapping>
+	<filter-mapping>
+		<filter-name>hibernateSessionFilter</filter-name>
+		<url-pattern>*.action</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>hibernateSessionFilter</filter-name>
+		<url-pattern>/dwr/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>webworkFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	<listener>
+		<listener-class>com.opendev.bolao.util.ContadorParticipantesOnline</listener-class>
+	</listener>
+
+	<servlet>
+		<servlet-name>webwork</servlet-name>
+		<servlet-class>com.opensymphony.webwork.dispatcher.ServletDispatcher</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>dwr-invoker</servlet-name>
+		<servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
+		<init-param>
+			<param-name>debug</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>CewolfServlet</servlet-name>
+		<servlet-class>de.laures.cewolf.CewolfRenderer</servlet-class>
+		<init-param>
+			<param-name>storage</param-name>
+			<param-value>de.laures.cewolf.storage.TransientSessionStorage</param-value>
+		</init-param>
+		<init-param>
+			<param-name>overliburl</param-name>
+			<param-value>/js/overlib.js</param-value>
+		</init-param>
+		<load-on-startup>3</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>webwork</servlet-name>
+		<url-pattern>*.action</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>dwr-invoker</servlet-name>
+		<url-pattern>/dwr/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>CewolfServlet</servlet-name>
+		<url-pattern>/cewolf/*</url-pattern>
+	</servlet-mapping>
+
+	<session-config>
+		<session-timeout>30</session-timeout>
+	</session-config>
+
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+	<jsp-config>
+		<taglib>
+			<taglib-uri>http://acegisecurity.org/authz</taglib-uri>
+			<taglib-location>/WEB-INF/tld/authz.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>/webwork</taglib-uri>
+			<taglib-location>/WEB-INF/tld/webwork.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>http://java.sun.com/jsp/jstl/core</taglib-uri>
+			<taglib-location>/WEB-INF/tld/c.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>http://java.sun.com/jsp/jstl/fmt</taglib-uri>
+			<taglib-location>/WEB-INF/tld/fmt.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>http://java.sun.com/jsp/jstl/functions</taglib-uri>
+			<taglib-location>/WEB-INF/tld/fn.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>http://cewolf.sourceforge.net/taglib/cewolf.tld</taglib-uri>
+			<taglib-location>/WEB-INF/tld/cewolf.tld</taglib-location>
+		</taglib>
+		<taglib>
+			<taglib-uri>http://www.opendev.com.br/tld</taglib-uri>
+			<taglib-location>/WEB-INF/tld/opendev.tld</taglib-location>
+		</taglib>
+		<jsp-property-group>
+			<url-pattern>*.jsp</url-pattern>
+			<include-prelude>/template/cabecalho.jspf</include-prelude>
+			<include-coda>/template/rodape.jspf</include-coda>
+		</jsp-property-group>
+	</jsp-config>
+
+</web-app>

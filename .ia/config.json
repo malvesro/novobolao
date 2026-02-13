@@ -1,0 +1,57 @@
+{
+  "_manifest": {
+    "version": "4.1.0",
+    "updated_at": "2026-02-06",
+    "purpose": "Define a física (parâmetros) e a ética (limites) dos modelos de IA para o Projeto Mercúrio."
+  },
+
+  "infrastructure_settings": {
+    "_doc": "Configurações globais de ambiente que afetam IDEs e Scripts.",
+
+    "strict_mode": true,
+    "_strict_mode_comment": "QUANDO TRUE: Instrui ferramentas (Cursor, Continue, Antigravity) a ignorar preferências pessoais do usuário e forçar os padrões deste arquivo.",
+
+    "environment": "production-grade",
+    "_environment_comment": "Define o nível de auditoria. 'production-grade' ativa logs detalhados e bloqueia envio de telemetria sensível."
+  },
+
+  "generation_constraints": {
+    "_doc": "Hiperparâmetros físicos da API. Controlam a criatividade vs. precisão.",
+
+    "temperature": 0.1,
+    "_temperature_comment": "CRÍTICO. 0.1 é mandatório para Java/Spring. Permite correções sintáticas mínimas, mas bloqueia 'alucinações criativas' e invenção de bibliotecas.",
+
+    "top_p": 0.95,
+    "_top_p_comment": "Nucleus Sampling. Restringe a IA a considerar apenas os 95% tokens de maior probabilidade, eliminando sintaxes exóticas.",
+
+    "max_output_tokens": 65536,
+    "_max_output_tokens_comment": "Sweet Spot 2026 (Gemini 3.0 / GPT-5.2). Permite gerar classes monolíticas ou refatorações massivas sem cortes abruptos no código.",
+
+    "stop_sequences": ["<|endoftext|>", "User:", "Human:"],
+    "_stop_sequences_comment": "Sentinelas que forçam a parada imediata da geração, prevenindo que a IA comece a alucinar um diálogo falso após entregar o código."
+  },
+
+  "model_routing": {
+    "_doc": "Estratégia de Orquestração de Modelos (Evita Vendor-Lockin).",
+
+    "openai_primary": "gpt-5-codex",
+    "_openai_comment": "Especialista em 'Agentic Coding'. Use preferencialmente para escrita de código, refatoração e arquitetura.",
+
+    "google_primary": "gemini-3.0-pro-preview",
+    "_google_comment": "Especialista em Contexto Infinito. Use para leitura de logs massivos, análise de dependências e busca de bugs sistêmicos.",
+
+    "fallback": "gpt-4o-2025-hybrid",
+    "_fallback_comment": "Modelo de contingência (Backup) para alta disponibilidade."
+  },
+
+  "context_grounding": {
+    "_doc": "Aterramento Semântico. Arquivos que compõem a 'Memória Base' antes do prompt do usuário.",
+
+    "system_instruction_path": "./AGENTS.md",
+    "skills_registry_path": "./skills/registry.json",
+    "compliance_docs": [
+      "./diretrizes/arquitetura-tse.md",
+      "./diretrizes/seguranca.md"
+    ]
+  }
+}

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="transactionProxyTemplate"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+		abstract="true" singleton="true" depends-on="sessionFactory">
+		<property name="transactionManager" ref="txManager" />
+		<property name="frozen" value="false" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="buscar*">PROPAGATION_REQUIRED,readOnly</prop>
+				<prop key="criar*">PROPAGATION_REQUIRED</prop>
+				<prop key="apagar*">PROPAGATION_REQUIRED</prop>
+				<prop key="atualizar*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="equipeServiceImpl"
+		class="com.opendev.bolao.service.impl.EquipeServiceImpl">
+		<property name="equipeDao" ref="equipeDao" />
+	</bean>
+	<bean id="equipeService" parent="transactionProxyTemplate">
+		<property name="proxyInterfaces">
+			<list><value>com.opendev.bolao.service.EquipeService</value></list>
+		</property>
+		<property name="target">
+			<ref local="equipeServiceImpl" />
+		</property>
+	</bean>
+
+	<bean id="jogoServiceImpl"
+		class="com.opendev.bolao.service.impl.JogoServiceImpl">
+		<property name="jogoDao" ref="jogoDao" />
+		<property name="equipeDao" ref="equipeDao" />
+		<property name="participanteDao" ref="participanteDao" />
+	</bean>
+	<bean id="jogoService" parent="transactionProxyTemplate">
+		<property name="proxyInterfaces">
+			<list><value>com.opendev.bolao.service.JogoService</value></list>
+		</property>
+		<property name="target">
+			<ref local="jogoServiceImpl" />
+		</property>
+	</bean>
+	
+	<bean id="palpiteServiceImpl"
+		class="com.opendev.bolao.service.impl.PalpiteServiceImpl">
+		<property name="jogoDao" ref="jogoDao" />
+		<property name="participanteDao" ref="participanteDao" />
+		<property name="palpiteDao" ref="palpiteDao" />
+	</bean>
+	<bean id="palpiteService" parent="transactionProxyTemplate">
+		<property name="proxyInterfaces">
+			<list><value>com.opendev.bolao.service.PalpiteService</value></list>
+		</property>
+		<property name="target">
+			<ref local="palpiteServiceImpl" />
+		</property>
+	</bean>
+
+
+	<bean id="participanteServiceImpl"
+		class="com.opendev.bolao.service.impl.ParticipanteServiceImpl">
+		<property name="participanteDao" ref="participanteDao" />
+		<property name="jogoDao" ref="jogoDao" />
+		<property name="privilegioDao" ref="privilegioDao" />
+		<property name="palpiteDao" ref="palpiteDao" />
+	</bean>
+	<bean id="participanteService" parent="transactionProxyTemplate">
+		<property name="proxyInterfaces">
+			<list><value>com.opendev.bolao.service.ParticipanteService</value></list>
+		</property>
+		<property name="target">
+			<ref local="participanteServiceImpl" />
+		</property>
+	</bean>
+
+	<!-- Servicos do Bate-Papo -->
+	<bean id="formatadorMensagem" class="com.opendev.bolao.chat.FormatadorMensagem" singleton="true" lazy-init="true" />
+	<bean id="batePapo" class="com.opendev.bolao.chat.BatePapo" singleton="true" lazy-init="true">
+		<property name="formatadorMensagem">
+			<ref local="formatadorMensagem" />
+		</property>
+		<property name="participanteService">
+			<ref local="participanteService" />
+		</property>
+	</bean>
+
+</beans>
