@@ -106,3 +106,5 @@ Exigira Java 17 e namespaces Jakarta. So iniciar apos ADR aprovado e plano de co
 - dependências mínimas para uma aplicação web. 
 
 - a documentação e os comentários de código deverão ser escritos em Português BR.
+
+- use os princípios SOLID para uma boa arquitetura, no que couber, sem quebrar ou tornar o que já foi feito complexo. 

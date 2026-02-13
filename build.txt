@@ -1,0 +1,381 @@
+[[1;34mINFO[m] Scanning for projects...
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m---------------------< [0;36mcom.opendev:sistema-bolao[0;1m >----------------------[m
+[[1;34mINFO[m] [1mBuilding Sistema Bolao 0.1.0-SNAPSHOT[m
+[[1;34mINFO[m] [1m--------------------------------[ war ]---------------------------------[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-resources-plugin:2.6:resources[m [1m(default-resources)[m @ [36msistema-bolao[0;1m ---[m
+[[1;34mINFO[m] Using 'ISO-8859-1' encoding to copy filtered resources.
+[[1;34mINFO[m] skip non existing resourceDirectory /home/rosner/projetosgit/sistema-bolao/src/main/resources
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-compiler-plugin:3.11.0:compile[m [1m(default-compile)[m @ [36msistema-bolao[0;1m ---[m
+[[1;34mINFO[m] Changes detected - recompiling the module! :source
+[[1;34mINFO[m] Compiling 50 source files with javac [debug target 1.8] to target/classes
+[[1;34mINFO[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/model/Participante.java: Some input files use unchecked or unsafe operations.
+[[1;34mINFO[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/model/Participante.java: Recompile with -Xlint:unchecked for details.
+[[1;34mINFO[m] -------------------------------------------------------------
+[[1;33mWARNING[m] COMPILATION WARNING : 
+[[1;34mINFO[m] -------------------------------------------------------------
+[[1;33mWARNING[m] bootstrap class path not set in conjunction with -source 8
+[[1;33mWARNING[m] source value 8 is obsolete and will be removed in a future release
+[[1;33mWARNING[m] target value 8 is obsolete and will be removed in a future release
+[[1;33mWARNING[m] To suppress warnings about obsolete options, use -Xlint:-options.
+[[1;33mWARNING[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/chat/BatePapo.java:[35,34] Long(long) in java.lang.Long has been deprecated and marked for removal
+[[1;33mWARNING[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/chat/BatePapo.java:[69,17] attempt to synchronize on an instance of a value-based class
+[[1;33mWARNING[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/chat/BatePapo.java:[71,42] Long(long) in java.lang.Long has been deprecated and marked for removal
+[[1;33mWARNING[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/email/Email.java:[91,40] Boolean(java.lang.String) in java.lang.Boolean has been deprecated and marked for removal
+[[1;34mINFO[m] 8 warnings 
+[[1;34mINFO[m] -------------------------------------------------------------
+[[1;34mINFO[m] -------------------------------------------------------------
+[[1;31mERROR[m] COMPILATION ERROR : 
+[[1;34mINFO[m] -------------------------------------------------------------
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/FiltroBuscaJogos.java:[5,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/FiltroBusca.java:[3,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/FiltroBuscaJogos.java:[52,45] cannot find symbol
+  symbol:   class Query
+  location: class com.opendev.bolao.util.FiltroBuscaJogos
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/FiltroBuscaJogos.java:[52,16] cannot find symbol
+  symbol:   class Query
+  location: class com.opendev.bolao.util.FiltroBuscaJogos
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/FiltroBusca.java:[9,45] cannot find symbol
+  symbol:   class Query
+  location: interface com.opendev.bolao.util.FiltroBusca
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/FiltroBusca.java:[9,16] cannot find symbol
+  symbol:   class Query
+  location: interface com.opendev.bolao.util.FiltroBusca
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/RequestUtils.java:[5,26] package javax.servlet.http does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/RequestUtils.java:[7,27] package uk.ltd.getahead.dwr does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/RequestUtils.java:[8,27] package uk.ltd.getahead.dwr does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/RequestUtils.java:[10,32] package com.opensymphony.webwork does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/RequestUtils.java:[14,29] cannot find symbol
+  symbol:   class HttpServletRequest
+  location: class com.opendev.bolao.util.RequestUtils
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/JogoDaoImpl.java:[7,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/JogoDaoImpl.java:[8,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/JogoDaoImpl.java:[9,50] package org.springframework.orm.hibernate3.support does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/JogoDaoImpl.java:[15,34] cannot find symbol
+  symbol: class HibernateDaoSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[7,30] package org.jfree.data.general does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[9,24] package de.laures.cewolf does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[10,24] package de.laures.cewolf does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[12,54] cannot find symbol
+  symbol: class DatasetProducer
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[18,17] cannot find symbol
+  symbol:   class Dataset
+  location: class com.opendev.bolao.grafico.GraficoComparativoDesempenho
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[21,45] cannot find symbol
+  symbol:   class Dataset
+  location: class com.opendev.bolao.grafico.GraficoComparativoDesempenho
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[25,57] cannot find symbol
+  symbol:   class DatasetProduceException
+  location: class com.opendev.bolao.grafico.GraficoComparativoDesempenho
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[37,16] cannot find symbol
+  symbol:   class Dataset
+  location: class com.opendev.bolao.grafico.GraficoComparativoDesempenho
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[41,38] cannot find symbol
+  symbol:   class Dataset
+  location: class com.opendev.bolao.grafico.GraficoComparativoDesempenho
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[6,30] package org.jfree.data.general does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[8,24] package de.laures.cewolf does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[9,24] package de.laures.cewolf does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[12,45] cannot find symbol
+  symbol: class DatasetProducer
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[17,13] cannot find symbol
+  symbol:   class Dataset
+  location: class com.opendev.bolao.grafico.GraficoBarraLideres
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[19,32] cannot find symbol
+  symbol:   class Dataset
+  location: class com.opendev.bolao.grafico.GraficoBarraLideres
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[23,53] cannot find symbol
+  symbol:   class DatasetProduceException
+  location: class com.opendev.bolao.grafico.GraficoBarraLideres
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[35,13] cannot find symbol
+  symbol:   class Dataset
+  location: class com.opendev.bolao.grafico.GraficoBarraLideres
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[39,35] cannot find symbol
+  symbol:   class Dataset
+  location: class com.opendev.bolao.grafico.GraficoBarraLideres
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/action/ParticipanteAction.java:[6,26] package javax.servlet.http does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/action/ParticipanteAction.java:[7,26] package javax.servlet.http does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/action/ParticipanteAction.java:[22,32] package com.opensymphony.webwork does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/action/ParticipanteAction.java:[23,30] package com.opensymphony.xwork does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/action/ParticipanteAction.java:[25,41] cannot find symbol
+  symbol: class ActionSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/MensagensErroTag.java:[7,26] package javax.servlet.http does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/MensagensErroTag.java:[8,25] package javax.servlet.jsp does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/MensagensErroTag.java:[9,25] package javax.servlet.jsp does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/MensagensErroTag.java:[10,32] package javax.servlet.jsp.tagext does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/MensagensErroTag.java:[15,39] cannot find symbol
+  symbol: class TagSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/MensagensErroTag.java:[19,34] cannot find symbol
+  symbol:   class JspException
+  location: class com.opendev.bolao.taglib.MensagensErroTag
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/MensagensErroTag.java:[51,36] cannot find symbol
+  symbol:   class JspException
+  location: class com.opendev.bolao.taglib.MensagensErroTag
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/chat/FormatadorMensagem.java:[7,31] package org.apache.commons.lang does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/PalpiteDaoImpl.java:[5,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/PalpiteDaoImpl.java:[6,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/PalpiteDaoImpl.java:[7,50] package org.springframework.orm.hibernate3.support does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/PalpiteDaoImpl.java:[14,37] cannot find symbol
+  symbol: class HibernateDaoSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/ContadorParticipantesOnline.java:[3,26] package javax.servlet.http does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/ContadorParticipantesOnline.java:[4,26] package javax.servlet.http does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/ContadorParticipantesOnline.java:[7,53] cannot find symbol
+  symbol: class HttpSessionListener
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/ContadorParticipantesOnline.java:[11,32] cannot find symbol
+  symbol:   class HttpSessionEvent
+  location: class com.opendev.bolao.util.ContadorParticipantesOnline
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/ContadorParticipantesOnline.java:[15,34] cannot find symbol
+  symbol:   class HttpSessionEvent
+  location: class com.opendev.bolao.util.ContadorParticipantesOnline
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/IsIETag.java:[3,26] package javax.servlet.http does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/IsIETag.java:[4,25] package javax.servlet.jsp does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/IsIETag.java:[5,32] package javax.servlet.jsp.tagext does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/IsIETag.java:[7,30] cannot find symbol
+  symbol: class TagSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/IsIETag.java:[11,38] cannot find symbol
+  symbol:   class JspException
+  location: class com.opendev.bolao.taglib.IsIETag
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/IsIETag.java:[15,40] cannot find symbol
+  symbol:   class JspException
+  location: class com.opendev.bolao.taglib.IsIETag
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/SegurancaUtils.java:[7,39] package org.apache.commons.codec.binary does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/PrivilegioDaoImpl.java:[3,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/PrivilegioDaoImpl.java:[4,50] package org.springframework.orm.hibernate3.support does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/PrivilegioDaoImpl.java:[9,40] cannot find symbol
+  symbol: class HibernateDaoSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/action/AdminAction.java:[10,30] package com.opensymphony.xwork does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/action/AdminAction.java:[12,34] cannot find symbol
+  symbol: class ActionSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/ParticipanteDaoImpl.java:[5,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/ParticipanteDaoImpl.java:[6,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/ParticipanteDaoImpl.java:[7,50] package org.springframework.orm.hibernate3.support does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/ParticipanteDaoImpl.java:[12,42] cannot find symbol
+  symbol: class HibernateDaoSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/email/Email.java:[12,18] package javax.mail does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/email/Email.java:[13,18] package javax.mail does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/email/Email.java:[14,18] package javax.mail does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/email/Email.java:[15,18] package javax.mail does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/email/Email.java:[16,18] package javax.mail does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/email/Email.java:[17,18] package javax.mail does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/email/Email.java:[18,27] package javax.mail.internet does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/email/Email.java:[19,27] package javax.mail.internet does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/service/impl/ParticipanteServiceImpl.java:[12,31] package org.jfree.data.category does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/service/impl/ParticipanteServiceImpl.java:[13,27] package org.jfree.data.time does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/service/impl/ParticipanteServiceImpl.java:[14,27] package org.jfree.data.time does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/service/impl/ParticipanteServiceImpl.java:[15,27] package org.jfree.data.time does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/PortletTag.java:[5,26] package javax.servlet.http does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/PortletTag.java:[6,25] package javax.servlet.jsp does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/PortletTag.java:[7,25] package javax.servlet.jsp does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/PortletTag.java:[8,32] package javax.servlet.jsp.tagext does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/PortletTag.java:[10,33] cannot find symbol
+  symbol: class BodyTagSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/PortletTag.java:[23,40] cannot find symbol
+  symbol:   class JspException
+  location: class com.opendev.bolao.taglib.PortletTag
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/PortletTag.java:[63,41] cannot find symbol
+  symbol:   class JspException
+  location: class com.opendev.bolao.taglib.PortletTag
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/PortletTag.java:[72,38] cannot find symbol
+  symbol:   class JspException
+  location: class com.opendev.bolao.taglib.PortletTag
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/EquipeDaoImpl.java:[5,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/EquipeDaoImpl.java:[6,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/EquipeDaoImpl.java:[7,50] package org.springframework.orm.hibernate3.support does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/EquipeDaoImpl.java:[12,36] cannot find symbol
+  symbol: class HibernateDaoSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/service/impl/JogoServiceImpl.java:[9,34] package org.apache.commons.logging does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/service/impl/JogoServiceImpl.java:[10,34] package org.apache.commons.logging does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/service/impl/JogoServiceImpl.java:[25,26] cannot find symbol
+  symbol:   class Log
+  location: class com.opendev.bolao.service.impl.JogoServiceImpl
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/RequestUtils.java:[15,17] cannot find symbol
+  symbol:   class HttpServletRequest
+  location: class com.opendev.bolao.util.RequestUtils
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/RequestUtils.java:[15,46] cannot find symbol
+  symbol:   variable ServletActionContext
+  location: class com.opendev.bolao.util.RequestUtils
+[[1;34mINFO[m] 100 errors 
+[[1;34mINFO[m] -------------------------------------------------------------
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] [1;31mBUILD FAILURE[m
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] Total time:  0.694 s
+[[1;34mINFO[m] Finished at: 2026-02-13T17:40:01-03:00
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;31mERROR[m] Failed to execute goal [32morg.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile[m [1m(default-compile)[m on project [36msistema-bolao[m: [1;31mCompilation failure[m: Compilation failure: 
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/FiltroBuscaJogos.java:[5,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/FiltroBusca.java:[3,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/FiltroBuscaJogos.java:[52,45] cannot find symbol
+[[1;31mERROR[m]   symbol:   class Query
+[[1;31mERROR[m]   location: class com.opendev.bolao.util.FiltroBuscaJogos
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/FiltroBuscaJogos.java:[52,16] cannot find symbol
+[[1;31mERROR[m]   symbol:   class Query
+[[1;31mERROR[m]   location: class com.opendev.bolao.util.FiltroBuscaJogos
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/FiltroBusca.java:[9,45] cannot find symbol
+[[1;31mERROR[m]   symbol:   class Query
+[[1;31mERROR[m]   location: interface com.opendev.bolao.util.FiltroBusca
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/FiltroBusca.java:[9,16] cannot find symbol
+[[1;31mERROR[m]   symbol:   class Query
+[[1;31mERROR[m]   location: interface com.opendev.bolao.util.FiltroBusca
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/RequestUtils.java:[5,26] package javax.servlet.http does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/RequestUtils.java:[7,27] package uk.ltd.getahead.dwr does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/RequestUtils.java:[8,27] package uk.ltd.getahead.dwr does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/RequestUtils.java:[10,32] package com.opensymphony.webwork does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/RequestUtils.java:[14,29] cannot find symbol
+[[1;31mERROR[m]   symbol:   class HttpServletRequest
+[[1;31mERROR[m]   location: class com.opendev.bolao.util.RequestUtils
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/JogoDaoImpl.java:[7,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/JogoDaoImpl.java:[8,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/JogoDaoImpl.java:[9,50] package org.springframework.orm.hibernate3.support does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/JogoDaoImpl.java:[15,34] cannot find symbol
+[[1;31mERROR[m]   symbol: class HibernateDaoSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[7,30] package org.jfree.data.general does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[9,24] package de.laures.cewolf does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[10,24] package de.laures.cewolf does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[12,54] cannot find symbol
+[[1;31mERROR[m]   symbol: class DatasetProducer
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[18,17] cannot find symbol
+[[1;31mERROR[m]   symbol:   class Dataset
+[[1;31mERROR[m]   location: class com.opendev.bolao.grafico.GraficoComparativoDesempenho
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[21,45] cannot find symbol
+[[1;31mERROR[m]   symbol:   class Dataset
+[[1;31mERROR[m]   location: class com.opendev.bolao.grafico.GraficoComparativoDesempenho
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[25,57] cannot find symbol
+[[1;31mERROR[m]   symbol:   class DatasetProduceException
+[[1;31mERROR[m]   location: class com.opendev.bolao.grafico.GraficoComparativoDesempenho
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[37,16] cannot find symbol
+[[1;31mERROR[m]   symbol:   class Dataset
+[[1;31mERROR[m]   location: class com.opendev.bolao.grafico.GraficoComparativoDesempenho
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoComparativoDesempenho.java:[41,38] cannot find symbol
+[[1;31mERROR[m]   symbol:   class Dataset
+[[1;31mERROR[m]   location: class com.opendev.bolao.grafico.GraficoComparativoDesempenho
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[6,30] package org.jfree.data.general does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[8,24] package de.laures.cewolf does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[9,24] package de.laures.cewolf does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[12,45] cannot find symbol
+[[1;31mERROR[m]   symbol: class DatasetProducer
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[17,13] cannot find symbol
+[[1;31mERROR[m]   symbol:   class Dataset
+[[1;31mERROR[m]   location: class com.opendev.bolao.grafico.GraficoBarraLideres
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[19,32] cannot find symbol
+[[1;31mERROR[m]   symbol:   class Dataset
+[[1;31mERROR[m]   location: class com.opendev.bolao.grafico.GraficoBarraLideres
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[23,53] cannot find symbol
+[[1;31mERROR[m]   symbol:   class DatasetProduceException
+[[1;31mERROR[m]   location: class com.opendev.bolao.grafico.GraficoBarraLideres
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[35,13] cannot find symbol
+[[1;31mERROR[m]   symbol:   class Dataset
+[[1;31mERROR[m]   location: class com.opendev.bolao.grafico.GraficoBarraLideres
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/grafico/GraficoBarraLideres.java:[39,35] cannot find symbol
+[[1;31mERROR[m]   symbol:   class Dataset
+[[1;31mERROR[m]   location: class com.opendev.bolao.grafico.GraficoBarraLideres
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/action/ParticipanteAction.java:[6,26] package javax.servlet.http does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/action/ParticipanteAction.java:[7,26] package javax.servlet.http does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/action/ParticipanteAction.java:[22,32] package com.opensymphony.webwork does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/action/ParticipanteAction.java:[23,30] package com.opensymphony.xwork does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/action/ParticipanteAction.java:[25,41] cannot find symbol
+[[1;31mERROR[m]   symbol: class ActionSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/MensagensErroTag.java:[7,26] package javax.servlet.http does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/MensagensErroTag.java:[8,25] package javax.servlet.jsp does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/MensagensErroTag.java:[9,25] package javax.servlet.jsp does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/MensagensErroTag.java:[10,32] package javax.servlet.jsp.tagext does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/MensagensErroTag.java:[15,39] cannot find symbol
+[[1;31mERROR[m]   symbol: class TagSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/MensagensErroTag.java:[19,34] cannot find symbol
+[[1;31mERROR[m]   symbol:   class JspException
+[[1;31mERROR[m]   location: class com.opendev.bolao.taglib.MensagensErroTag
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/MensagensErroTag.java:[51,36] cannot find symbol
+[[1;31mERROR[m]   symbol:   class JspException
+[[1;31mERROR[m]   location: class com.opendev.bolao.taglib.MensagensErroTag
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/chat/FormatadorMensagem.java:[7,31] package org.apache.commons.lang does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/PalpiteDaoImpl.java:[5,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/PalpiteDaoImpl.java:[6,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/PalpiteDaoImpl.java:[7,50] package org.springframework.orm.hibernate3.support does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/PalpiteDaoImpl.java:[14,37] cannot find symbol
+[[1;31mERROR[m]   symbol: class HibernateDaoSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/ContadorParticipantesOnline.java:[3,26] package javax.servlet.http does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/ContadorParticipantesOnline.java:[4,26] package javax.servlet.http does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/ContadorParticipantesOnline.java:[7,53] cannot find symbol
+[[1;31mERROR[m]   symbol: class HttpSessionListener
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/ContadorParticipantesOnline.java:[11,32] cannot find symbol
+[[1;31mERROR[m]   symbol:   class HttpSessionEvent
+[[1;31mERROR[m]   location: class com.opendev.bolao.util.ContadorParticipantesOnline
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/ContadorParticipantesOnline.java:[15,34] cannot find symbol
+[[1;31mERROR[m]   symbol:   class HttpSessionEvent
+[[1;31mERROR[m]   location: class com.opendev.bolao.util.ContadorParticipantesOnline
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/IsIETag.java:[3,26] package javax.servlet.http does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/IsIETag.java:[4,25] package javax.servlet.jsp does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/IsIETag.java:[5,32] package javax.servlet.jsp.tagext does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/IsIETag.java:[7,30] cannot find symbol
+[[1;31mERROR[m]   symbol: class TagSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/IsIETag.java:[11,38] cannot find symbol
+[[1;31mERROR[m]   symbol:   class JspException
+[[1;31mERROR[m]   location: class com.opendev.bolao.taglib.IsIETag
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/IsIETag.java:[15,40] cannot find symbol
+[[1;31mERROR[m]   symbol:   class JspException
+[[1;31mERROR[m]   location: class com.opendev.bolao.taglib.IsIETag
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/SegurancaUtils.java:[7,39] package org.apache.commons.codec.binary does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/PrivilegioDaoImpl.java:[3,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/PrivilegioDaoImpl.java:[4,50] package org.springframework.orm.hibernate3.support does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/PrivilegioDaoImpl.java:[9,40] cannot find symbol
+[[1;31mERROR[m]   symbol: class HibernateDaoSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/action/AdminAction.java:[10,30] package com.opensymphony.xwork does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/action/AdminAction.java:[12,34] cannot find symbol
+[[1;31mERROR[m]   symbol: class ActionSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/ParticipanteDaoImpl.java:[5,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/ParticipanteDaoImpl.java:[6,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/ParticipanteDaoImpl.java:[7,50] package org.springframework.orm.hibernate3.support does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/ParticipanteDaoImpl.java:[12,42] cannot find symbol
+[[1;31mERROR[m]   symbol: class HibernateDaoSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/email/Email.java:[12,18] package javax.mail does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/email/Email.java:[13,18] package javax.mail does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/email/Email.java:[14,18] package javax.mail does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/email/Email.java:[15,18] package javax.mail does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/email/Email.java:[16,18] package javax.mail does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/email/Email.java:[17,18] package javax.mail does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/email/Email.java:[18,27] package javax.mail.internet does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/email/Email.java:[19,27] package javax.mail.internet does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/service/impl/ParticipanteServiceImpl.java:[12,31] package org.jfree.data.category does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/service/impl/ParticipanteServiceImpl.java:[13,27] package org.jfree.data.time does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/service/impl/ParticipanteServiceImpl.java:[14,27] package org.jfree.data.time does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/service/impl/ParticipanteServiceImpl.java:[15,27] package org.jfree.data.time does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/PortletTag.java:[5,26] package javax.servlet.http does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/PortletTag.java:[6,25] package javax.servlet.jsp does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/PortletTag.java:[7,25] package javax.servlet.jsp does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/PortletTag.java:[8,32] package javax.servlet.jsp.tagext does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/PortletTag.java:[10,33] cannot find symbol
+[[1;31mERROR[m]   symbol: class BodyTagSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/PortletTag.java:[23,40] cannot find symbol
+[[1;31mERROR[m]   symbol:   class JspException
+[[1;31mERROR[m]   location: class com.opendev.bolao.taglib.PortletTag
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/PortletTag.java:[63,41] cannot find symbol
+[[1;31mERROR[m]   symbol:   class JspException
+[[1;31mERROR[m]   location: class com.opendev.bolao.taglib.PortletTag
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/taglib/PortletTag.java:[72,38] cannot find symbol
+[[1;31mERROR[m]   symbol:   class JspException
+[[1;31mERROR[m]   location: class com.opendev.bolao.taglib.PortletTag
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/EquipeDaoImpl.java:[5,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/EquipeDaoImpl.java:[6,21] package org.hibernate does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/EquipeDaoImpl.java:[7,50] package org.springframework.orm.hibernate3.support does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/dao/hibernate/EquipeDaoImpl.java:[12,36] cannot find symbol
+[[1;31mERROR[m]   symbol: class HibernateDaoSupport
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/service/impl/JogoServiceImpl.java:[9,34] package org.apache.commons.logging does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/service/impl/JogoServiceImpl.java:[10,34] package org.apache.commons.logging does not exist
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/service/impl/JogoServiceImpl.java:[25,26] cannot find symbol
+[[1;31mERROR[m]   symbol:   class Log
+[[1;31mERROR[m]   location: class com.opendev.bolao.service.impl.JogoServiceImpl
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/RequestUtils.java:[15,17] cannot find symbol
+[[1;31mERROR[m]   symbol:   class HttpServletRequest
+[[1;31mERROR[m]   location: class com.opendev.bolao.util.RequestUtils
+[[1;31mERROR[m] /home/rosner/projetosgit/sistema-bolao/src/com/opendev/bolao/util/RequestUtils.java:[15,46] cannot find symbol
+[[1;31mERROR[m]   symbol:   variable ServletActionContext
+[[1;31mERROR[m]   location: class com.opendev.bolao.util.RequestUtils
+[[1;31mERROR[m] -> [1m[Help 1][m
+[[1;31mERROR[m] 
+[[1;31mERROR[m] To see the full stack trace of the errors, re-run Maven with the [1m-e[m switch.
+[[1;31mERROR[m] Re-run Maven using the [1m-X[m switch to enable full debug logging.
+[[1;31mERROR[m] 
+[[1;31mERROR[m] For more information about the errors and possible solutions, please read the following articles:
+[[1;31mERROR[m] [1m[Help 1][m http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
