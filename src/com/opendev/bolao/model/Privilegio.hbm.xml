@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.opendev.bolao.model">
+
+	<class name="Privilegio" table="PRI_PRIVILEGIO" lazy="true">
+
+		<composite-id>
+			<key-property name="idParticipante" column="PRI_PAR_ID" />
+			<key-property name="papel" column="PRI_PAPEL" />
+		</composite-id>
+
+	</class>
+
+</hibernate-mapping>

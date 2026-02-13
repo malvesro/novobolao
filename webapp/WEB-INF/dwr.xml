@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dwr PUBLIC "-//GetAhead Limited//DTD Direct Web Remoting 1.0//EN" "http://www.getahead.ltd.uk/dwr/dwr10.dtd">
+
+<dwr>
+
+	<allow>
+
+		<create creator="spring" javascript="AdminAction">
+			<param name="beanName" value="adminAction" />
+			<include method="criarNovoJogo" />
+			<include method="atualizarResultadoDoJogo" />
+			<include method="autorizarParticipante" />
+			<include method="atualizarPapelParticipante" />
+			<include method="apagarParticipante" />
+		</create>
+		
+		<convert match="com.opendev.bolao.model.Palpite" converter="bean">
+			<param name="exclude" value="participante, jogo"/>
+		</convert>
+		<convert match="com.opendev.bolao.model.Jogo" converter="bean">
+			<param name="exclude" value="equipe1, equipe2"/>
+		</convert>
+		<convert match="com.opendev.bolao.util.DadosClassificacao" converter="bean" />
+		<create creator="spring" javascript="ParticipanteAction">
+			<param name="beanName" value="participanteAction" />
+			<include method="buscarPalpiteDoJogo" />
+			<include method="atualizarPalpite" />
+			<include method="buscarPalpitesDoJogo" />
+			<include method="buscarMeusPalpites" />
+		</create>
+		
+		<convert match="com.opendev.bolao.chat.Mensagem" converter="bean" />
+		<create creator="spring" javascript="BatePapo">
+			<param name="beanName" value="batePapo" />
+			<include method="enviarMensagem" />
+			<include method="buscarInformacoesDoParticipante" />
+			<include method="entrar" />
+			<include method="sair" />
+			<include method="buscarTodosParticipantes" />
+			<include method="buscarMensagens" />
+			<include method="buscarIdUltimaMensagem" />
+			<include method="alterarApelido" />
+		</create>
+
+	</allow>
+
+</dwr>

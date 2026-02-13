@@ -1,0 +1,117 @@
+<%@taglib prefix="authz" uri="http://acegisecurity.org/authz" %>
+<script type="text/javascript">
+function esconderOuMostrarMenu(menuHeader) {
+	var headerId = menuHeader.id;
+	var underscoreIndex = headerId.indexOf("_");
+	var childId = headerId.substring(0, underscoreIndex);
+	var childId = childId + "_itens";
+	Effect.toggle($(childId), "slide");
+}
+</script>
+
+<p id="logout_func">
+	<c:url var="logoutUrl" value="/logout.action" />
+	<fmt:message key="logout.text">
+		<fmt:param value="${pageContext.request.userPrincipal.name}" />
+		<fmt:param value="${logoutUrl}" />
+	</fmt:message>
+</p>
+<p style="text-align: right;">
+    <fmt:message key="general.online">
+        <fmt:param value="${opendev:participantesOnline()}" />
+    </fmt:message>
+</p>
+<div style="height: 10px;"></div>
+<div id="menu">
+  <div id="geral_header" class="menu_header" onclick="esconderOuMostrarMenu(this);">
+    <span><fmt:message key="menu.geral.title" /></span>
+  </div>
+  <div id="geral_itens" class="menu_item">
+    <span>
+    <c:url var="indexUrl" value="/index.jsp" />
+    <a href="${indexUrl}">
+      <span><fmt:message key="menu.geral.principal" /></span>
+    </a>
+    <a href="#">
+      <span><fmt:message key="menu.geral.rules" /></span>
+    </a>
+    <c:url var="chatUrl" value="/seguro/batePapo.jsp" />
+    <a href="${chatUrl}">
+      <span><fmt:message key="menu.geral.chat" /></span>
+    </a>
+    </span>
+  </div>
+  <%--
+	<div id="participante_header" class="menu_header" onclick="esconderOuMostrarMenu(this);">
+		<span><fmt:message key="menu.participante.title" /></span>
+	</div>
+	<div id="participante_itens" class="menu_item">
+		<c:url var="trocarSenhaURL" value="/seguro/trocarSenha.jsp" />
+		<span>
+		<a href="${trocarSenhaURL}">
+			<span><fmt:message key="menu.participante.pwd" /></span>
+		</a>
+		</span>
+	</div>
+    --%>
+	<div id="bolao_header" class="menu_header" onclick="esconderOuMostrarMenu(this);">
+		<span><fmt:message key="menu.bolao.title" /></span>
+	</div>
+	<div id="bolao_itens" class="menu_item">
+		<span>
+        <c:url var="rankingActionUrl" value="/seguro/ranking.action" />
+		<a href="${rankingActionUrl}">
+			<span><fmt:message key="menu.bolao.ranking" /></span>
+		</a>
+        <authz:authorize ifAllGranted="geral">
+        <c:url var="performanceActionUrl" value="/seguro/graficoDesempenho.action" />
+		<a href="${performanceActionUrl}">
+			<span><fmt:message key="menu.bolao.performance" /></span>
+		</a>
+        </authz:authorize>
+        <authz:authorize ifAnyGranted="geral,restrito">
+		<c:url var="palpitesActionUrl" value="/seguro/palpites.action" />
+		<a href="${palpitesActionUrl}">
+			<span><fmt:message key="menu.bolao.tips" /></span>
+		</a>
+        </authz:authorize>
+		</span>
+	</div>
+<%--
+	<div id="copa_header" class="menu_header" onclick="esconderOuMostrarMenu(this);">
+		<span><fmt:message key="menu.cup.title" /></span>
+	</div>
+	<div id="copa_itens" class="menu_item">
+		<span>
+        <c:url var="copaActionURL" value="/seguro/copa.action" />
+		<a href="${copaActionURL}">
+			<span><fmt:message key="menu.cup.ranking" /></span>
+		</a>
+		<a href="#">
+			<span><fmt:message key="menu.cup.stadium" /></span>
+		</a>
+		</span>
+	</div>
+--%>
+	<authz:authorize ifAllGranted="admin">
+	<div id="admin_header" class="menu_header" onclick="esconderOuMostrarMenu(this);">
+		<span><fmt:message key="menu.admin.title" /></span>
+	</div>
+	<div id="admin_itens" class="menu_item">
+		<span>
+		<c:url var="infoEquipesActionUrl" value="/admin/infoEquipes.action" />
+		<a href="${infoEquipesActionUrl}">
+			<span><fmt:message key="menu.admin.matchs" /></span>
+		</a>
+		<c:url var="jogosAdminActionUrl" value="/admin/jogos.action" />
+		<a href="${jogosAdminActionUrl}">
+			<span><fmt:message key="menu.admin.update.matchs" /></span>
+		</a>
+        <c:url var="participantesAdminActionUrl" value="/admin/participantes.action" />
+		<a href="${participantesAdminActionUrl}">
+			<span><fmt:message key="menu.admin.users" /></span>
+		</a>
+		</span>
+	</div>
+	</authz:authorize>
+</div>

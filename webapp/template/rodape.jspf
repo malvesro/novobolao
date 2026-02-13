@@ -1,0 +1,10 @@
+	</div>
+	</div>
+	<div id="footer">
+		<div>
+			<p><fmt:message key="footer.msg1" /></p>
+			<p><fmt:message key="footer.msg2" /></p>
+		</div>
+	</div>
+</body>
+</html>

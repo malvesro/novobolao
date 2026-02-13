@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beansProjectDescription>
+	<configs>
+		<config>source/applicationContext-resources.xml</config>
+		<config>source/applicationContext-action.xml</config>
+		<config>source/applicationContext-security.xml</config>
+		<config>source/applicationContext-hibernate.xml</config>
+		<config>source/applicationContext-service.xml</config>
+	</configs>
+	<configSets>
+	</configSets>
+</beansProjectDescription>

@@ -1,0 +1,62 @@
+<!DOCTYPE xwork PUBLIC 
+	"-//OpenSymphony Group//XWork 1.0//EN"
+	"http://www.opensymphony.com/xwork/xwork-1.0.dtd">
+
+<xwork>
+	<include file="webwork-default.xml"/>
+
+	<package name="default" extends="webwork-default">
+
+		<default-interceptor-ref name="completeStack" />
+
+		<action name="logout" class="participanteAction" method="logout">
+			<result name="success">/login.jsp</result>
+		</action>
+		
+		<action name="cadastro" class="participanteAction" method="cadastrar">
+			<result name="success">/cadastro.jsp</result>
+			<result name="input">/cadastro.jsp</result>
+		</action>
+		
+	</package>
+	
+	<package name="seguro" extends="default" namespace="/seguro">
+		<action name="ranking" class="participanteAction" method="buscarParticipantes">
+			<result name="success">/seguro/classificacao.jsp</result>
+		</action>
+
+		<action name="palpites" class="participanteAction" method="prepararInfoPalpites">
+			<result name="success">/seguro/jogos.jsp</result>
+		</action>
+		
+		<action name="graficoDesempenho" class="participanteAction" method="gerarGraficoDesempenho">
+			<result name="success">/seguro/graficoDesempenho.jsp</result>
+		</action>
+		
+		<action name="copa" class="participanteAction" method="gerarClassificacaoDaCopa">
+			<result name="success">/seguro/copa.jsp</result>
+		</action>
+		
+		<action name="principal" class="participanteAction" method="obterDadosPaginaPrincipal">
+			<result name="success">/seguro/principal.jsp</result>
+		</action>
+
+	</package>
+	
+	<package name="admin" extends="default" namespace="/admin">
+	
+		<action name="infoEquipes" class="adminAction" method="carregarInfoEquipes">
+			<result name="success">/admin/inclusaoJogo.jsp</result>
+		</action>
+		
+		<action name="jogos" class="adminAction" method="carregarJogos">
+			<result name="success">/seguro/jogos.jsp</result>
+		</action>
+		
+		<action name="participantes" class="adminAction" method="carregarParticipantes">
+			<result name="success">/admin/participantes.jsp</result>
+		</action>
+	
+	</package>
+
+</xwork>
