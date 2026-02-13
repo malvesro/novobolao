@@ -1,0 +1,29 @@
+# OS / arquivos temporarios
+.DS_Store
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*:Zone.Identifier
+
+# IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+.springBeans
+
+# Build / artefatos
+/target/
+/build/
+/out/
+/bin/
+*.class
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
