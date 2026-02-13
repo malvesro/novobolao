@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.opendev.bolao.model">
+
+	<class name="BolaoIndividual" table="BOI_BOLAO_INDIVIDUAL" lazy="true">
+
+		<id name="id" column="BOI_ID">
+			<generator class="increment" />
+		</id>
+
+		<property name="valorCota" column="BOI_VALOR_COTA" not-null="true" />
+		<property name="status" column="BOI_STATUS" not-null="true" />
+
+		<one-to-one name="jogo" class="Jogo" foreign-key="BOI_JOG_ID" />
+
+	</class>
+
+</hibernate-mapping>

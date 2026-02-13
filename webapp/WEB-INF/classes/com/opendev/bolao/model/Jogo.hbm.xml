@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.opendev.bolao.model">
+
+	<class name="Jogo" table="JOG_JOGO" lazy="true">
+
+		<id name="id" column="JOG_ID">
+			<generator class="increment" />
+		</id>
+		
+		<property name="data" column="JOG_DATA" type="date" not-null="true" />
+		<property name="hora" column="JOG_HORA" type="time" not-null="true" />
+		<property name="local" column="JOG_LOCAL" not-null="true" />
+		<property name="golsEquipe1" column="JOG_EQP1_GOLS" not-null="false" />
+		<property name="golsEquipe2" column="JOG_EQP2_GOLS" not-null="false" />
+		<property name="fase" column="JOG_FASE" not-null="true" />
+		
+		<many-to-one name="equipe1" class="Equipe" column="JOG_EQP1_ID" />
+		<many-to-one name="equipe2" class="Equipe" column="JOG_EQP2_ID" />
+
+	</class>
+
+</hibernate-mapping>

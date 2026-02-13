@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.opendev.bolao.model">
+
+	<class name="Equipe" table="EQP_EQUIPE" lazy="true">
+
+		<id name="id" column="EQP_ID">
+			<generator class="increment" />
+		</id>
+		
+		<property name="nomePais" column="EQP_PAIS" not-null="true" />
+		<property name="grupo" column="EQP_GRUPO" not-null="true" />
+
+	</class>
+
+</hibernate-mapping>
