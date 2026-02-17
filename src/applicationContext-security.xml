@@ -79,10 +79,23 @@
 			</list>
 		</property>
 	</bean>
-	<bean id="passwordEncoder" class="org.acegisecurity.providers.encoding.ShaPasswordEncoder">
+	
+	<bean id="bcryptEncoder" class="com.opendev.bolao.util.DelegatingPasswordEncoder.BCryptAcegiPasswordEncoder" />
+	
+	<bean id="sha1Encoder" class="org.acegisecurity.providers.encoding.ShaPasswordEncoder">
 		<property name="encodeHashAsBase64">
 			<value>true</value>
 		</property>
+	</bean>
+
+	<bean id="passwordEncoder" class="com.opendev.bolao.util.DelegatingPasswordEncoder">
+		<constructor-arg index="0" value="bcrypt" />
+		<constructor-arg index="1">
+			<map>
+				<entry key="bcrypt" value-ref="bcryptEncoder" />
+				<entry key="sha1" value-ref="sha1Encoder" />
+			</map>
+		</constructor-arg>
 	</bean>
 
 	<!-- Authorization configuration beans -->
