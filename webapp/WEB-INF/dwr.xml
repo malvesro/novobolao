@@ -29,18 +29,7 @@
 			<include method="buscarMeusPalpites" />
 		</create>
 		
-		<convert match="com.opendev.bolao.chat.Mensagem" converter="bean" />
-		<create creator="spring" javascript="BatePapo">
-			<param name="beanName" value="batePapo" />
-			<include method="enviarMensagem" />
-			<include method="buscarInformacoesDoParticipante" />
-			<include method="entrar" />
-			<include method="sair" />
-			<include method="buscarTodosParticipantes" />
-			<include method="buscarMensagens" />
-			<include method="buscarIdUltimaMensagem" />
-			<include method="alterarApelido" />
-		</create>
+
 
 	</allow>
 
