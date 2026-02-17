@@ -1,6 +1,6 @@
 package com.opendev.bolao.util;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 
 public interface FiltroBusca {
 	

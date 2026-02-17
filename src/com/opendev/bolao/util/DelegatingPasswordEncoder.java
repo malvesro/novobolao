@@ -1,7 +1,6 @@
 package com.opendev.bolao.util;
 
-import org.acegisecurity.providers.encoding.PasswordEncoder;
-import org.acegisecurity.providers.encoding.ShaPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.HashMap;
@@ -26,24 +25,25 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
     }
 
     @Override
-    public String encodePassword(String rawPass, Object salt) {
-        return "{" + this.idForEncode + "}" + this.encoderForEncode.encodePassword(rawPass, salt);
+    public String encode(CharSequence rawPassword) {
+        return "{" + this.idForEncode + "}" + this.encoderForEncode.encode(rawPassword);
     }
 
     @Override
-    public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-        if (encPass == null) {
+    public boolean matches(CharSequence rawPassword, String encodedPassword) {
+        if (encodedPassword == null) {
             return false;
         }
-        String id = extractId(encPass);
+        String id = extractId(encodedPassword);
         PasswordEncoder delegate = this.idToEncoder.get(id);
         if (delegate == null) {
             // Fallback to SHA-1 for old passwords without a prefix
+            // Assuming "sha1" is the key for the legacy encoder in the map
             delegate = this.idToEncoder.get("sha1");
-            return delegate.isPasswordValid(encPass, rawPass, salt);
+            return delegate != null && delegate.matches(rawPassword, encodedPassword);
         }
-        String rawEncodedPassword = extractEncodedPassword(encPass);
-        return delegate.isPasswordValid(rawEncodedPassword, rawPass, salt);
+        String rawEncodedPassword = extractEncodedPassword(encodedPassword);
+        return delegate.matches(rawPassword, rawEncodedPassword);
     }
 
     private String extractId(String prefixEncodedPassword) {
@@ -64,20 +64,5 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
         }
         int end = prefixEncodedPassword.indexOf('}');
         return prefixEncodedPassword.substring(end + 1);
-    }
-
-    // A Spring Security 5 PasswordEncoder adapted to the old Acegi PasswordEncoder interface
-    public static class BCryptAcegiPasswordEncoder implements PasswordEncoder {
-        private final BCryptPasswordEncoder springEncoder = new BCryptPasswordEncoder();
-
-        @Override
-        public String encodePassword(String rawPass, Object salt) {
-            return springEncoder.encode(rawPass);
-        }
-
-        @Override
-        public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
-            return springEncoder.matches(rawPass, encPass);
-        }
     }
 }
