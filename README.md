@@ -103,6 +103,16 @@ Observações:
 
 ## 9. Pontos de Atenção (Riscos e Dívidas Técnicas)
 
+### **AVISO: Riscos Críticos de Segurança Identificados**
+
+A análise inicial revelou vulnerabilidades de **alta criticidade** que necessitam de atenção **imediata**:
+1.  **Credenciais de Banco de Dados Expostas:** Usuário e senha do banco de dados estão hardcoded em `src/applicationContext-resources.xml`.
+2.  **Hashing de Senha Inseguro:** O sistema utiliza **SHA-1 sem salt** (`SegurancaUtils.java`), um algoritmo obsoleto e inseguro para armazenamento de senhas.
+3.  **Falta de HTTPS:** A ausência de HTTPS no servidor de aplicação expõe todo o tráfego, incluindo credenciais de login, à interceptação.
+4.  **Bibliotecas de Segurança Obsoletas:** O uso do **Acegi Security** (versão 1.0.0) é um risco grave, pois o framework é descontinuado e possui vulnerabilidades conhecidas.
+5.  **DWR com Modo Debug Ativo:** A configuração do DWR com `debug=true` em produção pode expor informações sensíveis sobre a aplicação e seus serviços.
+---
+
 1. **Credenciais em código**: usuário e senha de DB hardcoded em `src/applicationContext-resources.xml`.
 2. **Senha fraca**: hashing com **SHA-1 sem salt** em `src/com/opendev/bolao/util/SegurancaUtils.java`.
 3. **Stack desatualizada**: Acegi, WebWork, Hibernate 3, DWR, JS legado.

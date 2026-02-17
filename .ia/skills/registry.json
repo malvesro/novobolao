@@ -1,1 +1,8 @@
-{ "active_skills": [ "security-audit", "architecture-guardian","senior-java-dev" ]}
+{
+  "active_skills": [
+    "architecture-guardian",
+    "security-audit",
+    "senior-java-dev-legacy"
+  ],
+  "_comment": "Atualize a lista conforme as skills do seu projeto."
+}

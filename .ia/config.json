@@ -1,57 +1,55 @@
 {
   "_manifest": {
-    "version": "4.1.0",
-    "updated_at": "2026-02-06",
-    "purpose": "Define a física (parâmetros) e a ética (limites) dos modelos de IA para o Projeto Mercúrio."
+    "version": "1.0.0",
+    "updated_at": "2026-02-13",
+    "purpose": "Define parâmetros de operacao e limites de IA para o projeto."
   },
 
   "infrastructure_settings": {
-    "_doc": "Configurações globais de ambiente que afetam IDEs e Scripts.",
+    "_doc": "Configuracoes globais de ambiente que afetam IDEs e scripts.",
 
     "strict_mode": true,
-    "_strict_mode_comment": "QUANDO TRUE: Instrui ferramentas (Cursor, Continue, Antigravity) a ignorar preferências pessoais do usuário e forçar os padrões deste arquivo.",
+    "_strict_mode_comment": "Quando true, forca o respeito aos padroes do projeto.",
 
     "environment": "production-grade",
-    "_environment_comment": "Define o nível de auditoria. 'production-grade' ativa logs detalhados e bloqueia envio de telemetria sensível."
+    "_environment_comment": "Use 'production-grade' para auditoria forte e bloqueio de envio de telemetria sensivel."
   },
 
   "generation_constraints": {
-    "_doc": "Hiperparâmetros físicos da API. Controlam a criatividade vs. precisão.",
+    "_doc": "Hiperparametros que controlam criatividade vs. precisao.",
 
     "temperature": 0.1,
-    "_temperature_comment": "CRÍTICO. 0.1 é mandatório para Java/Spring. Permite correções sintáticas mínimas, mas bloqueia 'alucinações criativas' e invenção de bibliotecas.",
+    "_temperature_comment": "Use baixo para reduzir alucinacoes. Ajuste conforme o dominio.",
 
     "top_p": 0.95,
-    "_top_p_comment": "Nucleus Sampling. Restringe a IA a considerar apenas os 95% tokens de maior probabilidade, eliminando sintaxes exóticas.",
+    "_top_p_comment": "Nucleus sampling. Restringe a IA a considerar apenas os 95% tokens de maior probabilidade, eliminando sintaxes exóticas.",
 
     "max_output_tokens": 65536,
-    "_max_output_tokens_comment": "Sweet Spot 2026 (Gemini 3.0 / GPT-5.2). Permite gerar classes monolíticas ou refatorações massivas sem cortes abruptos no código.",
+    "_max_output_tokens_comment": "Ajuste para respostas longas (relatorios, refatoracoes extensas sem cortes do código).",
 
     "stop_sequences": ["<|endoftext|>", "User:", "Human:"],
     "_stop_sequences_comment": "Sentinelas que forçam a parada imediata da geração, prevenindo que a IA comece a alucinar um diálogo falso após entregar o código."
   },
 
   "model_routing": {
-    "_doc": "Estratégia de Orquestração de Modelos (Evita Vendor-Lockin).",
+    "_doc": "Estrategia de orquestracao de modelos (evita vendor-lockin).",
 
-    "openai_primary": "gpt-5-codex",
-    "_openai_comment": "Especialista em 'Agentic Coding'. Use preferencialmente para escrita de código, refatoração e arquitetura.",
+    "primary": "gemini-1.5-pro-latest",
+    "_primary_comment": "Modelo principal para codificacao e arquitetura.",
 
-    "google_primary": "gemini-3.0-pro-preview",
-    "_google_comment": "Especialista em Contexto Infinito. Use para leitura de logs massivos, análise de dependências e busca de bugs sistêmicos.",
-
-    "fallback": "gpt-4o-2025-hybrid",
-    "_fallback_comment": "Modelo de contingência (Backup) para alta disponibilidade."
+    "secondary": "gemini-1.5-pro-latest",
+    "_secondary_comment": "Modelo para analise de contexto extenso e logs.",
   },
 
   "context_grounding": {
-    "_doc": "Aterramento Semântico. Arquivos que compõem a 'Memória Base' antes do prompt do usuário.",
+    "_doc": "Arquivos que compoem a memoria base antes do prompt.",
 
     "system_instruction_path": "./AGENTS.md",
-    "skills_registry_path": "./skills/registry.json",
+    "skills_registry_path": "./.ia/skills/registry.json",
+
     "compliance_docs": [
-      "./diretrizes/arquitetura-tse.md",
-      "./diretrizes/seguranca.md"
-    ]
+      "./.ia/diretrizes/arquitetura.md"
+    ],
+    "_compliance_docs_comment": "Ajuste para os documentos reais do projeto."
   }
 }

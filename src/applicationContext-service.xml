@@ -70,6 +70,7 @@
 		<property name="jogoDao" ref="jogoDao" />
 		<property name="privilegioDao" ref="privilegioDao" />
 		<property name="palpiteDao" ref="palpiteDao" />
+		<property name="passwordEncoder" ref="passwordEncoder" />
 	</bean>
 	<bean id="participanteService" parent="transactionProxyTemplate">
 		<property name="proxyInterfaces">
