@@ -1,110 +1,74 @@
 ---
-skill_name: arquitetura-sistema-bolao
-description: Diretrizes arquiteturais do Sistema Bolao em migracao controlada (Java 1.4/1.6 -> 17/21, WebWork -> Struts 7, Spring antigo -> 6, Hibernate 3 -> 6, Acegi -> Spring Security).
-version: 1.1.0
-tags: [architecture, webwork, struts, spring, hibernate, java, migration]
+doc_name: diretrizes-arquitetura
+description: Diretrizes arquiteturais genericas para evolucao segura e consistente.
+version: 1.0.0
+tags: [architecture, layering, security, testing, migration]
 ---
 
 # Diretrizes de Arquitetura
 
 ## 1. Objetivo e Escopo
 
-Estas diretrizes definem padroes obrigatorios para evolucao do monolito do Sistema Bolao, garantindo seguranca, consistencia de camadas e compatibilidade durante a migracao tecnologica em andamento.
+Estas diretrizes definem padroes obrigatorios para evolucao do sistema, garantindo seguranca, consistencia de camadas e compatibilidade.
 
-## 2. Stack Atual e Alvo (Migração Controlada)
+> NOTE: Descreva o tipo de sistema, dominio de negocio e metas de evolucao.
 
-- **Atual (legado):** Java 1.4/1.6, Tomcat 5.5, WebWork/XWork, Spring antigo, Hibernate 3, Acegi Security, DWR, Quartz, JSP, MySQL.
-- **Alvo (em migracao):** Java 17 ou 21, Struts 7 (ou Spring MVC), Spring 6, Hibernate 6, Spring Security, Tomcat 9+.
+## 2. Stack Atual e Alvo (Opcional)
 
-**Regra central:** ate a migracao ser concluida, todo novo codigo deve permanecer compativel com o stack atual. Nao introduza APIs exclusivas de Java 8+ nem recursos de Struts 7 / Spring 6 / Hibernate 6.
+- **Atual:** Java 1.8, Spring 1.2.8, Hibernate 3.2.6.ga, WebWork 2.2.2, Acegi Security 1.0.0, JSP/Servlet 2.4, MySQL, Prototype.js, DWR 2.0.1
+- **Alvo:** [A ser definido com base no `passo-a-passo.md`]
 
-## 3. Camadas e Dependências (Regra de Ouro)
+**Regra central:** enquanto a migracao nao for concluida, todo novo codigo deve permanecer compativel com o stack atual.
 
-Todo fluxo HTTP deve seguir:
+> NOTE: Preencha com versoes reais e restricoes do ambiente.
+
+## 3. Camadas e Dependencias (Regra de Ouro)
+
+Fluxo recomendado (ajuste conforme o projeto):
 
 ```
-Action (WebWork) -> Service/Business -> DAO -> Hibernate -> MySQL
+Entrada (API/UI) -> Service/Business -> Persistencia -> Banco
 ```
 
 Regras:
+- A camada de entrada nao acessa persistencia diretamente.
+- Services concentram regras de negocio e transacoes.
+- Persistencia nao depende da camada web.
+- Modelos de dominio nao dependem de frameworks web.
 
-- **Actions (WebWork/XWork)**: orquestram navegacao e delegam regras para Service/Business.  
-- **Service/Business**: concentra regras de negocio e coordena transacoes (Spring).  
-- **DAO**: acesso a dados via Hibernate 3.  
-- **Models/DTOs**: sem dependencias de camada superior.
+## 4. Regras de Compatibilidade
 
-Quebras nessa cadeia são bloqueadas.
+- Evite APIs exclusivas de versoes alvo antes da migracao.
+- Mudancas que exigem quebra de compatibilidade devem ser isoladas e aprovadas por ADR.
 
-## 4. WebWork com Migracao para Struts 7
+## 5. Seguranca e Validacao
 
-- Acoes novas devem atualizar `src/xwork.xml` e apontar JSPs em `webapp/`.  
-- OGNL restrito, sem exposicao indevida de campos.  
-- Bundles i18n obrigatorios para textos de UI.  
-- Formularios mutaveis devem manter protecao equivalente a token quando aplicavel.
+- Validacao de entradas e sanitizacao sao obrigatorias.
+- SQL sempre parametrizado. Sem concatenacao de dados do usuario.
+- Dados sensiveis nunca em logs em texto puro.
 
-**Migracao para Struts 7:**  
-Somente quando aprovado em ADR. Ate la, evite APIs/recursos especificos da 7 e mantenha `xwork.xml` como fonte de roteamento.
+## 6. Observabilidade e Logs
 
-## 5. Spring com Migracao para 6
+- Padronize logging, niveis e formato.
+- Proibido `System.out.println` (ou equivalente na linguagem alvo).
 
-- Servicos com DI via XML (padrao atual).  
-- Evite dependencias que exijam `jakarta.*` (compativel apenas com Spring 6).  
-- Integracoes externas devem ficar encapsuladas em `dao`/`util`.
+## 7. Testes e Qualidade
 
-**Migracao para Spring 6:**  
-Exigira Java 17 e namespaces Jakarta. So iniciar apos ADR aprovado e plano de compatibilidade.
+- Atualize testes ao alterar regras de negocio.
+- Defina smoke tests para fluxos criticos.
 
-## 6. Java com Migração para 17
+## 8. ADR e Registro
 
-- Sem `var`, `record`, modulos, `sealed` ou APIs exclusivas 9+.  
-- Evite `java.time` enquanto o baseline for 1.6.  
-- `Optional` apenas apos migracao e apenas em retornos de servico/repositorio, nunca como argumento.
+- Decisoes arquiteturais nao triviais devem gerar ADR em `docs/adr/`.
+- Use rascunho em `.ia/historico/` quando necessario.
 
-## 7. Segurança e Validação
+## 9. Checklist de Conformidade
 
-- Validação de entradas é obrigatória (OWASP).  
-- SQL sempre parametrizado, sem concatenação de dados do usuário.  
-- Sem lógica sensível em JSP.  
-- Metodos expostos via DWR devem ser restritos por role e validacao.
+- [ ] Fluxo de camadas respeitado.
+- [ ] Inputs validados e sanitizados.
+- [ ] Sem dependencias exclusivas do stack alvo.
+- [ ] Logs padronizados e seguros.
+- [ ] Testes atualizados.
+- [ ] ADR criado quando aplicavel.
 
-## 8. Observabilidade e Logs
-
-- Use o logger padrao do projeto (Commons Logging) ate a migracao.  
-- Mensagens de log em portugues, claras e rastreaveis.  
-- Proibido `System.out.println`.
-
-## 9. Migração: Princípios de Compatibilidade
-
-- Mudanças que dependem do stack alvo devem ser isoladas e guardadas por feature toggle ou camada de compatibilidade.  
-- Cada passo significativo de migração deve ter ADR.
-
-## 10. ADR e Registro
-
-- Decisoes arquiteturais relevantes devem gerar ADR em `docs/adr/` no formato `ADR-YYYYMMDD-titulo-curto.md`.  
-- Use rascunho em `.ia/historico/ADR-XXX.md` quando aplicavel.
-
-## 11. Checklist de Conformidade
-
-- [ ] Fluxo Action → Service/Business → DAO respeitado.  
-- [ ] Inputs validados e sanitizados.  
-- [ ] SQL parametrizado.  
-- [ ] Sem dependências exclusivas de Java 9+ / Spring 6 / Struts 7.  
-- [ ] Logs usando o padrao atual.  
-- [ ] Testes atualizados quando existirem.  
-- [ ] ADR criado quando houver decisao arquitetural nao trivial.
-
-## 12. Princípios de Arquitetura a serem seguidos
-
-- código limpo
-
-- arquitetura limpa e DDD no que couber, sem grandes impactos no que já foi construído
-
-- UX simples
-
-- design responsivo 
-
-- dependências mínimas para uma aplicação web. 
-
-- a documentação e os comentários de código deverão ser escritos em Português BR.
-
-- use os princípios SOLID para uma boa arquitetura, no que couber, sem quebrar ou tornar o que já foi feito complexo. 
+> NOTE: Ajuste o checklist com criterios do seu time.

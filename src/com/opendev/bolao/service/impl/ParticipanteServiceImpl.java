@@ -29,6 +29,7 @@ import com.opendev.bolao.model.Privilegio;
 import com.opendev.bolao.service.ParticipanteService;
 import com.opendev.bolao.util.DadosClassificacao;
 import com.opendev.bolao.util.SegurancaUtils;
+import org.acegisecurity.providers.encoding.PasswordEncoder;
 
 
 public class ParticipanteServiceImpl implements ParticipanteService {
@@ -37,6 +38,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 	private JogoDao jogoDao;
 	private PriviledioDao privilegioDao;
 	private PalpiteDao palpiteDao;
+	private PasswordEncoder passwordEncoder;
 
 	public synchronized List buscarClassificacao() {
 		List participantes = new ArrayList(getParticipanteDao().buscarTodosDoBolaoGeral());
@@ -50,6 +52,10 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 		}
 		Participante.notificarCacheAtualizado();
 		return participantes;
+	}
+    // ... other methods ...
+	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+		this.passwordEncoder = passwordEncoder;
 	}
 	
 	public GraficoComparativoDesempenho construirGraficoDesempenho(Participante participante, Long idRivail) {
@@ -109,7 +115,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         participante.setHabilitado(autorizado);
         Set privilegios = participante.getPrivilegios();
         if (autorizado == true && (privilegios != null && !privilegios.isEmpty())) {
-            Email email = new Email("notificacaoCadastroAprovado.html", "Confirmação de cadastro");
+            Email email = new Email("notificacaoCadastroAprovado.html", "Confirmaï¿½ï¿½o de cadastro");
             email.setPropriedade("nome", participante.getNome());
             email.adicionarEnderecoDestino(participante.getEmail());
             try {
@@ -142,7 +148,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
     
     public Participante criarNovo(Participante participante) throws ValidacaoException {
         participante.validar();
-        participante.setSenha(SegurancaUtils.codificar(participante.getSenha()));
+        participante.setSenha(this.passwordEncoder.encodePassword(participante.getSenha(), null));
         participante.setDataHoraCadastro(new Timestamp(System.currentTimeMillis()));
         participante.setLogin(participante.getLogin().trim().toLowerCase());
         participante.setEmail(participante.getEmail().trim());
@@ -217,6 +223,10 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 
 	public void setPalpiteDao(PalpiteDao palpiteDao) {
 		this.palpiteDao = palpiteDao;
+	}
+
+	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	

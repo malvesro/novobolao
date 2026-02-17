@@ -30,7 +30,7 @@
 	<context-param>
 		<param-name>locais</param-name>
 		<param-value>
-			Berlim,Colônia,Dortmund,Frankfurt,Gelsenkirchen,Hamburgo,
+			Berlim,Colï¿½nia,Dortmund,Frankfurt,Gelsenkirchen,Hamburgo,
 			Hannover,Kaiserslautern,Leipzig,Munique,Nuremberg,Stuttgart
 		</param-value>
 	</context-param>
@@ -117,7 +117,7 @@
 		<servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
 		<init-param>
 			<param-name>debug</param-name>
-			<param-value>true</param-value>
+			<param-value>false</param-value>
 		</init-param>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
@@ -147,6 +147,16 @@
 		<servlet-name>CewolfServlet</servlet-name>
 		<url-pattern>/cewolf/*</url-pattern>
 	</servlet-mapping>
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Entire Application</web-resource-name>
+			<url-pattern>/*</url-pattern>
+		</web-resource-collection>
+		<user-data-constraint>
+			<transport-guarantee>CONFIDENTIAL</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
 
 	<session-config>
 		<session-timeout>30</session-timeout>
