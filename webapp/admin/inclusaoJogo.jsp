@@ -1,5 +1,5 @@
 <%@include file="/template/menu.jspf" %>
-<%@taglib prefix="ww" uri="/webwork" %>
+<%@taglib prefix="ww" uri="/struts-tags" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <script type="text/javascript" src="${base}/dwr/interface/AdminAction.js"></script>

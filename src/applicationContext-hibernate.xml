@@ -6,7 +6,7 @@
 <beans>
 
 	<bean id="sessionFactory"
-		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean"
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean"
 		lazy-init="false" >
 		<property name="dataSource" ref="defaultDataSource" />
 		<property name="hibernateProperties">
@@ -31,7 +31,7 @@
 	</bean>
 	
 	<bean id="txManager"
-		class="org.springframework.orm.hibernate3.HibernateTransactionManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager"
 		depends-on="sessionFactory">
 		<property name="sessionFactory">
 			<ref local="sessionFactory" />
