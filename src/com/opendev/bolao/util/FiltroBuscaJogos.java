@@ -2,7 +2,7 @@ package com.opendev.bolao.util;
 
 import java.util.Date;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 
 public class FiltroBuscaJogos implements FiltroBusca {
 	
@@ -51,22 +51,22 @@ public class FiltroBuscaJogos implements FiltroBusca {
 	
 	public Query popularParametrosDaHql(Query query) {
 		if (dataInicial != null) {
-			query.setDate("dataInicial", getDataInicial());
+			query.setParameter("dataInicial", getDataInicial());
 		}
 		if (dataFinal != null) {
-			query.setDate("dataFinal", getDataInicial());
+			query.setParameter("dataFinal", getDataFinal());
 		}
 		if (fase != null) {
-			query.setInteger("fase", getFase().intValue());
+			query.setParameter("fase", getFase().intValue());
 		}
         if (getIdEquipe() != null) {
-            query.setLong("equipe", getIdEquipe().longValue());
+            query.setParameter("equipe", getIdEquipe().longValue());
         }
 		if (!ValidacaoUtils.isVazia(grupo)) {
-			query.setString("grupo", getGrupo().toUpperCase());
+			query.setParameter("grupo", getGrupo().toUpperCase());
 		}
 		if (soSemPalpite) {
-			query.setString("login", getLogin());
+			query.setParameter("login", getLogin());
 		}
 		return query;
 	}

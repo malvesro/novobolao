@@ -80,7 +80,7 @@ public class JogoServiceImpl implements JogoService {
                 jogosHtml.append("</td>");
                 jogosHtml.append("</tr>");
             }
-            Email email = new Email("proximosJogos.html", "Atenção aos próximos jogos!");
+            Email email = new Email("proximosJogos.html", "AtenÃ§Ã£o aos prÃ³ximos jogos!");
             email.setPropriedade("jogos", jogosHtml.toString());
             List participantes = getParticipanteDao().buscarTodosDoBolaoGeral();
             for (Iterator iter = participantes.iterator(); iter.hasNext();) {
