@@ -11,19 +11,15 @@
 			<property name="jndiName value="java:comp/env/jdbc/myds"/>
 		</bean>
 	-->
-	<bean name="defaultDataSource"
-		class="org.apache.commons.dbcp.BasicDataSource"
-		destroy-method="close">
-		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<property name="url" value="jdbc:mysql://localhost:3306/bolao" />
-		<property name="username" value="root" />
-		<property name="password" value="copa2014brasil" />
-		<property name="maxActive" value="100" />
-		<property name="maxIdle" value="30" />
-		<property name="maxWait" value="1000" />
-		<property name="defaultAutoCommit" value="true" />
-		<property name="removeAbandoned" value="true" />
-		<property name="removeAbandonedTimeout" value="60" />
+	<bean id="defaultDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+		<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
+		<property name="jdbcUrl" value="jdbc:mysql://${DB_HOST:localhost}:3306/${DB_NAME:bolao}?useSSL=false" />
+		<property name="username" value="${DB_USER:root}" />
+		<property name="password" value="${DB_PASS:copa2014brasil}" />
+		<property name="maximumPoolSize" value="10" />
+		<property name="minimumIdle" value="2" />
+		<property name="idleTimeout" value="30000" />
+		<property name="connectionTimeout" value="30000" />
 	</bean>
 
 </beans>
