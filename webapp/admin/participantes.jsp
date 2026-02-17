@@ -26,10 +26,6 @@ function autorizarParticipante(id) {
         autorizado, {callback: callBackFunc});
 }
 
-function apagarParticipante(id) {
-    var callBackFunc = function() {
-        var trPar = $("linhaParticipante_" + id);
-        Element.setStyle(trPar, {display: "none"});
     }
     AdminAction.apagarParticipante(id, {callback: callBackFunc});
 }
@@ -92,7 +88,7 @@ function apagarParticipante(id) {
                         </select>
                     </td>
                     <td align="center">
-                        <img alt="" src="${base}/img/delete.png" onclick="apagarParticipante(${participante.id});" style="cursor: pointer;" />
+                        <img alt="" src="${base}/img/delete.png" hx-post="${base}/admin/apagarParticipanteHtmx.action?id=${participante.id}" hx-target="#linhaParticipante_${participante.id}" hx-swap="delete" hx-confirm="Deseja realmente apagar este participante?" style="cursor: pointer;" />
                     </td>
                 </tr>
             </c:forEach>

@@ -33,6 +33,13 @@
 <script type="text/javascript" src="${base}/js/engine.js"></script>
 <script type="text/javascript" src="${base}/js/util.js"></script>
 <script type="text/javascript" src="${base}/js/overlib.js"></script>
+<script type="text/javascript" src="${base}/js/jquery-4.0.0.min.js"></script>
+<script type="text/javascript" src="${base}/js/htmx.min.js"></script>
+
+<script type="text/javascript">
+	// jQuery noConflict mode to avoid collisions with Prototype's $
+	var $j = jQuery.noConflict();
+</script>
 
 
 <style type="text/css">
