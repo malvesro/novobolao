@@ -4,8 +4,8 @@ function esconderOuMostrarMenu(menuHeader) {
 	var headerId = menuHeader.id;
 	var underscoreIndex = headerId.indexOf("_");
 	var childId = headerId.substring(0, underscoreIndex);
-	var childId = childId + "_itens";
-	Effect.toggle($(childId), "slide");
+	childId = "#" + childId + "_itens";
+	$j(childId).slideToggle();
 }
 </script>
 

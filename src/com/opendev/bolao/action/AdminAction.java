@@ -20,6 +20,7 @@ public class AdminAction extends ActionSupport {
 	private List equipes;
 	private List jogos;
     private List participantes;
+    private Long id;
 	
 	
 	public String carregarInfoEquipes() {
@@ -56,8 +57,9 @@ public class AdminAction extends ActionSupport {
         return SUCCESS;
     }
     
-    public void apagarParticipante(Long id) {
+    public String apagarParticipante() {
         getParticipanteService().apagar(id);
+        return SUCCESS;
     }
     
     public void autorizarParticipante(Long id, boolean autorizar) {
@@ -105,5 +107,13 @@ public class AdminAction extends ActionSupport {
     public List getParticipantes() {
         return this.participantes;
     }
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 }
