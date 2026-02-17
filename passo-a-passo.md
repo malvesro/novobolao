@@ -61,9 +61,9 @@ Premissas de compatibilidade (críticas):
 
 ### Fase 4: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
-1.  **[Pendente] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.
-2.  **[Pendente] Orquestração com Docker Compose:** Criar `docker-compose.yml` integrando a aplicação (Tomcat 10) e o banco de dados (MySQL 8).
-3.  **[Pendente] Persistência e Rede:** Configurar volumes para o banco de dados e redes isoladas entre os containers.
+1.  **[Concluído] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.
+2.  **[Concluído] Orquestração com Docker Compose:** Criar `docker-compose.yml` integrando a aplicação (Tomcat 10) e o banco de dados (MySQL 8).
+3.  **[Concluído] Persistência e Rede:** Configurar volumes para o banco de dados e redes isoladas entre os containers.
 
 ## Registro de Avanços
 
