@@ -1,23 +1,29 @@
-# Sessão: [Nome da Feature/Correção]
+# Sessao: [Nome da Tarefa]
 
 **Data:** YYYY-MM-DD
 **Autor:** [Dev]
-**Skill Utilizada:** [ex: java-modernizer v2.1]
+**Skills Utilizadas:** [ex: architecture-guardian v1.0.0, security-audit v1.0.0]
 
 ## 1. Prompt Principal (Input)
 
 > [Cole aqui o prompt chave que gerou o resultado]
-> *Ex: "@ia refatore o LoginController aplicando as regras de segurança, mas mantenha a compatibilidade com o cliente legado mobile."*
 
 ## 2. Resposta da IA (Output Resumido)
 
-> [Cole o trecho da explicação ou o código crítico gerado]
-> *Ex: "Apliquei o padrão BFF para isolar o cliente mobile e removi a injeção de campo..."*
+> [Resumo das mudancas, decisoes e arquivos impactados]
 
-## 3. Análise Humana (Veredito)
+## 3. Validacao (Build/Teste)
 
-- [x] Código aceito sem alterações.
-- [ ] Código ajustado manualmente (detalhar abaixo).
-- [ ] Alucinação detectada (Prompt refinado).
+- Comando: [ex: mvn test]
+- Resultado: [Sucesso/Falha]
+- Observacoes: [Detalhes relevantes]
 
-**Observações:** [Se houve ajuste manual, explique o que a IA errou]
+## 4. Analise Humana (Veredito)
+
+- [ ] Codigo aceito sem alteracoes.
+- [ ] Codigo ajustado manualmente (detalhar abaixo).
+- [ ] Alucinacao detectada (prompt refinado).
+
+**Observacoes:** [Se houve ajuste manual, explique o que foi alterado]
+
+> NOTE: Este log deve ser criado para cada tarefa relevante.
