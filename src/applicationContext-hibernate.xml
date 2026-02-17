@@ -5,6 +5,11 @@
 
 <beans>
 
+	<!-- Support for Environment Variables / System Properties -->
+	<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+		<property name="environment" value="#{T(org.springframework.core.env.StandardEnvironment)}"/>
+	</bean>
+
 	<bean id="sessionFactory"
 		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean"
 		lazy-init="false" >
