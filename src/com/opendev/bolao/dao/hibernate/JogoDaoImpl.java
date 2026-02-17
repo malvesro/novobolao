@@ -4,103 +4,76 @@ import java.sql.Time;
 import java.util.Date;
 import java.util.List;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import java.sql.Time;
+import java.util.Date;
+import java.util.List;
+
+import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 
 import com.opendev.bolao.dao.JogoDao;
 import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.util.FiltroBuscaJogos;
 
-public class JogoDaoImpl extends HibernateDaoSupport implements JogoDao {
+public class JogoDaoImpl implements JogoDao {
 	
+    private SessionFactory sessionFactory;
+
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
 	public Long salvar(Jogo jogo) {
-		try {
-			return (Long) getSession().save(jogo);
-		} catch (HibernateException e) {
-			throw convertHibernateAccessException(e);
-		}
+		return (Long) sessionFactory.getCurrentSession().save(jogo);
 	}
 
 	public List buscarTodos() {
-		try {
-			Query query = getSession().createQuery("from Jogo as j order by j.data asc, j.hora asc");
-			return query.list();
-		} catch (HibernateException e) {
-			throw convertHibernateAccessException(e);
-		}
+		Query query = sessionFactory.getCurrentSession().createQuery("from Jogo as j order by j.data asc, j.hora asc");
+		return query.list();
 	}
 
 	public Jogo buscarPorId(Long id) {
-		try {
-			return (Jogo) getSession().load(Jogo.class, id);
-		} catch (HibernateException e) {
-			throw convertHibernateAccessException(e);
-		}
+		return (Jogo) sessionFactory.getCurrentSession().load(Jogo.class, id);
 	}
 
 	public Integer buscarQuantidadeDeJogosOcorridos() {
-		try {
-			Query query = getSession().createQuery("select count(j.id) from Jogo as j where j.golsEquipe1 is not null and j.golsEquipe2 is not null");
-			Integer qtde = (Integer) query.uniqueResult(); 
-			return qtde;
-		} catch (HibernateException e) {
-			throw convertHibernateAccessException(e);
-		}
+		Query query = sessionFactory.getCurrentSession().createQuery("select count(j.id) from Jogo as j where j.golsEquipe1 is not null and j.golsEquipe2 is not null");
+		Integer qtde = (Integer) query.uniqueResult(); 
+		return qtde;
 	}
 
 	public List buscarUsandoFiltro(FiltroBuscaJogos filtro) {
-		try {
-			Query query = getSession().createQuery(filtro.getHqlQuery());
-			return filtro.popularParametrosDaHql(query).list();
-		} catch (HibernateException e) {
-			throw convertHibernateAccessException(e);
-		}
+		Query query = sessionFactory.getCurrentSession().createQuery(filtro.getHqlQuery());
+		return filtro.popularParametrosDaHql(query).list();
 	}
 
     public List buscarPorDataEHora(Date data, Time hora) {
-        try {
-            Query query = getSession().createQuery("from Jogo as j where j.data = :data and j.hora = :hora order by j.data asc, j.hora asc");
-            query.setDate("data", data);
-            query.setTime("hora", hora);
-            return query.list();
-        } catch (HibernateException e) {
-            throw convertHibernateAccessException(e);
-        }
+        Query query = sessionFactory.getCurrentSession().createQuery("from Jogo as j where j.data = :data and j.hora = :hora order by j.data asc, j.hora asc");
+        query.setParameter("data", data);
+        query.setParameter("hora", hora);
+        return query.list();
     }
 
 	public List buscarJogosOcorridos() {
-		try {
-			Query query = getSession().createQuery("from Jogo as j where j.golsEquipe1 is not null and j.golsEquipe2 is not null order by j.data asc, j.hora asc");
-			return query.list();
-		} catch (HibernateException e) {
-			throw convertHibernateAccessException(e);
-		}
+		Query query = sessionFactory.getCurrentSession().createQuery("from Jogo as j where j.golsEquipe1 is not null and j.golsEquipe2 is not null order by j.data asc, j.hora asc");
+		return query.list();
 	}
 
     public List buscarPorData(Date data) {
-        try {
-            Query query = getSession().createQuery("from Jogo as j where j.data = :data order by j.data asc, j.hora asc");
-            query.setDate("data", data);
-            return query.list();
-        } catch (HibernateException e) {
-            throw convertHibernateAccessException(e);
-        }
+        Query query = sessionFactory.getCurrentSession().createQuery("from Jogo as j where j.data = :data order by j.data asc, j.hora asc");
+        query.setParameter("data", data);
+        return query.list();
     }
 
     public List buscarJogosDaEquipe(Long id, int[] fases) {
-        try {
-            StringBuffer hql = new StringBuffer();
-            hql.append("from Jogo as j ");
-            hql.append("where j.equipe1.id = :idEquipe ");
-            hql.append("or j.equipe2.id = :idEquipe ");
-            hql.append("order by j.grupo asc");
-            Query query = getSession().createQuery(hql.toString());
-            query.setLong("idEquipe", id.longValue());
-            return query.list();
-        } catch (HibernateException e) {
-            throw convertHibernateAccessException(e);
-        }
+        StringBuffer hql = new StringBuffer();
+        hql.append("from Jogo as j ");
+        hql.append("where j.equipe1.id = :idEquipe ");
+        hql.append("or j.equipe2.id = :idEquipe ");
+        hql.append("order by j.grupo asc");
+        Query query = sessionFactory.getCurrentSession().createQuery(hql.toString());
+        query.setParameter("idEquipe", id.longValue());
+        return query.list();
     }
 
 }

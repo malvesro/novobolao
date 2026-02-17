@@ -1,19 +1,20 @@
 package com.opendev.bolao.dao.hibernate;
 
-import org.hibernate.HibernateException;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.hibernate.SessionFactory;
 
 import com.opendev.bolao.dao.PriviledioDao;
 import com.opendev.bolao.model.Privilegio;
 
-public class PrivilegioDaoImpl extends HibernateDaoSupport implements PriviledioDao {
+public class PrivilegioDaoImpl implements PriviledioDao {
+
+    private SessionFactory sessionFactory;
+
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
 
 	public void apagar(Privilegio p) {
-	       try {
-	            getSession().delete(p);
-	        } catch (HibernateException e) {
-	            throw convertHibernateAccessException(e);
-	        }
+        sessionFactory.getCurrentSession().delete(p);
 	}
 
 }

@@ -34,9 +34,9 @@ public class PalpiteServiceImpl implements PalpiteService {
 		palpite.setDataHoraAtualizacao(new Timestamp(System.currentTimeMillis()));
 		getPalpiteDao().salvar(palpite);
 		if (!podeAtualizar(idJogo)) {
-			throw new IllegalStateException("O hor·rio limite para confirmaÁ„o foi ultrapassado!");
+			throw new IllegalStateException("O hor√°rio limite para confirma√ß√£o foi ultrapassado!");
 		}
-//        Email email = new Email("auditoriaPalpiteAlterado.html", "[Importante] ConfirmaÁ„o de palpite");
+//        Email email = new Email("auditoriaPalpiteAlterado.html", "[Importante] Confirma√ß√£o de palpite");
 //        Equipe equipe1 = palpite.getJogo().getEquipe1();
 //        Equipe equipe2 = palpite.getJogo().getEquipe2();
 //        String representacaoPalpite = equipe1.getNomePais() + " " + palpite.getGolsEquipe1() + " X " + palpite.getGolsEquipe2() + " " + equipe2.getNomePais();

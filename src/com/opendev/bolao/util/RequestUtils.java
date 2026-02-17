@@ -2,21 +2,20 @@ package com.opendev.bolao.util;
 
 import java.security.Principal;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
-import uk.ltd.getahead.dwr.WebContext;
-import uk.ltd.getahead.dwr.WebContextFactory;
-
-import com.opensymphony.webwork.ServletActionContext;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 public final class RequestUtils {
 	
 	public static final HttpServletRequest getRequest() {
-		HttpServletRequest request = ServletActionContext.getRequest();
-		if (request == null) {
-			WebContext webCtx = WebContextFactory.get();
-			request = webCtx.getHttpServletRequest();
-		}
+		HttpServletRequest request = null;
+        RequestAttributes attrs = RequestContextHolder.getRequestAttributes();
+        if (attrs instanceof ServletRequestAttributes) {
+            request = ((ServletRequestAttributes) attrs).getRequest();
+        }
 		return request;
 	}
 	

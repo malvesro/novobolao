@@ -3,12 +3,14 @@ package com.opendev.bolao.action;
 import java.util.Collections;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import com.opendev.bolao.exception.ValidacaoException;
+/*
 import com.opendev.bolao.grafico.GraficoBarraLideres;
 import com.opendev.bolao.grafico.GraficoComparativoDesempenho;
+*/
 import com.opendev.bolao.model.Palpite;
 import com.opendev.bolao.model.Participante;
 import com.opendev.bolao.service.EquipeService;
@@ -19,8 +21,7 @@ import com.opendev.bolao.util.ConversaoUtils;
 import com.opendev.bolao.util.FiltroBuscaJogos;
 import com.opendev.bolao.util.RequestUtils;
 import com.opendev.bolao.util.ValidacaoUtils;
-import com.opensymphony.webwork.ServletActionContext;
-import com.opensymphony.xwork.ActionSupport;
+import com.opensymphony.xwork2.ActionSupport;
 
 public class ParticipanteAction extends ActionSupport {
 
@@ -38,15 +39,15 @@ public class ParticipanteAction extends ActionSupport {
     private List participantes;
     private List equipes;
     private FiltroBuscaJogos filtro;
-    private GraficoComparativoDesempenho grafico;
+//    private GraficoComparativoDesempenho grafico;
     private Participante participanteLogado;
     
-    // Dados p·gina principal
+    // Dados p√°gina principal
     private List jogosDeHoje;
-    private GraficoBarraLideres graficoLideranca;
+//    private GraficoBarraLideres graficoLideranca;
 
 	public String logout() {
-		HttpSession session = ServletActionContext.getRequest().getSession();
+		HttpSession session = RequestUtils.getRequest().getSession();
 		session.invalidate();
 		return SUCCESS;
 	}
@@ -64,6 +65,7 @@ public class ParticipanteAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
+/*
 	public String gerarGraficoDesempenho() {
 		String login = RequestUtils.getLoginParticipanteAutenticado();
 		HttpServletRequest request = RequestUtils.getRequest();
@@ -82,10 +84,21 @@ public class ParticipanteAction extends ActionSupport {
         setParticipantes(participantes);
 		return SUCCESS;
 	}
+*/
+    public String gerarGraficoDesempenho() {
+        return SUCCESS;
+    }
     
+/*
     public String obterDadosPaginaPrincipal() {
         setJogosDeHoje(getJogoService().buscarJogosDeHoje());
         setGraficoLideranca(getParticipanteService().construirGraficoDeBarrasDosLideres());
+        return SUCCESS;
+    }
+*/
+    public String obterDadosPaginaPrincipal() {
+        setJogosDeHoje(getJogoService().buscarJogosDeHoje());
+        // setGraficoLideranca(getParticipanteService().construirGraficoDeBarrasDosLideres());
         return SUCCESS;
     }
 
@@ -264,6 +277,7 @@ public class ParticipanteAction extends ActionSupport {
 		this.filtro = filtro;
 	}
 
+/*
 	public GraficoComparativoDesempenho getGrafico() {
 		return grafico;
 	}
@@ -271,6 +285,7 @@ public class ParticipanteAction extends ActionSupport {
 	public void setGrafico(GraficoComparativoDesempenho grafico) {
 		this.grafico = grafico;
 	}
+*/
     
     public Participante getParticipanteLogado() {
         return this.participanteLogado;
@@ -284,6 +299,7 @@ public class ParticipanteAction extends ActionSupport {
         this.participantes = participantes;
     }
     
+/*
     public GraficoBarraLideres getGraficoLideranca() {
         return this.graficoLideranca;
     }
@@ -291,6 +307,7 @@ public class ParticipanteAction extends ActionSupport {
     public void setGraficoLideranca(GraficoBarraLideres graficoLideranca) {
         this.graficoLideranca = graficoLideranca;
     }
+*/
 
     public List getJogosDeHoje() {
         return this.jogosDeHoje;

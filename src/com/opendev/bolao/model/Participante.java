@@ -215,7 +215,7 @@ public class Participante implements Serializable, Comparable {
 
     public void validar() throws ValidacaoException {
         List erros = new ArrayList();
-        final String campoObrigatorio = "Campo obrigatÛrio!";
+        final String campoObrigatorio = "Campo obrigat√≥rio!";
         if (ValidacaoUtils.isVazia(getLogin())) {
             erros.add(new MensagemErro("Login", campoObrigatorio, MensagemErro.SEVERIDADE_AVISO));
         }
@@ -224,7 +224,7 @@ public class Participante implements Serializable, Comparable {
             erros.add(new MensagemErro("E-mail", campoObrigatorio, MensagemErro.SEVERIDADE_AVISO));
         }
 //        else if (ValidacaoUtils.isEmailValido(getEmail())) {
-//            erros.add(new MensagemErro("E-mail", "Formato inv·lido!", MensagemErro.SEVERIDADE_ERRO));
+//            erros.add(new MensagemErro("E-mail", "Formato inv√°lido!", MensagemErro.SEVERIDADE_ERRO));
 //        }
         
         if (ValidacaoUtils.isVazia(getNome())) {

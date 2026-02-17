@@ -35,10 +35,16 @@ Premissas de compatibilidade (críticas):
 
 ### Fase 2: Médio Prazo - Redução de Débito Técnico e Manutenção (ALTA PRIORIDADE)
 
-1.  **[Pendente] Upgrade do Spring Framework:** Planejar e executar a migração do Spring Framework 1.2.8 para uma versão moderna (ex: Spring Boot 3+ com Spring 6).
+1.  **[Em Progresso] Upgrade do Spring Framework & WebWork:** Planejar e executar a migração do Spring Framework 1.2.8 para **Spring Framework 6** (Standalone) e do WebWork para **Struts 6.x** (Jakarta EE).
+    Referência ADR: `.ia/historico/ADR-20260217-upgrade-spring-framework.md`
+    *   **[Concluído]** Atualização do `pom.xml` (BOMs Spring 6, Jakarta EE 10, Struts 6).
+    *   **[Pendente]** Migração de Namespace: Substituir `javax.servlet` e `javax.persistence` por `jakarta.*`.
+    *   **[Pendente]** Migração Struts: Converter Actions (`ActionSupport`), atualizar imports (`xwork2`) e converter tags JSPs (`<ww:*>` -> `<s:*>`).
+    *   **[Pendente]** Migração Hibernate: Remover `HibernateTemplate` (descontinuado) e adaptar DAOs para usar `SessionFactory.getCurrentSession()` e API do Hibernate 6.
+    *   **[Pendente]** Adaptação de Configuração: Atualizar `web.xml` (FilterDispatcher -> StrutsPrepareAndExecuteFilter) e esquemas XSD dos XMLs do Spring.
 2.  **[Pendente] Migração da Segurança:** Planejar e executar a substituição do Acegi Security 1.0.0 por Spring Security 6+.
 3.  **[Pendente] Atualização do ORM:** Planejar e executar a migração do Hibernate 3.2.6.ga para Hibernate 6+.
-4.  **[Pendente] Substituição do WebWork:** Planejar e executar a migração do framework MVC de WebWork para Spring MVC.
+4.  **[Cancelado] Substituição do WebWork:** (Fundido com a tarefa de Upgrade do Spring, pois WebWork é incompatível com Spring Boot 3/Jakarta EE).
 5.  **[Pendente] Atualização de Bibliotecas de Terceiros:** Inventariar e atualizar todas as bibliotecas de terceiros (DWR, Quartz, EHCache, JSTL, Cewolf, JFreeChart, Batik, etc.) para suas versões mais recentes e com suporte.
 6.  **[Pendente] Introdução de Testes Automatizados:** Iniciar a criação de testes unitários e de integração para módulos críticos e novos desenvolvimentos, priorizando a cobertura de áreas de negócio sensíveis.
 7.  **[Pendente] Refatoração do Front-end (Primeira Fase):** Planejar a substituição gradual de Prototype/Script.aculo.us por bibliotecas JavaScript mais modernas (ex: jQuery para facilitar a transição, ou início da adoção de um framework SPA para reescrita parcial de módulos).
@@ -52,6 +58,12 @@ Premissas de compatibilidade (críticas):
 5.  **[Pendente] Recriação do Chat (Chat 2.0):** Implementar um novo serviço de chat utilizando tecnologias modernas (Spring Boot + WebSocket), conforme detalhado em `implementation_plan.md`.
 6.  **[Pendente] Atualização da Versão do Java:** Migrar para a versão LTS mais recente do Java (ex: Java 17 ou 21).
 6.  **[Pendente] Banco de Dados:** Avaliar a necessidade de upgrade da versão do MySQL ou migração para um banco de dados mais adequado às necessidades futuras.
+
+### Fase 4: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
+
+1.  **[Pendente] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.
+2.  **[Pendente] Orquestração com Docker Compose:** Criar `docker-compose.yml` integrando a aplicação (Tomcat 10) e o banco de dados (MySQL 8).
+3.  **[Pendente] Persistência e Rede:** Configurar volumes para o banco de dados e redes isoladas entre os containers.
 
 ## Registro de Avanços
 

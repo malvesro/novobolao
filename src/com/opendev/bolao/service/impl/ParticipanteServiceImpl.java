@@ -9,10 +9,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+/*
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
+*/
 
 import com.opendev.bolao.dao.JogoDao;
 import com.opendev.bolao.dao.PalpiteDao;
@@ -20,8 +22,10 @@ import com.opendev.bolao.dao.ParticipanteDao;
 import com.opendev.bolao.dao.PriviledioDao;
 import com.opendev.bolao.email.Email;
 import com.opendev.bolao.exception.ValidacaoException;
+/*
 import com.opendev.bolao.grafico.GraficoBarraLideres;
 import com.opendev.bolao.grafico.GraficoComparativoDesempenho;
+*/
 import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.model.Palpite;
 import com.opendev.bolao.model.Participante;
@@ -29,7 +33,7 @@ import com.opendev.bolao.model.Privilegio;
 import com.opendev.bolao.service.ParticipanteService;
 import com.opendev.bolao.util.DadosClassificacao;
 import com.opendev.bolao.util.SegurancaUtils;
-import org.acegisecurity.providers.encoding.PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 public class ParticipanteServiceImpl implements ParticipanteService {
@@ -58,6 +62,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 		this.passwordEncoder = passwordEncoder;
 	}
 	
+/*
 	public GraficoComparativoDesempenho construirGraficoDesempenho(Participante participante, Long idRivail) {
 		TimeSeriesCollection seriesCollection = null;
 //        DefaultCategoryDataset dataSet = null;
@@ -101,6 +106,12 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 //        return new GraficoComparativoDesempenho(dataSet);
         return new GraficoComparativoDesempenho(seriesCollection);
 	}
+*/
+/*
+    public GraficoComparativoDesempenho construirGraficoDesempenho(Participante participante, Long idRivail) {
+        return null;
+    }
+*/
 
 	public Participante buscarPorLogin(String login) {
 		return getParticipanteDao().buscarPorLogin(login);
@@ -115,7 +126,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         participante.setHabilitado(autorizado);
         Set privilegios = participante.getPrivilegios();
         if (autorizado == true && (privilegios != null && !privilegios.isEmpty())) {
-            Email email = new Email("notificacaoCadastroAprovado.html", "Confirma��o de cadastro");
+            Email email = new Email("notificacaoCadastroAprovado.html", "Confirmaï¿½ï¿½o de cadastro");
             email.setPropriedade("nome", participante.getNome());
             email.adicionarEnderecoDestino(participante.getEmail());
             try {
@@ -148,7 +159,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
     
     public Participante criarNovo(Participante participante) throws ValidacaoException {
         participante.validar();
-        participante.setSenha(this.passwordEncoder.encodePassword(participante.getSenha(), null));
+        participante.setSenha(this.passwordEncoder.encode(participante.getSenha()));
         participante.setDataHoraCadastro(new Timestamp(System.currentTimeMillis()));
         participante.setLogin(participante.getLogin().trim().toLowerCase());
         participante.setEmail(participante.getEmail().trim());
@@ -166,6 +177,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         return participante;
     }
     
+/*
     public GraficoBarraLideres construirGraficoDeBarrasDosLideres() {
         DefaultCategoryDataset dataSet = new DefaultCategoryDataset();
         List participantes = buscarClassificacao();
@@ -188,6 +200,12 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         }
         return new GraficoBarraLideres(dataSet);
     }
+*/
+/*
+    public GraficoBarraLideres construirGraficoDeBarrasDosLideres() {
+        return null;
+    }
+*/
     
     public ParticipanteDao getParticipanteDao() {
         return participanteDao;
@@ -225,9 +243,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 		this.palpiteDao = palpiteDao;
 	}
 
-	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-		this.passwordEncoder = passwordEncoder;
-	}
+
 
 	
 }

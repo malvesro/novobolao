@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 public class FormatadorMensagem {
 	
@@ -12,7 +12,7 @@ public class FormatadorMensagem {
 	private Map icones;
 	
 	public void formatar(Mensagem msg) {
-        String formatada = StringEscapeUtils.escapeHtml(msg.getTexto());
+        String formatada = StringEscapeUtils.escapeHtml4(msg.getTexto());
         formatada = formatada.replaceAll("\\[b\\]", "<span style=\"font-weight: bold;\">");
         formatada = formatada.replaceAll("\\[/b\\]", "</span>");
         formatada = formatada.replaceAll("\\[i\\]", "<span style=\"font-style: italic;\">");
@@ -58,7 +58,7 @@ public class FormatadorMensagem {
             icones.put("\\;\\)", "emoticon_eyeblink.gif");
             icones.put("\\;P", "emoticon_eyeblinktongue.gif");
             icones.put("8\\)", "emoticon_cool.gif");
-            icones.put("\\:´\\(", "emoticon_cry.gif");
+            icones.put("\\:Â´\\(", "emoticon_cry.gif");
             icones.put("\\:\\?", "emoticon_doubt.gif");
             icones.put("\\:\\/", "emoticon_indiferent.gif");
             icones.put("\\(666\\)", "emoticon_devil.gif");

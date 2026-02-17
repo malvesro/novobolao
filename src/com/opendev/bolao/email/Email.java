@@ -9,14 +9,14 @@ import java.util.List;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.Authenticator;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 
 
 public class Email {
@@ -25,7 +25,7 @@ public class Email {
 	private static final String TEMPLATE_CABECALHO = "cabecalho.html";
 	private static final String TEMPLATE_RODAPE = "rodape.html";
 	private static final ResourceBundle CONFIG = ResourceBundle.getBundle("com.opendev.bolao.email.email");
-	private static final String TITULO_PADRAO = "Bol„o de Placa - TV CipÛ na Copa 2006";
+	private static final String TITULO_PADRAO = "Bol√£o de Placa - TV Cip√≥ na Copa 2006";
 	
 	private Properties property;
 	private String conteudo;
@@ -44,7 +44,7 @@ public class Email {
 	 */
 	public Email(String nomeTemplate, String titulo, String assunto, String de) {
 		if (nomeTemplate == null) {
-			throw new IllegalArgumentException("O nome do template de email n„o pode ser 'null'");
+			throw new IllegalArgumentException("O nome do template de email n√£o pode ser 'null'");
 		}
 		this.property = new  Properties();
 		this.nomeTemplate = nomeTemplate;
@@ -88,9 +88,9 @@ public class Email {
 		populateData();
 
 		try {
-            boolean usarAutenticaÁ„o = new Boolean(CONFIG.getString("mail.smtp.auth")).booleanValue();
+            boolean usarAutentica√ß√£o = new Boolean(CONFIG.getString("mail.smtp.auth")).booleanValue();
             Authenticator auth = null;
-            if (usarAutenticaÁ„o) {
+            if (usarAutentica√ß√£o) {
                 auth = new Authenticator() {
                     protected PasswordAuthentication getPasswordAuthentication() {
                         PasswordAuthentication pwdAuth = new PasswordAuthentication(
@@ -106,12 +106,12 @@ public class Email {
 			Session session = Session.getDefaultInstance(propriedadesDeEnvio, auth);
 			Message msg = new MimeMessage(session);
 			
-			// Definindo os destinat·rios
+			// Definindo os destinat√°rios
 			String destino = converterParaValoresSeparadosPorVirgula(getEnderecosDestino());
 			if (destino != null) {
 				msg.addRecipients(Message.RecipientType.TO, InternetAddress.parse(destino, false));
 			} else {
-				throw new EmailException("Pelo menos um destinat·rio deve ser informado!");
+				throw new EmailException("Pelo menos um destinat√°rio deve ser informado!");
 			}
 			String copias = converterParaValoresSeparadosPorVirgula(getEnderecosCopia());
 			if (copias != null) {
@@ -159,7 +159,7 @@ public class Email {
 	protected String lerTemplate(String template) throws EmailException {
 		InputStream stream = getClass().getResourceAsStream(TEMPLATE_DIR + template);
         if (stream == null) {
-            throw new EmailException("O template com o nome '" + template + "' n„o foi encontrado!");
+            throw new EmailException("O template com o nome '" + template + "' n√£o foi encontrado!");
         }
 		StringBuffer conteudo = new StringBuffer();
 		try {
