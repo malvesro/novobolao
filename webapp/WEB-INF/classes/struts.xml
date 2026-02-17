@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 6.0//EN"
+	"https://struts.apache.org/dtds/struts-6.0.dtd">
+
+<struts>
+	<constant name="struts.devMode" value="false" />
+	<constant name="struts.objectFactory" value="spring" />
+
+	<package name="default" extends="struts-default">
+
+		<action name="logout" class="participanteAction" method="logout">
+			<result name="success">/login.jsp</result>
+		</action>
+		
+		<action name="cadastro" class="participanteAction" method="cadastrar">
+			<result name="success">/cadastro.jsp</result>
+			<result name="input">/cadastro.jsp</result>
+		</action>
+		
+	</package>
+	
+	<package name="seguro" extends="default" namespace="/seguro">
+		<action name="ranking" class="participanteAction" method="buscarParticipantes">
+			<result name="success">/seguro/classificacao.jsp</result>
+		</action>
+
+		<action name="palpites" class="participanteAction" method="prepararInfoPalpites">
+			<result name="success">/seguro/jogos.jsp</result>
+		</action>
+		
+		<action name="graficoDesempenho" class="participanteAction" method="gerarGraficoDesempenho">
+			<result name="success">/seguro/graficoDesempenho.jsp</result>
+		</action>
+		
+		<action name="copa" class="participanteAction" method="gerarClassificacaoDaCopa">
+			<result name="success">/seguro/copa.jsp</result>
+		</action>
+		
+		<action name="principal" class="participanteAction" method="obterDadosPaginaPrincipal">
+			<result name="success">/seguro/principal.jsp</result>
+		</action>
+
+	</package>
+	
+	<package name="admin" extends="default" namespace="/admin">
+	
+		<action name="infoEquipes" class="adminAction" method="carregarInfoEquipes">
+			<result name="success">/admin/inclusaoJogo.jsp</result>
+		</action>
+		
+		<action name="jogos" class="adminAction" method="carregarJogos">
+			<result name="success">/seguro/jogos.jsp</result>
+		</action>
+		
+		<action name="participantes" class="adminAction" method="carregarParticipantes">
+			<result name="success">/admin/participantes.jsp</result>
+		</action>
+
+		<!-- HTMX PoC: Apagar participante sem recarregar a tela e sem DWR -->
+		<action name="apagarParticipanteHtmx" class="adminAction" method="apagarParticipante">
+			<result name="success">/admin/empty.jsp</result>
+		</action>
+	
+	</package>
+
+</struts>

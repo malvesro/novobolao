@@ -47,7 +47,9 @@ Premissas de compatibilidade (críticas):
 4.  **[Cancelado] Substituição do WebWork:** (Fundido com a tarefa de Upgrade do Spring, pois WebWork é incompatível com Spring Boot 3/Jakarta EE).
 5.  **[Pendente] Atualização de Bibliotecas de Terceiros:** Inventariar e atualizar todas as bibliotecas de terceiros (DWR, Quartz, EHCache, JSTL, Cewolf, JFreeChart, Batik, etc.) para suas versões mais recentes e com suporte.
 6.  **[Concluído] Introdução de Testes Automatizados:** Iniciar a criação de testes unitários e de integração para módulos críticos e novos desenvolvimentos, priorizando a cobertura de áreas de negócio sensíveis.
-7.  **[Pendente] Refatoração do Front-end (Primeira Fase):** Planejar a substituição gradual de Prototype/Script.aculo.us por bibliotecas JavaScript mais modernas (ex: jQuery para facilitar a transição, ou início da adoção de um framework SPA para reescrita parcial de módulos).
+7.  **[Concluído] Refatoração do Front-end (Primeira Fase):** Planejar a substituição gradual de Prototype/Script.aculo.us pela **Arquitetura Híbrida** (jQuery 4.0.0 + HTMX).
+    Referência Plano: `.ia/planos/plano-modernizacao-frontend.md`
+    Referência ADR: `.ia/historico/ADR-20260217-arquitetura-frontend-modernizacao.md`
 
 ### Fase 3: Longo Prazo - Modernização Completa e Escalabilidade (MÉDIA a LONGA PRIORIDADE)
 
@@ -90,3 +92,7 @@ Premissas de compatibilidade (críticas):
     Referência ADR: `.ia/historico/ADR-20260217-upgrade-spring-framework.md`
 *   2026-02-17: **[Concluído]** Ajuste de Configuração Spring/Hibernate (Tarefa 1 da Fase 2). Atualizados beans `sessionFactory` e `txManager` para as classes do pacote `hibernate5` compatíveis com a nova versão.
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+*   2026-02-17: **[Concluído]** Modernização Front-end (Tarefa 7 da Fase 2). Implementação da **Arquitetura Híbrida**: Integração de jQuery 4.0.0 e HTMX 1.9.10; migração do `login.jsp` e `menu.jspf`; PoC de HTMX em `participantes.jsp` (exclusão sem DWR).
+    Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+    Referência ADR: `.ia/historico/ADR-20260217-arquitetura-frontend-modernizacao.md`
+    Referência Plano: `.ia/planos/plano-modernizacao-frontend.md`
