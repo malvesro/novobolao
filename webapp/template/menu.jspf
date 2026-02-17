@@ -35,10 +35,12 @@ function esconderOuMostrarMenu(menuHeader) {
     <a href="#">
       <span><fmt:message key="menu.geral.rules" /></span>
     </a>
+    <%--
     <c:url var="chatUrl" value="/seguro/batePapo.jsp" />
     <a href="${chatUrl}">
       <span><fmt:message key="menu.geral.chat" /></span>
     </a>
+    --%>
     </span>
   </div>
   <%--
