@@ -54,6 +54,22 @@ Premissas de compatibilidade (críticas):
     Referência Plano: `.ia/planos/plano-modernizacao-frontend.md`
     Referência ADR: `.ia/historico/ADR-20260217-arquitetura-frontend-modernizacao.md`
 
+### Fase 2.5: Auditoria e Ajuste do Frontend (ALTA PRIORIDADE)
+
+1.  **[Pendente] Auditoria Visual Completa:** Testar renderização e funcionalidade de todas as telas principais (login, dashboard, formulários, gráficos, admin) em navegadores modernos e múltiplas resoluções.
+2.  **[Pendente] Inventário e Análise de Scripts:** Mapear todos os arquivos JavaScript, identificar dependências e decidir manter/refatorar/remover cada um.
+3.  **[Pendente] Remoção de Prototype e Scriptaculous:** Eliminar bibliotecas legadas (Prototype.js, Scriptaculous.js) do projeto, migrando funcionalidades restantes para jQuery 4.0.0.
+4.  **[Pendente] Auditoria e Refatoração CSS:** Revisar `estilo.css`, remover hacks legados (IE6/7), reorganizar por componentes e implementar responsividade básica com media queries.
+5.  **[Pendente] Remoção de Referências ao Cewolf:** Limpar taglib Cewolf do `cabecalho.jspf` e substituir gráficos por implementação alternativa (JFreeChart direto ou Chart.js).
+6.  **[Pendente] Otimização de Performance:** Minificar JS/CSS, implementar cache de assets, usar lazy loading quando apropriado. Meta: Lighthouse Performance > 80.
+7.  **[Pendente] Auditoria de Acessibilidade:** Verificar conformidade com WCAG 2.1 Level AA (contraste, navegação por teclado, labels, ARIA). Meta: axe score > 90.
+8.  **[Pendente] Testes de Compatibilidade Cross-Browser:** Validar funcionamento em Chrome, Firefox, Edge e Safari (desktop e mobile).
+9.  **[Pendente] Documentação Frontend:** Criar `.ia/diretrizes/frontend.md` documentando arquitetura, padrões de código e guias para desenvolvedores.
+10. **[Pendente] Validação Final e Sign-off:** Checklist completo de qualidade frontend antes de prosseguir para Fase 3.
+
+Referência ADR: `.ia/historico/ADR-20260217-fase-auditoria-frontend.md`
+Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
+
 ### Fase 3: Longo Prazo - Modernização Completa (MÉDIA a LONGA PRIORIDADE)
 
 1.  **[Pendente] Reescrita ou Migração para estrutura modular:** Avaliar a reescrita gradual da aplicação ou a quebra do monolito em módulos (seguindo o DDD), utilizando uma arquitetura moderna como Struts 6 ou 7.
@@ -115,6 +131,11 @@ Premissas de compatibilidade (críticas):
     Referência ADR: `.ia/historico/ADR-20260217-bibliotecas-legadas.md`
     Referência Plano: `.ia/planos/plano-atualizacao-bibliotecas-terceiros.md`
     Skill: `senior-java-dev-legacy v1.0.0`
+*   2026-02-17: **[Criada]** Fase 2.5: Auditoria e Ajuste do Frontend. Identificada necessidade crítica de validação e modernização do frontend após migrações de backend. Criado ADR documentando riscos de regressão visual, coexistência problemática de Prototype/jQuery, débito técnico CSS e falta de validação. Criado plano detalhado com 10 tarefas: auditoria visual, remoção de bibliotecas legadas, refatoração CSS, otimização de performance, acessibilidade e testes cross-browser. Estimativa: 36-53 horas (~1-1.5 semanas). Esta fase é obrigatória antes de prosseguir para Fase 3.
+    Auto-Analise: [Risco de não fazer: Alto] | [Prioridade: Crítica] | [Veredito: Obrigatório]
+    Referência ADR: `.ia/historico/ADR-20260217-fase-auditoria-frontend.md`
+    Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
+    Skill: `senior-frontend-dev v1.0.0`
 *   2026-02-17: **[Concluído]** Atualização de Bibliotecas de Terceiros (Tarefa 5 da Fase 2). Removidos repositórios Maven descontinuados (maven.java.net); comentada dependência Cewolf (biblioteca descontinuada sem suporte Jakarta EE); build Maven (`mvn clean compile`) agora funciona com sucesso. Bibliotecas mantidas e atualizadas: JFreeChart 1.5.4, DWR 3.0.2, Batik 1.17, Quartz 2.3.2, EHCache 3.10.8. **Próximo passo**: Migrar funcionalidades que dependem do Cewolf para JFreeChart direto ou bibliotecas JS modernas.
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência ADR: `.ia/historico/ADR-20260217-bibliotecas-legadas.md`
