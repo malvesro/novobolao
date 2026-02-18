@@ -155,7 +155,7 @@
         <version>3.0.1</version>
     </dependency>
 
-    <!-- Logging (SLF4J + Logback is standard now) -->
+    <!-- JFreeChart & Cewolf (Legacy Charting) -->
     <dependency>
       <groupId>org.jfree</groupId>
       <artifactId>jcommon</artifactId>
@@ -164,7 +164,33 @@
     <dependency>
       <groupId>org.jfree</groupId>
       <artifactId>jfreechart</artifactId>
-      <version>1.0.19</version>
+      <version>1.5.4</version>
+    </dependency>
+    <dependency>
+        <groupId>net.sourceforge.cewolf</groupId>
+        <artifactId>cewolf</artifactId>
+        <version>1.2.4</version>
+        <exclusions>
+            <exclusion>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
+
+    <!-- Batik (SVG Support for Charts) -->
+    <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-all</artifactId>
+        <version>1.17</version>
+        <type>pom</type>
+    </dependency>
+
+    <!-- DWR (Direct Web Remoting - Legacy) -->
+    <dependency>
+        <groupId>org.directwebremoting</groupId>
+        <artifactId>dwr</artifactId>
+        <version>3.0.2-RELEASE</version>
     </dependency>
 
     <dependency>
@@ -284,6 +310,22 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.2.5</version>
+      </plugin>
+      <plugin>
+        <groupId>org.owasp</groupId>
+        <artifactId>dependency-check-maven</artifactId>
+        <version>12.1.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <failBuildOnCVSS>7</failBuildOnCVSS>
+          <format>ALL</format>
+        </configuration>
       </plugin>
     </plugins>
   </build>

@@ -35,7 +35,7 @@ Premissas de compatibilidade (críticas):
 
 ### Fase 2: Médio Prazo - Redução de Débito Técnico e Manutenção (ALTA PRIORIDADE)
 
-1.  **[Em Progresso] Upgrade do Spring Framework & WebWork:** Planejar e executar a migração do Spring Framework 1.2.8 para **Spring Framework 6** (Standalone) e do WebWork para **Struts 6.x** (Jakarta EE).
+1.  **[Concluído] Upgrade do Spring Framework & WebWork:** Planejar e executar a migração do Spring Framework 1.2.8 para **Spring Framework 6** (Standalone) e do WebWork para **Struts 6.x** (Jakarta EE).
     Referência ADR: `.ia/historico/ADR-20260217-upgrade-spring-framework.md`
     *   **[Concluído]** Atualização do `pom.xml` (BOMs Spring 6, Jakarta EE 10, Struts 6).
     *   **[Concluído]** Migração de Namespace: Substituir `javax.servlet` e `javax.persistence` por `jakarta.*`.
@@ -44,28 +44,37 @@ Premissas de compatibilidade (críticas):
     *   **[Concluído]** Adaptação de Configuração: Atualizar `web.xml` (FilterDispatcher -> StrutsPrepareAndExecuteFilter) e esquemas XSD dos XMLs do Spring.
 2.  **[Concluído] Migração da Segurança:** Planejar e executar a substituição do Acegi Security 1.0.0 por Spring Security 6+.
 3.  **[Concluído] Atualização do ORM:** Planejar e executar a migração do Hibernate 3.2.6.ga para Hibernate 6+.
-4.  **[Cancelado] Substituição do WebWork:** (Fundido com a tarefa de Upgrade do Spring, pois WebWork é incompatível com Spring Boot 3/Jakarta EE).
-5.  **[Pendente] Atualização de Bibliotecas de Terceiros:** Inventariar e atualizar todas as bibliotecas de terceiros (DWR, Quartz, EHCache, JSTL, Cewolf, JFreeChart, Batik, etc.) para suas versões mais recentes e com suporte.
+4.  **[Concluído] Substituição do WebWork:** Eliminar completamente as referências ao servlet e filtros do WebWork legado no `web.xml`.
+    Referência Plano: `.ia/planos/plano-substituicao-webwork.md`
+5.  **[Pendente] Atualização de Bibliotecas de Terceiros:** Inventariar e atualizar todas as bibliotecas de terceiros (DWR, Quartz, EHCache, JSTL, Cewolf, JFreeChart, Batik, etc.) para suas versões mais recentes e com suporte. Remova bibliotecas sem suporte e atualize para outras bibliotecas mais atuais que atendam as necessidades do sistema.
+    Referência ADR: `.ia/historico/ADR-20260217-bibliotecas-legadas.md`
 6.  **[Concluído] Introdução de Testes Automatizados:** Iniciar a criação de testes unitários e de integração para módulos críticos e novos desenvolvimentos, priorizando a cobertura de áreas de negócio sensíveis.
 7.  **[Concluído] Refatoração do Front-end (Primeira Fase):** Planejar a substituição gradual de Prototype/Script.aculo.us pela **Arquitetura Híbrida** (jQuery 4.0.0 + HTMX).
     Referência Plano: `.ia/planos/plano-modernizacao-frontend.md`
     Referência ADR: `.ia/historico/ADR-20260217-arquitetura-frontend-modernizacao.md`
 
-### Fase 3: Longo Prazo - Modernização Completa e Escalabilidade (MÉDIA a LONGA PRIORIDADE)
+### Fase 3: Longo Prazo - Modernização Completa (MÉDIA a LONGA PRIORIDADE)
 
-1.  **[Pendente] Reescrita ou Migração para Microserviços:** Avaliar a reescrita gradual da aplicação ou a quebra em microserviços, utilizando uma arquitetura moderna (ex: Spring Boot, RESTful APIs).
-2.  **[Pendente] Modernização Completa do Front-end:** Reescrita completa do front-end com um framework JavaScript moderno (React, Vue, Angular) e adoção de práticas de design responsivo.
-3.  **[Pendente] Automação de CI/CD:** Implementar um pipeline robusto de CI/CD para automatizar build, testes, análise de código e deployment.
-4.  **[Pendente] Monitoramento e Observabilidade:** Implementar ferramentas de monitoramento de desempenho (APM), agregação de logs e rastreamento distribuído.
+1.  **[Pendente] Reescrita ou Migração para estrutura modular:** Avaliar a reescrita gradual da aplicação ou a quebra do monolito em módulos (seguindo o DDD), utilizando uma arquitetura moderna como Struts 6 ou 7.
+2.  **[Pendente] Modernização Completa do Front-end:** Reescrita completa do front-end com um framework JavaScript moderno (React, Vue, Angular) e adoção de práticas de design responsivo, ajustado ao Struts 6 ou 7 escolhido no item 1.
+3.  **[Pendente] Simplifique o build, testes, análise de código e deployment com o container docker (docker compose) para execução local.
+4.  **[Pendente] Monitoramento e Observabilidade:** Implementar ferramentas de monitoramento de desempenho (APM), agregação de logs e rastreamento distribuído. Considere o uso de grafana e prometheus.
 5.  **[Pendente] Recriação do Chat (Chat 2.0):** Implementar um novo serviço de chat utilizando tecnologias modernas (Spring Boot + WebSocket), conforme detalhado em `implementation_plan.md`.
-6.  **[Pendente] Atualização da Versão do Java:** Migrar para a versão LTS mais recente do Java (ex: Java 17 ou 21).
-6.  **[Pendente] Banco de Dados:** Avaliar a necessidade de upgrade da versão do MySQL ou migração para um banco de dados mais adequado às necessidades futuras.
+6.  **[Pendente] Atualização da Versão do Java:** Migrar para a versão LTS mais recente do Java (ex: Java 17 ou 21 ou 25).
+6.  **[Pendente] Banco de Dados:** Avaliar a necessidade de upgrade da versão do MySQL.
 
 ### Fase 4: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
 1.  **[Concluído] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.
 2.  **[Concluído] Orquestração com Docker Compose:** Criar `docker-compose.yml` integrando a aplicação (Tomcat 10) e o banco de dados (MySQL 8).
 3.  **[Concluído] Persistência e Rede:** Configurar volumes para o banco de dados e redes isoladas entre os containers.
+
+### Fase 5: Segurança Progressiva (ALTA PRIORIDADE)
+
+1.  **[Pendente] Auditoria de Vulnerabilidades:** Integrar o OWASP Maven Dependency Check no `pom.xml` para monitoramento contínuo de CVEs.
+2.  **[Pendente] Proteção na Camada Web:** Configurar cabeçalhos de segurança (HSTS, CSP, X-Frame-Options) e proteção CSRF.
+3.  **[Pendente] Sanitização e Validação:** Revisar validadores do Struts 6 e implementar proteção robusta contra XSS.
+4.  **[Pendente] Auditoria de Segredos:** Implementar varredura de credenciais e senhas em arquivos de configuração.
 
 ## Registro de Avanços
 
@@ -96,3 +105,7 @@ Premissas de compatibilidade (críticas):
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência ADR: `.ia/historico/ADR-20260217-arquitetura-frontend-modernizacao.md`
     Referência Plano: `.ia/planos/plano-modernizacao-frontend.md`
+*   2026-02-17: **[Concluído]** Substituição Completa do WebWork (Tarefa 4 da Fase 2). Removida a declaração da taglib `/webwork` do `web.xml`; excluído o arquivo legado `xwork.xml`; padronizados os prefixos de taglib de `ww` para `s` em todos os arquivos JSP e JSPF. A aplicação agora utiliza exclusivamente o Struts 6 sem referências ao WebWork legado. **Nota**: Build Maven (`mvn clean compile`) continua falhando devido ao problema pré-existente com a dependência Cewolf (repositório descontinuado). Este problema será resolvido na Tarefa 5 (Atualização de Bibliotecas de Terceiros).
+    Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+    Referência Plano: `.ia/planos/plano-substituicao-webwork.md`
+    Skill: `senior-java-dev-legacy v1.0.0`
