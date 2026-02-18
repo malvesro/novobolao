@@ -205,6 +205,45 @@ Processo (legado):
 2. Garantir classes compiladas em `webapp/WEB-INF/classes/`.
 3. Executar `ant deploy` (gera WAR).
 
+## 13.1. Como Rodar (Moderno - Docker)
+
+**Recomendado para desenvolvimento e testes.**
+
+A aplicação modernizada pode ser executada facilmente usando Docker Compose. Consulte a documentação completa em:
+
+📖 **[docker/README.md](docker/README.md)**
+
+### Quick Start
+
+```bash
+# Build e start dos containers
+wsl bash -c "docker-compose up --build -d"
+
+# Verificar logs
+wsl bash -c "docker-compose logs -f app"
+
+# Acessar aplicação
+# http://localhost:8080
+```
+
+### Credenciais Padrão
+
+| Login | Senha | Papel |
+|-------|-------|-------|
+| admin | admin123 | ADMIN |
+| user | user123 | USER |
+
+⚠️ **IMPORTANTE:** Troque as senhas padrão após o primeiro acesso!
+
+Para mais detalhes sobre:
+- Troubleshooting
+- Variáveis de ambiente
+- Comandos de desenvolvimento
+- Health checks
+- Estrutura do banco de dados
+
+Consulte: **[docker/README.md](docker/README.md)**
+
 ## 14. Próximos Passos Recomendados
 
 1. Criar build moderno (Maven/Gradle).
