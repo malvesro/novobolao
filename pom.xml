@@ -179,6 +179,12 @@
         <groupId>org.directwebremoting</groupId>
         <artifactId>dwr</artifactId>
         <version>3.0.2-RELEASE</version>
+        <exclusions>
+            <exclusion>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+            </exclusion>
+        </exclusions>
     </dependency>
 
     <dependency>
