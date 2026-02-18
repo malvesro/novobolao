@@ -1,7 +1,7 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<%@taglib prefix="ww" uri="/struts-tags" %>
+<%@taglib prefix="s" uri="/struts-tags" %>
 <%@taglib prefix="cewolf" uri="http://cewolf.sourceforge.net/taglib/cewolf.tld" %>
 <%@taglib prefix="authz" uri="http://acegisecurity.org/authz" %>
 <%@taglib prefix="opendev" uri="http://www.opendev.com.br/tld" %>
@@ -57,11 +57,11 @@
         </table>
     </opendev:portlet>
 <div style="height: 20px;"></div>
-    <opendev:portlet id="grafico_lideres_portlet" title="Liderança" style="width: 600px; margin: 0 auto; height: 220px; background-color: #FFFFFF;">
+    <opendev:portlet id="grafico_lideres_portlet" title="Lideranï¿½a" style="width: 600px; margin: 0 auto; height: 220px; background-color: #FFFFFF;">
         <div style="text-align: center;">
             <cewolf:chart id="lideresChart" type="horizontalbar3d"
-                legendanchor="west" title="Disputa pela Liderança"
-                xaxislabel="Pontuação" antialias="true">
+                legendanchor="west" title="Disputa pela Lideranï¿½a"
+                xaxislabel="Pontuaï¿½ï¿½o" antialias="true">
                 <cewolf:colorpaint color="#FFFFFF" />
                 <cewolf:data>
                     <cewolf:producer id="graficoLideranca" />
