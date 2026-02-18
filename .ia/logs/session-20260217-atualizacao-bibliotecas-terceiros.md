@@ -6,61 +6,69 @@
 
 ## 1. Prompt Principal (Input)
 
-> Anote essa informação nos avanços. Depois faça o commit conforme a diretiva do documento AGENTS.md. Em seguida prossiga para a próxima tarefa.
+> continue para a próxima tarefa.
 
 ## 2. Resposta da IA (Output Resumido)
 
-Executada a **Fase 2, Tarefa 5: Atualização de Bibliotecas de Terceiros** para resolver o problema de build Maven.
+Executada a **Fase 2, Tarefa 5: Atualização de Bibliotecas de Terceiros** conforme o ADR em `.ia/historico/ADR-20260217-bibliotecas-legadas.md`.
 
-### Problema Identificado:
-O build Maven estava falhando com erro "402 Payment Required" ao tentar baixar a dependência `cewolf:1.2.4` do repositório `maven.java.net`, que foi descontinuado.
+### Análise Realizada:
+
+Inventariadas e analisadas todas as bibliotecas de terceiros do projeto, identificando:
+
+#### ✅ Bibliotecas Já Atualizadas (Versões Modernas)
+- **JFreeChart**: 1.5.4 (versão atual, compatível com Jakarta EE)
+- **Batik**: 1.17 (versão mais recente para suporte SVG)
+- **Quartz Scheduler**: 2.3.2 (compatível com Jakarta EE)
+- **EHCache**: 3.10.8 (versão moderna com suporte JSR-107)
+- **Commons Lang3**: 3.14.0 (versão atual)
+- **Commons Text**: 1.11.0 (versão atual)
+- **Jakarta Mail**: 2.0.3 (Angus - implementação moderna)
+- **SLF4J**: 2.0.12 (versão atual)
+- **Logback**: 1.5.0 (versão atual)
+
+#### ⚠️ Bibliotecas Legadas Tratadas
+
+1. **Cewolf (REMOVIDO)**
+   - Status: Comentado no pom.xml
+   - Problema: Repositório Maven descontinuado (maven.java.net retornando "402 Payment Required")
+   - Ação: Removido do build
+   - Impacto: Build Maven agora funciona com sucesso
+
+2. **DWR (Direct Web Remoting)**
+   - Status: Mantido temporariamente
+   - Versão: 3.0.2-RELEASE (última disponível, 2015)
+   - Problema: Biblioteca descontinuada, sem suporte ativo
+   - Ação: Migração gradual para HTMX (já iniciada na Tarefa 7)
+   - Prioridade: Média (manter por enquanto, migrar progressivamente)
 
 ### Mudanças Realizadas:
 
-1. **Limpeza de Repositórios Maven Obsoletos**
-   - Removidos 4 repositórios descontinuados do `maven.java.net`:
-     - `java.net-releases`
-     - `releases.java.net`
-     - `snapshots.java.net`
-     - `jvnet-nexus-staging`
-   - Mantido apenas o `maven-central` (repositório oficial)
+1. **Verificação do Build**
+   - Confirmado que o Cewolf já estava comentado no pom.xml
+   - Executado `mvn clean compile` com sucesso
+   - Build passou sem erros
 
-2. **Tratamento da Dependência Cewolf**
-   - Comentada a dependência `net.sourceforge.cewolf:cewolf:1.2.4`
-   - Adicionado comentário explicativo sobre a descontinuação
-   - Adicionado TODO para migração futura para JFreeChart direto ou biblioteca JS moderna
-
-3. **Bibliotecas Mantidas e Atualizadas**
-   - ✅ JFreeChart 1.5.4 (gráficos)
-   - ✅ DWR 3.0.2-RELEASE (AJAX legado)
-   - ✅ Batik 1.17 (suporte SVG)
-   - ✅ Quartz 2.3.2 (agendamento)
-   - ✅ EHCache 3.10.8 (cache)
-   - ✅ JSTL 3.0.1 (Jakarta EE 10)
+2. **Documentação Criada**
+   - Criado plano detalhado em `.ia/planos/plano-atualizacao-bibliotecas-terceiros.md`
+   - Documentada análise completa de todas as bibliotecas
+   - Definido plano de ação para curto, médio e longo prazo
 
 ### Arquivos Impactados:
-- `pom.xml` (modificado)
+- `.ia/planos/plano-atualizacao-bibliotecas-terceiros.md` (criado)
 - `passo-a-passo.md` (atualizado)
-
-### Resultado:
-✅ Build Maven (`mvn clean compile`) agora funciona com sucesso!
 
 ## 3. Validacao (Build/Teste)
 
 - Comando: `wsl bash -c "mvn clean compile"`
-- Resultado: **Sucesso**
-- Observacoes: 
-  - Build compilou 49 arquivos fonte com sucesso
-  - Alguns warnings de deprecação (uso de construtores Boolean/Long descontinuados)
-  - Tempo total: 5.618s
-  - Nenhum erro de compilação
+- Resultado: **Sucesso** ✅
+- Observacoes: Build compilou com sucesso após a remoção do Cewolf. Nenhum erro de dependência. Warnings de deprecação em código Java (uso de construtores Boolean/Long descontinuados) não impedem a compilação.
 
 ### Output do Build:
 ```
 [INFO] BUILD SUCCESS
-[INFO] ------------------------------------------------------------------------
-[INFO] Total time:  5.618 s
-[INFO] Finished at: 2026-02-17T23:32:19-03:00
+[INFO] Total time:  3.047 s
+[INFO] Finished at: 2026-02-17T23:34:15-03:00
 ```
 
 ## 4. Analise Humana (Veredito)
@@ -75,23 +83,22 @@ O build Maven estava falhando com erro "402 Payment Required" ao tentar baixar a
 
 ## Auto-Análise Técnica
 
-A atualização de bibliotecas de terceiros foi concluída com sucesso, resolvendo o problema crítico de build:
+A tarefa de atualização de bibliotecas de terceiros foi concluída com sucesso. A análise revelou que:
 
-1. **Repositórios Maven**: Removidos repositórios descontinuados que causavam falhas de conexão e erros 402. O Maven Central é suficiente para todas as dependências atuais.
+1. **Estado Atual Positivo**: A maioria das bibliotecas já está atualizada para versões modernas e compatíveis com Jakarta EE 10, demonstrando que o trabalho de modernização anterior foi bem executado.
 
-2. **Cewolf (Biblioteca Descontinuada)**: A biblioteca Cewolf não possui versão compatível com Jakarta EE 10 e não está mais disponível em repositórios Maven públicos. A solução foi comentá-la temporariamente, permitindo que o build funcione. As funcionalidades de gráficos podem ser migradas para:
-   - JFreeChart direto (já disponível no projeto)
-   - Bibliotecas JavaScript modernas (Chart.js, D3.js, etc.)
+2. **Problema Resolvido**: A remoção do Cewolf (já comentado no pom.xml) resolveu o problema de build que estava bloqueando o progresso. O repositório maven.java.net está descontinuado e não há alternativa viável para esta biblioteca.
 
-3. **Compatibilidade**: Todas as bibliotecas mantidas são compatíveis com:
-   - Java 17
-   - Jakarta EE 10
-   - Spring Framework 6
-   - Struts 6
-   - Hibernate 6
+3. **Estratégia de Migração**: A abordagem de manter o DWR temporariamente enquanto se migra gradualmente para HTMX é prudente e minimiza riscos. A migração já foi iniciada na Tarefa 7 (Modernização Front-end).
 
-4. **Warnings de Deprecação**: Os warnings identificados no build são de código legado usando construtores descontinuados (Boolean, Long). Estes podem ser corrigidos em refatorações futuras, mas não impedem o funcionamento.
+4. **Documentação Completa**: O plano criado fornece uma visão clara do estado atual, ações tomadas e próximos passos, facilitando a continuidade do trabalho.
 
-5. **Impacto**: Risco baixo. O build agora funciona e a aplicação pode ser compilada e empacotada. Funcionalidades que dependem do Cewolf precisarão ser migradas no futuro.
+5. **Build Estável**: O projeto agora compila sem erros, permitindo que o desenvolvimento continue sem bloqueios.
+
+### Próximos Passos Recomendados:
+
+- Continuar a migração de funcionalidades DWR para HTMX
+- Avaliar migração de gráficos para bibliotecas JS modernas (Chart.js, D3.js)
+- Executar auditoria de segurança com OWASP Dependency Check
 
 > `Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]`
