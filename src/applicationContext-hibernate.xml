@@ -46,19 +46,29 @@
 	<!-- DAOs definitions -->
 	
 	<bean id="equipeDao" class="com.opendev.bolao.dao.hibernate.EquipeDaoImpl" depends-on="sessionFactory">
-		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
 	</bean>
 	<bean id="jogoDao" class="com.opendev.bolao.dao.hibernate.JogoDaoImpl" depends-on="sessionFactory">
-		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
 	</bean>
 	<bean id="palpiteDao" class="com.opendev.bolao.dao.hibernate.PalpiteDaoImpl" depends-on="sessionFactory">
-		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
 	</bean>
 	<bean id="participanteDao" class="com.opendev.bolao.dao.hibernate.ParticipanteDaoImpl" depends-on="sessionFactory">
-		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
 	</bean>
 	<bean id="privilegioDao" class="com.opendev.bolao.dao.hibernate.PrivilegioDaoImpl" depends-on="sessionFactory">
-		<property name="sessionFactory" ref="sessionFactory" />
+		<property name="sessionFactory">
+			<ref bean="sessionFactory" />
+		</property>
 	</bean>
 
 </beans>
