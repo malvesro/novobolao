@@ -27,3 +27,8 @@ Desktop.ini
 *.bak
 *.swp
 *.swo
+
+# Arquivos compilados no webapp (gerados durante build)
+# Nota: Mantemos os recursos (.xml, .properties, .html) versionados
+# mas ignoramos arquivos .class que podem ser gerados durante desenvolvimento
+webapp/WEB-INF/classes/**/*.class
