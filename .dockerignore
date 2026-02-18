@@ -1,0 +1,40 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.iml
+
+# Build
+target/
+*.class
+
+# Logs
+*.log
+
+# Documentation
+*.md
+!docker/README.md
+
+# Docker
+docker-compose.yml
+Dockerfile
+
+# Tests
+tests/
+
+# CI/CD
+.github/
+
+# IA
+.ia/
+
+# Backup
+*.bak
+pom.xml.bak
+
+# OS
+.DS_Store
+Thumbs.db

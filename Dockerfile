@@ -14,6 +14,8 @@ FROM tomcat:10.1-jdk17-alpine
 WORKDIR /usr/local/tomcat/webapps/
 # Remover apps padrão do Tomcat para segurança
 RUN rm -rf ROOT docs examples host-manager manager
+# Instalar curl para health check
+RUN apk add --no-cache curl
 # Copiar o WAR gerado no stage 1
 COPY --from=build /app/target/sistema-bolao.war ./ROOT.war
 
