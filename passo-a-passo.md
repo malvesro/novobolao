@@ -140,3 +140,7 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência ADR: `.ia/historico/ADR-20260217-bibliotecas-legadas.md`
     Skill: `senior-java-dev-legacy v1.0.0`
+*   2026-02-18: **[Concluído]** Correção de Configurações XML para Compatibilidade com Spring 6. Durante testes do Docker, identificado erro de inicialização devido a incompatibilidade dos arquivos XML de configuração. Migrados todos os 6 arquivos XML (hibernate, security, service, action, resources, scheduler) de DTD antigo para XSD schema do Spring 6. Corrigidas referências `<ref local="..."/>` para `<ref bean="..."/>` e sintaxe de propriedades para formato explícito compatível com Spring 6. Containers Docker parados para rebuild. **Próximo passo**: Rebuild da aplicação Docker e teste de acesso.
+    Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+    Referência Log: `.ia/logs/session-20260218-correcao-xml-spring6.md`
+    Skill: `senior-java-dev-legacy v1.0.0`
