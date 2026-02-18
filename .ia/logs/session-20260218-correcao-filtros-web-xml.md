@@ -192,11 +192,25 @@ A migração para Spring 6 e Jakarta EE 10 foi parcialmente concluída:
 
 ## 8. Veredito
 
-**Auto-Análise:** [Risco: Médio] | [Compatibilidade: Atenção] | [Veredito: Correção Necessária]
+**Auto-Análise:** [Risco: Alto] | [Compatibilidade: Bloqueador] | [Veredito: Migração Necessária]
 
 ### Justificativa
 
-As correções são essenciais para a aplicação inicializar. O problema do `javax.servlet` pode indicar necessidade de acelerar a migração do Acegi Security para Spring Security 6 (Tarefa 2 da Fase 2, já marcada como concluída mas pode ter issues residuais).
+As correções iniciais (exclusão javax.servlet no DWR) não resolveram o problema. A causa raiz é o uso de Acegi Security (EOL desde 2006) no `applicationContext-security.xml`, que é incompatível com Jakarta EE 10.
+
+### Decisão Final: Migração para Spring Security 6
+
+**Aprovado pelo usuário em 2026-02-18**
+
+A migração completa do Acegi Security para Spring Security 6 será executada, incluindo:
+1. Reescrita do `applicationContext-security.xml` usando Spring Security 6
+2. Atualização do `web.xml` para usar filtros do Spring Security 6
+3. Migração de beans de autenticação e autorização
+4. Testes de login e controle de acesso
+
+**Estimativa:** 2-4 horas
+**Prioridade:** Crítica (bloqueador)
+**Próxima Ação:** Criar novo log de sessão para a migração Spring Security 6
 
 ---
 
@@ -205,3 +219,35 @@ As correções são essenciais para a aplicação inicializar. O problema do `ja
 - `passo-a-passo.md` (Fase 2, Tarefa 1 - Upgrade Spring Framework)
 - `.ia/historico/ADR-20260217-upgrade-spring-framework.md`
 - `.ia/logs/session-20260218-correcao-xml-spring6.md`
+
+## 9. Achado Crítico - Acegi Security Incompatível
+
+**Data do Achado:** 2026-02-18 16:40
+**Severidade:** Crítica (Bloqueador)
+
+### Descrição
+
+Durante investigação do erro `javax.servlet.Filter`, descoberto que:
+
+1. **Acegi Security 1.0.0 em uso**: O `applicationContext-security.xml` utiliza classes do Acegi Security (EOL desde 2006)
+2. **Sem dependência no pom.xml**: Acegi Security não está declarado como dependência
+3. **Spring Security 6 não utilizado**: Apesar de estar no `pom.xml`, não é usado na configuração
+4. **Incompatibilidade Jakarta EE**: Acegi Security usa `javax.servlet`, incompatível com Tomcat 10
+
+### Impacto
+
+- ❌ Aplicação não inicializa
+- ❌ Bloqueia todas as fases subsequentes
+- ❌ Tarefa 2 Fase 2 marcada incorretamente como "Concluída"
+- ❌ Risco de segurança (biblioteca EOL com vulnerabilidades conhecidas)
+
+### Resolução Aprovada
+
+Migração completa para Spring Security 6 (Opção 1), conforme recomendação do arquiteto e aprovação do usuário.
+
+### Lições Aprendidas
+
+1. Verificar TODAS as configurações XML após migração de frameworks
+2. Tarefa "Concluída" deve incluir validação de runtime, não apenas build
+3. Dependências EOL devem ser identificadas e substituídas proativamente
+4. Testes de inicialização são críticos após migrações de stack
