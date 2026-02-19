@@ -9,12 +9,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-/*
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
-*/
 
 import com.opendev.bolao.dao.JogoDao;
 import com.opendev.bolao.dao.PalpiteDao;
@@ -22,10 +20,8 @@ import com.opendev.bolao.dao.ParticipanteDao;
 import com.opendev.bolao.dao.PriviledioDao;
 import com.opendev.bolao.email.Email;
 import com.opendev.bolao.exception.ValidacaoException;
-/*
 import com.opendev.bolao.grafico.GraficoBarraLideres;
 import com.opendev.bolao.grafico.GraficoComparativoDesempenho;
-*/
 import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.model.Palpite;
 import com.opendev.bolao.model.Participante;
@@ -62,13 +58,10 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 		this.passwordEncoder = passwordEncoder;
 	}
 	
-/*
 	public GraficoComparativoDesempenho construirGraficoDesempenho(Participante participante, Long idRivail) {
 		TimeSeriesCollection seriesCollection = null;
-//        DefaultCategoryDataset dataSet = null;
 		List participantes = null;
 		if (participante != null) {
-//			Participante rival = null;
 			if (idRivail != null) {
 				participantes = new ArrayList(2);
 				participantes.add(participante);
@@ -84,10 +77,9 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 			Jogo jogo = null;
 			long pontos = 0L;
 			seriesCollection = new TimeSeriesCollection();
-//            dataSet = new DefaultCategoryDataset();
 			for (Iterator iter = participantes.iterator(); iter.hasNext();) {
 				umParticipante = (Participante) iter.next();
-				series = new TimeSeries(umParticipante.getNomeFormatado(), Day.class);
+				series = new TimeSeries(umParticipante.getNomeFormatado());
 				for (int i = 0; i < jogos.size(); i++) {
 					jogo = (Jogo) jogos.get(i);
 					palpiteDoJogo = getPalpiteDao().buscarPorParticipanteEJogo(umParticipante, jogo);
@@ -95,23 +87,13 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 						pontos += palpiteDoJogo.getPontuacao().getPontuacao();
 					}
 					series.addOrUpdate(new Day(jogo.getData()), pontos);
-//                    dataSet.addValue(BigInteger.valueOf(pontos),
-//                            umParticipante.getNomeFormatado(),
-//                            ConversaoUtils.converterParaString(jogo.getData()));
 				}
                 pontos = 0L;
 				seriesCollection.addSeries(series);
 			}
 		}
-//        return new GraficoComparativoDesempenho(dataSet);
         return new GraficoComparativoDesempenho(seriesCollection);
 	}
-*/
-/*
-    public GraficoComparativoDesempenho construirGraficoDesempenho(Participante participante, Long idRivail) {
-        return null;
-    }
-*/
 
 	public Participante buscarPorLogin(String login) {
 		return getParticipanteDao().buscarPorLogin(login);
@@ -164,7 +146,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         participante.setLogin(participante.getLogin().trim().toLowerCase());
         participante.setEmail(participante.getEmail().trim());
         getParticipanteDao().salvar(participante);
-        Email email = new Email("novoCadastro.html", "Novo pedido de cadastro pendente");
+        Email email = criarEmail("novoCadastro.html", "Novo pedido de cadastro pendente");
         email.adicionarEnderecoDestino("deinf.rochett@bc");
         email.adicionarEnderecoDestino("rosner.suporte.deinf@bcb.gov.br");
         email.setPropriedade("nome", participante.getNome());
@@ -176,8 +158,11 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         }
         return participante;
     }
+
+    protected Email criarEmail(String template, String assunto) {
+        return new Email(template, assunto);
+    }
     
-/*
     public GraficoBarraLideres construirGraficoDeBarrasDosLideres() {
         DefaultCategoryDataset dataSet = new DefaultCategoryDataset();
         List participantes = buscarClassificacao();
@@ -200,12 +185,6 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         }
         return new GraficoBarraLideres(dataSet);
     }
-*/
-/*
-    public GraficoBarraLideres construirGraficoDeBarrasDosLideres() {
-        return null;
-    }
-*/
     
     public ParticipanteDao getParticipanteDao() {
         return participanteDao;

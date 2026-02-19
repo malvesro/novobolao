@@ -291,6 +291,7 @@
         <directory>tests</directory>
         <includes>
           <include>**/*.properties</include>
+          <include>mockito-extensions/**</include>
         </includes>
       </testResource>
     </testResources>
