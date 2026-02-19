@@ -22,6 +22,7 @@ import com.opendev.bolao.util.FiltroBuscaJogos;
 import com.opendev.bolao.util.RequestUtils;
 import com.opendev.bolao.util.ValidacaoUtils;
 import org.apache.struts2.ActionSupport;
+import org.apache.struts2.interceptor.parameter.StrutsParameter;
 
 public class ParticipanteAction extends ActionSupport {
 
@@ -45,6 +46,22 @@ public class ParticipanteAction extends ActionSupport {
     // Dados página principal
     private List jogosDeHoje;
 //    private GraficoBarraLideres graficoLideranca;
+
+    // Parâmetros de Cadastro
+    private String login;
+    private String nome;
+    private String email;
+    private String senha;
+
+    // Parâmetros de Filtro
+    private boolean usarFiltro;
+    private String dataInicial;
+    private String dataFinal;
+    private Integer filtroFase;
+    private Long filtroEquipe;
+    private String filtroGrupo;
+    private boolean filtroSemPalpite;
+    private boolean filtroJogosNaoOcorreram;
 
 	public String logout() {
 		HttpSession session = RequestUtils.getRequest().getSession();
@@ -103,36 +120,84 @@ public class ParticipanteAction extends ActionSupport {
     }
 
 	private FiltroBuscaJogos obterFiltro() {
-		HttpServletRequest request = RequestUtils.getRequest();
 		FiltroBuscaJogos filtro = null;
-        if (new Boolean(request.getParameter("usarFiltro")).booleanValue()) {
+        if (isUsarFiltro()) {
             filtro = new FiltroBuscaJogos();
-    		filtro.setDataInicial(ConversaoUtils.converterParaData(request.getParameter("dataInicial")));
-    		filtro.setDataFinal(ConversaoUtils.converterParaData(request.getParameter("dataFinal")));
-            if (!ValidacaoUtils.isVazia(request.getParameter("filtroFase"))) {
-                filtro.setFase(Integer.valueOf(request.getParameter("filtroFase")));
+    		filtro.setDataInicial(ConversaoUtils.converterParaData(getDataInicial()));
+    		filtro.setDataFinal(ConversaoUtils.converterParaData(getDataFinal()));
+            if (getFiltroFase() != null) {
+                filtro.setFase(getFiltroFase());
             }
-            if (!ValidacaoUtils.isVazia(request.getParameter("filtroEquipe"))) {
-                filtro.setIdEquipe(Long.valueOf(request.getParameter("filtroEquipe")));
+            if (getFiltroEquipe() != null) {
+                filtro.setIdEquipe(getFiltroEquipe());
             }
-    		filtro.setGrupo(request.getParameter("filtroGrupo"));
-            filtro.setSoSemPalpite(new Boolean(request.getParameter("filtroSemPalpite")).booleanValue());
-            filtro.setSoJogosQueNaoOcorreram(new Boolean(request.getParameter("filtroJogosNaoOcorreram")).booleanValue());
+    		filtro.setGrupo(getFiltroGrupo());
+            filtro.setSoSemPalpite(isFiltroSemPalpite());
+            filtro.setSoJogosQueNaoOcorreram(isFiltroJogosNaoOcorreram());
             filtro.setLogin(RequestUtils.getLoginParticipanteAutenticado());
         }
 		return filtro;
 	}
     
     private Participante obterParticipante() {
-        HttpServletRequest request = RequestUtils.getRequest();
         Participante p = new Participante();
-        p.setLogin(request.getParameter("login"));
-        p.setNome(request.getParameter("nome"));
-        p.setEmail(request.getParameter("email"));
-        p.setSenha(request.getParameter("senha"));
+        p.setLogin(getLogin());
+        p.setNome(getNome());
+        p.setEmail(getEmail());
+        p.setSenha(getSenha());
         p.setIp(RequestUtils.getIpDaRequisicao());
         return p;
     }
+
+    // Getters e Setters anotados para Struts 7
+
+    public String getLogin() { return login; }
+    @StrutsParameter
+    public void setLogin(String login) { this.login = login; }
+
+    public String getNome() { return nome; }
+    @StrutsParameter
+    public void setNome(String nome) { this.nome = nome; }
+
+    public String getEmail() { return email; }
+    @StrutsParameter
+    public void setEmail(String email) { this.email = email; }
+
+    public String getSenha() { return senha; }
+    @StrutsParameter
+    public void setSenha(String senha) { this.senha = senha; }
+
+    public boolean isUsarFiltro() { return usarFiltro; }
+    @StrutsParameter
+    public void setUsarFiltro(boolean usarFiltro) { this.usarFiltro = usarFiltro; }
+
+    public String getDataInicial() { return dataInicial; }
+    @StrutsParameter
+    public void setDataInicial(String dataInicial) { this.dataInicial = dataInicial; }
+
+    public String getDataFinal() { return dataFinal; }
+    @StrutsParameter
+    public void setDataFinal(String dataFinal) { this.dataFinal = dataFinal; }
+
+    public Integer getFiltroFase() { return filtroFase; }
+    @StrutsParameter
+    public void setFiltroFase(Integer filtroFase) { this.filtroFase = filtroFase; }
+
+    public Long getFiltroEquipe() { return filtroEquipe; }
+    @StrutsParameter
+    public void setFiltroEquipe(Long filtroEquipe) { this.filtroEquipe = filtroEquipe; }
+
+    public String getFiltroGrupo() { return filtroGrupo; }
+    @StrutsParameter
+    public void setFiltroGrupo(String filtroGrupo) { this.filtroGrupo = filtroGrupo; }
+
+    public boolean isFiltroSemPalpite() { return filtroSemPalpite; }
+    @StrutsParameter
+    public void setFiltroSemPalpite(boolean filtroSemPalpite) { this.filtroSemPalpite = filtroSemPalpite; }
+
+    public boolean isFiltroJogosNaoOcorreram() { return filtroJogosNaoOcorreram; }
+    @StrutsParameter
+    public void setFiltroJogosNaoOcorreram(boolean filtroJogosNaoOcorreram) { this.filtroJogosNaoOcorreram = filtroJogosNaoOcorreram; }
     
     public List buscarMeusPalpites() {
     	String login = RequestUtils.getLoginParticipanteAutenticado();
