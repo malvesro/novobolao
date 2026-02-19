@@ -11,10 +11,14 @@
 	<!-- Spring Security 6 Configuration -->
 
     <!-- Global Method Security -->
-    <security:global-method-security secured-annotations="enabled" pre-post-annotations="enabled">
-        <security:protect-pointcut expression="execution(* com.opendev.bolao.action.AdminAction.carregarInfoEquipes(..))" access="hasRole('ADMIN')" />
-        <security:protect-pointcut expression="execution(* com.opendev.bolao.action.AdminAction.criarNovoJogo(..))" access="hasRole('ADMIN')" />
-        <security:protect-pointcut expression="execution(* com.opendev.bolao.action.AdminAction.atualizarResultadoDoJogo(..))" access="hasRole('ADMIN')" />
+    <security:global-method-security secured-annotations="enabled" pre-post-annotations="enabled" proxy-target-class="true">
+        <security:protect-pointcut expression="execution(* com.opendev.bolao.service.EquipeService.buscarTodasEquipes(..))" access="hasRole('ADMIN')" />
+        <security:protect-pointcut expression="execution(* com.opendev.bolao.service.JogoService.criarNovoJogo(..))" access="hasRole('ADMIN')" />
+        <security:protect-pointcut expression="execution(* com.opendev.bolao.service.JogoService.atualizarResultado(..))" access="hasRole('ADMIN')" />
+        <security:protect-pointcut expression="execution(* com.opendev.bolao.service.ParticipanteService.buscarTodos(..))" access="hasRole('ADMIN')" />
+        <security:protect-pointcut expression="execution(* com.opendev.bolao.service.ParticipanteService.apagar(..))" access="hasRole('ADMIN')" />
+        <security:protect-pointcut expression="execution(* com.opendev.bolao.service.ParticipanteService.atualizarAutorizacao(..))" access="hasRole('ADMIN')" />
+        <security:protect-pointcut expression="execution(* com.opendev.bolao.service.ParticipanteService.atualizarPapel(..))" access="hasRole('ADMIN')" />
     </security:global-method-security>
 
     <!-- HTTP Security Configuration -->
