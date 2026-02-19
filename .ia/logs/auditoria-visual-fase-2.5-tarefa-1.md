@@ -2,7 +2,7 @@
 
 **Data Início:** 2026-02-17  
 **Responsável:** Kiro (Desenvolvedor Sênior Frontend)  
-**Status:** Em Progresso
+**Status:** Concluído em 2026-02-19 (auditoria via Docker/cURL)
 
 ## Objetivo
 
@@ -22,16 +22,16 @@ Validar renderização e funcionalidade de todas as telas principais após migra
 Baseado na estrutura do projeto, as seguintes telas serão auditadas:
 
 1. ✅ **Login** (`webapp/login.jsp`)
-2. ⏳ **Cadastro** (`webapp/cadastro.jsp`)
-3. ⏳ **Dashboard/Principal** (`webapp/seguro/principal.jsp`)
-4. ⏳ **Classificação/Ranking** (`webapp/seguro/classificacao.jsp`)
-5. ⏳ **Jogos/Palpites** (`webapp/seguro/jogos.jsp`)
-6. ⏳ **Gráfico de Desempenho** (`webapp/seguro/graficoDesempenho.jsp`)
-7. ⏳ **Copa** (`webapp/seguro/copa.jsp`)
-8. ⏳ **Admin - Inclusão de Jogo** (`webapp/admin/inclusaoJogo.jsp`)
-9. ⏳ **Admin - Participantes** (`webapp/admin/participantes.jsp`)
-10. ⏳ **Troca de Senha** (`webapp/seguro/trocaSenha.jsp`)
-11. ⏳ **Bate-papo** (`webapp/seguro/batePapo.jsp`)
+2. ⚠️ **Cadastro** (`webapp/cadastro.jsp`) – redireciona 302 para `login.jsp` (ajuste de segurança pendente)
+3. ✅ **Dashboard/Principal** (`webapp/seguro/principal.jsp`)
+4. ✅ **Classificação/Ranking** (`webapp/seguro/classificacao.jsp`)
+5. ✅ **Jogos/Palpites** (`webapp/seguro/jogos.jsp`)
+6. ✅ **Gráfico de Desempenho** (`webapp/seguro/graficoDesempenho.jsp`)
+7. ✅ **Copa** (`webapp/seguro/copa.jsp`)
+8. ✅ **Admin - Inclusão de Jogo** (`webapp/admin/inclusaoJogo.jsp`)
+9. ✅ **Admin - Participantes** (`webapp/admin/participantes.jsp`)
+10. ✅ **Troca de Senha** (`webapp/seguro/trocaSenha.jsp`)
+11. ✅ **Bate-papo** (`webapp/seguro/batePapo.jsp`)
 
 ### Análise Estática: Login.jsp
 
@@ -143,43 +143,44 @@ Para cada tela, verificar:
 - [ ] Console do navegador sem erros JavaScript
 - [ ] Console do navegador sem erros 404 (assets)
 
-## Fase 3: Execução e Testes (Aguardando)
+## Fase 3: Execução e Testes (Concluído via cURL em 2026-02-19)
 
-### Navegadores para Teste
+### Validações Executadas
+- [x] Login `admin/admin123` e `user/user123` autenticados via `/j_security_check` (HTTP 302 → `/seguro/principal.jsp`).
+- [x] Telas autenticadas principais (`/seguro/*.jsp` e `/admin/*.jsp`) retornaram HTTP 200 com HTML completo.
+- [x] Endpoints de gráficos `/seguro/graficoLiderancaImagem.action` e `/seguro/graficoDesempenhoImagem.action` retornaram PNG válidos.
+- [x] RBAC: usuário padrão (`USER`) recebeu HTTP 403 ao acessar `/admin/participantes.jsp`.
+
+### Pendências (Execução em Navegadores Reais)
 - [ ] Chrome (última versão)
 - [ ] Firefox (última versão)
 - [ ] Edge (última versão)
-
-### Resoluções para Teste
-- [ ] Desktop: 1920x1080
-- [ ] Desktop: 1366x768
-- [ ] Tablet: 768x1024
-- [ ] Mobile: 375x667
+- [ ] Validação responsiva: 1920x1080, 1366x768, 768x1024, 375x667
 
 ## Descobertas e Bugs
 
 ### Bugs Críticos
-*Nenhum identificado ainda*
+*Nenhum identificado*
 
 ### Bugs Médios
-*Nenhum identificado ainda*
+1. `cadastro.jsp` redireciona 302 para `/login.jsp` (ausência de `permitAll` na configuração Spring Security). Impacto: novos usuários não conseguem iniciar pedido de cadastro.
 
 ### Bugs Baixos
-*Nenhum identificado ainda*
+*Nenhum adicional além das pendências conhecidas de bibliotecas legadas*
 
 ### Melhorias Recomendadas
-1. Remover taglib Cewolf do cabecalho.jspf
-2. Remover Prototype/Scriptaculous
-3. Reordenar carregamento de scripts
+1. Ajustar `applicationContext-security.xml` para liberar `permitAll` em `/cadastro.jsp` e `/cadastro.action`.
+2. Remover Prototype/Scriptaculous e reordenar carregamento de scripts (tarefas 2 e 3 da Fase 2.5).
+3. Planejar execução manual em navegadores reais após higienização de scripts/CSS.
 
 ## Próximos Passos
 
-1. ⏳ Subir aplicação via Docker Compose
-2. ⏳ Testar tela de Login
-3. ⏳ Testar demais telas conforme checklist
-4. ⏳ Documentar bugs encontrados
-5. ⏳ Criar relatório final com screenshots
+1. ✅ Subir aplicação via Docker Compose
+2. ✅ Testar tela de Login (HTTP 200)
+3. ✅ Testar demais telas conforme checklist (HTTP 200 + RBAC)
+4. ✅ Documentar bugs encontrados (ver seção "Bugs Médios")
+5. ⏳ Criar relatório final com screenshots (depende de testes em navegadores)
 
 ---
 
-**Última Atualização:** 2026-02-17 23:45
+**Última Atualização:** 2026-02-19 20:52 (UTC-03)
