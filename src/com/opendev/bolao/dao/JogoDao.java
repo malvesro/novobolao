@@ -15,7 +15,7 @@ public interface JogoDao {
 	
 	public Jogo buscarPorId(Long id);
 	
-	public Integer buscarQuantidadeDeJogosOcorridos();
+	public long buscarQuantidadeDeJogosOcorridos();
 	
 	public List buscarJogosOcorridos();
 	
