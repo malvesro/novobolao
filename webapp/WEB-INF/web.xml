@@ -60,7 +60,10 @@
 	<filter>
 		<filter-name>securityFilter</filter-name>
 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-        <!-- delegating to bean named 'filterChainProxy' by default or we can specify targetBeanName -->
+		<init-param>
+			<param-name>targetBeanName</param-name>
+			<param-value>filterChainProxy</param-value>
+		</init-param>
 	</filter>
 
 	<filter-mapping>
