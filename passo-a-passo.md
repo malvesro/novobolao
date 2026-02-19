@@ -64,7 +64,7 @@ Premissas de compatibilidade (críticas):
     Referência Log: `.ia/logs/session-20260218-migracao-spring-security-6.md`
 
 3.  **[Pendente]** **Fase 2.7: Atualização para Copa do Mundo 2026:**
-    *   **[Pendente]** **Atualização de Dados (SQL):** Criar e aplicar script de carga (`03-copa-2026-data.sql`) com as 48 seleções, 12 grupos e locais oficiais (Canadá, México, EUA).
+    *   **[Pendente]** **Atualização de Dados (SQL):** Criar e aplicar script de carga (`03-copa-2026-data.sql`) com as 48 seleções, 12 grupos e locais oficiais (Canadá, México, EUA). **Nota: Horários devem ser convertidos para o horário de Brasília.**
     *   **[Pendente]** **Configurações de Contexto:** Atualizar parâmetros de cidades-sede e datas no `web.xml` para refletir o calendário de Junho/Julho de 2026.
     *   **[Pendente]** **Lógica de Fases:** Adaptar o sistema para suportar a nova fase de "16-avos de final" (mata-mata ampliado).
     *   **[Pendente]** **Auditoria Visual de Escala:** Garantir que as telas de palpites e classificação suportem o aumento de volume de dados (48 seleções vs 32 anteriores).
