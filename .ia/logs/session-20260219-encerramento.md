@@ -6,17 +6,17 @@
 
 ## 1. Ponto de Parada
 
-A aplicação está inicializando com sucesso no ambiente Docker. Todas as dependências críticas (Spring 6, Struts 7, Hibernate 6, Spring Security 6) estão carregadas e configuradas.
+A aplicação está inicializando com sucesso no ambiente Docker. Todas as dependências críticas (Spring 6, Struts 7, Hibernate 6, Spring Security 6) estão carregadas e configuradas. **Status atualizado conforme `passo-a-passo.md`: a Tarefa 2.6.2 (remoção do fallback SHA-1) está concluída.**
 
 ## 2. Contexto para Continuação
 
-O próximo trabalho deve iniciar na **Tarefa 2.6.2 da Fase 2**:
-- **Ação Imediata:** Validar o login no sistema via navegador ou `curl`.
-- **Objetivo:** Confirmar se o `DelegatingPasswordEncoder` está realizando o re-hash de senhas de SHA-1 para BCrypt corretamente e se a sessão do Spring Security está sendo mantida.
+Próximo trabalho (pendências ativas da Fase 2 - Validação Integrada de Segurança):
+- **Ação Imediata:** Testar fluxo de autenticação (Login/Logout) com usuários cadastrados utilizando apenas hashes `BCrypt`.
+- **Ação Imediata:** Testar controle de acesso (RBAC) para URLs `/admin/**` e `/seguro/**`.
 
 ## 3. Estado dos Documentos
 
-- **passo-a-passo.md:** Atualizado até a Tarefa 2.6.1 (concluída).
+- **passo-a-passo.md:** Atualizado até a Tarefa 2.6.2 (concluída).
 - **AGENTS.md:** Atualizado com as novas diretrizes de ADR e Skill Versioning.
 - **Diretrizes de Segurança:** Consolidadas em `.ia/diretrizes/seguranca.md`.
 
