@@ -63,7 +63,7 @@ Premissas de compatibilidade (críticas):
         *   **[Concluído]** Testar fluxo de autenticação (Login/Logout) com usuários cadastrados utilizando apenas hashes `BCrypt` (preparar cenário com usuário seed e validação manual/automática). Fluxo validado com login `admin/admin123`, logout e tentativa inválida registrada. (Skill: `modernization-java-migration v1.0.0`) Referência Log: `.ia/logs/session-20260219-validacao-login-bcrypt-v2.md`.
         *   **[Concluído]** Ajustar fallback da página principal quando `jogosDeHoje` estiver vazio para evitar redirecionamento recursivo (`principal.jsp` → `principal.action`). Exibida mensagem informativa no portlet quando não há jogos, mantendo o gráfico de liderança visível. (Skill: `modernization-java-migration v1.0.0`) Referência Log: `.ia/logs/session-20260219-principal-fallback-sem-jogos.md`.
         *   **[Concluído]** Corrigir `JogoDaoImpl.buscarQuantidadeDeJogosOcorridos` para retornar `Long` sem cast para `Integer`, eliminando o `ClassCastException` ao acessar `/seguro/ranking.action`. Query tipada com retorno `long` e cobertura de teste unitário em `ParticipanteServiceImplTest`. (Skill: `modernization-java-migration v1.0.0`) Referência Log: `.ia/logs/session-20260219-correcao-jogos-ocorridos.md`.
-        *   [Pendente] Testar controle de acesso (RBAC) para URLs `/admin/**` e `/seguro/**`.
+        *   **[Concluído]** Testar controle de acesso (RBAC) para URLs `/admin/**` e `/seguro/**`. Perfil `USER` recebe HTTP 403 em `/admin/jogos.action`; perfil `ADMIN` passa pela segurança (erro 500 remanescente devido a bug nas actions Struts). Referência Log: `.ia/logs/session-20260219-validacao-rbac.md`.
     Referência Log: `.ia/logs/session-20260218-correcao-filtros-web-xml.md`
     Referência Log: `.ia/logs/session-20260218-migracao-spring-security-6.md`
 
@@ -244,4 +244,8 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 *   2026-02-19: **[Concluído]** Validação do fluxo de Login/Logout com hashes BCrypt: cenários de sucesso, logout e senha inválida confirmados via Docker, sem redirecionamentos indevidos.
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260219-validacao-login-bcrypt-v2.md`
+    Skill: `modernization-java-migration v1.0.0`
+*   2026-02-19: **[Concluído]** Validação de RBAC: `/seguro/**` acessível a usuários autenticados; `/admin/**` retorna 403 para perfil `USER`. Acesso `ADMIN` liberado, com erro funcional existente nas actions administrativas (NoSuchMethodException).
+    Auto-Analise: [Risco: Baixo] | [Compatibilidade: Atenção] | [Veredito: Revisar]
+    Referência Log: `.ia/logs/session-20260219-validacao-rbac.md`
     Skill: `modernization-java-migration v1.0.0`
