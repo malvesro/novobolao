@@ -89,7 +89,17 @@ Premissas de compatibilidade (críticas):
 2.  **[Pendente] Inventário e Análise de Scripts:** Mapear todos os arquivos JavaScript, identificar dependências e decidir manter/refatorar/remover cada um.
 3.  **[Pendente] Remoção de Prototype e Scriptaculous:** Eliminar bibliotecas legadas (Prototype.js, Scriptaculous.js) do projeto, migrando funcionalidades restantes para jQuery 4.0.0.
 4.  **[Pendente] Auditoria e Refatoração CSS:** Revisar `estilo.css`, remover hacks legados (IE6/7), reorganizar por componentes e implementar responsividade básica com media queries.
-5.  **[Pendente] Remoção de Referências ao Cewolf:** Limpar taglib Cewolf do `cabecalho.jspf` e substituir gráficos por implementação alternativa (JFreeChart direto ou Chart.js).
+5.  **[Em Progresso] Migração do Cewolf (Gráficos):** Substituir o Cewolf por geração de gráficos com JFreeChart direto (server-side) ou Chart.js (client-side), removendo todas as dependências e taglibs legadas.
+    *   **[Concluído] Inventário de Uso:** Mapear páginas e tags `<cewolf:*>` (ex: `webapp/seguro/principal.jsp`, `webapp/seguro/graficoDesempenho.jsp`) e identificar dados necessários para cada gráfico.
+    *   **[Concluído] Implementação de Renderização:** Criar geradores de gráficos em Java (JFreeChart) e expor endpoints/Actions para servir PNG/SVG (ex: `/seguro/graficoLideranca.png`, `/seguro/graficoDesempenho.png`).
+    *   **[Concluído] Atualização das JSPs:** Substituir `<cewolf:chart>`/`<cewolf:img>` por `<img>` apontando para os novos endpoints e remover dependências do Cewolf nas telas.
+    *   **[Concluído] Remoção de Taglibs:** Remover `<%@taglib prefix="cewolf" ... %>` do `cabecalho.jspf` e das JSPs.
+    *   **[Em Progresso] Validação Funcional:** Testar renderização dos gráficos e impacto em telas afetadas.
+        - Testes automatizados adicionados (`GraficosJFreeChartTest`, `ParticipanteActionTest`) validando geração de PNG via JFreeChart.
+        - Execução `mvn test` bloqueada: repositório `http://nexus.tse.jus.br` indisponível para download dos BOMS (`spring-framework-bom`, `jakartaee-bom`) e host `https://nx-mvn.tse.jus.br` sem resolução DNS para plugins (`Temporary failure in name resolution` e falha ao gravar `.lastUpdated`).
+        - Skill aplicada: `modernization-java-migration v1.0.0`.
+        - `mvn clean compile` executado com sucesso após ajuste no uso do `TimeSeries` (JFreeChart 1.5.4).
+        - `mvn test -DskipITs` executado com sucesso após habilitar modo headless para JFreeChart e mockar envio de e-mails no teste de serviço (`mockito-extensions` configurado).
 6.  **[Pendente] Otimização de Performance:** Minificar JS/CSS, implementar cache de assets, usar lazy loading quando apropriado. Meta: Lighthouse Performance > 80.
 7.  **[Pendente] Auditoria de Acessibilidade:** Verificar conformidade com WCAG 2.1 Level AA (contraste, navegação por teclado, labels, ARIA). Meta: axe score > 90.
 8.  **[Pendente] Testes de Compatibilidade Cross-Browser:** Validar funcionamento em Chrome, Firefox, Edge e Safari (desktop e mobile).
@@ -196,4 +206,8 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 *   2026-02-19: **[Concluído]** Validação de OGNL Allowlist (Fase 2). Configuradas as permissões explícitas no `struts.xml` para as classes de domínio (`com.opendev.bolao.model`) e utilitários, garantindo que o Struts 7 consiga renderizar as propriedades dos objetos nas JSPs sob a nova política de segurança proativa.
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260219-struts-ognl-allowlist.md`
+    Skill: `modernization-java-migration v1.0.0`
+*   2026-02-19: **[Em Progresso]** Migração do Cewolf (Fase 2.5). Criadas classes de gráfico com JFreeChart, reativada geração de datasets no serviço, adicionados endpoints Struts para PNG e atualizadas JSPs para usar `<img>` com novos endpoints. Validação funcional dos gráficos pendente.
+    Auto-Analise: [Risco: Medio] | [Compatibilidade: Atencao] | [Veredito: Revisar]
+    Referência Log: `.ia/logs/session-20260219-migracao-cewolf-continuacao.md`
     Skill: `modernization-java-migration v1.0.0`
