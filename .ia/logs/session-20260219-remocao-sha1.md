@@ -16,6 +16,7 @@ Arquivos impactados:
 - `src/main/resources/applicationContext-security.xml`
 - `src/com/opendev/bolao/util/LegacySha1PasswordEncoder.java` (removido)
 - `src/com/opendev/bolao/util/DelegatingPasswordEncoder.java` (removido)
+- `docker/mysql/init/02-seed-data.sql` (hashes atualizados para BCrypt)
 
 ## 3. Validacao (Build/Teste)
 
