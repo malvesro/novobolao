@@ -21,7 +21,7 @@ import com.opendev.bolao.util.ConversaoUtils;
 import com.opendev.bolao.util.FiltroBuscaJogos;
 import com.opendev.bolao.util.RequestUtils;
 import com.opendev.bolao.util.ValidacaoUtils;
-import com.opensymphony.xwork2.ActionSupport;
+import org.apache.struts2.ActionSupport;
 
 public class ParticipanteAction extends ActionSupport {
 
