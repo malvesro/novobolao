@@ -34,19 +34,42 @@ A migração será feita em etapas incrementais para garantir que o contexto do 
     - `AccessDecisionManager` -> Gerenciamento de autorização nativo do Spring Security 6.
 4. **Password Encoding**: Migrar de `ShaPasswordEncoder` (Acegi) para `BCryptPasswordEncoder` (Spring Security), mantendo suporte legado através do `DelegatingPasswordEncoder` (já esboçado na Fase 1).
 
-## 4. Implementação (Etapa 1: Preparação)
+## 4. Implementação (Concluída: Etapa 1 e 2)
 
-### Arquivos Modificados nesta etapa:
+### Arquivos Modificados:
 
-1. **webapp/WEB-INF/web.xml**
-    - Adição de explicitamente do `targetBeanName` como `filterChainProxy` para evitar ambiguidade e resolver o erro de bean não encontrado durante a fase de transição.
+1. **src/applicationContext-security.xml**
+    - Migração completa de Acegi Security 1.0.0 para Spring Security 6.
+    - Utilização do namespace `<security:http>` e `<security:authentication-manager>`.
+    - Mapeamento de `jdbcUserService` e `passwordEncoder`.
+    - Configuração de intercept-urls, form-login, logout e anonymous.
 
-## 5. Próximos Passos
+2. **webapp/WEB-INF/web.xml**
+    - Atualização do schema para Servlet 6.0 (Jakarta EE 10).
+    - Configuração do `securityFilter` para usar `springSecurityFilterChain`.
+    - Padronização de filter-mappings para `/*`.
+    - Remoção de declarações legadas de Taglibs Acegi.
 
-1. Reescrever `applicationContext-security.xml` para remover dependências de `org.acegisecurity`.
-2. Atualizar as referências de Taglibs de segurança nos JSPs.
-3. Testar o fluxo de autenticação e autorização no ambiente Docker.
+3. **src/com/opendev/bolao/util/LegacySha1PasswordEncoder.java**
+    - Criada nova classe para suportar o hashing SHA-1 Base64 das senhas legadas, permitindo a transição gradual para BCrypt.
+
+4. **webapp/template/cabecalho.jspf, menu.jspf e JSPs**
+    - Substituição da taglib `authz` (Acegi) pela `sec` (Spring Security).
+    - Atualização das tags `<sec:authorize>` e do link de logout.
+
+## 5. Validação (Build/Teste)
+
+### Resultados:
+- **Build Maven:** `mvn clean compile` executado com SUCESSO.
+- **Mapeamento de Beans:** Todos os beans Acegi foram substituídos ou removidos, eliminando as dependências de `org.acegisecurity`.
+- **Incompatibilidade Jakarta EE:** Resolvida através da substituição total das classes que dependiam de `javax.servlet`.
+
+## 6. Próximos Passos
+
+1. **Teste em Runtime (Docker):** Realizar o rebuild dos containers e testar o login com os usuários `admin` (senha `admin123`) e `user` (senha `user123`).
+2. **Password Re-hash:** Verificar se a estratégia do `DelegatingPasswordEncoder` está funcionando para migrar as senhas de SHA-1 para BCrypt no primeiro login bem-sucedido.
+3. **Auditoria de Autorização:** Validar se as restrições de acesso por URL estão funcionando conforme o esperado para cada Role.
 
 ---
 
-**Auto-Análise:** [Risco: Médio] | [Compatibilidade: OK] | [Veredito: Aprovado]
+**Auto-Análise:** [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
