@@ -83,20 +83,8 @@
         users-by-username-query="select PAR_LOGIN, PAR_SENHA, case when PAR_HABILITADO = 'T' then true else false end as enabled from PAR_PARTICIPANTE where PAR_LOGIN = ?"
         authorities-by-username-query="select par.PAR_LOGIN, pri.PRI_PAPEL from PRI_PRIVILEGIO as pri inner join PAR_PARTICIPANTE as par where par.PAR_LOGIN = ? and par.PAR_ID = pri.PRI_PAR_ID" />
 
-    <!-- Password Encoders -->
-    <bean id="bcryptEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
-    <bean id="sha1Encoder" class="com.opendev.bolao.util.LegacySha1PasswordEncoder" />
-    
-    <!-- DelegatingPasswordEncoder for seamless migration of existing users -->
-    <bean id="passwordEncoder" class="com.opendev.bolao.util.DelegatingPasswordEncoder">
-        <constructor-arg index="0" value="bcrypt" />
-        <constructor-arg index="1">
-            <map>
-                <entry key="bcrypt" value-ref="bcryptEncoder" />
-                <entry key="sha1" value-ref="sha1Encoder" />
-            </map>
-        </constructor-arg>
-    </bean>
+    <!-- Password Encoder (BCrypt only) -->
+    <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
 
     <!-- Logger Listener for security events -->
     <bean id="loggerListener" class="org.springframework.security.authentication.event.LoggerListener" />

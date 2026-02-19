@@ -58,8 +58,8 @@ Premissas de compatibilidade (críticas):
     *   **[Concluído]** Configurar password encoder (BCrypt)
     *   **[Em Progresso]** **Validação Integrada de Segurança:**
         *   **[Concluído]** Validar **OGNL Allowlist** no Struts 7 para classes do pacote `com.opendev.bolao.model` e utilitários de exibição. (Skill: `modernization-java-migration v1.0.0`)
-        *   [Pendente] Testar fluxo de autenticação (Login/Logout) com usuários cadastrados utilizando apenas hashes `BCrypt`.
-        *   [Pendente] Remover fallback SHA-1 do encoder e higienizar base de credenciais conforme ADR `.ia/historico/ADR-20260219-remocao-sha1-senhas.md` (garantir rota de redefinição/cadastro).
+        *   **[Concluído]** Remover fallback SHA-1 do encoder e higienizar base de credenciais conforme ADR `.ia/historico/ADR-20260219-remocao-sha1-senhas.md`.
+        *   [Pendente] Testar fluxo de autenticação (Login/Logout) com usuários cadastrados utilizando apenas hashes `BCrypt` (preparar cenário com usuário seed e validação manual/automática).
         *   [Pendente] Testar controle de acesso (RBAC) para URLs `/admin/**` e `/seguro/**`.
     Referência Log: `.ia/logs/session-20260218-correcao-filtros-web-xml.md`
     Referência Log: `.ia/logs/session-20260218-migracao-spring-security-6.md`
@@ -211,4 +211,9 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 *   2026-02-19: **[Em Progresso]** Migração do Cewolf (Fase 2.5). Criadas classes de gráfico com JFreeChart, reativada geração de datasets no serviço, adicionados endpoints Struts para PNG e atualizadas JSPs para usar `<img>` com novos endpoints. Validação funcional dos gráficos pendente.
     Auto-Analise: [Risco: Medio] | [Compatibilidade: Atencao] | [Veredito: Revisar]
     Referência Log: `.ia/logs/session-20260219-migracao-cewolf-continuacao.md`
+    Skill: `modernization-java-migration v1.0.0`
+*   2026-02-19: **[Concluído]** Remoção do fallback SHA-1 e padronização do encoder para BCrypt (Tarefa 2.6.2). Atualizado `applicationContext-security.xml`, removidos utilitários legados e confirmada suíte de testes (`mvn test -DskipITs`) com hashes modernos.
+    Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+    Referência ADR: `.ia/historico/ADR-20260219-remocao-sha1-senhas.md`
+    Referência Log: `.ia/logs/session-20260219-remocao-sha1.md`
     Skill: `modernization-java-migration v1.0.0`
