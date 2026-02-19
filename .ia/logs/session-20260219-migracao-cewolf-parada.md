@@ -4,14 +4,14 @@
 **Autor:** Assistente Tecnico Lider/IA
 **Skills Utilizadas:** modernization-java-migration v1.0.0
 
-## 1. Ponto de Parada
+## 1. Ponto de Parada (Atualizado)
 
-Removidas todas as referencias a taglibs Cewolf das JSPs para eliminar erro 500 de compilacao. As telas agora carregam sem Cewolf, com placeholders temporarios.
+Etapa concluída conforme `passo-a-passo.md`. As referencias a taglibs Cewolf foram removidas das JSPs para eliminar erro 500 de compilacao e permitir a continuidade da migracao. **A continuacao foi registrada na sessao `session-20260219-migracao-cewolf-continuacao.md`.**
 
-## 2. Contexto para Continuacao
+## 2. Contexto para Continuacao (Atualizado)
 
 - Objetivo principal: substituir Cewolf por geracao de graficos via JFreeChart (server-side) ou Chart.js (client-side).
-- Proximo passo sugerido: criar endpoints/Actions para gerar imagens dos graficos e atualizar as JSPs para apontar para esses endpoints.
+- Proximo passo atual: validar renderizacao e dados dos graficos nas telas (principal e comparativo) e ajustar tamanho/estilo se necessario (pendencia registrada na continuacao).
 
 ## 3. Alteracoes Realizadas
 
