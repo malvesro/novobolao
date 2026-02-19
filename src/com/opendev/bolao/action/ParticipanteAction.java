@@ -1,16 +1,16 @@
 package com.opendev.bolao.action;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 import com.opendev.bolao.exception.ValidacaoException;
-/*
 import com.opendev.bolao.grafico.GraficoBarraLideres;
 import com.opendev.bolao.grafico.GraficoComparativoDesempenho;
-*/
 import com.opendev.bolao.model.Palpite;
 import com.opendev.bolao.model.Participante;
 import com.opendev.bolao.service.EquipeService;
@@ -21,6 +21,8 @@ import com.opendev.bolao.util.ConversaoUtils;
 import com.opendev.bolao.util.FiltroBuscaJogos;
 import com.opendev.bolao.util.RequestUtils;
 import com.opendev.bolao.util.ValidacaoUtils;
+import org.jfree.chart.ChartUtils;
+import org.jfree.chart.JFreeChart;
 import org.apache.struts2.ActionSupport;
 import org.apache.struts2.interceptor.parameter.StrutsParameter;
 
@@ -40,12 +42,12 @@ public class ParticipanteAction extends ActionSupport {
     private List participantes;
     private List equipes;
     private FiltroBuscaJogos filtro;
-//    private GraficoComparativoDesempenho grafico;
     private Participante participanteLogado;
     
     // Dados página principal
     private List jogosDeHoje;
-//    private GraficoBarraLideres graficoLideranca;
+    private InputStream graficoStream;
+    private String rival;
 
     // Parâmetros de Cadastro
     private String login;
@@ -82,41 +84,58 @@ public class ParticipanteAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
-/*
-	public String gerarGraficoDesempenho() {
-		String login = RequestUtils.getLoginParticipanteAutenticado();
-		HttpServletRequest request = RequestUtils.getRequest();
-		String rival = request.getParameter("rival");
-		Long idRival = null;
-		if (!ValidacaoUtils.isVazia(rival)) {
-            idRival = Long.valueOf(rival);
-        }
+    public String gerarGraficoDesempenho() {
+        String login = RequestUtils.getLoginParticipanteAutenticado();
         Participante participante = getParticipanteService().buscarPorLogin(login);
-		GraficoComparativoDesempenho grafico = getParticipanteService().construirGraficoDesempenho(participante, idRival);
-		setGrafico(grafico);
         setParticipanteLogado(participante);
         List participantes = getParticipanteService().buscarClassificacao();
         participantes.remove(participante);
         Collections.sort(participantes, Participante.COMPARADOR_NOME);
         setParticipantes(participantes);
-		return SUCCESS;
-	}
-*/
-    public String gerarGraficoDesempenho() {
+        return SUCCESS;
+    }
+
+    public String gerarGraficoDesempenhoImagem() {
+        String login = RequestUtils.getLoginParticipanteAutenticado();
+        Participante participante = getParticipanteService().buscarPorLogin(login);
+        Long idRival = obterIdRival();
+        GraficoComparativoDesempenho grafico = getParticipanteService().construirGraficoDesempenho(participante, idRival);
+        JFreeChart chart = grafico.criarChart();
+        this.graficoStream = renderizarChart(chart, 560, 240);
         return SUCCESS;
     }
     
-/*
     public String obterDadosPaginaPrincipal() {
         setJogosDeHoje(getJogoService().buscarJogosDeHoje());
-        setGraficoLideranca(getParticipanteService().construirGraficoDeBarrasDosLideres());
         return SUCCESS;
     }
-*/
-    public String obterDadosPaginaPrincipal() {
-        setJogosDeHoje(getJogoService().buscarJogosDeHoje());
-        // setGraficoLideranca(getParticipanteService().construirGraficoDeBarrasDosLideres());
+
+    public String gerarGraficoLiderancaImagem() {
+        GraficoBarraLideres grafico = getParticipanteService().construirGraficoDeBarrasDosLideres();
+        JFreeChart chart = grafico.criarChart();
+        this.graficoStream = renderizarChart(chart, 560, 180);
         return SUCCESS;
+    }
+
+    private Long obterIdRival() {
+        if (ValidacaoUtils.isVazia(this.rival)) {
+            return null;
+        }
+        try {
+            return Long.valueOf(this.rival);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    private InputStream renderizarChart(JFreeChart chart, int largura, int altura) {
+        try {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            ChartUtils.writeChartAsPNG(buffer, chart, largura, altura);
+            return new ByteArrayInputStream(buffer.toByteArray());
+        } catch (Exception ex) {
+            throw new RuntimeException("Falha ao gerar grafico.", ex);
+        }
     }
 
 	private FiltroBuscaJogos obterFiltro() {
@@ -342,15 +361,6 @@ public class ParticipanteAction extends ActionSupport {
 		this.filtro = filtro;
 	}
 
-/*
-	public GraficoComparativoDesempenho getGrafico() {
-		return grafico;
-	}
-
-	public void setGrafico(GraficoComparativoDesempenho grafico) {
-		this.grafico = grafico;
-	}
-*/
     
     public Participante getParticipanteLogado() {
         return this.participanteLogado;
@@ -364,15 +374,18 @@ public class ParticipanteAction extends ActionSupport {
         this.participantes = participantes;
     }
     
-/*
-    public GraficoBarraLideres getGraficoLideranca() {
-        return this.graficoLideranca;
+    public InputStream getGraficoStream() {
+        return this.graficoStream;
     }
 
-    public void setGraficoLideranca(GraficoBarraLideres graficoLideranca) {
-        this.graficoLideranca = graficoLideranca;
+    public String getRival() {
+        return rival;
     }
-*/
+
+    @StrutsParameter
+    public void setRival(String rival) {
+        this.rival = rival;
+    }
 
     public List getJogosDeHoje() {
         return this.jogosDeHoje;
