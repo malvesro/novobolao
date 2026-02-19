@@ -91,10 +91,10 @@ Premissas de compatibilidade (críticas):
 
 ### Fase 2.5: Auditoria e Ajuste do Frontend (ALTA PRIORIDADE)
 
-1.  **[Em Progresso] Auditoria Visual Completa:** Testar renderização e funcionalidade de todas as telas principais (login, dashboard, formulários, gráficos, admin) em navegadores modernos e múltiplas resoluções.
-2.  **[Pendente] Inventário e Análise de Scripts:** Mapear todos os arquivos JavaScript, identificar dependências e decidir manter/refatorar/remover cada um.
-3.  **[Pendente] Remoção de Prototype e Scriptaculous:** Eliminar bibliotecas legadas (Prototype.js, Scriptaculous.js) do projeto, migrando funcionalidades restantes para jQuery 4.0.0.
-4.  **[Pendente] Auditoria e Refatoração CSS:** Revisar `estilo.css`, remover hacks legados (IE6/7), reorganizar por componentes e implementar responsividade básica com media queries.
+1.  **[Em Progresso] Auditoria Visual Completa (Prioridade Atual):** Testar renderização e funcionalidade de todas as telas principais (login, dashboard, formulários, gráficos, admin) em navegadores modernos e múltiplas resoluções. Concluir esta etapa antes de iniciar novas otimizações.
+2.  **[Pendente] Inventário e Análise de Scripts (Iniciar após Tarefa 1):** Mapear todos os arquivos JavaScript, identificar dependências e decidir manter/refatorar/remover cada um. Resultado alimentará as tarefas 3 e 4.
+3.  **[Pendente] Remoção de Prototype e Scriptaculous (Sequência após Tarefa 2):** Eliminar bibliotecas legadas (Prototype.js, Scriptaculous.js) do projeto, migrando funcionalidades restantes para jQuery 4.0.0.
+4.  **[Pendente] Auditoria e Refatoração CSS (Sequência após Tarefa 3):** Revisar `estilo.css`, remover hacks legados (IE6/7), reorganizar por componentes e implementar responsividade básica com media queries.
 5.  **[Concluído] Migração do Cewolf (Gráficos):** Substituir o Cewolf por geração de gráficos com JFreeChart direto (server-side) ou Chart.js (client-side), removendo todas as dependências e taglibs legadas.
     *   **[Concluído] Inventário de Uso:** Mapear páginas e tags `<cewolf:*>` (ex: `webapp/seguro/principal.jsp`, `webapp/seguro/graficoDesempenho.jsp`) e identificar dados necessários para cada gráfico.
     *   **[Concluído] Implementação de Renderização:** Criar geradores de gráficos em Java (JFreeChart) e expor endpoints/Actions para servir PNG/SVG (ex: `/seguro/graficoLideranca.png`, `/seguro/graficoDesempenho.png`).
@@ -103,7 +103,7 @@ Premissas de compatibilidade (críticas):
     *   **[Concluído] Remoção Residual (Deploy/Cache):** Garantir que o `cabecalho.jspf` sem Cewolf seja aplicado no WAR/ROOT do Tomcat (rebuild/redeploy) e remover cache/artefatos que ainda referenciam `cewolf.tld`, desbloqueando `login.jsp`/`index.jsp`. Referência Log: `.ia/logs/session-20260219-remocao-cewolf-deploy-cache.md`
     *   **[Concluído] Validação Funcional:** Testes automatizados (`GraficosJFreeChartTest`, `ParticipanteActionTest`) seguem verdes e, em 19/02/2026, a validação manual via Docker confirmou retorno HTTP 200 dos endpoints `/seguro/graficoLiderancaImagem.action` e `/seguro/graficoDesempenhoImagem.action` com PNGs válidos (assinatura `89 50 4E 47`). Referência Log: `.ia/logs/session-20260219-validacao-graficos-jfreechart-v2.md`. Skill: `modernization-java-migration v1.0.0`. Observação: `mvn test` executado integralmente em 19/02/2026 validou 5 cenários sem falhas após restabelecimento do Nexus TSE.
     Referência Log: `.ia/logs/session-20260219-migracao-cewolf-continuacao.md`, `.ia/logs/session-20260219-validacao-graficos-jfreechart-v2.md`
-6.  **[Pendente] Otimização de Performance:** Minificar JS/CSS, implementar cache de assets, usar lazy loading quando apropriado. Meta: Lighthouse Performance > 80.
+6.  **[Pendente] Otimização de Performance (Aguardar Tarefas 1-4):** Minificar JS/CSS, implementar cache de assets, usar lazy loading quando apropriado. Meta: Lighthouse Performance > 80. Executar somente após a higienização de scripts e CSS.
 7.  **[Pendente] Auditoria de Acessibilidade:** Verificar conformidade com WCAG 2.1 Level AA (contraste, navegação por teclado, labels, ARIA). Meta: axe score > 90.
 8.  **[Pendente] Testes de Compatibilidade Cross-Browser:** Validar funcionamento em Chrome, Firefox, Edge e Safari (desktop e mobile).
 9.  **[Pendente] Documentação Frontend:** Criar `.ia/diretrizes/frontend.md` documentando arquitetura, padrões de código e guias para desenvolvedores.
