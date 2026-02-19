@@ -7,10 +7,15 @@
 <%@include file="/template/menu.jspf" %>
 
 <c:if test="${empty jogosDeHoje}">
-    <c:redirect url="/seguro/principal.action" />
+    <opendev:portlet id="jogos_hoje_vazio" title="Jogos de Hoje" style="width: 600px; margin: 0 auto;">
+        <div class="info">
+            <fmt:message key="match.none.today" />
+        </div>
+    </opendev:portlet>
 </c:if>
 
 <div style="float: right; width: 605px;">
+    <c:if test="${not empty jogosDeHoje}">
     <opendev:portlet id="jogos_hoje_portlet" title="Jogos de Hoje" style="width: 600px; margin: 0 auto;">
 		<table width="100%" cellspacing="1" cellpadding="2" class="conteudo" align="center">
 			<thead>
@@ -55,7 +60,8 @@
             </tbody>
         </table>
     </opendev:portlet>
-<div style="height: 20px;"></div>
+    <div style="height: 20px;"></div>
+    </c:if>
     <opendev:portlet id="grafico_lideres_portlet" title="Lideranca" style="width: 600px; margin: 0 auto; height: 220px; background-color: #FFFFFF;">
         <c:url var="graficoLideresUrl" value="/seguro/graficoLiderancaImagem.action" />
         <div style="text-align: center; padding: 10px 0;">
