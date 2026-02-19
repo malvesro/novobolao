@@ -50,6 +50,13 @@
 		<action name="graficoDesempenho" class="participanteAction" method="gerarGraficoDesempenho">
 			<result name="success">/seguro/graficoDesempenho.jsp</result>
 		</action>
+
+		<action name="graficoDesempenhoImagem" class="participanteAction" method="gerarGraficoDesempenhoImagem">
+			<result type="stream">
+				<param name="contentType">image/png</param>
+				<param name="inputName">graficoStream</param>
+			</result>
+		</action>
 		
 		<action name="copa" class="participanteAction" method="gerarClassificacaoDaCopa">
 			<result name="success">/seguro/copa.jsp</result>
@@ -57,6 +64,13 @@
 		
 		<action name="principal" class="participanteAction" method="obterDadosPaginaPrincipal">
 			<result name="success">/seguro/principal.jsp</result>
+		</action>
+
+		<action name="graficoLiderancaImagem" class="participanteAction" method="gerarGraficoLiderancaImagem">
+			<result type="stream">
+				<param name="contentType">image/png</param>
+				<param name="inputName">graficoStream</param>
+			</result>
 		</action>
 
 	</package>
