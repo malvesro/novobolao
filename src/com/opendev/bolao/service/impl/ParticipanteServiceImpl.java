@@ -43,7 +43,8 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 	public synchronized List buscarClassificacao() {
 		List participantes = new ArrayList(getParticipanteDao().buscarTodosDoBolaoGeral());
 		Participante participante = null;
-		int qtdeDeJogos = getJogoDao().buscarQuantidadeDeJogosOcorridos().intValue();
+			long totalDeJogos = getJogoDao().buscarQuantidadeDeJogosOcorridos();
+			int qtdeDeJogos = Math.toIntExact(totalDeJogos);
 		DadosClassificacao totais = null;
 		for (Iterator iter = participantes.iterator(); iter.hasNext();) {
 			participante = (Participante) iter.next();
