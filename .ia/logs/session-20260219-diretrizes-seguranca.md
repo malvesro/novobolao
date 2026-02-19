@@ -1,7 +1,7 @@
 # Sessao: Consolidação das Diretrizes de Segurança
 
 **Data:** 2026-02-19
-**Autor:** Kiro (Assistente Técnico Líder)
+**Autor:** Assistente Técnico Líder/IA
 **Skills Utilizadas:** security-audit v1.0.0, architecture-guardian v1.0.0
 
 ## 1. Prompt Principal (Input)

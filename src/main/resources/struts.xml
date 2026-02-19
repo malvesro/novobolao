@@ -10,6 +10,7 @@
 	<!-- Endurecimento de Segurança (Struts 7) -->
 	<constant name="struts.ognl.expressionMaxLength" value="200" />
 	<constant name="struts.allowlist.enable" value="true" />
+	<constant name="struts.allowlist.packageNames" value="com.opendev.bolao.model, com.opendev.bolao.util" />
 	<constant name="struts.ognl.excludedNodeTypes" value="ognl.ASTThisVarRef, ognl.ASTVarRef" />
 
 	<package name="bolao-default" extends="struts-default">

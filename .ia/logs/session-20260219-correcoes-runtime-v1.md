@@ -1,7 +1,7 @@
 # Sessao: Correções de Runtime e Ajustes de Build (Spring 6 / Hibernate 6)
 
 **Data:** 2026-02-19
-**Autor:** Kiro (Assistente Técnico Líder)
+**Autor:** Assistente Técnico Líder/IA
 **Skills Utilizadas:** modernization-java-migration v1.0.0, senior-java-dev-legacy v1.0.0
 
 ## 1. Prompt Principal (Input)

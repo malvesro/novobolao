@@ -1,7 +1,7 @@
 # Sessao: Pesquisa Técnica e Documentação Arquitetural (Struts 7)
 
 **Data:** 2026-02-19
-**Autor:** Kiro (Assistente Técnico Líder)
+**Autor:** Assistente Técnico Líder/IA
 **Skills Utilizadas:** modernization-java-migration v1.0.0, architecture-guardian v1.0.0
 
 ## 1. Prompt Principal (Input)

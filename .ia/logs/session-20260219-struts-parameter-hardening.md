@@ -1,7 +1,7 @@
 # Sessao: Endurecimento de Parâmetros com @StrutsParameter (Struts 7)
 
 **Data:** 2026-02-19
-**Autor:** Kiro (Assistente Técnico Líder)
+**Autor:** Assistente Técnico Líder/IA
 **Skills Utilizadas:** modernization-java-migration v1.0.0, security-audit v1.0.0
 
 ## 1. Prompt Principal (Input)
