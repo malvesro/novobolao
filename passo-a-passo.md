@@ -59,7 +59,10 @@ Premissas de compatibilidade (críticas):
     *   **[Em Progresso]** **Validação Integrada de Segurança:**
         *   **[Concluído]** Validar **OGNL Allowlist** no Struts 7 para classes do pacote `com.opendev.bolao.model` e utilitários de exibição. (Skill: `modernization-java-migration v1.0.0`)
         *   **[Concluído]** Remover fallback SHA-1 do encoder e higienizar base de credenciais conforme ADR `.ia/historico/ADR-20260219-remocao-sha1-senhas.md`.
-        *   [Pendente] Testar fluxo de autenticação (Login/Logout) com usuários cadastrados utilizando apenas hashes `BCrypt` (preparar cenário com usuário seed e validação manual/automática).
+        *   **[Concluído]** Configurar `WebSecurityExpressionHandler` para suportar `sec:authorize` nas JSPs. Declarados `DefaultHttpSecurityExpressionHandler` e `DefaultWebSecurityExpressionHandler` em `applicationContext-security.xml`; `login.jsp` e `principal.jsp` carregam sem HTTP 500. (Skill: `modernization-java-migration v1.0.0`) Referência Log: `.ia/logs/session-20260219-websecurity-expression-handler.md`
+        *   [Em Progresso] Testar fluxo de autenticação (Login/Logout) com usuários cadastrados utilizando apenas hashes `BCrypt` (preparar cenário com usuário seed e validação manual/automática). Login `admin/admin123` aceito; `/seguro/principal.jsp` redireciona indefinidamente para `/seguro/principal.action` quando `jogosDeHoje` está vazio. `ranking.action` ainda lança `ClassCastException` (`Long` → `Integer`) conforme log `.ia/logs/session-20260219-websecurity-expression-handler.md`.
+        *   [Pendente] Ajustar fallback da página principal quando `jogosDeHoje` estiver vazio para evitar redirecionamento recursivo (`principal.jsp` → `principal.action`). Referência: `/seguro/principal.jsp` e log `.ia/logs/session-20260219-websecurity-expression-handler.md`.
+        *   [Pendente] Corrigir `JogoDaoImpl.buscarQuantidadeDeJogosOcorridos` para retornar `Long` sem cast para `Integer`, eliminando o `ClassCastException` ao acessar `/seguro/ranking.action`. Criar testes de integração cobrindo o cenário. Referência: `.ia/logs/session-20260219-websecurity-expression-handler.md`.
         *   [Pendente] Testar controle de acesso (RBAC) para URLs `/admin/**` e `/seguro/**`.
     Referência Log: `.ia/logs/session-20260218-correcao-filtros-web-xml.md`
     Referência Log: `.ia/logs/session-20260218-migracao-spring-security-6.md`
@@ -95,6 +98,7 @@ Premissas de compatibilidade (críticas):
     *   **[Concluído] Implementação de Renderização:** Criar geradores de gráficos em Java (JFreeChart) e expor endpoints/Actions para servir PNG/SVG (ex: `/seguro/graficoLideranca.png`, `/seguro/graficoDesempenho.png`).
     *   **[Concluído] Atualização das JSPs:** Substituir `<cewolf:chart>`/`<cewolf:img>` por `<img>` apontando para os novos endpoints e remover dependências do Cewolf nas telas.
     *   **[Concluído] Remoção de Taglibs:** Remover `<%@taglib prefix="cewolf" ... %>` do `cabecalho.jspf` e das JSPs.
+    *   **[Concluído] Remoção Residual (Deploy/Cache):** Garantir que o `cabecalho.jspf` sem Cewolf seja aplicado no WAR/ROOT do Tomcat (rebuild/redeploy) e remover cache/artefatos que ainda referenciam `cewolf.tld`, desbloqueando `login.jsp`/`index.jsp`. Referência Log: `.ia/logs/session-20260219-remocao-cewolf-deploy-cache.md`
     *   **[Em Progresso] Validação Funcional:** Testar renderização dos gráficos e impacto em telas afetadas.
         - Testes automatizados adicionados (`GraficosJFreeChartTest`, `ParticipanteActionTest`) validando geração de PNG via JFreeChart.
         - Execução `mvn test` bloqueada: repositório `http://nexus.tse.jus.br` indisponível para download dos BOMS (`spring-framework-bom`, `jakartaee-bom`) e host `https://nx-mvn.tse.jus.br` sem resolução DNS para plugins (`Temporary failure in name resolution` e falha ao gravar `.lastUpdated`).
@@ -221,3 +225,15 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260219-alinhamento-logs-status.md`
     Skill: N/A (nenhuma skill aplicável)
+*   2026-02-19: **[Bloqueado]** Validação do fluxo de autenticação (Login/Logout) com `BCrypt`: bloqueada por erro HTTP 500 em `login.jsp`/`index.jsp` (taglib Cewolf não resolvida) e retorno de `status=invalido` no POST `/j_security_check` com usuários válidos.
+    Auto-Analise: [Risco: Medio] | [Compatibilidade: Atencao] | [Veredito: Revisar]
+    Referência Log: `.ia/logs/session-20260219-validacao-login-bcrypt.md`
+    Skill: N/A (nenhuma skill aplicável)
+*   2026-02-19: **[Concluído]** Remoção residual de Cewolf no deploy/cache do Tomcat: rebuild do container, confirmação de `cabecalho.jspf` atualizado no WAR/ROOT e `login.jsp` carregando sem erro.
+    Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+    Referência Log: `.ia/logs/session-20260219-remocao-cewolf-deploy-cache.md`
+    Skill: N/A (nenhuma skill aplicável)
+*   2026-02-19: **[Concluído]** Configuração do `WebSecurityExpressionHandler` nas JSPs protegidas: declarados handlers HTTP e JSP no `applicationContext-security.xml`, rebuild Docker e validação de login via HTTPS sem erros `sec:authorize`.
+    Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+    Referência Log: `.ia/logs/session-20260219-websecurity-expression-handler.md`
+    Skill: `modernization-java-migration v1.0.0`

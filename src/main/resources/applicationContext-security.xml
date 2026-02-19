@@ -47,6 +47,9 @@
             username-parameter="j_username"
             password-parameter="j_password" />
 
+        <!-- Expression Handler for HTTP security (AuthorizationManager) -->
+        <security:expression-handler ref="httpSecurityExpressionHandler" />
+
         <!-- Logout Configuration -->
         <security:logout 
             logout-url="/j_logout"
@@ -85,6 +88,14 @@
 
     <!-- Password Encoder (BCrypt only) -->
     <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+
+    <!-- Required for HTTP security expression evaluation -->
+    <bean id="httpSecurityExpressionHandler"
+          class="org.springframework.security.web.access.expression.DefaultHttpSecurityExpressionHandler" />
+
+    <!-- Required for JSP security taglib expressions -->
+    <bean id="webSecurityExpressionHandler"
+          class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler" />
 
     <!-- Logger Listener for security events -->
     <bean id="loggerListener" class="org.springframework.security.authentication.event.LoggerListener" />
