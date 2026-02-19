@@ -7,7 +7,7 @@
 
     <bean name="participanteAction"
     	class="com.opendev.bolao.action.ParticipanteAction"
-    	singleton="false">
+    	scope="prototype">
     	<property name="palpiteService" ref="palpiteService" />
     	<property name="participanteService" ref="participanteService" />
     	<property name="jogoService" ref="jogoService" />
@@ -16,7 +16,7 @@
     
     <bean name="adminAction"
     	class="com.opendev.bolao.action.AdminAction"
-    	singleton="false">
+    	scope="prototype">
 		<property name="equipeService" ref="equipeService" />
     	<property name="jogoService" ref="jogoService" />
     	<property name="participanteService" ref="participanteService" />

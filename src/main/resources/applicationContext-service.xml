@@ -7,7 +7,7 @@
 
 	<bean id="transactionProxyTemplate"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
-		abstract="true" singleton="true" depends-on="sessionFactory">
+		abstract="true" scope="singleton" depends-on="sessionFactory">
 		<property name="transactionManager" ref="txManager" />
 		<property name="frozen" value="false" />
 		<property name="transactionAttributes">
@@ -29,7 +29,7 @@
 			<list><value>com.opendev.bolao.service.EquipeService</value></list>
 		</property>
 		<property name="target">
-			<ref local="equipeServiceImpl" />
+			<ref bean="equipeServiceImpl" />
 		</property>
 	</bean>
 
@@ -44,7 +44,7 @@
 			<list><value>com.opendev.bolao.service.JogoService</value></list>
 		</property>
 		<property name="target">
-			<ref local="jogoServiceImpl" />
+			<ref bean="jogoServiceImpl" />
 		</property>
 	</bean>
 	
@@ -59,7 +59,7 @@
 			<list><value>com.opendev.bolao.service.PalpiteService</value></list>
 		</property>
 		<property name="target">
-			<ref local="palpiteServiceImpl" />
+			<ref bean="palpiteServiceImpl" />
 		</property>
 	</bean>
 
@@ -77,18 +77,18 @@
 			<list><value>com.opendev.bolao.service.ParticipanteService</value></list>
 		</property>
 		<property name="target">
-			<ref local="participanteServiceImpl" />
+			<ref bean="participanteServiceImpl" />
 		</property>
 	</bean>
 
 	<!-- Servicos do Bate-Papo -->
-	<bean id="formatadorMensagem" class="com.opendev.bolao.chat.FormatadorMensagem" singleton="true" lazy-init="true" />
-	<bean id="batePapo" class="com.opendev.bolao.chat.BatePapo" singleton="true" lazy-init="true">
+	<bean id="formatadorMensagem" class="com.opendev.bolao.chat.FormatadorMensagem" scope="singleton" lazy-init="true" />
+	<bean id="batePapo" class="com.opendev.bolao.chat.BatePapo" scope="singleton" lazy-init="true">
 		<property name="formatadorMensagem">
-			<ref local="formatadorMensagem" />
+			<ref bean="formatadorMensagem" />
 		</property>
 		<property name="participanteService">
-			<ref local="participanteService" />
+			<ref bean="participanteService" />
 		</property>
 	</bean>
 
