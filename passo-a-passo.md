@@ -42,6 +42,12 @@ Premissas de compatibilidade (críticas):
     *   **[Concluído]** Migração Struts: Converter Actions (`ActionSupport`), atualizar imports (`xwork2`) e converter tags JSPs (`<ww:*>` -> `<s:*>`).
     *   **[Concluído]** Migração Hibernate: Remover `HibernateTemplate` (descontinuado) e adaptar DAOs para usar `SessionFactory.getCurrentSession()` e API do Hibernate 6.
     *   **[Concluído]** Adaptação de Configuração: Atualizar `web.xml` (FilterDispatcher -> StrutsPrepareAndExecuteFilter) e esquemas XSD dos XMLs do Spring.
+    *   **[Pendente]** **Endurecimento Struts 7 (Segurança):**
+        *   Aplicar anotação `@StrutsParameter` em todos os setters de Actions que recebem dados de formulários (Obrigatório no Struts 7).
+        *   Configurar `struts.ognl.expressionMaxLength` e `struts.ognl.excludedNodeTypes` no `struts.xml`.
+        *   Validar se `struts.allowlist.enable=true` está ativo e mapear classes customizadas necessárias.
+        *   Implementar interceptores de isolamento de recursos (Fetch Metadata, COOP/COEP).
+    Referência ADR: `.ia/historico/ADR-20260219-upgrade-struts-7.md`
 2.  **[Em Progresso] Migração da Segurança:** Planejar e executar a substituição do Acegi Security 1.0.0 por Spring Security 6+.
     **CRÍTICO - BLOQUEADOR**: Durante testes do Docker (2026-02-18), identificado que `applicationContext-security.xml` ainda usa classes do Acegi Security (EOL desde 2006), incompatível com Jakarta EE 10. Spring Security 6.2.2 já está no `pom.xml` mas não é utilizado. Necessário reescrever completamente a configuração de segurança.
     *   **[Concluído]** Reescrever `applicationContext-security.xml` usando Spring Security 6
@@ -100,7 +106,9 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
 ### Fase 5: Segurança Progressiva (ALTA PRIORIDADE)
 
 1.  **[Pendente] Auditoria de Vulnerabilidades:** Integrar o OWASP Maven Dependency Check no `pom.xml` para monitoramento contínuo de CVEs.
-2.  **[Pendente] Proteção na Camada Web:** Configurar cabeçalhos de segurança (HSTS, CSP, X-Frame-Options) e proteção CSRF.
+    <security:intercept-url pattern="/seguro/**" access="hasAnyRole('ADMIN', 'USER')" />
+2.  **[Pendente] Proteção de Recursos Estáticos:** Mover todos os arquivos JSP para dentro de `WEB-INF/` (ex: `WEB-INF/content/`) para impedir o acesso direto via browser, forçando a passagem pelas Actions do Struts.
+3.  **[Pendente] Proteção na Camada Web:** Configurar cabeçalhos de segurança (HSTS, CSP, X-Frame-Options) e proteção CSRF.
 3.  **[Pendente] Sanitização e Validação:** Revisar validadores do Struts 6 e implementar proteção robusta contra XSS.
 4.  **[Pendente] Auditoria de Segredos:** Implementar varredura de credenciais e senhas em arquivos de configuração.
 
