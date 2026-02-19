@@ -4,10 +4,6 @@ import java.sql.Time;
 import java.util.Date;
 import java.util.List;
 
-import java.sql.Time;
-import java.util.Date;
-import java.util.List;
-
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 
@@ -36,10 +32,10 @@ public class JogoDaoImpl implements JogoDao {
 		return (Jogo) sessionFactory.getCurrentSession().load(Jogo.class, id);
 	}
 
-	public Integer buscarQuantidadeDeJogosOcorridos() {
-		Query query = sessionFactory.getCurrentSession().createQuery("select count(j.id) from Jogo as j where j.golsEquipe1 is not null and j.golsEquipe2 is not null");
-		Integer qtde = (Integer) query.uniqueResult(); 
-		return qtde;
+	public long buscarQuantidadeDeJogosOcorridos() {
+		Query<Long> query = sessionFactory.getCurrentSession()
+            .createQuery("select count(j.id) from Jogo as j where j.golsEquipe1 is not null and j.golsEquipe2 is not null", Long.class);
+		return query.uniqueResultOptional().orElse(0L);
 	}
 
 	public List buscarUsandoFiltro(FiltroBuscaJogos filtro) {

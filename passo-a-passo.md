@@ -62,7 +62,7 @@ Premissas de compatibilidade (críticas):
         *   **[Concluído]** Configurar `WebSecurityExpressionHandler` para suportar `sec:authorize` nas JSPs. Declarados `DefaultHttpSecurityExpressionHandler` e `DefaultWebSecurityExpressionHandler` em `applicationContext-security.xml`; `login.jsp` e `principal.jsp` carregam sem HTTP 500. (Skill: `modernization-java-migration v1.0.0`) Referência Log: `.ia/logs/session-20260219-websecurity-expression-handler.md`
         *   [Em Progresso] Testar fluxo de autenticação (Login/Logout) com usuários cadastrados utilizando apenas hashes `BCrypt` (preparar cenário com usuário seed e validação manual/automática). Login `admin/admin123` aceito; `/seguro/principal.jsp` redireciona indefinidamente para `/seguro/principal.action` quando `jogosDeHoje` está vazio. `ranking.action` ainda lança `ClassCastException` (`Long` → `Integer`) conforme log `.ia/logs/session-20260219-websecurity-expression-handler.md`.
         *   **[Concluído]** Ajustar fallback da página principal quando `jogosDeHoje` estiver vazio para evitar redirecionamento recursivo (`principal.jsp` → `principal.action`). Exibida mensagem informativa no portlet quando não há jogos, mantendo o gráfico de liderança visível. (Skill: `modernization-java-migration v1.0.0`) Referência Log: `.ia/logs/session-20260219-principal-fallback-sem-jogos.md`.
-        *   [Pendente] Corrigir `JogoDaoImpl.buscarQuantidadeDeJogosOcorridos` para retornar `Long` sem cast para `Integer`, eliminando o `ClassCastException` ao acessar `/seguro/ranking.action`. Criar testes de integração cobrindo o cenário. Referência: `.ia/logs/session-20260219-websecurity-expression-handler.md`.
+        *   **[Concluído]** Corrigir `JogoDaoImpl.buscarQuantidadeDeJogosOcorridos` para retornar `Long` sem cast para `Integer`, eliminando o `ClassCastException` ao acessar `/seguro/ranking.action`. Query tipada com retorno `long` e cobertura de teste unitário em `ParticipanteServiceImplTest`. (Skill: `modernization-java-migration v1.0.0`) Referência Log: `.ia/logs/session-20260219-correcao-jogos-ocorridos.md`.
         *   [Pendente] Testar controle de acesso (RBAC) para URLs `/admin/**` e `/seguro/**`.
     Referência Log: `.ia/logs/session-20260218-correcao-filtros-web-xml.md`
     Referência Log: `.ia/logs/session-20260218-migracao-spring-security-6.md`
@@ -236,4 +236,8 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 *   2026-02-19: **[Concluído]** Configuração do `WebSecurityExpressionHandler` nas JSPs protegidas: declarados handlers HTTP e JSP no `applicationContext-security.xml`, rebuild Docker e validação de login via HTTPS sem erros `sec:authorize`.
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260219-websecurity-expression-handler.md`
+    Skill: `modernization-java-migration v1.0.0`
+*   2026-02-19: **[Concluído]** Correção de `buscarQuantidadeDeJogosOcorridos`: DAO passa a retornar `long` com query tipada, eliminando `ClassCastException` no ranking e garantindo cobertura unitária em `ParticipanteServiceImplTest`.
+    Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+    Referência Log: `.ia/logs/session-20260219-correcao-jogos-ocorridos.md`
     Skill: `modernization-java-migration v1.0.0`

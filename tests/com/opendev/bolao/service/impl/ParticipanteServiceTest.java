@@ -12,15 +12,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.opendev.bolao.dao.ParticipanteDao;
+import com.opendev.bolao.dao.JogoDao;
 import com.opendev.bolao.email.Email;
 import com.opendev.bolao.exception.ValidacaoException;
 import com.opendev.bolao.model.Participante;
+import com.opendev.bolao.util.DadosClassificacao;
+
+import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 class ParticipanteServiceTest {
 
     @Mock
     private ParticipanteDao participanteDao;
+
+    @Mock
+    private JogoDao jogoDao;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -43,9 +50,6 @@ class ParticipanteServiceTest {
         assuntoCapturado = null;
 
         emailMock = Mockito.mock(Email.class);
-        Mockito.doNothing().when(emailMock).enviar();
-        Mockito.doNothing().when(emailMock).adicionarEnderecoDestino(Mockito.anyString());
-        Mockito.doNothing().when(emailMock).setPropriedade(Mockito.anyString(), Mockito.any());
 
         participanteService = new ParticipanteServiceImpl() {
             @Override
@@ -56,6 +60,7 @@ class ParticipanteServiceTest {
             }
         };
         participanteService.setParticipanteDao(participanteDao);
+        participanteService.setJogoDao(jogoDao);
         participanteService.setPasswordEncoder(passwordEncoder);
     }
 
@@ -78,5 +83,20 @@ class ParticipanteServiceTest {
         Mockito.verify(emailMock).adicionarEnderecoDestino("rosner.suporte.deinf@bcb.gov.br");
         Mockito.verify(emailMock).setPropriedade("nome", participante.getNome());
         Mockito.verify(emailMock).enviar();
+    }
+
+    @Test
+    void devePropagarTotalDeJogosParaDadosClassificacao() {
+        DadosClassificacao dados = new DadosClassificacao();
+        Participante participanteMock = Mockito.mock(Participante.class);
+        when(participanteMock.getPontuacaoTotal()).thenReturn(dados);
+        when(participanteDao.buscarTodosDoBolaoGeral()).thenReturn(List.of(participanteMock));
+        when(jogoDao.buscarQuantidadeDeJogosOcorridos()).thenReturn(7L);
+
+        List resultado = participanteService.buscarClassificacao();
+
+        assertThat(resultado).containsExactly(participanteMock);
+        assertThat(dados.getTotalDeJogos()).isEqualTo(7);
+        Mockito.verify(jogoDao).buscarQuantidadeDeJogosOcorridos();
     }
 }
