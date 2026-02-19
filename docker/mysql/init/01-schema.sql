@@ -13,7 +13,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Tabela: PAR_PARTICIPANTE (Participantes/Usuários)
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS `PAR_PARTICIPANTE` (
-  `PAR_ID` INT NOT NULL AUTO_INCREMENT,
+  `PAR_ID` BIGINT NOT NULL AUTO_INCREMENT,
   `PAR_NOME` VARCHAR(100) NOT NULL COMMENT 'Nome completo do participante',
   `PAR_LOGIN` VARCHAR(50) NOT NULL UNIQUE COMMENT 'Login único para autenticação',
   `PAR_SENHA` VARCHAR(255) NOT NULL COMMENT 'Senha hash (SHA-1 legado ou BCrypt)',
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `PAR_PARTICIPANTE` (
 -- Tabela: PRI_PRIVILEGIO (Papéis/Roles dos Participantes)
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS `PRI_PRIVILEGIO` (
-  `PRI_PAR_ID` INT NOT NULL COMMENT 'ID do participante',
+  `PRI_PAR_ID` BIGINT NOT NULL COMMENT 'ID do participante',
   `PRI_PAPEL` VARCHAR(50) NOT NULL COMMENT 'Papel: ROLE_USER, ROLE_ADMIN, etc',
   PRIMARY KEY (`PRI_PAR_ID`, `PRI_PAPEL`),
   CONSTRAINT `fk_pri_participante` FOREIGN KEY (`PRI_PAR_ID`) 
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `PRI_PRIVILEGIO` (
 -- Tabela: EQP_EQUIPE (Equipes/Seleções)
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS `EQP_EQUIPE` (
-  `EQP_ID` INT NOT NULL AUTO_INCREMENT,
+  `EQP_ID` BIGINT NOT NULL AUTO_INCREMENT,
   `EQP_PAIS` VARCHAR(50) NOT NULL COMMENT 'Nome do país/seleção',
   `EQP_GRUPO` CHAR(1) NOT NULL COMMENT 'Grupo da Copa (A, B, C, etc)',
   PRIMARY KEY (`EQP_ID`),
@@ -52,15 +52,15 @@ CREATE TABLE IF NOT EXISTS `EQP_EQUIPE` (
 -- Tabela: JOG_JOGO (Jogos/Partidas)
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS `JOG_JOGO` (
-  `JOG_ID` INT NOT NULL AUTO_INCREMENT,
+  `JOG_ID` BIGINT NOT NULL AUTO_INCREMENT,
   `JOG_DATA` DATE NOT NULL COMMENT 'Data do jogo',
   `JOG_HORA` TIME NOT NULL COMMENT 'Horário do jogo',
   `JOG_LOCAL` VARCHAR(100) NOT NULL COMMENT 'Local/estádio do jogo',
-  `JOG_EQP1_ID` INT NOT NULL COMMENT 'ID da equipe 1',
-  `JOG_EQP2_ID` INT NOT NULL COMMENT 'ID da equipe 2',
+  `JOG_EQP1_ID` BIGINT NOT NULL COMMENT 'ID da equipe 1',
+  `JOG_EQP2_ID` BIGINT NOT NULL COMMENT 'ID da equipe 2',
   `JOG_EQP1_GOLS` INT NULL COMMENT 'Gols da equipe 1 (NULL se jogo não ocorreu)',
   `JOG_EQP2_GOLS` INT NULL COMMENT 'Gols da equipe 2 (NULL se jogo não ocorreu)',
-  `JOG_FASE` VARCHAR(50) NOT NULL COMMENT 'Fase: Grupos, Oitavas, Quartas, Semi, Final',
+  `JOG_FASE` INT NOT NULL COMMENT 'Fase: 0=Grupos, 1=Oitavas, 2=Quartas, 3=Semi, 4=Final',
   PRIMARY KEY (`JOG_ID`),
   INDEX `idx_jog_data` (`JOG_DATA`),
   INDEX `idx_jog_fase` (`JOG_FASE`),
@@ -74,8 +74,8 @@ CREATE TABLE IF NOT EXISTS `JOG_JOGO` (
 -- Tabela: PAL_PALPITE (Palpites dos Participantes)
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS `PAL_PALPITE` (
-  `PAL_PAR_ID` INT NOT NULL COMMENT 'ID do participante',
-  `PAL_JOG_ID` INT NOT NULL COMMENT 'ID do jogo',
+  `PAL_PAR_ID` BIGINT NOT NULL COMMENT 'ID do participante',
+  `PAL_JOG_ID` BIGINT NOT NULL COMMENT 'ID do jogo',
   `PAL_EQP1_GOLS` INT NOT NULL COMMENT 'Palpite de gols da equipe 1',
   `PAL_EQP2_GOLS` INT NOT NULL COMMENT 'Palpite de gols da equipe 2',
   `PAL_IP` VARCHAR(45) NOT NULL COMMENT 'IP da última atualização',
@@ -92,10 +92,10 @@ CREATE TABLE IF NOT EXISTS `PAL_PALPITE` (
 -- Tabela: BOI_BOLAO_INDIVIDUAL (Bolões Individuais por Jogo)
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS `BOI_BOLAO_INDIVIDUAL` (
-  `BOI_ID` INT NOT NULL AUTO_INCREMENT,
-  `BOI_JOG_ID` INT NOT NULL UNIQUE COMMENT 'ID do jogo (one-to-one)',
+  `BOI_ID` BIGINT NOT NULL AUTO_INCREMENT,
+  `BOI_JOG_ID` BIGINT NOT NULL UNIQUE COMMENT 'ID do jogo (one-to-one)',
   `BOI_VALOR_COTA` DECIMAL(10,2) NOT NULL COMMENT 'Valor da cota do bolão',
-  `BOI_STATUS` VARCHAR(20) NOT NULL COMMENT 'Status: ABERTO, FECHADO, FINALIZADO',
+  `BOI_STATUS` INT NOT NULL COMMENT 'Status: 0=ABERTO, 1=FECHADO, 2=FINALIZADO',
   PRIMARY KEY (`BOI_ID`),
   CONSTRAINT `fk_boi_jogo` FOREIGN KEY (`BOI_JOG_ID`) 
     REFERENCES `JOG_JOGO` (`JOG_ID`) ON DELETE RESTRICT ON UPDATE CASCADE
@@ -105,8 +105,8 @@ CREATE TABLE IF NOT EXISTS `BOI_BOLAO_INDIVIDUAL` (
 -- Tabela: PAI_PALPITE_INDIVIDUAL (Palpites em Bolões Individuais)
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS `PAI_PALPITE_INDIVIDUAL` (
-  `PAI_PAR_ID` INT NOT NULL COMMENT 'ID do participante',
-  `PAI_BOI_ID` INT NOT NULL COMMENT 'ID do bolão individual',
+  `PAI_PAR_ID` BIGINT NOT NULL COMMENT 'ID do participante',
+  `PAI_BOI_ID` BIGINT NOT NULL COMMENT 'ID do bolão individual',
   `PAI_EQP1_GOLS` INT NOT NULL COMMENT 'Palpite de gols da equipe 1',
   `PAI_EQP2_GOLS` INT NOT NULL COMMENT 'Palpite de gols da equipe 2',
   `PAL_IP` VARCHAR(45) NOT NULL COMMENT 'IP do palpite',
@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS `PAI_PALPITE_INDIVIDUAL` (
 -- Tabela: NOT_NOTICIA (Notícias do Sistema)
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS `NOT_NOTICIA` (
-  `NOT_ID` INT NOT NULL AUTO_INCREMENT,
+  `NOT_ID` BIGINT NOT NULL AUTO_INCREMENT,
   `NOT_TITULO` VARCHAR(200) NOT NULL COMMENT 'Título da notícia',
   `NOT_CONTEUDO` TEXT NOT NULL COMMENT 'Conteúdo da notícia',
   `NOT_DATA` DATE NOT NULL COMMENT 'Data da notícia',

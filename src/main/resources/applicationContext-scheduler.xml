@@ -14,42 +14,42 @@
 	</bean>
 	
 	<!-- Trigger que dispara o Job de aviso de jogo às 8:00 -->
-	<bean id="avisoJogo10Trigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	<bean id="avisoJogo10Trigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail">
 			<ref bean="avisoJogoJob" />
 		</property>
 		<property name="cronExpression" value="0 0 8 ? * MON-FRI" />
 	</bean>
 	<!-- Trigger que dispara o Job de aviso de jogo às 9:00 -->
-	<bean id="avisoJogo11Trigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	<bean id="avisoJogo11Trigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail">
 			<ref bean="avisoJogoJob" />
 		</property>
 		<property name="cronExpression" value="0 0 9 ? * MON-FRI" />
 	</bean>
 	<!-- Trigger que dispara o Job de aviso de jogo às 10:00 -->
-	<bean id="avisoJogo12Trigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	<bean id="avisoJogo12Trigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail">
 			<ref bean="avisoJogoJob" />
 		</property>
 		<property name="cronExpression" value="0 0 10 ? * MON-FRI" />
 	</bean>
 	<!-- Trigger que dispara o Job de aviso de jogo às 11:00 -->
-	<bean id="avisoJogo13Trigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	<bean id="avisoJogo13Trigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail">
 			<ref bean="avisoJogoJob" />
 		</property>
 		<property name="cronExpression" value="0 0 11 ? * MON-FRI" />
 	</bean>
 	<!-- Trigger que dispara o Job de aviso de jogo às 13:00 -->
-	<bean id="avisoJogo15Trigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	<bean id="avisoJogo15Trigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail">
 			<ref bean="avisoJogoJob" />
 		</property>
 		<property name="cronExpression" value="0 0 13 ? * MON-FRI" />
 	</bean>
 	<!-- Trigger que dispara o Job de aviso de jogo às 14:00 -->
-	<bean id="avisoJogo16Trigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	<bean id="avisoJogo16Trigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
 		<property name="jobDetail">
 			<ref bean="avisoJogoJob" />
 		</property>

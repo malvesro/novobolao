@@ -67,6 +67,10 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
+    </dependency>
     
     <!-- Spring Security 6 -->
     <dependency>
@@ -79,11 +83,21 @@
         <artifactId>spring-security-config</artifactId>
         <version>6.2.2</version>
     </dependency>
+    <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-taglibs</artifactId>
+        <version>6.2.2</version>
+    </dependency>
     <!-- Bridge for legacy hashing if needed, or remove if fully migrating to BCrypt immediately -->
     <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-crypto</artifactId>
         <version>6.2.2</version>
+    </dependency>
+    <dependency>
+        <groupId>org.aspectj</groupId>
+        <artifactId>aspectjweaver</artifactId>
+        <version>1.9.21</version>
     </dependency>
 
     <!-- Struts 6 (Replaces WebWork) -->
