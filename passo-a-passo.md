@@ -51,6 +51,7 @@ Premissas de compatibilidade (críticas):
     *   **[Pendente]** Configurar password encoder (BCrypt)
     *   **[Pendente]** Testar login e controle de acesso
     Referência Log: `.ia/logs/session-20260218-correcao-filtros-web-xml.md`
+    Referência Log: `.ia/logs/session-20260218-migracao-spring-security-6.md`
 3.  **[Concluído] Atualização do ORM:** Planejar e executar a migração do Hibernate 3.2.6.ga para Hibernate 6+.
 4.  **[Concluído] Substituição do WebWork:** Eliminar completamente as referências ao servlet e filtros do WebWork legado no `web.xml`.
     Referência Plano: `.ia/planos/plano-substituicao-webwork.md`
@@ -154,3 +155,7 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260218-correcao-xml-spring6.md`
     Skill: `senior-java-dev-legacy v1.0.0`
+*   2026-02-18: **[Em Progresso]** Início da Migração Spring Security 6 (Tarefa 2 da Fase 2). Documentada a estratégia de 4 etapas para substituição do Acegi Security (EOL). Corrigido `web.xml` com `targetBeanName=filterChainProxy` para resolver o bloqueador de inicialização do bean de segurança e permitir a transição gradual.
+    Auto-Analise: [Risco: Médio] | [Compatibilidade: OK] | [Veredito: Aprovado]
+    Referência Log: `.ia/logs/session-20260218-migracao-spring-security-6.md`
+    Skill: `modernization-java-migration v1.0.0`
