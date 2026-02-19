@@ -1,4 +1,4 @@
-<%@taglib prefix="authz" uri="http://acegisecurity.org/authz" %>
+<%@taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <script type="text/javascript">
 function esconderOuMostrarMenu(menuHeader) {
 	var headerId = menuHeader.id;
@@ -10,7 +10,7 @@ function esconderOuMostrarMenu(menuHeader) {
 </script>
 
 <p id="logout_func">
-	<c:url var="logoutUrl" value="/logout.action" />
+	<c:url var="logoutUrl" value="/j_logout" />
 	<fmt:message key="logout.text">
 		<fmt:param value="${pageContext.request.userPrincipal.name}" />
 		<fmt:param value="${logoutUrl}" />
@@ -65,18 +65,18 @@ function esconderOuMostrarMenu(menuHeader) {
 		<a href="${rankingActionUrl}">
 			<span><fmt:message key="menu.bolao.ranking" /></span>
 		</a>
-        <authz:authorize ifAllGranted="geral">
+        <sec:authorize access="hasRole('USER')">
         <c:url var="performanceActionUrl" value="/seguro/graficoDesempenho.action" />
 		<a href="${performanceActionUrl}">
 			<span><fmt:message key="menu.bolao.performance" /></span>
 		</a>
-        </authz:authorize>
-        <authz:authorize ifAnyGranted="geral,restrito">
+        </sec:authorize>
+        <sec:authorize access="hasAnyRole('USER', 'ADMIN')">
 		<c:url var="palpitesActionUrl" value="/seguro/palpites.action" />
 		<a href="${palpitesActionUrl}">
 			<span><fmt:message key="menu.bolao.tips" /></span>
 		</a>
-        </authz:authorize>
+        </sec:authorize>
 		</span>
 	</div>
 <%--
@@ -95,7 +95,7 @@ function esconderOuMostrarMenu(menuHeader) {
 		</span>
 	</div>
 --%>
-	<authz:authorize ifAllGranted="admin">
+	<sec:authorize access="hasRole('ADMIN')">
 	<div id="admin_header" class="menu_header" onclick="esconderOuMostrarMenu(this);">
 		<span><fmt:message key="menu.admin.title" /></span>
 	</div>
@@ -115,5 +115,5 @@ function esconderOuMostrarMenu(menuHeader) {
 		</a>
 		</span>
 	</div>
-	</authz:authorize>
+	</sec:authorize>
 </div>
