@@ -10,7 +10,7 @@ USE `bolao`;
 -- Usuário Administrador Padrão
 -- ============================================================================
 -- Login: admin
--- Senha: admin123 (SHA-1 legado: d033e22ae348aeb5660fc2140aec35850c4da997)
+-- Senha: admin123 (BCrypt)
 -- IMPORTANTE: Trocar a senha após primeiro login!
 -- ============================================================================
 
@@ -20,8 +20,8 @@ INSERT INTO `PAR_PARTICIPANTE` (
 ) VALUES (
   1, 
   'Administrador do Sistema', 
-  'admin', 
-  'd033e22ae348aeb5660fc2140aec35850c4da997', -- SHA-1 de 'admin123'
+  'admin',
+  '$2b$12$QGastsU88DIlT8u5nVXfbuIlEbeXifCooeLiPcYz2MeZBdgXrr9/u', -- BCrypt de 'admin123'
   'admin@bolao.local', 
   'T', 
   '127.0.0.1', 
@@ -37,7 +37,7 @@ INSERT INTO `PRI_PRIVILEGIO` (`PRI_PAR_ID`, `PRI_PAPEL`) VALUES
 -- Usuário de Teste
 -- ============================================================================
 -- Login: user
--- Senha: user123 (SHA-1 legado: 12dea96fec20593566ab75692c9949596833adc9)
+-- Senha: user123 (BCrypt)
 -- ============================================================================
 
 INSERT INTO `PAR_PARTICIPANTE` (
@@ -46,8 +46,8 @@ INSERT INTO `PAR_PARTICIPANTE` (
 ) VALUES (
   2, 
   'Usuário de Teste', 
-  'user', 
-  '12dea96fec20593566ab75692c9949596833adc9', -- SHA-1 de 'user123'
+  'user',
+  '$2b$12$JZ1I7s1fL7bypQYT.K46Heh2bc854U2SKrSNGfzILkf6rR2T3kMNa', -- BCrypt de 'user123'
   'user@bolao.local', 
   'T', 
   '127.0.0.1', 
