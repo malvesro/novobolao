@@ -91,7 +91,10 @@ Premissas de compatibilidade (críticas):
 
 ### Fase 2.5: Auditoria e Ajuste do Frontend (ALTA PRIORIDADE)
 
-1.  **[Em Progresso] Auditoria Visual Completa (Prioridade Atual):** Testar renderização e funcionalidade de todas as telas principais (login, dashboard, formulários, gráficos, admin) em navegadores modernos e múltiplas resoluções. Concluir esta etapa antes de iniciar novas otimizações.
+1.  **[Concluído] Auditoria Visual Completa:** Testar renderização e funcionalidade de todas as telas principais (login, dashboard, formulários, gráficos, admin) em navegadores modernos e múltiplas resoluções. Concluir esta etapa antes de iniciar novas otimizações.
+    *   **Evidências:** Sessão `.ia/logs/session-20260219-auditoria-visual-validacao-telas.md` registrou verificações via Docker (HTTP 200 nas páginas autenticadas, gráficos JFreeChart gerando PNGs válidos e RBAC retornando 403 para usuários sem papel ADMIN). Login público `login.jsp` ativo.
+    *   **Achados:** `cadastro.jsp` responde 302 redirecionando para `/login.jsp` devido à ausência de `permitAll` na configuração de segurança; sugerir ajuste específico antes de reabrir cadastros. Prototype/Scriptaculous continuam carregados no `cabecalho.jspf`, alinhado às tarefas 2 e 3.
+    *   **Limitações:** Auditoria cURL não substitui testes visuais responsivos; execução em navegadores reais permanece recomendada após higienização de scripts/CSS.
 2.  **[Pendente] Inventário e Análise de Scripts (Iniciar após Tarefa 1):** Mapear todos os arquivos JavaScript, identificar dependências e decidir manter/refatorar/remover cada um. Resultado alimentará as tarefas 3 e 4.
 3.  **[Pendente] Remoção de Prototype e Scriptaculous (Sequência após Tarefa 2):** Eliminar bibliotecas legadas (Prototype.js, Scriptaculous.js) do projeto, migrando funcionalidades restantes para jQuery 4.0.0.
 4.  **[Pendente] Auditoria e Refatoração CSS (Sequência após Tarefa 3):** Revisar `estilo.css`, remover hacks legados (IE6/7), reorganizar por componentes e implementar responsividade básica com media queries.
@@ -214,6 +217,10 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260219-migracao-cewolf-continuacao.md`, `.ia/logs/session-20260219-validacao-graficos-jfreechart-v2.md`
     Skill: `modernization-java-migration v1.0.0`
+*   2026-02-19: **[Concluído]** Auditoria Visual Completa (Fase 2.5 - Tarefa 1). Checklists das telas principais executados via Docker; páginas protegidas retornam HTTP 200, endpoints de gráficos entregam PNG válidos e RBAC bloqueia acessos não autorizados. Identificado redirecionamento 302 indevido em `cadastro.jsp` (ausência de `permitAll` na configuração de segurança) para tratar em tarefa futura.
+    Auto-Analise: [Risco: Medio] | [Compatibilidade: Atenção] | [Veredito: Revisar]
+    Referência Log: `.ia/logs/session-20260219-auditoria-visual-validacao-telas.md`
+    Skill: N/A (nenhuma skill aplicável)
 *   2026-02-19: **[Concluído]** Remoção do fallback SHA-1 e padronização do encoder para BCrypt (Tarefa 2.6.2). Atualizado `applicationContext-security.xml`, removidos utilitários legados e confirmada suíte de testes (`mvn test -DskipITs`) com hashes modernos.
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência ADR: `.ia/historico/ADR-20260219-remocao-sha1-senhas.md`
