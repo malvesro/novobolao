@@ -56,7 +56,10 @@ Premissas de compatibilidade (críticas):
     *   **[Concluído]** Migrar beans de autenticação (DaoAuthenticationProvider)
     *   **[Concluído]** Migrar beans de autorização (AccessDecisionManager)
     *   **[Concluído]** Configurar password encoder (BCrypt)
-    *   **[Pendente]** Testar login e controle de acesso
+    *   **[Em Progresso]** **Validação Integrada de Segurança:**
+        *   **[Concluído]** Validar **OGNL Allowlist** no Struts 7 para classes do pacote `com.opendev.bolao.model` e utilitários de exibição. (Skill: `modernization-java-migration v1.0.0`)
+        *   [Pendente] Testar fluxo de autenticação (Login/Logout) com usuários legado (SHA-1) e novos (BCrypt).
+        *   [Pendente] Testar controle de acesso (RBAC) para URLs `/admin/**` e `/seguro/**`.
     Referência Log: `.ia/logs/session-20260218-correcao-filtros-web-xml.md`
     Referência Log: `.ia/logs/session-20260218-migracao-spring-security-6.md`
 3.  **[Concluído] Atualização do ORM:** Planejar e executar a migração do Hibernate 3.2.6.ga para Hibernate 6+.
@@ -182,3 +185,7 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260219-struts-ognl-hardening.md`
     Skill: `security-audit v1.0.0`
+*   2026-02-19: **[Concluído]** Validação de OGNL Allowlist (Fase 2). Configuradas as permissões explícitas no `struts.xml` para as classes de domínio (`com.opendev.bolao.model`) e utilitários, garantindo que o Struts 7 consiga renderizar as propriedades dos objetos nas JSPs sob a nova política de segurança proativa.
+    Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+    Referência Log: `.ia/logs/session-20260219-struts-ognl-allowlist.md`
+    Skill: `modernization-java-migration v1.0.0`

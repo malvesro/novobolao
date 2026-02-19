@@ -1,7 +1,7 @@
 # Sessão: Correção de Configurações XML para Compatibilidade com Spring 6
 
 **Data:** 2026-02-18
-**Autor:** Kiro (Assistente Técnico Líder)
+**Autor:** Assistente Técnico Líder/IA
 **Skills Utilizadas:** senior-java-dev-legacy v1.0.0
 
 ## 1. Prompt Principal (Input)

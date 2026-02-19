@@ -1,7 +1,7 @@
 # Sessao: Correção do Struts 2 e Inicialização com Sucesso
 
 **Data:** 2026-02-19
-**Autor:** Kiro (Assistente Técnico Líder)
+**Autor:** Assistente Técnico Líder/IA
 **Skills Utilizadas:** modernization-java-migration v1.0.0, senior-java-dev-legacy v1.0.0
 
 ## 1. Prompt Principal (Input)
