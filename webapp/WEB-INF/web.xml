@@ -1,19 +1,21 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-
-<web-app xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4">
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                      https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+	version="6.0">
 
 	<context-param>
-		<param-name>javax.servlet.jsp.jstl.fmt.localizationContext</param-name>
+		<param-name>jakarta.servlet.jsp.jstl.fmt.localizationContext</param-name>
 		<param-value>messages</param-value>
 	</context-param>
-	<!-- Fallback locale if no bundles found for browser's preferred locale -->
-	<!-- Force a single locale using param-name 'javax.servlet.jsp.jstl.fmt.locale' -->
+	
 	<context-param>
-		<param-name>javax.servlet.jsp.jstl.fmt.fallbackLocale</param-name>
+		<param-name>jakarta.servlet.jsp.jstl.fmt.fallbackLocale</param-name>
 		<param-value>en</param-value>
 	</context-param>
-		<context-param>
+
+	<context-param>
 		<param-name>horarios</param-name>
 		<param-value>10:00,11:00,12:00,13:00,15:00,16:00</param-value>
 	</context-param>
@@ -30,13 +32,11 @@
 	<context-param>
 		<param-name>locais</param-name>
 		<param-value>
-			Berlim,Col�nia,Dortmund,Frankfurt,Gelsenkirchen,Hamburgo,
+			Berlim,Colônia,Dortmund,Frankfurt,Gelsenkirchen,Hamburgo,
 			Hannover,Kaiserslautern,Leipzig,Munique,Nuremberg,Stuttgart
 		</param-value>
 	</context-param>
-	
-	
-	<!-- Context Configuration locations for Spring XML files -->
+
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
@@ -53,59 +53,40 @@
 		<filter-name>hibernateSessionFilter</filter-name>
 		<filter-class>org.springframework.orm.hibernate5.support.OpenSessionInViewFilter</filter-class>
 	</filter>
-    <filter>
-        <filter-name>struts2</filter-name>
-        <filter-class>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</filter-class>
-    </filter>
 	<filter>
 		<filter-name>securityFilter</filter-name>
 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
 		<init-param>
 			<param-name>targetBeanName</param-name>
-			<param-value>filterChainProxy</param-value>
+			<param-value>springSecurityFilterChain</param-value>
 		</init-param>
+	</filter>
+	<filter>
+		<filter-name>struts2</filter-name>
+		<filter-class>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</filter-class>
 	</filter>
 
 	<filter-mapping>
+		<filter-name>hibernateSessionFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
 		<filter-name>securityFilter</filter-name>
-		<url-pattern>/j_security_check</url-pattern>
+		<url-pattern>/*</url-pattern>
 	</filter-mapping>
-    <filter-mapping>
-        <filter-name>securityFilter</filter-name>
-        <url-pattern>*.html</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>securityFilter</filter-name>
-        <url-pattern>*.jsp</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>securityFilter</filter-name>
-        <url-pattern>/dwr/*</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>securityFilter</filter-name>
-        <url-pattern>*.action</url-pattern>
-    </filter-mapping>
-	<filter-mapping>
-		<filter-name>hibernateSessionFilter</filter-name>
-		<url-pattern>*.action</url-pattern>
-	</filter-mapping>
-	<filter-mapping>
-		<filter-name>hibernateSessionFilter</filter-name>
-		<url-pattern>/dwr/*</url-pattern>
-	</filter-mapping>
+
 	<filter-mapping>
 		<filter-name>struts2</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 
-
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
-    <listener>
-        <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
-    </listener>
+	<listener>
+		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+	</listener>
 	<listener>
 		<listener-class>com.opendev.bolao.util.ContadorParticipantesOnline</listener-class>
 	</listener>
@@ -124,7 +105,6 @@
 		<servlet-name>dwr-invoker</servlet-name>
 		<url-pattern>/dwr/*</url-pattern>
 	</servlet-mapping>
-
 
 	<security-constraint>
 		<web-resource-collection>
@@ -145,23 +125,6 @@
 	</welcome-file-list>
 
 	<jsp-config>
-		<taglib>
-			<taglib-uri>http://acegisecurity.org/authz</taglib-uri>
-			<taglib-location>/WEB-INF/tld/authz.tld</taglib-location>
-		</taglib>
-		<taglib>
-			<taglib-uri>http://java.sun.com/jsp/jstl/core</taglib-uri>
-			<taglib-location>/WEB-INF/tld/c.tld</taglib-location>
-		</taglib>
-		<taglib>
-			<taglib-uri>http://java.sun.com/jsp/jstl/fmt</taglib-uri>
-			<taglib-location>/WEB-INF/tld/fmt.tld</taglib-location>
-		</taglib>
-		<taglib>
-			<taglib-uri>http://java.sun.com/jsp/jstl/functions</taglib-uri>
-			<taglib-location>/WEB-INF/tld/fn.tld</taglib-location>
-		</taglib>
-
 		<taglib>
 			<taglib-uri>http://www.opendev.com.br/tld</taglib-uri>
 			<taglib-location>/WEB-INF/tld/opendev.tld</taglib-location>

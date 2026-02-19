@@ -44,11 +44,11 @@ Premissas de compatibilidade (críticas):
     *   **[Concluído]** Adaptação de Configuração: Atualizar `web.xml` (FilterDispatcher -> StrutsPrepareAndExecuteFilter) e esquemas XSD dos XMLs do Spring.
 2.  **[Em Progresso] Migração da Segurança:** Planejar e executar a substituição do Acegi Security 1.0.0 por Spring Security 6+.
     **CRÍTICO - BLOQUEADOR**: Durante testes do Docker (2026-02-18), identificado que `applicationContext-security.xml` ainda usa classes do Acegi Security (EOL desde 2006), incompatível com Jakarta EE 10. Spring Security 6.2.2 já está no `pom.xml` mas não é utilizado. Necessário reescrever completamente a configuração de segurança.
-    *   **[Pendente]** Reescrever `applicationContext-security.xml` usando Spring Security 6
-    *   **[Pendente]** Atualizar `web.xml` para usar `springSecurityFilterChain`
-    *   **[Pendente]** Migrar beans de autenticação (DaoAuthenticationProvider)
-    *   **[Pendente]** Migrar beans de autorização (AccessDecisionManager)
-    *   **[Pendente]** Configurar password encoder (BCrypt)
+    *   **[Concluído]** Reescrever `applicationContext-security.xml` usando Spring Security 6
+    *   **[Concluído]** Atualizar `web.xml` para usar `springSecurityFilterChain`
+    *   **[Concluído]** Migrar beans de autenticação (DaoAuthenticationProvider)
+    *   **[Concluído]** Migrar beans de autorização (AccessDecisionManager)
+    *   **[Concluído]** Configurar password encoder (BCrypt)
     *   **[Pendente]** Testar login e controle de acesso
     Referência Log: `.ia/logs/session-20260218-correcao-filtros-web-xml.md`
     Referência Log: `.ia/logs/session-20260218-migracao-spring-security-6.md`
@@ -155,7 +155,7 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260218-correcao-xml-spring6.md`
     Skill: `senior-java-dev-legacy v1.0.0`
-*   2026-02-18: **[Em Progresso]** Início da Migração Spring Security 6 (Tarefa 2 da Fase 2). Documentada a estratégia de 4 etapas para substituição do Acegi Security (EOL). Corrigido `web.xml` com `targetBeanName=filterChainProxy` para resolver o bloqueador de inicialização do bean de segurança e permitir a transição gradual.
-    Auto-Analise: [Risco: Médio] | [Compatibilidade: OK] | [Veredito: Aprovado]
+*   2026-02-18: **[Concluído]** Migração Spring Security 6 (Tarefa 2 da Fase 2). Substituída a stack legada Acegi Security (EOL) pela versão 6.2.2. Implementada nova configuração baseada no namespace Spring Security, migrado `applicationContext-security.xml` e atualizados namespaces `jakarta.*` em todo o fluxo de segurança. Resolvidos conflitos de `web.xml` e taglibs JSP. Implementado `LegacySha1PasswordEncoder` para suporte a usuários legados. Build estável e limpo de referências Acegi.
+    Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260218-migracao-spring-security-6.md`
     Skill: `modernization-java-migration v1.0.0`
