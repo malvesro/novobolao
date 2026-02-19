@@ -8,6 +8,7 @@ import com.opendev.bolao.service.JogoService;
 import com.opendev.bolao.service.ParticipanteService;
 import com.opendev.bolao.util.ConversaoUtils;
 import org.apache.struts2.ActionSupport;
+import org.apache.struts2.interceptor.parameter.StrutsParameter;
 
 public class AdminAction extends ActionSupport {
 
@@ -112,6 +113,7 @@ public class AdminAction extends ActionSupport {
 		return id;
 	}
 
+	@StrutsParameter
 	public void setId(Long id) {
 		this.id = id;
 	}
