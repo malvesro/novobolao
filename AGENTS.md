@@ -126,11 +126,13 @@ Se faltar contexto, dependencias forem desconhecidas ou regras forem contraditor
 
 ### 4. Gatilho de ADR
 
-Toda decisao arquitetural não trivial deve gerar ADR em `.ia/historico/` (rascunho) e/ou `docs/adr/` (oficial).
+- Toda decisao arquitetural não trivial deve gerar ADR em `.ia/historico/` (rascunho) e/ou `docs/adr/` (oficial).
+
+- Sugira a criação se for justificado, sempre que executar uma tarefa do documento passo-a-passo.md.
 
 ### 5. Versionamento de Skills
 
-Sempre mencione o ID da habilidade e a versao aplicada.
+- Sempre mencione o ID da habilidade e a versao aplicada em cada tarefa executada e registre na execução da tarefa no documento passo-a-passo.md.
 
 > NOTE: Atualize este arquivo com as particularidades do seu time e projeto.
 
@@ -143,5 +145,25 @@ Sugira a criação de commits frequentes para não perder conteúdo relevante, o
 * Deve ter o conteúdo completo de forma contextual, ou seja, não pode commitar um código incompleto.
 
 * Verificar se os documentos relevantes também foram criados, além do código (histórico, ADR, atualizações no README.md, passo a passo, etc...). Sempre incluir a documentação gerada no commit também.
+8. Seguir as tarefas do documento passo-a-passo.md
+* Sempre trabalhar seguindo o fluxo do documenbto passo-a-passo.md: O conteúdo do arquivo template deve ser personalizado para esse projeto passo a passo conforme as recomendações para o projeto e a aprovação do usuário.
 
+* Se houver necessidade de uma nova tarefa, justifique e pergunte se pode adicionar ao arquivo migracao-passo-a-passo.md e em que posição.
 
+* Atualize sempre os avanços passo a passo no arquivo passo-a-passo.md.
+
+* Nunca execute mais de uma tarefa por vez.
+
+* Antes de fazer correções, verifique se já há uma tarefa criada para o problema encontrado.
+
+* Sempre ao final de uma tarefa, explique o que foi feito de forma clara e didática e dê instruções para o build ou teste.
+
+### IMPORTANTE:
+
+* Todo documento novo criado deve ser colocado na estrutura de pastas .ia/ do projeto.
+
+* Todo problema encontrado merece um log de sessão e/ou um ADR coforme a complexidade e decisões tomadas.
+
+* Antes de executar correções para problemas identificados, verifique se foi criada uma atividade no arquivo passo-a-passo.md.
+
+* Se durante a execução de uma tarefa observar que a tarefa se tornou mais complexa e seria melhor realizada quebrando a tarefa em várias tarefas separadas, avise e proponha a quebra de forma justificada.
