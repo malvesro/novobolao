@@ -62,7 +62,15 @@ Premissas de compatibilidade (críticas):
         *   [Pendente] Testar controle de acesso (RBAC) para URLs `/admin/**` e `/seguro/**`.
     Referência Log: `.ia/logs/session-20260218-correcao-filtros-web-xml.md`
     Referência Log: `.ia/logs/session-20260218-migracao-spring-security-6.md`
-3.  **[Concluído] Atualização do ORM:** Planejar e executar a migração do Hibernate 3.2.6.ga para Hibernate 6+.
+
+3.  **[Pendente]** **Fase 2.7: Atualização para Copa do Mundo 2026:**
+    *   **[Pendente]** **Atualização de Dados (SQL):** Criar e aplicar script de carga (`03-copa-2026-data.sql`) com as 48 seleções, 12 grupos e locais oficiais (Canadá, México, EUA).
+    *   **[Pendente]** **Configurações de Contexto:** Atualizar parâmetros de cidades-sede e datas no `web.xml` para refletir o calendário de Junho/Julho de 2026.
+    *   **[Pendente]** **Lógica de Fases:** Adaptar o sistema para suportar a nova fase de "16-avos de final" (mata-mata ampliado).
+    *   **[Pendente]** **Auditoria Visual de Escala:** Garantir que as telas de palpites e classificação suportem o aumento de volume de dados (48 seleções vs 32 anteriores).
+    Referência FIFA: `https://www.fifa.com/pt/tournaments/mens/worldcup/canadamexicousa2026/articles/copa-mundo-2026-tabela-jogos`
+
+4.  **[Concluído] Atualização do ORM:** Planejar e executar a migração do Hibernate 3.2.6.ga para Hibernate 6+.
 4.  **[Concluído] Substituição do WebWork:** Eliminar completamente as referências ao servlet e filtros do WebWork legado no `web.xml`.
     Referência Plano: `.ia/planos/plano-substituicao-webwork.md`
 5.  **[Concluído] Atualização de Bibliotecas de Terceiros:** Inventariar e atualizar todas as bibliotecas de terceiros (DWR, Quartz, EHCache, JSTL, Cewolf, JFreeChart, Batik, etc.) para suas versões mais recentes e com suporte. Remova bibliotecas sem suporte e atualize para outras bibliotecas mais atuais que atendam as necessidades do sistema.
