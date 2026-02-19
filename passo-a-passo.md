@@ -58,7 +58,8 @@ Premissas de compatibilidade (críticas):
     *   **[Concluído]** Configurar password encoder (BCrypt)
     *   **[Em Progresso]** **Validação Integrada de Segurança:**
         *   **[Concluído]** Validar **OGNL Allowlist** no Struts 7 para classes do pacote `com.opendev.bolao.model` e utilitários de exibição. (Skill: `modernization-java-migration v1.0.0`)
-        *   [Pendente] Testar fluxo de autenticação (Login/Logout) com usuários legado (SHA-1) e novos (BCrypt).
+        *   [Pendente] Testar fluxo de autenticação (Login/Logout) com usuários cadastrados utilizando apenas hashes `BCrypt`.
+        *   [Pendente] Remover fallback SHA-1 do encoder e higienizar base de credenciais conforme ADR `.ia/historico/ADR-20260219-remocao-sha1-senhas.md` (garantir rota de redefinição/cadastro).
         *   [Pendente] Testar controle de acesso (RBAC) para URLs `/admin/**` e `/seguro/**`.
     Referência Log: `.ia/logs/session-20260218-correcao-filtros-web-xml.md`
     Referência Log: `.ia/logs/session-20260218-migracao-spring-security-6.md`
