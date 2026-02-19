@@ -97,20 +97,20 @@ INSERT INTO `JOG_JOGO` (
   `JOG_EQP1_GOLS`, `JOG_EQP2_GOLS`
 ) VALUES
 -- Grupo A
-(1, '2026-06-11', '16:00:00', 'Estádio Azteca', 1, 3, 'Grupos', NULL, NULL),
-(2, '2026-06-11', '19:00:00', 'Estádio Azteca', 2, 4, 'Grupos', NULL, NULL),
-(3, '2026-06-16', '16:00:00', 'Estádio Azteca', 1, 4, 'Grupos', NULL, NULL),
-(4, '2026-06-16', '19:00:00', 'Estádio Azteca', 2, 3, 'Grupos', NULL, NULL),
-(5, '2026-06-21', '16:00:00', 'Estádio Azteca', 1, 2, 'Grupos', NULL, NULL),
-(6, '2026-06-21', '16:00:00', 'Estádio Azteca', 3, 4, 'Grupos', NULL, NULL),
+(1, '2026-06-11', '16:00:00', 'Estádio Azteca', 1, 3, 0, NULL, NULL),
+(2, '2026-06-11', '19:00:00', 'Estádio Azteca', 2, 4, 0, NULL, NULL),
+(3, '2026-06-16', '16:00:00', 'Estádio Azteca', 1, 4, 0, NULL, NULL),
+(4, '2026-06-16', '19:00:00', 'Estádio Azteca', 2, 3, 0, NULL, NULL),
+(5, '2026-06-21', '16:00:00', 'Estádio Azteca', 1, 2, 0, NULL, NULL),
+(6, '2026-06-21', '16:00:00', 'Estádio Azteca', 3, 4, 0, NULL, NULL),
 
 -- Grupo B
-(7, '2026-06-12', '13:00:00', 'MetLife Stadium', 5, 7, 'Grupos', NULL, NULL),
-(8, '2026-06-12', '16:00:00', 'MetLife Stadium', 6, 8, 'Grupos', NULL, NULL),
-(9, '2026-06-17', '13:00:00', 'MetLife Stadium', 5, 8, 'Grupos', NULL, NULL),
-(10, '2026-06-17', '16:00:00', 'MetLife Stadium', 6, 7, 'Grupos', NULL, NULL),
-(11, '2026-06-22', '16:00:00', 'MetLife Stadium', 5, 6, 'Grupos', NULL, NULL),
-(12, '2026-06-22', '16:00:00', 'MetLife Stadium', 7, 8, 'Grupos', NULL, NULL);
+(7, '2026-06-12', '13:00:00', 'MetLife Stadium', 5, 7, 0, NULL, NULL),
+(8, '2026-06-12', '16:00:00', 'MetLife Stadium', 6, 8, 0, NULL, NULL),
+(9, '2026-06-17', '13:00:00', 'MetLife Stadium', 5, 8, 0, NULL, NULL),
+(10, '2026-06-17', '16:00:00', 'MetLife Stadium', 6, 7, 0, NULL, NULL),
+(11, '2026-06-22', '16:00:00', 'MetLife Stadium', 5, 6, 0, NULL, NULL),
+(12, '2026-06-22', '16:00:00', 'MetLife Stadium', 7, 8, 0, NULL, NULL);
 
 -- ============================================================================
 -- Notícia de Boas-Vindas
