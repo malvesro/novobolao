@@ -2,12 +2,11 @@
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@taglib prefix="s" uri="/struts-tags" %>
-<%@taglib prefix="cewolf" uri="http://cewolf.sourceforge.net/taglib/cewolf.tld" %>
 <%@taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@taglib prefix="opendev" uri="http://www.opendev.com.br/tld" %>
 <%@include file="/template/menu.jspf" %>
 
-<c:if test="${empty jogosDeHoje or empty graficoLideranca}">
+<c:if test="${empty jogosDeHoje}">
     <c:redirect url="/seguro/principal.action" />
 </c:if>
 
@@ -57,18 +56,10 @@
         </table>
     </opendev:portlet>
 <div style="height: 20px;"></div>
-    <opendev:portlet id="grafico_lideres_portlet" title="Lideran�a" style="width: 600px; margin: 0 auto; height: 220px; background-color: #FFFFFF;">
-        <div style="text-align: center;">
-            <cewolf:chart id="lideresChart" type="horizontalbar3d"
-                legendanchor="west" title="Disputa pela Lideran�a"
-                xaxislabel="Pontua��o" antialias="true">
-                <cewolf:colorpaint color="#FFFFFF" />
-                <cewolf:data>
-                    <cewolf:producer id="graficoLideranca" />
-                </cewolf:data>
-            </cewolf:chart>
-            <cewolf:img chartid="lideresChart" height="180"
-                renderer="/cewolf" width="590" />
+    <opendev:portlet id="grafico_lideres_portlet" title="Lideranca" style="width: 600px; margin: 0 auto; height: 220px; background-color: #FFFFFF;">
+        <c:url var="graficoLideresUrl" value="/seguro/graficoLiderancaImagem.action" />
+        <div style="text-align: center; padding: 10px 0;">
+            <img src="${graficoLideresUrl}" alt="Grafico de lideranca" style="max-width: 100%; height: auto;" />
         </div>
     </opendev:portlet>
 </div>
