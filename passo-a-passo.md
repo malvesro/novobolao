@@ -42,11 +42,11 @@ Premissas de compatibilidade (críticas):
     *   **[Concluído]** Migração Struts: Converter Actions (`ActionSupport`), atualizar imports (`xwork2`) e converter tags JSPs (`<ww:*>` -> `<s:*>`).
     *   **[Concluído]** Migração Hibernate: Remover `HibernateTemplate` (descontinuado) e adaptar DAOs para usar `SessionFactory.getCurrentSession()` e API do Hibernate 6.
     *   **[Concluído]** Adaptação de Configuração: Atualizar `web.xml` (FilterDispatcher -> StrutsPrepareAndExecuteFilter) e esquemas XSD dos XMLs do Spring.
-    *   **[Pendente]** **Endurecimento Struts 7 (Segurança):**
+    *   **[Concluído]** **Endurecimento Struts 7 (Segurança):**
         *   **[Concluído]** Aplicar anotação `@StrutsParameter` em todos os setters de Actions que recebem dados de formulários (Obrigatório no Struts 7).
-        *   [Pendente] Configurar `struts.ognl.expressionMaxLength` e `struts.ognl.excludedNodeTypes` no `struts.xml`.
-        *   Validar se `struts.allowlist.enable=true` está ativo e mapear classes customizadas necessárias.
-        *   Implementar interceptores de isolamento de recursos (Fetch Metadata, COOP/COEP).
+        *   **[Concluído]** Configurar `struts.ognl.expressionMaxLength` e `struts.ognl.excludedNodeTypes` no `struts.xml`.
+        *   **[Concluído]** Validar se `struts.allowlist.enable=true` está ativo e mapear classes customizadas necessárias.
+        *   **[Concluído]** Implementar interceptores de isolamento de recursos (Fetch Metadata, COOP/COEP).
     Referência ADR: `.ia/historico/ADR-20260219-upgrade-struts-7.md`
     Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 2.  **[Em Progresso] Migração da Segurança:** Planejar e executar a substituição do Acegi Security 1.0.0 por Spring Security 6+.
@@ -178,3 +178,7 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260219-struts-parameter-hardening.md`
     Skill: `modernization-java-migration v1.0.0`
+*   2026-02-19: **[Concluído]** Endurecimento de Segurança Struts 7 (Fase 2). Implementadas restrições OGNL (comprimento e tipos de nós) e configurada nova stack de interceptores (`bolaoStack`) com proteções COOP, COEP e Fetch Metadata. Aplicação inicializando com as defesas proativas ativas.
+    Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+    Referência Log: `.ia/logs/session-20260219-struts-ognl-hardening.md`
+    Skill: `security-audit v1.0.0`

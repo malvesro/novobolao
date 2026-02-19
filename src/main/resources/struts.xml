@@ -7,7 +7,24 @@
 	<constant name="struts.devMode" value="false" />
 	<constant name="struts.objectFactory" value="spring" />
 
-	<package name="default" extends="struts-default">
+	<!-- Endurecimento de Segurança (Struts 7) -->
+	<constant name="struts.ognl.expressionMaxLength" value="200" />
+	<constant name="struts.allowlist.enable" value="true" />
+	<constant name="struts.ognl.excludedNodeTypes" value="ognl.ASTThisVarRef, ognl.ASTVarRef" />
+
+	<package name="bolao-default" extends="struts-default">
+		
+		<interceptors>
+			<interceptor-stack name="bolaoStack">
+				<!-- Proteções Cross-Origin modernas -->
+				<interceptor-ref name="coop" />
+				<interceptor-ref name="coep" />
+				<interceptor-ref name="fetchMetadata" />
+				<interceptor-ref name="defaultStack" />
+			</interceptor-stack>
+		</interceptors>
+
+		<default-interceptor-ref name="bolaoStack" />
 
 		<action name="logout" class="participanteAction" method="logout">
 			<result name="success">/login.jsp</result>
@@ -20,7 +37,7 @@
 		
 	</package>
 	
-	<package name="seguro" extends="default" namespace="/seguro">
+	<package name="seguro" extends="bolao-default" namespace="/seguro">
 		<action name="ranking" class="participanteAction" method="buscarParticipantes">
 			<result name="success">/seguro/classificacao.jsp</result>
 		</action>
@@ -43,7 +60,7 @@
 
 	</package>
 	
-	<package name="admin" extends="default" namespace="/admin">
+	<package name="admin" extends="bolao-default" namespace="/admin">
 	
 		<action name="infoEquipes" class="adminAction" method="carregarInfoEquipes">
 			<result name="success">/admin/inclusaoJogo.jsp</result>
