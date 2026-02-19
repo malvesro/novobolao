@@ -4,7 +4,6 @@
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@taglib prefix="opendev" uri="http://www.opendev.com.br/tld" %>
-<%@taglib prefix="cewolf" uri="http://cewolf.sourceforge.net/taglib/cewolf.tld" %>
 <div style="float: right; width: 605px;">
 <opendev:portlet id="chart_portlet" title="Grafico comparativo de desempenho" icon="/img/chart.png" style="width: 600px; margin: 0 auto;">
 	<c:url var="graficoAction" value="/seguro/graficoDesempenho.action" />
@@ -43,16 +42,10 @@
 		</span>
 	</div>
 	<div style="padding-top: 10px; padding-bottom: 10px; text-align: center;">
-        <cewolf:combinedchart id="graficoDesempenho" layout="horizontal" type="combinedxy">
-            <cewolf:plot type="xyshapesandlines">
-    		    <cewolf:data>
-    		        <cewolf:producer id="grafico" />
-    		    </cewolf:data>
-            </cewolf:plot>
-            <cewolf:colorpaint color="#FFFFFF" />
-        </cewolf:combinedchart>
-		<cewolf:img chartid="graficoDesempenho" height="350" renderer="/cewolf"
-            width="550" style="text-align: center; background-color: white;" />
+        <c:url var="graficoImgUrl" value="/seguro/graficoDesempenhoImagem.action">
+            <c:param name="rival" value="${param.rival}" />
+        </c:url>
+        <img src="${graficoImgUrl}" alt="Grafico comparativo de desempenho" style="max-width: 100%; height: auto;" />
 	</div>
 </opendev:portlet>
 <div style="height: 20px;"></div>
