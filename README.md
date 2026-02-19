@@ -2,6 +2,8 @@
 
 Este documento é uma análise técnica do projeto **Sistema Bolão**, com foco em arquitetura, tecnologias, funcionalidades e recomendações de evolução. O objetivo é tornar o entendimento rápido e permitir modernização **com o mínimo de alterações** no comportamento atual.
 
+Consulte as **[Diretrizes de Segurança](.ia/diretrizes/seguranca.md)** para detalhes sobre as proteções implementadas.
+
 ## 1. Visão Geral
 
 Aplicação web clássica (Java EE) para gerenciamento de um bolão de futebol, com cadastro de participantes, palpites, classificação, gráficos de desempenho e chat. O projeto é empacotado em **WAR** e deployado em **Tomcat**.
