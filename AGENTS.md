@@ -149,7 +149,9 @@ Sugira a criação de commits frequentes para não perder conteúdo relevante, o
 * Deve ter o conteúdo completo de forma contextual, ou seja, não pode commitar um código incompleto.
 
 * Verificar se os documentos relevantes também foram criados, além do código (histórico, ADR, atualizações no README.md, passo a passo, etc...). Sempre incluir a documentação gerada no commit também.
-8. Seguir as tarefas do documento passo-a-passo.md
+
+### 7. Seguir as tarefas do documento passo-a-passo.md
+
 * Sempre trabalhar seguindo o fluxo do documenbto passo-a-passo.md: O conteúdo do arquivo template deve ser personalizado para esse projeto passo a passo conforme as recomendações para o projeto e a aprovação do usuário.
 
 * Se houver necessidade de uma nova tarefa, justifique e pergunte se pode adicionar ao arquivo migracao-passo-a-passo.md e em que posição.
@@ -179,3 +181,8 @@ Sugira a criação de commits frequentes para não perder conteúdo relevante, o
 * Se durante a execução de uma tarefa observar que a tarefa se tornou mais complexa e seria melhor realizada quebrando a tarefa em várias tarefas separadas, avise e proponha a quebra de forma justificada.
 
 * Toda vez que terminar uma tarefa, adicione o mesmo texto explicativo de Atualizações realizadas na mensagem de commit.
+
+### 8.Reavaliação do README.md do projeto
+
+- Conforme o atual arquivo README.md do projeto ficar defasado, se for justificada (atualização tecnológica, etc...) a atualização do documento, renomeie o arquivo adicionando um número de versão sequencial ao documento (exemplo README-1.0.md) e crie um novo
+  documento README.md atualizado, aproveitando no que for possível o conteúdo do anterior, mas ataualizando conteúdos e criando novas sessões conforme necessidade, como por exemplo, explicar o build e deploy da aplicação incluindo a camada de apresentação e explicando as tecnologias envolvidas, como também uma seção para o desenvolvedor conseguir configurar o projeto localmente na sua máquina passo a passo (considere o uso do windows 11, ubuntu e ubuntu no wsl2).
