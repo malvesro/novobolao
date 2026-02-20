@@ -304,3 +304,7 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260220-refatoracao-css-principal.md`
     Skill: N/A (nenhuma skill aplicável)
+*   2026-02-20: **[Em Progresso]** Refatoração CSS da página de classificação (Fase 2.5 - Tarefa 4). `webapp/seguro/classificacao.jsp` reestruturada para usar `dashboard-section`, `.table` e utilitários de alinhamento, com destaque do usuário autenticado via `ranking-highlight`; CSS atualizado em `webapp/css/estilo.css`. `mvn test` executado com sucesso (5 testes).
+    Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+    Referência Log: `.ia/logs/session-20260220-refatoracao-css-classificacao.md`
+    Skill: N/A (nenhuma skill aplicável)

@@ -673,6 +673,11 @@ div.legenda span.abrev {
 	justify-content: flex-end;
 }
 
+.ranking-highlight {
+	font-weight: 600;
+	background-color: rgba(248, 116, 22, 0.08);
+}
+
 .score-value {
 	display: inline-flex;
 	align-items: center;
