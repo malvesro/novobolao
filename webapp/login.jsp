@@ -1,5 +1,15 @@
 <div style="height: 90px;"></div>
 <c:if test="${not empty param.status and param.status eq 'invalido'}">
+	<style>
+		#login_error {
+			opacity: 1;
+			transition: opacity 0.2s ease-in-out;
+		}
+		#login_error.fade-out {
+			opacity: 0;
+			transition: opacity 1s ease-in-out;
+		}
+	</style>
 	<span id="login_error" class="error">
 		<span><img alt="Erro" src="${base}/img/error.gif" style="vertical-align: top;" /></span>
 		<span>
@@ -7,14 +17,25 @@
 		</span>
 	</span>
 	<script type="text/javascript">
-		var errorTimeout = 0;
-		// Pulse effect using jQuery
-		$j("#login_error").fadeOut(200).fadeIn(200).fadeOut(200).fadeIn(200);
-		var fadeFunc = function () {
-			$j("#login_error").fadeOut(1000);
-			window.clearTimeout(errorTimeout);
-		};
-		errorTimeout = window.setTimeout(fadeFunc, 6000);
+		document.addEventListener('DOMContentLoaded', function () {
+			var error = document.getElementById('login_error');
+			if (!error) {
+				return;
+			}
+			error.style.opacity = '1';
+			var pulses = [200, 400, 600, 800];
+			pulses.forEach(function (delay, index) {
+				window.setTimeout(function () {
+					error.style.opacity = index % 2 === 0 ? '0' : '1';
+				}, delay);
+			});
+			var timeoutHandle = window.setTimeout(function () {
+				error.classList.add('fade-out');
+			}, 6000);
+			window.addEventListener('beforeunload', function () {
+				window.clearTimeout(timeoutHandle);
+			});
+		});
 	</script>
 	<br />
 </c:if>
