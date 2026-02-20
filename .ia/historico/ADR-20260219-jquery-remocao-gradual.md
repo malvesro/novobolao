@@ -9,10 +9,7 @@
 
 ## Decisão
 
-Adotar uma **remoção em duas etapas**:
-
-1. **Downgrade imediato** para **jQuery 3.7.1** (última versão estável, suportada e com ampla compatibilidade).
-2. **Eliminação total de jQuery** após reescrever os pontos restantes com HTMX ou JavaScript nativo.
+Remover a dependência do jQuery da aplicação. Caso seja necessário manter alguma funcionalidade temporariamente, usar jQuery 3.7.1 (estável) como fallback mínimo; entretanto, na implementação de 19/02/2026, todos os usos foram reescritos com JavaScript nativo e o script foi eliminado imediatamente.
 
 ## Alternativas Consideradas
 
@@ -38,10 +35,10 @@ Adotar uma **remoção em duas etapas**:
 
 ## Plano de Implementação
 
-1. **Substituir arquivo** `webapp/js/jquery-4.0.0.min.js` por `jquery-3.7.1.min.js` e atualizar referências.
-2. **Manter** bloco `var $j = jQuery.noConflict();` até remover Prototype.
-3. **Mapear os usos remanescentes** (`rg -F "$j" webapp`) e reescrevê-los com CSS/JS nativo ou HTMX.
-4. **Remover completamente jQuery** assim que não houver chamadas restantes, ajustando o bundler e `cabecalho.jspf`.
+1. Reescrever efeitos/trechos que utilizavam `$j` para JavaScript nativo ou HTMX.
+2. Remover o bloco `noConflict` e a tag `<script>` de jQuery em `cabecalho.jspf`.
+3. Excluir o arquivo `webapp/js/jquery-4.0.0.min.js` (ou qualquer variante anterior).
+4. Caso algum módulo ainda precise de jQuery durante a transição, adicionar `jquery-3.7.1.min.js` localmente; retirar assim que o código for refatorado.
 5. Registrar logs e atualizar `passo-a-passo.md` conforme as tarefas forem concluídas.
 
 ## Data
