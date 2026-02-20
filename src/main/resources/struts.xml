@@ -47,6 +47,19 @@
 			<result name="success">/seguro/jogos.jsp</result>
 		</action>
 		
+		<action name="meusPalpitesPartial" class="participanteAction" method="listarMeusPalpitesHtmx">
+			<result name="success">/seguro/partials/meus-palpites-rows.jspf</result>
+		</action>
+
+		<action name="palpitesDoJogoPartial" class="participanteAction" method="listarPalpitesDoJogoHtmx">
+			<result name="success">/seguro/partials/palpites-jogo-rows.jspf</result>
+		</action>
+
+		<action name="atualizarPalpitePartial" class="participanteAction" method="atualizarPalpiteHtmx">
+			<result name="success">/seguro/partials/palpite-status.jspf</result>
+			<result name="error">/seguro/partials/palpite-status.jspf</result>
+		</action>
+
 		<action name="graficoDesempenho" class="participanteAction" method="gerarGraficoDesempenho">
 			<result name="success">/seguro/graficoDesempenho.jsp</result>
 		</action>
@@ -89,6 +102,10 @@
 			<result name="success">/admin/participantes.jsp</result>
 		</action>
 
+		<action name="criarJogo" class="adminAction" method="criarNovoJogoHtmx" />
+
+		<action name="atualizarResultadoJogo" class="adminAction" method="atualizarResultadoDoJogoHtmx" />
+		
 		<action name="atualizarPapelParticipante" class="adminAction" method="atualizarPapelParticipanteHtmx">
 			<result name="success">/admin/partials/participantes-table.jsp</result>
 		</action>
