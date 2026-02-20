@@ -17,6 +17,8 @@
     <struts.version>7.0.0</struts.version>
     <hibernate.version>6.4.4.Final</hibernate.version>
     <jakarta.version>10.0.0</jakarta.version>
+    <frontend.node.version>v20.11.1</frontend.node.version>
+    <frontend.skip>true</frontend.skip>
   </properties>
 
   <repositories>
@@ -268,6 +270,52 @@
     </testResources>
     <finalName>sistema-bolao</finalName>
     <plugins>
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <version>1.15.0</version>
+        <executions>
+          <execution>
+            <id>install node and npm</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+            <configuration>
+              <nodeVersion>${frontend.node.version}</nodeVersion>
+            </configuration>
+          </execution>
+          <execution>
+            <id>npm install</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>install --no-audit --no-fund</arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>npm build</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>run build</arguments>
+            </configuration>
+          </execution>
+        </executions>
+        <configuration>
+          <workingDirectory>${project.basedir}</workingDirectory>
+          <installDirectory>${project.build.directory}/node</installDirectory>
+          <npmInheritsProxyConfigFromMaven>true</npmInheritsProxyConfigFromMaven>
+          <skip>${frontend.skip}</skip>
+          <environmentVariables>
+            <CI>true</CI>
+          </environmentVariables>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
