@@ -25,9 +25,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
 <meta http-equiv="pragma" content="no-cache" />
 <title><fmt:message key="app.title" /></title>
-<script type="text/javascript" src="${base}/js/BrowserDetector.js"></script>
-<script type="text/javascript" src="${base}/js/overlib.js"></script>
 <script type="text/javascript" src="${base}/js/htmx.min.js"></script>
+<script type="text/javascript" src="${base}/js/tooltips.js"></script>
 
 
 <style type="text/css">

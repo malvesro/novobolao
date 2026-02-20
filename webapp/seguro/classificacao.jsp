@@ -3,6 +3,14 @@
 <%@taglib prefix="opendev" uri="http://www.opendev.com.br/tld" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<fmt:message key="ranking.hints.legend" var="legendHints" />
+<fmt:message key="ranking.at.legend" var="legendAT" />
+<fmt:message key="ranking.ap.legend" var="legendAP" />
+<fmt:message key="ranking.apb.legend" var="legendAPB" />
+<fmt:message key="ranking.b.legend" var="legendB" />
+<fmt:message key="ranking.e.legend" var="legendE" />
+<fmt:message key="ranking.apr.legend" var="legendAPR" />
+
 <div class="dashboard-section">
     <opendev:portlet id="participantesPortlet" title="Classificacao">
         <div class="table-responsive">
@@ -13,13 +21,13 @@
                         <th scope="col" class="text-left"><fmt:message key="member.name" /></th>
                         <th scope="col" class="text-left"><fmt:message key="member.login" /></th>
                         <th scope="col" class="text-center"><fmt:message key="ranking.points" /></th>
-                        <th scope="col" class="text-center"><fmt:message key="ranking.hints" /></th>
-                        <th scope="col" class="text-center"><fmt:message key="ranking.at" /></th>
-                        <th scope="col" class="text-center"><fmt:message key="ranking.ap" /></th>
-                        <th scope="col" class="text-center"><fmt:message key="ranking.apb" /></th>
-                        <th scope="col" class="text-center"><fmt:message key="ranking.b" /></th>
-                        <th scope="col" class="text-center"><fmt:message key="ranking.e" /></th>
-                        <th scope="col" class="text-center"><fmt:message key="ranking.apr" /></th>
+                        <th scope="col" class="text-center" data-tooltip="${legendHints}"><fmt:message key="ranking.hints" /></th>
+                        <th scope="col" class="text-center" data-tooltip="${legendAT}"><fmt:message key="ranking.at" /></th>
+                        <th scope="col" class="text-center" data-tooltip="${legendAP}"><fmt:message key="ranking.ap" /></th>
+                        <th scope="col" class="text-center" data-tooltip="${legendAPB}"><fmt:message key="ranking.apb" /></th>
+                        <th scope="col" class="text-center" data-tooltip="${legendB}"><fmt:message key="ranking.b" /></th>
+                        <th scope="col" class="text-center" data-tooltip="${legendE}"><fmt:message key="ranking.e" /></th>
+                        <th scope="col" class="text-center" data-tooltip="${legendAPR}"><fmt:message key="ranking.apr" /></th>
                     </tr>
                 </thead>
                 <tbody>
