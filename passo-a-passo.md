@@ -116,8 +116,8 @@ Premissas de compatibilidade (críticas):
     * **2026-02-20:** [Concluído] Limpar bloco comentado da dependência Cewolf no `pom.xml` e ajustar comentários correlatos após validação de build; ver commit `refactor: remover menções a cewolf do pom`.
     * **2026-02-20:** [Concluído] Remover diretório legado `webapp/WEB-INF/lib/CVS` do repositório garantindo que nenhum artefato herdado de CVS permaneça; ver `.ia/logs/session-20260220-remocao-cvs-legado.md`.
     * **2026-02-20:** [Concluído] Remoção das bibliotecas Prototype/Scriptaculous: removidas referências no `cabecalho.jspf` e excluídos `webapp/js/prototype.js`, `webapp/js/scriptaculous.js`, `webapp/js/effects.js`; ver `.ia/logs/session-20260220-remocao-prototype-scriptaculous.md`.
-    * **2026-02-20:** [Pendente] Migrar tooltips que usam Overlib para Tippy.js, removendo `webapp/js/overlib.js` e atualizando JSPs que chamam `overlib()` conforme diretrizes definidas.
-4.  **[Em Progresso] Auditoria e Refatoração CSS (Sequência após Tarefa 3):** Revisar `estilo.css`, remover hacks legados, reorganizar por componentes e implementar responsividade básica. **Parcial (19/02/2026):** Auditoria documentada em `.ia/logs/session-20260219-auditoria-css.md` e diretrizes definidas no ADR `.ia/historico/ADR-20260219-refatoracao-css.md`; refatoração responsiva pendente.
+    * **2026-02-20:** [Concluído] Migração dos tooltips legacy: removidos `webapp/js/overlib.js` e `webapp/js/BrowserDetector.js`, adicionada infraestrutura nativa em `webapp/js/tooltips.js` integrada ao HTMX e aplicada aos cabeçalhos de `seguro/classificacao.jsp` via `data-tooltip`.
+4.  **[Concluído] Auditoria e Refatoração CSS (Sequência após Tarefa 3):** Revisar `estilo.css`, remover hacks legados, reorganizar por componentes e implementar responsividade básica. Inventário final em 20/02/2026 confirmou ausência de estilos inline remanescentes via `rg "style=\"" webapp`; registros consolidados em `.ia/logs/session-20260219-auditoria-css.md` e ADR `.ia/historico/ADR-20260219-refatoracao-css.md`.
 4.1 **[Concluído] Modernização do HTML (Sequência da Tarefa 4):** Higienizar marcação JSP/HTML removendo atributos obsoletos (`align`, `cellpadding`, `width`, etc.), migrar estrutura de tabelas puramente visuais para classes utilitárias responsivas, padronizar uso de `aria-*` e preparar componentes para interações HTMX pós-remoção de Prototype/DWR. Registrar subtarefas por módulo (público, seguro, admin) e validar cada ajuste com `mvn test`. *Skill prevista:* N/A (refinamento frontend estruturado).
     * **2026-02-20:** Removidos atributos legados e adicionados wrappers responsivos nas páginas `login.jsp`, `cadastro.jsp`, `admin/inclusaoJogo.jsp`, `admin/participantes.jsp` e `seguro/jogos.jsp`; tabelas passaram a usar classes utilitárias e `mvn test` validou 5 cenários.
     * **2026-02-20:** Adicionados atributos `scope` às tabelas de `seguro/principal.jsp`, `seguro/classificacao.jsp` e `seguro/jogos.jsp`, reforçando acessibilidade e mantendo compatibilidade após `mvn test`.
@@ -317,31 +317,35 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260219-correcao-actions-admin.md`
     Skill: `modernization-java-migration v1.0.0`
-*   2026-02-20: **[Em Progresso]** Refatoração CSS da página principal (Fase 2.5 - Tarefa 4). Atualizada `webapp/seguro/principal.jsp` para usar utilitários responsivos (`.table`, `.team-cell`, `.score-value`, `.chart-wrapper`) e centralizar a tabela de jogos em container flexível; adicionadas classes complementares em `webapp/css/estilo.css`. `mvn test` executado com sucesso garantindo integridade.
+*   2026-02-20: **[Concluído]** Refatoração CSS da página principal (Fase 2.5 - Tarefa 4). Atualizada `webapp/seguro/principal.jsp` para usar utilitários responsivos (`.table`, `.team-cell`, `.score-value`, `.chart-wrapper`) e centralizar a tabela de jogos em container flexível; adicionadas classes complementares em `webapp/css/estilo.css`. `mvn test` executado com sucesso garantindo integridade.
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260220-refatoracao-css-principal.md`
     Skill: N/A (nenhuma skill aplicável)
-*   2026-02-20: **[Em Progresso]** Refatoração CSS da página de classificação (Fase 2.5 - Tarefa 4). `webapp/seguro/classificacao.jsp` reestruturada para usar `dashboard-section`, `.table` e utilitários de alinhamento, com destaque do usuário autenticado via `ranking-highlight`; CSS atualizado em `webapp/css/estilo.css`. `mvn test` executado com sucesso (5 testes).
+*   2026-02-20: **[Concluído]** Refatoração CSS da página de classificação (Fase 2.5 - Tarefa 4). `webapp/seguro/classificacao.jsp` reestruturada para usar `dashboard-section`, `.table` e utilitários de alinhamento, com destaque do usuário autenticado via `ranking-highlight`; CSS atualizado em `webapp/css/estilo.css`. `mvn test` executado com sucesso (5 testes).
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260220-refatoracao-css-classificacao.md`
     Skill: N/A (nenhuma skill aplicável)
-*   2026-02-20: **[Em Progresso]** Refatoração CSS da página de gráfico comparativo (Fase 2.5 - Tarefa 4). `webapp/seguro/graficoDesempenho.jsp` refatorada com `portlet-body`, `.form-section`, `.form-control` e `chart-wrapper`, removendo estilos inline; utilidades adicionadas no `estilo.css`. `mvn test` executado com sucesso (5 testes).
+*   2026-02-20: **[Concluído]** Refatoração CSS da página de gráfico comparativo (Fase 2.5 - Tarefa 4). `webapp/seguro/graficoDesempenho.jsp` refatorada com `portlet-body`, `.form-section`, `.form-control` e `chart-wrapper`, removendo estilos inline; utilidades adicionadas no `estilo.css`. `mvn test` executado com sucesso (5 testes).
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260220-refatoracao-css-grafico.md`
     Skill: N/A (nenhuma skill aplicável)
-*   2026-02-20: **[Em Progresso]** Refatoração CSS da página de bate-papo (Fase 2.5 - Tarefa 4). `webapp/seguro/batePapo.jsp` substitui estilos inline por `dashboard-section` e componente `.notice-card`, adicionando utilitários no `estilo.css`. `mvn test` executado com sucesso (5 testes).
+*   2026-02-20: **[Concluído]** Refatoração CSS da página de bate-papo (Fase 2.5 - Tarefa 4). `webapp/seguro/batePapo.jsp` substitui estilos inline por `dashboard-section` e componente `.notice-card`, adicionando utilitários no `estilo.css`. `mvn test` executado com sucesso (5 testes).
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260220-refatoracao-css-batepapo.md`
     Skill: N/A (nenhuma skill aplicável)
-*   2026-02-20: **[Em Progresso]** Refatoração CSS da página de jogos (Fase 2.5 - Tarefa 4). Filtro de palpites, painel “Meus palpites” e balões DWR reorganizados com `match-filter`, `.tips-panel`, `.loading-inline`, `.balao-*` e classes de tabela responsivas; estilos inline removidos em `webapp/seguro/jogos.jsp`. `mvn test` executado com sucesso (5 testes).
+*   2026-02-20: **[Concluído]** Refatoração CSS da página de jogos (Fase 2.5 - Tarefa 4). Filtro de palpites, painel “Meus palpites” e balões HTMX reorganizados com `match-filter`, `.tips-panel`, `.loading-inline`, `.balao-*` e classes de tabela responsivas; estilos inline removidos em `webapp/seguro/jogos.jsp`. `mvn test` executado com sucesso (5 testes).
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260220-refatoracao-css-jogos.md`
     Skill: N/A (nenhuma skill aplicável)
-*   2026-02-20: **[Em Progresso]** Refatoração CSS da página Copa (Fase 2.5 - Tarefa 4). Estrutura de `webapp/seguro/copa.jsp` atualizada para usar `dashboard-section`, removendo container com `float/right`. `mvn test` executado com sucesso (5 testes).
+*   2026-02-20: **[Concluído]** Refatoração CSS da página Copa (Fase 2.5 - Tarefa 4). Estrutura de `webapp/seguro/copa.jsp` atualizada para usar `dashboard-section`, removendo container com `float/right`. `mvn test` executado com sucesso (5 testes).
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260220-refatoracao-css-copa.md`
     Skill: N/A (nenhuma skill aplicável)
-*   2026-02-20: **[Em Progresso]** Refatoração CSS dos formulários públicos e telas administrativas (Fase 2.5 - Tarefa 4). Ajustados `webapp/cadastro.jsp`, `webapp/login.jsp`, `webapp/admin/inclusaoJogo.jsp`, `webapp/admin/participantes.jsp` e `webapp/template/menu.jspf` para usar utilitários (`text-left`, `icon-inline-top`, `table-spaced`, `dashboard-section`, `icon-button`, `hidden`, `mb-md`) e centralização via CSS. `mvn test` executado com sucesso (5 testes).
+*   2026-02-20: **[Concluído]** Refatoração CSS dos formulários públicos e telas administrativas (Fase 2.5 - Tarefa 4). Ajustados `webapp/cadastro.jsp`, `webapp/login.jsp`, `webapp/admin/inclusaoJogo.jsp`, `webapp/admin/participantes.jsp` e `webapp/template/menu.jspf` para usar utilitários (`text-left`, `icon-inline-top`, `table-spaced`, `dashboard-section`, `icon-button`, `hidden`, `mb-md`) e centralização via CSS. `mvn test` executado com sucesso (5 testes).
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260220-refatoracao-css-formularios.md`
+    Skill: N/A (nenhuma skill aplicável)
+*   2026-02-20: **[Concluído]** Migração dos tooltips legados (Fase 2.5 - Tarefas 2 e 3). Removidos `BrowserDetector.js` e `overlib.js`, criado `webapp/js/tooltips.js` com reuso em respostas HTMX, aplicados tooltips acessíveis aos cabeçalhos do ranking e concluída a sanitização final de estilos inline. `mvn test` validado pós-ajustes.
+    Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+    Referência Log: `.ia/logs/session-20260220-remocao-overlib-tooltips.md`
     Skill: N/A (nenhuma skill aplicável)
