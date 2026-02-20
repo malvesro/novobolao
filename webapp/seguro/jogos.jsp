@@ -48,7 +48,7 @@
 </script>
 </authz:authorize>
 
-<div style="float: right; width: 605px;">
+<div class="dashboard-section">
 <form action="#" method="POST">
 
 <c:set var="dataJogo" />
@@ -316,15 +316,15 @@
 </c:if>
 
 <c:if test="${telaPalpites}">
-	<opendev:portlet id="filtro_jogos" title="Filtro de Busca" icon="/img/view.png" style="width: 600px; margin: 0 auto;">
+	<opendev:portlet id="filtro_jogos" title="Filtro de Busca" icon="/img/view.png">
 		<c:url var="aplicarFiltroJogosActionURL" value="/seguro/palpites.action" />
 		<form action="${aplicarFiltroJogosActionURL}" method="get">
         <input type="hidden" name="usarFiltro" value="true" />
-		<div style="padding-top: 10px; padding-bottom: 10px;">
-		<table class="form" cellspacing="0" cellpadding="2" style="width:100%; margin-top: 10px; margin-bottom: 10px;">
+		<div class="match-filter">
+		<table class="match-filter__table">
 			<tr>
 				<td class="label"><label for="filtro_time"><fmt:message key="filter.dates" /></label></td>
-				<td class="widget">
+				<td class="widget match-filter__row">
 					<select name="dataInicial" id="data_select_id">
 						<option value=""><fmt:message key="filter.fase.0" /></option>
 					<c:forTokens var="data" delims="," items="${initParam.datas}">
@@ -417,7 +417,7 @@
 			</tr>
 			<tr>
 				<td><br /></td>
-				<td class="widget">
+				<td class="widget match-filter__row">
                     <c:choose>
                         <c:when test="${not empty filtro and filtro.soSemPalpite}">
                             <input type="checkbox" id="filtro_sem_palpite_cb" name="filtroSemPalpite" value="true" checked="checked" />
@@ -431,7 +431,7 @@
 			</tr>
 			<tr>
 				<td><br /></td>
-				<td class="widget">
+				<td class="widget match-filter__row">
                     <c:choose>
                     <c:when test="${not empty filtro and filtro.soJogosQueNaoOcorreram}">
                         <input type="checkbox" id="filtro_jogos_ocorreram_cb" name="filtroJogosNaoOcorreram" value="true" checked="checked" />
@@ -454,28 +454,32 @@
 			--%>
 		</table>
 		</div>
-		<div class="footer">
+		<div class="match-filter__actions">
 			<fmt:message var="filterSubmitLabel" key="filter.submit" />
 			<input type="submit" name="submit" class="button" value="${filterSubmitLabel}" />
 		</div>
 		</form>
 	</opendev:portlet>
-	<div style="height: 20px;"></div>
+	<span class="spacer spacer-sm"></span>
     <div>
     	<p>
-    		<img alt="" src="${base}/img/triang_yellow.png" style="vertical-align: top;" />
+    		<img alt="" src="${base}/img/triang_yellow.png" class="icon-inline" />
     		<fmt:message key="match.tip.showall">
     			<fmt:param value="javascript:mostrarMeusPalpites();"></fmt:param>
     		</fmt:message>
     	</p>
     </div>
-    <div id="todos_palpites_div" style="display: none; width: 600px; margin: 0 auto; background-color: white; border: 1px dashed #283F08;">
-    	<div style="margin: 4px;">
-    		<div id="todos_palpites_loading" style="position: relative; top: 0; right: 0; text-align: right;">
+    <div id="todos_palpites_div" class="tips-panel">
+    	<div class="tips-panel__body">
+    		<div id="todos_palpites_loading" class="tips-panel__header">
     			<a href="javascript:fecharMeusPalpites();"><fmt:message key="match.tip.close" /></a>
     		</div>
-    		<p><fmt:message key="match.tip.now" /> <img alt="" src="${base}/img/refresh.png" style="vertical-align: top; cursor: pointer;" onclick="buscarMeusPalpites();" /></p>
-    		<table align="center" width="96%;" cellpadding="2" cellspacing="1" class="conteudo">
+    		<div class="tips-panel__footer">
+    			<p><fmt:message key="match.tip.now" /></p>
+    			<img alt="" src="${base}/img/refresh.png" class="icon-inline icon-button" onclick="buscarMeusPalpites();" />
+    		</div>
+    		<div class="tips-panel__scroll">
+    		<table class="table tips-panel__table">
     			<thead>
     				<tr>
     					<th><fmt:message key="match.tip.date" /></th>
@@ -487,16 +491,17 @@
     			<tbody id="todos_palpites_table">
     			</tbody>
     		</table>
-    		<div style="height: 20px;"></div>
+    		</div>
+    		<span class="spacer spacer-sm"></span>
     	</div>
     </div>
-    <div style="height: 10px;"></div>
-    <div id="palpites_info" class="legenda" style="width: 600px; margin: 0 auto;">
-        <p><img alt="" src="${base}/img/information.gif" style="vertical-align: top;" />
+    <span class="spacer spacer-sm"></span>
+    <div id="palpites_info" class="legenda tips-info">
+        <p><img alt="" src="${base}/img/information.gif" class="icon-inline" />
             <fmt:message key="match.tip.help" />
         </p>
     </div>
-    <div style="height: 10px;"></div>
+    <span class="spacer spacer-sm"></span>
 </c:if>
 
 <c:forEach var="jogo" items="${jogos}" varStatus="loop">
@@ -508,7 +513,7 @@
 				</table>
 			</div>
 		</div>
-		<div style="height: 20px;"></div>
+		<span class="spacer spacer-sm"></span>
 	</c:if>
 	<c:if test="${empty dataJogo or dataJogo ne jogo.data}">
 		<fmt:formatDate var="dataJogoFormatada" value="${jogo.data}" pattern="dd/MM/yyyy" />
@@ -600,5 +605,5 @@
 	<c:set var="rowIndex" value="${rowIndex + 1}" />
 </c:forEach>
 </form>
-<div style="height: 20px;"></div>
+<span class="spacer spacer-sm"></span>
 </div>
