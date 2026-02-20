@@ -53,16 +53,23 @@
 
 	const manifestUrl = buildAssetUrl('assets/manifest.json');
 	const fallbackModule = buildAssetUrl('assets/js/app-bundle.js');
+	const possibleEntries = [
+		'src/frontend/main.js',
+		'src/frontend/main.ts',
+		'src/frontend/main.jsx',
+		'main.js',
+		'main.ts',
+		'main.jsx'
+	];
 
 	async function loadBundle() {
 		try {
 			const response = await fetch(manifestUrl, { cache: 'no-store' });
 			if (response.ok) {
 				const manifest = await response.json();
-				const entry =
-					manifest['src/frontend/main.js'] ||
-					manifest['src/frontend/main.ts'] ||
-					manifest['src/frontend/main.jsx'];
+				const entry = possibleEntries
+					.map((key) => manifest[key])
+					.find((value) => value && value.file);
 
 				if (entry && entry.file) {
 					const entryUrl = buildAssetUrl(entry.file);
