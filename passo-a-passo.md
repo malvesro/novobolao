@@ -112,6 +112,7 @@ Premissas de compatibilidade (críticas):
     * **2026-02-20:** [Em Progresso] Cadastro administrativo de jogos (`admin/inclusaoJogo.jsp`) convertido para fetch/DOM nativo com endpoints Struts e remoção de DWR/Prototype; ver `.ia/logs/session-20260220-remocao-dwr-admin-inclusao-jogo.md`.
     * **2026-02-20:** [Em Progresso] Cadastro público (`cadastro.jsp`) reescrito para DOM nativo; libs DWR (`engine.js`, `util.js`) removidas do `cabecalho.jspf`; ver `.ia/logs/session-20260220-remocao-dwr-cadastro-publico.md`.
     * **2026-02-20:** [Concluído] Remoção completa do DWR servlet e dependências: `webapp/WEB-INF/web.xml` sem `dwr-invoker`, dependência `org.directwebremoting:dwr` excluída do `pom.xml` e build validado com `mvn test`; ver `.ia/logs/session-20260220-remocao-dwr-servlet.md`.
+    * **2026-02-20:** [Parcial] Inventário inicial aponta ausência de código ativo do Cewolf, mas mantém bloco comentado da dependência no `pom.xml` e metadados `webapp/WEB-INF/lib/CVS`; registrar subtarefas para limpeza definitiva. Referência log: `.ia/logs/session-20260220-inventario-legados-pos-dwr.md`.
 4.  **[Em Progresso] Auditoria e Refatoração CSS (Sequência após Tarefa 3):** Revisar `estilo.css`, remover hacks legados, reorganizar por componentes e implementar responsividade básica. **Parcial (19/02/2026):** Auditoria documentada em `.ia/logs/session-20260219-auditoria-css.md` e diretrizes definidas no ADR `.ia/historico/ADR-20260219-refatoracao-css.md`; refatoração responsiva pendente.
 4.1 **[Concluído] Modernização do HTML (Sequência da Tarefa 4):** Higienizar marcação JSP/HTML removendo atributos obsoletos (`align`, `cellpadding`, `width`, etc.), migrar estrutura de tabelas puramente visuais para classes utilitárias responsivas, padronizar uso de `aria-*` e preparar componentes para interações HTMX pós-remoção de Prototype/DWR. Registrar subtarefas por módulo (público, seguro, admin) e validar cada ajuste com `mvn test`. *Skill prevista:* N/A (refinamento frontend estruturado).
     * **2026-02-20:** Removidos atributos legados e adicionados wrappers responsivos nas páginas `login.jsp`, `cadastro.jsp`, `admin/inclusaoJogo.jsp`, `admin/participantes.jsp` e `seguro/jogos.jsp`; tabelas passaram a usar classes utilitárias e `mvn test` validou 5 cenários.
@@ -144,6 +145,7 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
 5.  **[Pendente] Recriação do Chat (Chat 2.0):** Implementar um novo serviço de chat utilizando tecnologias modernas (Spring Boot + WebSocket), conforme detalhado em `implementation_plan.md`.
 6.  **[Pendente] Atualização da Versão do Java:** Migrar para a versão LTS mais recente do Java (ex: Java 17 ou 21 ou 25).
 6.  **[Pendente] Banco de Dados:** Avaliar a necessidade de upgrade da versão do MySQL.
+7.  **[Pendente] Ajuste de Deploy Pós-Remoção DWR:** Validar ambientes provisionados (Docker/Tomcat externos) para remoção do servlet DWR, limpeza de WARs antigos e atualização de automações de deploy.
 
 ### Fase 4: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
