@@ -344,6 +344,11 @@ table.conteudo th {
 	background-color: #E3E3E3;
 }
 
+table.conteudo th,
+table.conteudo td {
+	padding: 0.5rem;
+}
+
 table.conteudo img {
 	vertical-align: middle;
 }
@@ -749,6 +754,18 @@ div.legenda span.abrev {
 	display: none;
 }
 
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
 .mb-md {
 	margin-bottom: 1rem;
 }
@@ -977,6 +994,10 @@ div.legenda span.abrev {
 	width: 100%;
 	max-width: 720px;
 	margin: 0 auto;
+}
+
+.table-participants__select {
+	min-width: 110px;
 }
 
 .score-value {

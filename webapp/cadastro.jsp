@@ -6,12 +6,12 @@
             <img alt="" src="${base}/img/information.gif" class="icon-inline-top" />
         </span>
         <span id="field_info">
-            Pedido de cadastro enviado! Em alguns minutos você receberá um email confirmando o seu cadastro
-            caso você esteja participando do bolão! Aguarde!
+            Pedido de cadastro enviado! Em alguns minutos vocÃª receberÃ¡ um email confirmando o seu cadastro
+            caso vocÃª esteja participando do bolÃ£o! Aguarde!
         </span>
         <div class="text-center">
             <c:url var="contextURL" value="/" />
-            <a href="${contextURL}">Página principal</a>
+            <a href="${contextURL}">PÃ¡gina principal</a>
         </div>
     </div>
 </c:when>
@@ -25,9 +25,10 @@
 <opendev:mensagensErro nomeAtributo="errosInclusao" />
 <opendev:portlet id="cadastro_portlet" icon="/img/cadastro.png" title="Cadastro">
 <c:url var="cadastroActionURL" value="/cadastro.action" />
-<form action="${cadastroActionURL}" method="post">
+    <form action="${cadastroActionURL}" method="post">
     <div class="inner">
-        <table class="form" cellspacing="0" cellpadding="2" >
+        <div class="table-responsive">
+        <table class="form">
             <tr>
                 <td colspan="2" class="text-left">
                     <div class="alert">
@@ -44,7 +45,7 @@
                     <label for="login_tf"><fmt:message key="signin.login" /></label>
                 </td>
                 <td class="widget">
-                    <input id="login_tf" type="text" name="login" onblur="atualizarSugestao('');" onfocus="atualizarSugestao('Procure usar o mesmo login da rede do BaCen para facilitar a identificação de cada um.');" class="text" size="15" value="${tentativaInclusao.login}" />
+                    <input id="login_tf" type="text" name="login" onblur="atualizarSugestao('');" onfocus="atualizarSugestao('Procure usar o mesmo login da rede do BaCen para facilitar a identificaÃ§Ã£o de cada um.');" class="text" size="15" value="${tentativaInclusao.login}" />
                 </td>
             </tr>
             <tr>
@@ -52,7 +53,7 @@
                     <label for="pwd_tf"><fmt:message key="signin.pwd" /></label>
                 </td>
                 <td class="widget">
-                    <input id="pwd_tf" type="password" name="senha" onblur="atualizarSugestao('');" onfocus="atualizarSugestao('Não utilize uma senha de fácil dedução. Não utilize caracteres especiais (-, _, *, &, etc). Mínimo de 5 e máximo de 20 caracteres.');" class="text" size="20" />
+                    <input id="pwd_tf" type="password" name="senha" onblur="atualizarSugestao('');" onfocus="atualizarSugestao('NÃ£o utilize uma senha de fÃ¡cil deduÃ§Ã£o. NÃ£o utilize caracteres especiais (-, _, *, &, etc). MÃ­nimo de 5 e mÃ¡ximo de 20 caracteres.');" class="text" size="20" />
                 </td>
             </tr>
             <tr>
@@ -71,8 +72,9 @@
                     <input id="email_tf" type="text" name="email" onblur="atualizarSugestao('');" onfocus="atualizarSugestao('Deve-se informar o e-mail do Banco Central.');" class="text" size="35" value="${tentativaInclusao.email}" />
                 </td>
             </tr>
-		</table>
-	</div>
+        </table>
+        </div>
+    </div>
 	<div class="footer">
 		<fmt:message var="siginSubmitLabel" key="signin.submit" />
 		<input type="submit" name="submit" class="button" value="${siginSubmitLabel}" />
