@@ -99,7 +99,8 @@
 </style>
 </head>
 <body>
+	<a class="skip-link" href="#content">Ir para o conteúdo principal</a>
 	<div id="wrapper">
-	<div id="header">
+	<div id="header" role="banner">
 	</div>
-	<div id="content">
+	<main id="content" role="main" tabindex="-1">

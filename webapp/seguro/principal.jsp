@@ -48,7 +48,7 @@
 					<td class="text-right">
 						<div class="team-cell text-right">
 							<span>${jogo.equipe1.nomePais}</span>
-							<img alt="" src="${base}/img/bandeiras/${jogo.equipe1.id}.gif" />
+							<img alt="${jogo.equipe1.nomePais}" src="${base}/img/bandeiras/${jogo.equipe1.id}.gif" />
 							<span class="score-value">${jogo.golsEquipe1}</span>
 						</div>
 					</td>
@@ -56,7 +56,7 @@
 						<td class="text-left">
 							<div class="team-cell text-left">
 								<span class="score-value">${jogo.golsEquipe2}</span>
-								<img alt="" src="${base}/img/bandeiras/${jogo.equipe2.id}.gif" />
+								<img alt="${jogo.equipe2.nomePais}" src="${base}/img/bandeiras/${jogo.equipe2.id}.gif" />
 								<span>${jogo.equipe2.nomePais}</span>
 							</div>
 						</td>
