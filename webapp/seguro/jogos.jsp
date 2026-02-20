@@ -300,10 +300,10 @@
 			<table class="table tips-panel__table">
 				<thead>
 					<tr>
-						<th><fmt:message key="member" /></th>
-						<th><fmt:message key="match.tip" /></th>
-					<th><fmt:message key="match.tip.points" /></th>
-				</tr>
+						<th scope="col"><fmt:message key="member" /></th>
+						<th scope="col"><fmt:message key="match.tip" /></th>
+						<th scope="col"><fmt:message key="match.tip.points" /></th>
+					</tr>
 			</thead>
 			<tbody id="balao_table_palpites">
 			</tbody>
@@ -481,12 +481,12 @@
     		<div class="tips-panel__scroll">
     		<table class="table tips-panel__table">
     			<thead>
-    				<tr>
-    					<th><fmt:message key="match.tip.date" /></th>
-    					<th><fmt:message key="match.tip.hour" /></th>
-    					<th><fmt:message key="match.tip.teams" /></th>
-    					<th><fmt:message key="match.tip.mine" /></th>
-    				</tr>
+	    				<tr>
+	    					<th scope="col"><fmt:message key="match.tip.date" /></th>
+	    					<th scope="col"><fmt:message key="match.tip.hour" /></th>
+	    					<th scope="col"><fmt:message key="match.tip.teams" /></th>
+	    					<th scope="col"><fmt:message key="match.tip.mine" /></th>
+	    				</tr>
     			</thead>
     			<tbody id="todos_palpites_table">
     			</tbody>
@@ -529,10 +529,10 @@
 					<table class="table conteudo">
 						<thead>
 							<tr>
-								<th><fmt:message key="match.hour" /></th>
-								<th><fmt:message key="match.where" /></th>
-								<th><fmt:message key="match.group" /></th>
-							<th colspan="3"><fmt:message key="match.teams" /></th>
+								<th scope="col"><fmt:message key="match.hour" /></th>
+								<th scope="col"><fmt:message key="match.where" /></th>
+								<th scope="col"><fmt:message key="match.group" /></th>
+								<th scope="colgroup" colspan="3"><fmt:message key="match.teams" /></th>
 						</tr>
 					</thead>
 						<tbody>

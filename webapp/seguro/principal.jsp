@@ -21,10 +21,10 @@
 		<table class="table conteudo">
 			<thead>
 				<tr>
-					<th><fmt:message key="match.hour" /></th>
-					<th><fmt:message key="match.where" /></th>
-					<th><fmt:message key="match.group" /></th>
-					<th colspan="3"><fmt:message key="match.teams" /></th>
+					<th scope="col"><fmt:message key="match.hour" /></th>
+					<th scope="col"><fmt:message key="match.where" /></th>
+					<th scope="col"><fmt:message key="match.group" /></th>
+					<th scope="colgroup" colspan="3"><fmt:message key="match.teams" /></th>
 				</tr>
 			</thead>
 			<tbody>

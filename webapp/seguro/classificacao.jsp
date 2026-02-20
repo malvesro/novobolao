@@ -9,17 +9,17 @@
             <table class="table conteudo">
                 <thead>
                     <tr>
-                        <th class="text-center"><fmt:message key="ranking.position" /></th>
-                        <th class="text-left"><fmt:message key="member.name" /></th>
-                        <th class="text-left"><fmt:message key="member.login" /></th>
-                        <th class="text-center"><fmt:message key="ranking.points" /></th>
-                        <th class="text-center"><fmt:message key="ranking.hints" /></th>
-                        <th class="text-center"><fmt:message key="ranking.at" /></th>
-                        <th class="text-center"><fmt:message key="ranking.ap" /></th>
-                        <th class="text-center"><fmt:message key="ranking.apb" /></th>
-                        <th class="text-center"><fmt:message key="ranking.b" /></th>
-                        <th class="text-center"><fmt:message key="ranking.e" /></th>
-                        <th class="text-center"><fmt:message key="ranking.apr" /></th>
+                        <th scope="col" class="text-center"><fmt:message key="ranking.position" /></th>
+                        <th scope="col" class="text-left"><fmt:message key="member.name" /></th>
+                        <th scope="col" class="text-left"><fmt:message key="member.login" /></th>
+                        <th scope="col" class="text-center"><fmt:message key="ranking.points" /></th>
+                        <th scope="col" class="text-center"><fmt:message key="ranking.hints" /></th>
+                        <th scope="col" class="text-center"><fmt:message key="ranking.at" /></th>
+                        <th scope="col" class="text-center"><fmt:message key="ranking.ap" /></th>
+                        <th scope="col" class="text-center"><fmt:message key="ranking.apb" /></th>
+                        <th scope="col" class="text-center"><fmt:message key="ranking.b" /></th>
+                        <th scope="col" class="text-center"><fmt:message key="ranking.e" /></th>
+                        <th scope="col" class="text-center"><fmt:message key="ranking.apr" /></th>
                     </tr>
                 </thead>
                 <tbody>
