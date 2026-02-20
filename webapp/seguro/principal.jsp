@@ -8,7 +8,7 @@
 
 <div class="dashboard-section">
     <c:if test="${empty jogosDeHoje}">
-        <opendev:portlet id="jogos_hoje_vazio" title="Jogos de Hoje" style="margin: 0 auto;">
+        <opendev:portlet id="jogos_hoje_vazio" title="Jogos de Hoje">
             <div class="info">
                 <fmt:message key="match.none.today" />
             </div>
@@ -16,7 +16,7 @@
     </c:if>
 
     <c:if test="${not empty jogosDeHoje}">
-    <opendev:portlet id="jogos_hoje_portlet" title="Jogos de Hoje" style="margin: 0 auto;">
+    <opendev:portlet id="jogos_hoje_portlet" title="Jogos de Hoje">
 		<div class="table-responsive">
 		<table class="table conteudo">
 			<thead>
@@ -68,7 +68,7 @@
     </opendev:portlet>
     <span class="spacer-sm"></span>
     </c:if>
-    <opendev:portlet id="grafico_lideres_portlet" title="Lideranca" style="margin: 0 auto; height: 220px; background-color: #FFFFFF;">
+    <opendev:portlet id="grafico_lideres_portlet" title="Lideranca">
         <c:url var="graficoLideresUrl" value="/seguro/graficoLiderancaImagem.action" />
         <div class="chart-wrapper">
             <img src="${graficoLideresUrl}" alt="Grafico de lideranca" />
