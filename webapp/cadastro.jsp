@@ -17,9 +17,15 @@
 </c:when>
 <c:otherwise>
 <script type="text/javascript">
-    function atualizarSugestao(sug) {
-        DWRUtil.setValue("field_info", sug);
-    }    
+    (function() {
+        window.atualizarSugestao = function(mensagem) {
+            var alvo = document.getElementById("field_info");
+            if (!alvo) {
+                return;
+            }
+            alvo.textContent = mensagem || "";
+        };
+    })();
 </script>
 <div class="spacer-lg"></div>
 <opendev:mensagensErro nomeAtributo="errosInclusao" />

@@ -1,0 +1,29 @@
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<c:choose>
+    <c:when test="${empty palpites}">
+        <tr>
+            <td colspan="4" class="text-center">
+                <fmt:message key="match.tip.none" />
+            </td>
+        </tr>
+    </c:when>
+    <c:otherwise>
+        <c:forEach var="palpite" items="${palpites}">
+            <tr>
+                <td class="text-center">
+                    <fmt:formatDate value="${palpite.jogo.data}" pattern="dd/MM/yyyy" />
+                </td>
+                <td class="text-center">
+                    <fmt:formatDate value="${palpite.jogo.hora}" pattern="HH:mm" />
+                </td>
+                <td>
+                    <c:out value="${palpite.jogo.representacaoEquipes}" />
+                </td>
+                <td class="text-center">
+                    <c:out value="${palpite.golsEquipe1}" /> X <c:out value="${palpite.golsEquipe2}" />
+                </td>
+            </tr>
+        </c:forEach>
+    </c:otherwise>
+</c:choose>

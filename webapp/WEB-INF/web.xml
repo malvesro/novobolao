@@ -91,21 +91,6 @@
 		<listener-class>com.opendev.bolao.util.ContadorParticipantesOnline</listener-class>
 	</listener>
 
-	<servlet>
-		<servlet-name>dwr-invoker</servlet-name>
-		<servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
-		<init-param>
-			<param-name>debug</param-name>
-			<param-value>false</param-value>
-		</init-param>
-		<load-on-startup>2</load-on-startup>
-	</servlet>
-
-	<servlet-mapping>
-		<servlet-name>dwr-invoker</servlet-name>
-		<url-pattern>/dwr/*</url-pattern>
-	</servlet-mapping>
-
 	<security-constraint>
 		<web-resource-collection>
 			<web-resource-name>Entire Application</web-resource-name>

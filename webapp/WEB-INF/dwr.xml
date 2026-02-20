@@ -3,34 +3,6 @@
 
 <dwr>
 
-	<allow>
-
-		<create creator="spring" javascript="AdminAction">
-			<param name="beanName" value="adminAction" />
-			<include method="criarNovoJogo" />
-			<include method="atualizarResultadoDoJogo" />
-			<include method="autorizarParticipante" />
-			<include method="atualizarPapelParticipante" />
-			<include method="apagarParticipante" />
-		</create>
-		
-		<convert match="com.opendev.bolao.model.Palpite" converter="bean">
-			<param name="exclude" value="participante, jogo"/>
-		</convert>
-		<convert match="com.opendev.bolao.model.Jogo" converter="bean">
-			<param name="exclude" value="equipe1, equipe2"/>
-		</convert>
-		<convert match="com.opendev.bolao.util.DadosClassificacao" converter="bean" />
-		<create creator="spring" javascript="ParticipanteAction">
-			<param name="beanName" value="participanteAction" />
-			<include method="buscarPalpiteDoJogo" />
-			<include method="atualizarPalpite" />
-			<include method="buscarPalpitesDoJogo" />
-			<include method="buscarMeusPalpites" />
-		</create>
-		
-
-
-	</allow>
+	<allow/>
 
 </dwr>

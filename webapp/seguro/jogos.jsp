@@ -6,47 +6,270 @@
 <%@taglib prefix="opendev" uri="http://www.opendev.com.br/tld" %>
 
 <script type="text/javascript">
+	const baseUrl = "${base}";
+	const arrowRightSrc = baseUrl + "/img/arrow_right.png";
+	const arrowDownSrc = baseUrl + "/img/arrow_down.png";
+	let idJogoSelecionado = null;
+	let linhaSelecionada = null;
+	let meusPalpitesCarregado = false;
+
 	function collapseContainer(containerId, imgElement) {
-		var id = containerId + "_content";
-		Effect.toggle($(id), "slide");
-		var arrowRightSrc = "${base}/img/arrow_right.png";
-		var arrowDownSrc = "${base}/img/arrow_down.png";
-		if ($(id).style.display == "none") {
-			imgElement.src = arrowDownSrc;
-		} else {
-			imgElement.src = arrowRightSrc;
+		const content = document.getElementById(containerId + "_content");
+		if (!content) {
+			return;
 		}
-		
-	} 
-</script>
-
-<authz:authorize ifAllGranted="admin">
-<script type="text/javascript" src="${base}/dwr/interface/AdminAction.js"></script>
-
-<script type="text/javascript">
-<!--
-	function atualizarResultado(tfGols2) {
-		var jogoId = tfGols2.id.substring(tfGols2.id.lastIndexOf("_") + 1);
-		var trId = "jogoTr_" + jogoId;
-		var tfGols1 = "golsEquipe1_tf_" + jogoId;
-		var callbackFunc = function() {
-			new Effect.Highlight($(trId));
-		};
-		var errorCallbackFunc = function() {
-			new Effect.Highlight($(trId), {startcolor: "#FFE6DF"});
-		};
-		var golsEq1 = $(tfGols1).value;
-		var golsEq2 = tfGols2.value;
-		if (golsEq1 == "") golsEq1 = "-1";
-		if (golsEq2 == "") golsEq2 = "-1";
-		
-		AdminAction.atualizarResultadoDoJogo(
-			jogoId, golsEq1, golsEq2,
-			{callback:callbackFunc, errorHandler:errorCallbackFunc});
+		const isHidden = content.classList.toggle("collapsible-portlet__content--hidden");
+		imgElement.src = isHidden ? arrowRightSrc : arrowDownSrc;
 	}
-//-->
+
+	function getElementPosition(element) {
+		const rect = element.getBoundingClientRect();
+		return {
+			x: rect.left + window.scrollX,
+			y: rect.top + window.scrollY
+		};
+	}
+
+	function destacarLinha(row, highlight) {
+		if (highlight) {
+			row.dataset.originalClass = row.dataset.originalClass || row.className;
+			if ((row.dataset.originalClass || "").indexOf("brasil") !== -1) {
+				row.className = "destacado_brasil";
+			} else {
+				row.className = "destacado";
+			}
+		} else if (row.dataset.originalClass) {
+			row.className = row.dataset.originalClass;
+		}
+	}
+
+	function mostrarPopupPalpite(rowElement) {
+		if (!rowElement) {
+			return;
+		}
+		const podeDarPalpite = rowElement.dataset.palpiteAllowed === "true";
+		const jogoId = Number(rowElement.dataset.jogoId);
+		const palpiteDiv = document.getElementById("balao_palpite");
+		const palpitesDiv = document.getElementById("balao_palpites");
+		const statusContainer = document.getElementById("palpite-status");
+		const loadingPalpite = document.getElementById("loading_span");
+		const loadingPalpites = document.getElementById("loading_span_palpites");
+
+		idJogoSelecionado = jogoId;
+		linhaSelecionada = rowElement;
+
+		if (statusContainer) {
+			statusContainer.innerHTML = "";
+		}
+
+		if (loadingPalpite) {
+			loadingPalpite.classList.remove("loading-inline--visible");
+		}
+		if (loadingPalpites) {
+			loadingPalpites.classList.remove("loading-inline--visible");
+		}
+
+		if (palpiteDiv) {
+			palpiteDiv.classList.remove("balao-visible");
+		}
+		if (palpitesDiv) {
+			palpitesDiv.classList.remove("balao-visible");
+		}
+
+		const coords = getElementPosition(rowElement);
+
+		if (podeDarPalpite) {
+			if (palpiteDiv) {
+				palpiteDiv.style.top = (coords.y - 118) + "px";
+				palpiteDiv.style.left = (coords.x + 212) + "px";
+				palpiteDiv.classList.add("balao-visible");
+			}
+			const gols1 = rowElement.dataset.palpiteGols1 || "";
+			const gols2 = rowElement.dataset.palpiteGols2 || "";
+			const inputGols1 = document.getElementById("palpite_gols_eq_1");
+			const inputGols2 = document.getElementById("palpite_gols_eq_2");
+			if (inputGols1) {
+				inputGols1.value = gols1;
+				inputGols1.focus();
+			}
+			if (inputGols2) {
+				inputGols2.value = gols2;
+			}
+		} else {
+			if (palpitesDiv) {
+				palpitesDiv.style.top = (coords.y - 206) + "px";
+				palpitesDiv.style.left = (coords.x + 212) + "px";
+				palpitesDiv.classList.add("balao-visible");
+			}
+			carregarPalpitesDoJogo(jogoId);
+		}
+	}
+
+	function carregarPalpitesDoJogo(jogoId) {
+		const loading = document.getElementById("loading_span_palpites");
+		if (loading) {
+			loading.classList.add("loading-inline--visible");
+		}
+		const request = htmx.ajax("GET", baseUrl + "/seguro/palpitesDoJogoPartial.action", {
+			target: "#balao_table_palpites",
+			swap: "innerHTML",
+			values: { jogoId: jogoId }
+		});
+		request.addEventListener("loadend", function() {
+			if (loading) {
+				loading.classList.remove("loading-inline--visible");
+			}
+		});
+	}
+
+	function atualizarPalpite() {
+		if (idJogoSelecionado === null) {
+			return;
+		}
+		const inputGols1 = document.getElementById("palpite_gols_eq_1");
+		const inputGols2 = document.getElementById("palpite_gols_eq_2");
+		if (!inputGols1 || !inputGols2) {
+			return;
+		}
+		const gols1 = inputGols1.value === "" ? "0" : inputGols1.value;
+		const gols2 = inputGols2.value === "" ? "0" : inputGols2.value;
+		inputGols1.value = gols1;
+		inputGols2.value = gols2;
+
+		if (linhaSelecionada) {
+			linhaSelecionada.dataset.palpiteGols1 = gols1;
+			linhaSelecionada.dataset.palpiteGols2 = gols2;
+		}
+
+		const loading = document.getElementById("loading_span");
+		if (loading) {
+			loading.classList.add("loading-inline--visible");
+		}
+
+		const request = htmx.ajax("POST", baseUrl + "/seguro/atualizarPalpitePartial.action", {
+			target: "#palpite-status",
+			swap: "innerHTML",
+			values: {
+				jogoId: idJogoSelecionado,
+				palpiteGolsEquipe1: gols1,
+				palpiteGolsEquipe2: gols2
+			}
+		});
+
+		request.addEventListener("loadend", function() {
+			if (loading) {
+				loading.classList.remove("loading-inline--visible");
+			}
+			if (request.status >= 200 && request.status < 300) {
+				const meusPalpitesPainel = document.getElementById("todos_palpites_div");
+				if (meusPalpitesPainel && meusPalpitesPainel.classList.contains("tips-panel--visible")) {
+					carregarMeusPalpites(true);
+				}
+			}
+		});
+	}
+
+	function atualizarResultado(input) {
+		const jogoId = input.id.substring(input.id.lastIndexOf("_") + 1);
+		const tr = document.getElementById("jogoTr_" + jogoId);
+		const golsEq1Field = document.getElementById("golsEquipe1_tf_" + jogoId);
+		const golsEq1 = golsEq1Field && golsEq1Field.value !== "" ? golsEq1Field.value : "-1";
+		const golsEq2 = input.value !== "" ? input.value : "-1";
+
+		fetch(baseUrl + "/admin/atualizarResultadoJogo.action", {
+			method: "POST",
+			headers: { "Content-Type": "application/x-www-form-urlencoded" },
+			body: new URLSearchParams({
+				id: jogoId,
+				golsEquipe1: golsEq1,
+				golsEquipe2: golsEq2
+			})
+		}).then(function(response) {
+			destacarAtualizacao(tr, response.ok);
+		}).catch(function() {
+			destacarAtualizacao(tr, false);
+		});
+	}
+
+	function destacarAtualizacao(row, sucesso) {
+		if (!row) {
+			return;
+		}
+		row.classList.remove("row-highlight--success", "row-highlight--error");
+		void row.offsetWidth;
+		row.classList.add(sucesso ? "row-highlight--success" : "row-highlight--error");
+	}
+
+	function fecharBalao() {
+		const palpiteDiv = document.getElementById("balao_palpite");
+		const palpitesDiv = document.getElementById("balao_palpites");
+		const statusContainer = document.getElementById("palpite-status");
+		if (palpiteDiv) {
+			palpiteDiv.classList.remove("balao-visible");
+		}
+		if (palpitesDiv) {
+			palpitesDiv.classList.remove("balao-visible");
+		}
+		if (statusContainer) {
+			statusContainer.innerHTML = "";
+		}
+		const loadingPalpite = document.getElementById("loading_span");
+		const loadingPalpites = document.getElementById("loading_span_palpites");
+		if (loadingPalpite) {
+			loadingPalpite.classList.remove("loading-inline--visible");
+		}
+		if (loadingPalpites) {
+			loadingPalpites.classList.remove("loading-inline--visible");
+		}
+	}
+
+	function fecharIconeMouseOver(img) {
+		img.src = baseUrl + "/img/fechar_hover.gif";
+	}
+
+	function fecharIconeMouseOut(img) {
+		img.src = baseUrl + "/img/fechar.gif";
+	}
+
+	function mostrarMeusPalpites() {
+		const painel = document.getElementById("todos_palpites_div");
+		if (!painel) {
+			return;
+		}
+		painel.classList.add("tips-panel--visible");
+		carregarMeusPalpites(false);
+	}
+
+	function fecharMeusPalpites() {
+		const painel = document.getElementById("todos_palpites_div");
+		if (painel) {
+			painel.classList.remove("tips-panel--visible");
+		}
+	}
+
+	function carregarMeusPalpites(force) {
+		if (!force && meusPalpitesCarregado) {
+			return;
+		}
+		const request = htmx.ajax("GET", baseUrl + "/seguro/meusPalpitesPartial.action", {
+			target: "#todos_palpites_table",
+			swap: "innerHTML"
+		});
+		request.addEventListener("loadend", function() {
+			meusPalpitesCarregado = request.status >= 200 && request.status < 300;
+		});
+	}
+
+	document.addEventListener("DOMContentLoaded", function() {
+		const link = document.getElementById("mostrarMeusPalpitesLink");
+		if (link) {
+			link.addEventListener("click", function(event) {
+				event.preventDefault();
+				mostrarMeusPalpites();
+			});
+		}
+	});
 </script>
-</authz:authorize>
 
 <div class="dashboard-section">
 <form action="#" method="POST">
@@ -55,205 +278,6 @@
 <c:set var="rowIndex" value="0" />
 
 <c:if test="${telaPalpites}">
-<authz:authorize ifAllGranted="geral">
-<script type="text/javascript" src="${base}/dwr/interface/ParticipanteAction.js"></script>
-<script type="text/javascript">
-	var idJogoSelecionado = 0;
-	var classNameAnterior = null;
-	
-	function getPosition(theElement) {
-		var positionX = 0;
-		var positionY = 0;
-
-		while (theElement != null) {
-			positionX += theElement.offsetLeft;
-			positionY += theElement.offsetTop;
-			theElement = theElement.offsetParent;
-		}
-		return {x: positionX, y: positionY};
-	}
-	
-	function destacarLinha(cedula, flag) {
-		var cn = null;
-		if (classNameAnterior != null) {
-			cn = classNameAnterior;
-		} else {
-			cn = cedula.currentStyle;
-		}
-		
-		if (flag) {
-			classNameAnterior = cedula.className;
-			if (classNameAnterior == "brasil") {
-				cn = "destacado_brasil";
-			} else {
-				cn = "destacado";
-			}
-		}
-		cedula.className = cn;
-	}
-	
-	function mostrarPopupPalpite(refPosEl, idJogo, podeDarPalpite) {
-		if (podeDarPalpite) {
-    		var palpiteDiv = $("balao_palpite");
-    		Element.setOpacity(palpiteDiv, 0.90);
-    		Element.setStyle(palpiteDiv, {visibility: "hidden"});
-    		Element.setStyle($("balao_palpites"), {visibility: "hidden"});
-    		var posicaoElemento = getPosition(refPosEl);
-    		DWRUtil.setValue("palpite_gols_eq_1", "");
-    		DWRUtil.setValue("palpite_gols_eq_2", "");
-            //$("popup_show_sound").play();    
-    		Element.setStyle(palpiteDiv, {top: (posicaoElemento.y - 118) + "px", left: (posicaoElemento.x + 212) + "px", visibility: "visible"});
-    		$("palpite_gols_eq_1").focus();
-    		idJogoSelecionado = idJogo;
-    		var buscarPalpiteCallback = function(palpite) {
-    			if (palpite != null) {
-    				DWRUtil.setValue("palpite_gols_eq_1", palpite.golsEquipe1);
-    				DWRUtil.setValue("palpite_gols_eq_2", palpite.golsEquipe2);
-    			}
-    			Element.setStyle($("loading_span"), {visibility: "hidden"});
-    		}
-    		Element.setStyle($("loading_span"), {visibility: "visible"});
-    		ParticipanteAction.buscarPalpiteDoJogo(idJogo, {callback: buscarPalpiteCallback});
-		} else {
-    		var palpitesDiv = $("balao_palpites");
-    		Element.setOpacity(palpitesDiv, 0.90);
-    		Element.setStyle(palpitesDiv, {visibility: "hidden"});
-    		Element.setStyle($("balao_palpite"), {visibility: "hidden"});
-    		var posicaoElemento = getPosition(refPosEl);
-    		DWRUtil.removeAllRows("balao_table_palpites");
-    		Element.setStyle(palpitesDiv, {top: (posicaoElemento.y - 206) + "px", left: (posicaoElemento.x + 212) + "px", visibility: "visible"});
-			var buscarPalpitesCallback = function(palpites) {
-				var getters = [
-					function(data) { return data.nomeParticipante; },
-					function(data) { return data.representacaoPalpite; },
-					function(data) { return data.pontos; }
-				];
-                var cellIndex = 0;
-				var centeredTd = function(options) {
-					var td = document.createElement("td");
-					if (cellIndex == 1 || cellIndex == 2) {
-						td.align= "center";
-					}
-                    cellIndex++;
-					return td;
-				};
-                var rowCreator = function(options) {
-                    var row = document.createElement("tr");
-                    cellIndex = 0;
-                    return row;
-                }
-				DWRUtil.addRows("balao_table_palpites", palpites, getters, {cellCreator: centeredTd, rowCreator: rowCreator});
-				Element.setStyle($("loading_span_palpites"), {visibility: "hidden;"});
-			}
-			Element.setStyle($("loading_span_palpites"), {visibility: "visible"});
-			ParticipanteAction.buscarPalpitesDoJogo(idJogo, {callback: buscarPalpitesCallback});
-		}
-	}
-
-	function atualizarPalpite() {
-		var loadingMsg = $("loading_span");
-		Element.setStyle(loadingMsg, {visibility: "visible"});
-        var fadeMsgFunc = function() {
-            Element.setStyle($("span_retorno"), {visibility: "hidden"});
-        }
-
-		var callbackFunc = function() {
-			Element.setStyle(loadingMsg, {visibility: "hidden"});
-            DWRUtil.setValue("span_msg_retorno", "<fmt:message key='match.tip.status.ok' />");
-            $("img_msg_retorno").src = "${base}/img/information.gif";
-            Element.setStyle($("span_retorno"), {visibility: "visible"});
-            window.setTimeout(fadeMsgFunc, 5000);
-		}
-
-        var errorCallbackFunc = function() {
-            Element.setStyle(loadingMsg, {visibility: "hidden"});
-            DWRUtil.setValue("span_msg_retorno", "<fmt:message key='match.tip.status.error' />");
-            $("img_msg_retorno").src = "${base}/img/error.gif";
-            Element.setStyle($("span_retorno"), {visibility: "visible"});
-            window.setTimeout(fadeMsgFunc, 5000);
-        }
-        
-        if (DWRUtil.getValue("palpite_gols_eq_1") == "") {
-            DWRUtil.setValue("palpite_gols_eq_1", "0")
-        }
-
-        if (DWRUtil.getValue("palpite_gols_eq_2") == "") {
-            DWRUtil.setValue("palpite_gols_eq_2", "0")
-        }
-
-		ParticipanteAction.atualizarPalpite(
-			idJogoSelecionado, DWRUtil.getValue("palpite_gols_eq_1"),
-			DWRUtil.getValue("palpite_gols_eq_2"),
-            {callback: callbackFunc, errorHandler: errorCallbackFunc});
-	}
-
-	function fecharIconeMouseOver(img) {
-		img.src = "${base}/img/fechar_hover.gif";
-	}
-	
-	function fecharIconeMouseOut(img) {
-		img.src = "${base}/img/fechar.gif";
-	}
-	
-	function fecharBalao() {
-		Element.setStyle($("balao_palpite"), {visibility: "hidden"});
-		Element.setStyle($("balao_palpites"), {visibility: "hidden"});
-		Element.setStyle($("loading_span"), {visibility: "hidden"});
-		Element.setStyle($("loading_span_palpites"), {visibility: "hidden"});
-        Element.setStyle($("span_retorno"), {visibility: "hidden"});
-	}
-	
-	function mostrarMeusPalpites() {
-		
-		Effect.Appear($("todos_palpites_div"));
-		buscarMeusPalpites();
-	}
-	
-	var loadingPalpitesHtml = "<img alt=\"...\" src=\"${base}/img/loading.gif\" /><fmt:message key='general.loading' />";
-	var fecharPalpitesHtml = "<a href=\"javascript:fecharMeusPalpites();\"><fmt:message key='match.tip.close' /></a>";
-	
-	function fecharMeusPalpites() {
-		Effect.Fade($("todos_palpites_div"));
-	}
-	
-	function buscarMeusPalpites() {
-		DWRUtil.removeAllRows("todos_palpites_table");
-		DWRUtil.setValue("todos_palpites_loading", loadingPalpitesHtml);
-		var callBackFunc = function(palpites) {
-			var getters = [
-				function(data) { return data.dataDoJogo; },
-				function(data) { return data.horaDoJogo; },
-				function(data) { return data.paisEquipe1 + " X " + data.paisEquipe2; },
-				function(data) { return data.golsEquipe1 + " X " + data.golsEquipe2; }
-			];
-			var centeredTd = function(options) {
-				var td = document.createElement("td");
-				td.align= "center";
-				return td;
-			};
-            var rowIndex = 0;
-			var alternateCollorRowCreator = function(options) {
-				var row = document.createElement("tr");
-				if (rowIndex % 2 == 0) {
-					row.className = "impar";
-				} else {
-					row.className = "par";
-				}
-                rowIndex++;
-				return row;
-			};
-			DWRUtil.addRows("todos_palpites_table", palpites, getters, {cellCreator: centeredTd, rowCreator: alternateCollorRowCreator});
-			DWRUtil.setValue("todos_palpites_loading", fecharPalpitesHtml);
-		};
-		var errorCallBackFunc = function(exMsg, ex) {
-			DWRUtil.setValue("todos_palpites_loading", fecharPalpitesHtml);
-			alert(exMsg);
-		};
-		ParticipanteAction.buscarMeusPalpites({callback: callBackFunc, errorHandler: errorCallBackFunc});
-		
-	}
-</script>
-</authz:authorize>
 <!--
 <embed src="${base}/fx/popup.wav" id="popup_show_sound" autoplay="false" autostart="false" loop="false" hidden="true"></embed>
 -->
@@ -269,9 +293,7 @@
 		</p>
 	</div>
 	<div class="balao_middle balao-middle--compact">
-		<div id="balao_mensagem_retorno" class="balao-message">
-			<span id="span_retorno" class="message-inline"><img alt="" src="" id="img_msg_retorno" class="icon-inline-top" /><span id="span_msg_retorno"></span></span>
-		</div>
+		<div id="palpite-status" class="balao-message"></div>
 		<div class="text-center">
 			<label for="palpite_gols_eq_1"><fmt:message key="match.tip.self" /></label>
 			<input type="text" name="palpiteGolsEq1" id="palpite_gols_eq_1" class="text score-input input-centered" size="2" maxlength="2" />
@@ -461,22 +483,18 @@
 		</form>
 	</opendev:portlet>
 	<span class="spacer spacer-sm"></span>
-    <div>
-    	<p>
-    		<img alt="" src="${base}/img/triang_yellow.png" class="icon-inline" />
-    		<fmt:message key="match.tip.showall">
-    			<fmt:param value="javascript:mostrarMeusPalpites();"></fmt:param>
-    		</fmt:message>
-    	</p>
+    <div class="tips-trigger">
+    	<img alt="" src="${base}/img/triang_yellow.png" class="icon-inline" />
+    	<a href="#" id="mostrarMeusPalpitesLink">Ver meus palpites</a>
     </div>
     <div id="todos_palpites_div" class="tips-panel">
     	<div class="tips-panel__body">
     		<div id="todos_palpites_loading" class="tips-panel__header">
-    			<a href="javascript:fecharMeusPalpites();"><fmt:message key="match.tip.close" /></a>
+    			<button type="button" class="link-button" onclick="fecharMeusPalpites();"><fmt:message key="match.tip.close" /></button>
     		</div>
     		<div class="tips-panel__footer">
     			<p><fmt:message key="match.tip.now" /></p>
-    			<img alt="" src="${base}/img/refresh.png" class="icon-inline icon-button" onclick="buscarMeusPalpites();" />
+    			<img alt="" src="${base}/img/refresh.png" class="icon-inline icon-button" onclick="carregarMeusPalpites(true);" />
     		</div>
     		<div class="tips-panel__scroll">
     		<table class="table tips-panel__table">
@@ -550,8 +568,15 @@
 		</c:choose>
 			<c:choose>
 				<c:when test="${telaPalpites}">
+					<c:set var="palpiteUsuario" value="${palpitesUsuario[jogo.id]}" />
+					<c:set var="palpiteGols1Attr" value="" />
+					<c:set var="palpiteGols2Attr" value="" />
+					<c:if test="${not empty palpiteUsuario}">
+						<c:set var="palpiteGols1Attr" value="${palpiteUsuario.golsEquipe1}" />
+						<c:set var="palpiteGols2Attr" value="${palpiteUsuario.golsEquipe2}" />
+					</c:if>
 					<authz:authorize ifAllGranted="geral">
-					<tr class="${rowStyleClass}" id="jogoTr_${jogo.id}" onmouseover="destacarLinha(this, true);" onmouseout="destacarLinha(this, false);" onclick="mostrarPopupPalpite(this, ${jogo.id}, ${jogo.podeDarPalpite});">
+					<tr class="${rowStyleClass}" id="jogoTr_${jogo.id}" data-jogo-id="${jogo.id}" data-palpite-allowed="${jogo.podeDarPalpite}" data-palpite-gols1="${palpiteGols1Attr}" data-palpite-gols2="${palpiteGols2Attr}" onmouseover="destacarLinha(this, true);" onmouseout="destacarLinha(this, false);" onclick="mostrarPopupPalpite(this);">
 					</authz:authorize>
 					<authz:authorize ifAllGranted="restrito">
 					<tr class="${rowStyleClass}" id="jogoTr_${jogo.id}">
