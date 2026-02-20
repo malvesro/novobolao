@@ -23,6 +23,38 @@ body {
 	background-attachment: fixed;*/
 }
 
+.skip-link {
+	position: absolute;
+	left: -9999px;
+	top: auto;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+
+.skip-link:focus {
+	left: 1rem;
+	top: 1rem;
+	width: auto;
+	height: auto;
+	background: #004aad;
+	color: #fff;
+	padding: 0.5rem 1rem;
+	border-radius: 0.25rem;
+	z-index: 1000;
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	border: 0;
+}
+
 .spacer {
 	display: block;
 	width: 100%;
