@@ -24,4 +24,4 @@
 - [ ] Codigo ajustado manualmente (detalhar abaixo).
 - [ ] Alucinacao detectada (prompt refinado).
 
-**Observacoes:** Balões DWR receberam utilitários dedicados (`loading-inline`, `balao-middle--*`, `balao-scroll`), restando apenas ajustes futuros para modernizar o componente JS sem Prototype.
+**Observacoes:** Balões DWR receberam utilitários dedicados (`loading-inline`, `balao-middle--*`, `balao-scroll`), e a tabela de jogos foi padronizada com `match-table__*` e `team-cell`; restam ajustes futuros para modernizar o componente JS sem Prototype.
