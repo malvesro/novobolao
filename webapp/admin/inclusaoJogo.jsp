@@ -9,84 +9,76 @@
 <opendev:portlet id="cadastrojogo_portet" title="Cadastro de Jogo">
 <form action="#">
 		<div class="inner">
-			<div class="table-responsive">
-			<table class="form table-spaced">
-				<tr>
-					<td class="label"><label for=""><fmt:message key="match.day" /></label></td>
-					<td class="widget">
-						<select name="data" id="data_select_id">
+			<div class="form-grid form-grid--auto">
+				<div class="form-row">
+					<label for="data_select_id"><fmt:message key="match.day" /></label>
+					<select name="data" id="data_select_id">
 						<option value=""><fmt:message key="filter.fase.0" /></option>
-					<c:forTokens var="data" delims="," items="${initParam.datas}">
-						<option value="${data}">${data}</option>
-					</c:forTokens>
+						<c:forTokens var="data" delims="," items="${initParam.datas}">
+							<option value="${data}">${data}</option>
+						</c:forTokens>
 					</select>
-				</td>
-				<td class="label"><label for=""><fmt:message key="match.hour" /></label></td>
-				<td class="widget">
+				</div>
+				<div class="form-row">
+					<label for="hora_select_id"><fmt:message key="match.hour" /></label>
 					<select name="hora" id="hora_select_id">
 						<option value=""><fmt:message key="filter.group.0" /></option>
-					<c:forTokens var="horario" delims="," items="${initParam.horarios}">
-						<option value="${horario}">${horario}</option>
-					</c:forTokens>
+						<c:forTokens var="horario" delims="," items="${initParam.horarios}">
+							<option value="${horario}">${horario}</option>
+						</c:forTokens>
 					</select>
-				</td>
-			</tr>
-			<tr>
-				<td  class="label"><label for="equipe1_select_id"><fmt:message key="match.teams" /></label></td>
-				<td colspan="3" class="widget">
-					<select name="equipe1" id="equipe1_select_id">
-						<option value=""><fmt:message key="filter.group.0" /></option>
-					<c:forEach var="equipe" items="${equipes}">
-						<c:if test="${not empty grupoAnterior and grupoAnterior ne equipe.grupo}">
-							</optgroup>
-						</c:if>
-						<c:if test="${empty grupoAnterior or (grupoAnterior ne equipe.grupo)}">
-							<optgroup label="Grupo ${equipe.grupo}">
-						</c:if>
-							<option value="${equipe.id}">${equipe.nomePais}</option>
-						<c:set var="grupoAnterior" value="${equipe.grupo}" />
-					</c:forEach>
-					</select>
-					X
-					<c:set var="grupoAnterior" value="" />
-					<select name="equipe2" id="equipe2_select_id">
-						<option value=""><fmt:message key="filter.group.0" /></option>
-					<c:forEach var="equipe" items="${equipes}">
-						<c:if test="${not empty grupoAnterior and grupoAnterior ne equipe.grupo}">
-							</optgroup>
-						</c:if>
-						<c:if test="${empty grupoAnterior or (grupoAnterior ne equipe.grupo)}">
-							<optgroup label="Grupo ${equipe.grupo}">
-						</c:if>
-							<option value="${equipe.id}">${equipe.nomePais}</option>
-						<c:set var="grupoAnterior" value="${equipe.grupo}" />
-					</c:forEach>
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<td  class="label"><label for="equipe1_combo_id"><fmt:message key="match.where" /></label></td>
-				<td colspan="3" class="widget">
+				</div>
+				<div class="form-row form-row--full">
+					<label for="equipe1_select_id"><fmt:message key="match.teams" /></label>
+					<div class="form-field-group">
+						<select name="equipe1" id="equipe1_select_id">
+							<option value=""><fmt:message key="filter.group.0" /></option>
+							<c:forEach var="equipe" items="${equipes}">
+								<c:if test="${not empty grupoAnterior and grupoAnterior ne equipe.grupo}">
+									</optgroup>
+								</c:if>
+								<c:if test="${empty grupoAnterior or (grupoAnterior ne equipe.grupo)}">
+									<optgroup label="Grupo ${equipe.grupo}">
+								</c:if>
+									<option value="${equipe.id}">${equipe.nomePais}</option>
+								<c:set var="grupoAnterior" value="${equipe.grupo}" />
+							</c:forEach>
+						</select>
+						<span class="form-field-separator">X</span>
+						<c:set var="grupoAnterior" value="" />
+						<select name="equipe2" id="equipe2_select_id">
+							<option value=""><fmt:message key="filter.group.0" /></option>
+							<c:forEach var="equipe" items="${equipes}">
+								<c:if test="${not empty grupoAnterior and grupoAnterior ne equipe.grupo}">
+									</optgroup>
+								</c:if>
+								<c:if test="${empty grupoAnterior or (grupoAnterior ne equipe.grupo)}">
+									<optgroup label="Grupo ${equipe.grupo}">
+								</c:if>
+									<option value="${equipe.id}">${equipe.nomePais}</option>
+								<c:set var="grupoAnterior" value="${equipe.grupo}" />
+							</c:forEach>
+						</select>
+					</div>
+				</div>
+				<div class="form-row form-row--full">
+					<label for="local_select_id"><fmt:message key="match.where" /></label>
 					<select name="local" id="local_select_id">
 						<option value=""><fmt:message key="filter.group.0" /></option>
-					<c:forTokens var="local" delims="," items="${initParam.locais}">
-						<option value="${local}">${local}</option>
-					</c:forTokens>
+						<c:forTokens var="local" delims="," items="${initParam.locais}">
+							<option value="${local}">${local}</option>
+						</c:forTokens>
 					</select>
-				</td>
-			</tr>
-			<tr>
-				<td  class="label"><label for="equipe1_combo_id"><fmt:message key="match.phase" /></label></td>
-				<td colspan="3" class="widget">
+				</div>
+				<div class="form-row form-row--full">
+					<label for="fase_select_id"><fmt:message key="match.phase" /></label>
 					<select name="local" id="fase_select_id">
 						<option value=""><fmt:message key="filter.fase.0" /></option>
-					<c:forTokens var="fase" items="11,12,13,8,4,2,3,1" delims=",">
-						<option value="${fase}"><fmt:message key="filter.fase.${fase}" /></option>
-					</c:forTokens>
+						<c:forTokens var="fase" items="11,12,13,8,4,2,3,1" delims=",">
+							<option value="${fase}"><fmt:message key="filter.fase.${fase}" /></option>
+						</c:forTokens>
 					</select>
-					</td>
-				</tr>
-			</table>
+				</div>
 			</div>
 		</div>
 	<div class="footer">
