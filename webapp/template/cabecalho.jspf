@@ -29,7 +29,62 @@
 <script type="text/javascript">
 	window.APP_BASE_URL = '<c:out value="${base}" />';
 </script>
-<script type="module" src="${base}/assets/js/app-bundle.js"></script>
+<script type="module">
+	const BASE_URL = window.APP_BASE_URL || '';
+
+	function buildAssetUrl(path) {
+		if (!path) {
+			return null;
+		}
+		if (path.startsWith('http://') || path.startsWith('https://')) {
+			return path;
+		}
+		if (path.startsWith(BASE_URL + '/')) {
+			return path;
+		}
+		if (path.startsWith('/')) {
+			return `${BASE_URL}${path}`;
+		}
+		if (path.startsWith('assets/')) {
+			return `${BASE_URL}/${path}`;
+		}
+		return `${BASE_URL}/assets/${path}`;
+	}
+
+	const manifestUrl = buildAssetUrl('assets/manifest.json');
+	const fallbackModule = buildAssetUrl('assets/js/app-bundle.js');
+
+	async function loadBundle() {
+		try {
+			const response = await fetch(manifestUrl, { cache: 'no-store' });
+			if (response.ok) {
+				const manifest = await response.json();
+				const entry =
+					manifest['src/frontend/main.js'] ||
+					manifest['src/frontend/main.ts'] ||
+					manifest['src/frontend/main.jsx'];
+
+				if (entry && entry.file) {
+					const entryUrl = buildAssetUrl(entry.file);
+					if (entryUrl) {
+						await import(entryUrl);
+						return;
+					}
+				}
+			}
+		} catch (error) {
+			console.warn('Manifest indisponível, usando bundle fallback.', error);
+		}
+
+		if (fallbackModule) {
+			await import(fallbackModule);
+		} else {
+			console.error('Fallback do bundle não encontrado.');
+		}
+	}
+
+	loadBundle();
+</script>
 
 
 <style type="text/css">
