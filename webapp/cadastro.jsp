@@ -14,9 +14,6 @@
             <a href="${contextURL}">Página principal</a>
         </div>
     </div>
-    <opendev:isIE>
-        <div style="height: 350px;"></div>
-    </opendev:isIE>
 </c:when>
 <c:otherwise>
 <script type="text/javascript">
@@ -82,8 +79,6 @@
 	</div>
 </form>
 </opendev:portlet>
-<opendev:isIE>
-<div style="height: 250px;"></div>
-</opendev:isIE>
+
 </c:otherwise>
 </c:choose>

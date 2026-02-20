@@ -69,6 +69,3 @@
         </div>
     </opendev:portlet>
 </div>
-<opendev:isIE>
-    <div style="height: 200px;"></div>
-</opendev:isIE>

@@ -51,6 +51,3 @@
 <div style="height: 20px;"></div>
 </div>
 
-<opendev:isIE>
-	<div style="height: 300px;"></div>
-</opendev:isIE>
