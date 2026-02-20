@@ -102,8 +102,9 @@ Premissas de compatibilidade (críticas):
         2. Especificar migração dos fluxos críticos DWR (`webapp/seguro/jogos.jsp`, `webapp/admin/participantes.jsp`) para endpoints Struts REST + HTMX, incluindo impacto nas tags Struts. **Status:** Plano consolidado (19/02/2026); aguarda execução das tarefas derivadas.
         3. Selecionar alternativa moderna ao Overlib (ex.: Tippy.js) e planejar substituição dos tooltips com requisitos de acessibilidade. **Status:** Concluído (19/02/2026) – opção definida (Tippy.js v6) conforme `.ia/logs/session-20260219-avaliacao-tooltips-tippy.md`.
         4. Validar ausência de uso do `BrowserDetector.js`, propor remoção e adoção de feature detection (`@supports`, Modernizr slim se necessário). **Status:** Concluído (19/02/2026) – ver `.ia/logs/session-20260219-avaliacao-browserdetector.md`.
-        5. Reavaliar dependência do `jquery-4.0.0.min.js` (versão alfa) e definir downgrade para 3.7.1 ou remoção completa após migrar interações restantes. **Status:** Concluído (19/02/2026) – ver `.ia/logs/session-20260219-avaliacao-jquery.md` e ADR `.ia/historico/ADR-20260219-jquery-remocao-gradual.md`. Próxima ação: substituir o arquivo por jQuery 3.7.1 e, posteriormente, remover jQuery após refatorar os usos.
+        5. Reavaliar dependência do `jquery-4.0.0.min.js` (versão alfa) e definir downgrade para 3.7.1 ou remoção completa após migrar interações restantes. **Status:** Concluído (19/02/2026) – ver `.ia/logs/session-20260219-avaliacao-jquery.md` e ADR `.ia/historico/ADR-20260219-jquery-remocao-gradual.md`. A dependência foi completamente eliminada em `session-20260219-remocao-jquery.md`.
         6. Propor adoção de bundler (Vite/ESBuild) para modularizar scripts, permitir CSP rígida e preparar minificação/versões com hash.
+        7. Mapear condicionais e estilos específicos para Internet Explorer (ex.: `opendev:isIE`, hacks CSS) e planejar remoção, garantindo compatibilidade apenas com navegadores suportados oficialmente.
 3.  **[Pendente] Remoção de Prototype e Scriptaculous (Sequência após Tarefa 2):** Eliminar bibliotecas legadas (Prototype.js, Scriptaculous.js) do projeto, migrando funcionalidades restantes para jQuery 4.0.0.
 4.  **[Pendente] Auditoria e Refatoração CSS (Sequência após Tarefa 3):** Revisar `estilo.css`, remover hacks legados (IE6/7), reorganizar por componentes e implementar responsividade básica com media queries.
 5.  **[Concluído] Migração do Cewolf (Gráficos):** Substituir o Cewolf por geração de gráficos com JFreeChart direto (server-side) ou Chart.js (client-side), removendo todas as dependências e taglibs legadas.
@@ -245,6 +246,10 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     Auto-Analise: [Risco: Medio] | [Compatibilidade: Atenção] | [Veredito: Revisar]
     Referência Log: `.ia/logs/session-20260219-avaliacao-jquery.md`
     Referência ADR: `.ia/historico/ADR-20260219-jquery-remocao-gradual.md`
+    Skill: N/A (nenhuma skill aplicável)
+*   2026-02-19: **[Concluído]** Remoção do jQuery e refatoração do `login.jsp`. Arquivo `jquery-4.0.0.min.js` eliminado, `cabecalho.jspf` atualizado e efeito de mensagem convertido para JavaScript nativo/CSS.
+    Auto-Analise: [Risco: Medio] | [Compatibilidade: Atenção] | [Veredito: Revisar]
+    Referência Log: `.ia/logs/session-20260219-remocao-jquery.md`
     Skill: N/A (nenhuma skill aplicável)
 *   2026-02-19: **[Concluído]** Auditoria Visual Completa (Fase 2.5 - Tarefa 1). Checklists das telas principais executados via Docker; páginas protegidas retornam HTTP 200, endpoints de gráficos entregam PNG válidos e RBAC bloqueia acessos não autorizados. Identificado redirecionamento 302 indevido em `cadastro.jsp` (ausência de `permitAll` na configuração de segurança) para tratar em tarefa futura.
     Auto-Analise: [Risco: Medio] | [Compatibilidade: Atenção] | [Veredito: Revisar]
