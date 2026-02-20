@@ -10,7 +10,8 @@
 
 ## 2. Resposta da IA (Output Resumido)
 
-> Atualizadas as páginas `webapp/admin/participantes.jsp`, `webapp/admin/inclusaoJogo.jsp`, `webapp/login.jsp`, `webapp/cadastro.jsp` e `webapp/seguro/jogos.jsp` para remover atributos HTML obsoletos (`align`, `width`, `cellpadding`, `cellspacing`) e adicionar wrappers responsivos. Ajustado o CSS (`webapp/css/estilo.css`) com utilitários `visually-hidden`, espaçamento para `table.conteudo` e seletor `table-participants__select`. Encoding dos JSPs convertidos para UTF-8 onde necessário.
+> Atualizadas `webapp/admin/participantes.jsp`, `webapp/admin/inclusaoJogo.jsp`, `webapp/login.jsp`, `webapp/cadastro.jsp` e `webapp/seguro/jogos.jsp` para remover atributos HTML obsoletos (`align`, `width`, `cellpadding`, `cellspacing`) e adicionar wrappers responsivos. CSS (`webapp/css/estilo.css`) recebeu os utilitários `visually-hidden`, ajuste de `table.conteudo` e seletor `table-participants__select`. Encodings convertidos para UTF-8 quando necessário.  
+> Complemento: adicionados atributos semânticos `scope` nas tabelas principais (`webapp/seguro/principal.jsp`, `webapp/seguro/classificacao.jsp`, `webapp/seguro/jogos.jsp`) garantindo acessibilidade em leitores de tela.
 
 ## 3. Validacao (Build/Teste)
 
@@ -24,4 +25,4 @@
 - [ ] Codigo ajustado manualmente (detalhar abaixo).  
 - [ ] Alucinacao detectada (prompt refinado).
 
-**Observacoes:** Subtarefa 4.1 registrada como *Em Progresso* no `passo-a-passo.md` após aplicar melhorias nas telas públicas, administrativas e seguras.
+**Observacoes:** Subtarefa 4.1 registrada como *Em Progresso* no `passo-a-passo.md` após aplicar melhorias nas telas públicas, administrativas e seguras e reforçar metadados de acessibilidade.
