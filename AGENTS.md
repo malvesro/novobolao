@@ -167,3 +167,5 @@ Sugira a criação de commits frequentes para não perder conteúdo relevante, o
 * Antes de executar correções para problemas identificados, verifique se foi criada uma atividade no arquivo passo-a-passo.md.
 
 * Se durante a execução de uma tarefa observar que a tarefa se tornou mais complexa e seria melhor realizada quebrando a tarefa em várias tarefas separadas, avise e proponha a quebra de forma justificada.
+
+* Toda vez que terminar uma tarefa, adicione o mesmo texto explicativo de Atualizações realizadas na mensagem de commit.
