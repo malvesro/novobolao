@@ -1,4 +1,4 @@
-<div style="height: 90px;"></div>
+<div class="spacer-xl"></div>
 <c:if test="${not empty param.status and param.status eq 'invalido'}">
 	<style>
 		#login_error {
@@ -11,7 +11,7 @@
 		}
 	</style>
 	<span id="login_error" class="error">
-		<span><img alt="Erro" src="${base}/img/error.gif" style="vertical-align: top;" /></span>
+		<span><img alt="Erro" src="${base}/img/error.gif" class="icon-inline-top" /></span>
 		<span>
 			<fmt:message key="login.error" />
 		</span>
@@ -39,11 +39,10 @@
 	</script>
 	<br />
 </c:if>
-<opendev:portlet id="loginportlet" icon="/img/lock.png" title="Login" style="margin: 0 auto;">
+<opendev:portlet id="loginportlet" icon="/img/lock.png" title="Login">
 	<form action="j_security_check" method="post">
 		<div class="inner">
-			<table class="form" cellspacing="0" cellpadding="2"
-				style="width:100%; margin-top: 10px; margin-bottom: 10px;">
+			<table class="form table-spaced" cellspacing="0" cellpadding="2">
 				<tr>
 					<td class="label"><label for="login_username">
 							<fmt:message key="login.username" />
@@ -60,7 +59,7 @@
 					<td colspan="2"><br /></td>
 				</tr>
 				<tr>
-					<td style="text-align: center;" colspan="2">
+					<td class="text-center" colspan="2">
 						<c:url var="cadastroFormURL" value="/cadastro.jsp" />
 						<a href="${cadastroFormURL}">
 							<fmt:message key="login.signin" />

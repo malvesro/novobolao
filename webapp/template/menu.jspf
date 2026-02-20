@@ -16,12 +16,12 @@ function esconderOuMostrarMenu(menuHeader) {
 		<fmt:param value="${logoutUrl}" />
 	</fmt:message>
 </p>
-<p style="text-align: right;">
+<p class="text-right">
     <fmt:message key="general.online">
         <fmt:param value="${opendev:participantesOnline()}" />
     </fmt:message>
 </p>
-<div style="height: 10px;"></div>
+<div class="spacer-sm"></div>
 <div id="menu">
   <div id="geral_header" class="menu_header" onclick="esconderOuMostrarMenu(this);">
     <span><fmt:message key="menu.geral.title" /></span>

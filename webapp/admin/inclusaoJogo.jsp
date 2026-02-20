@@ -3,13 +3,13 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <script type="text/javascript" src="${base}/dwr/interface/AdminAction.js"></script>
-<div style="float: right; width: 605px;">
-<span class="error" id="errorSpan" style="display: none; margin-bottom: 15px;">
+<div class="dashboard-section">
+<span class="error hidden mb-md" id="errorSpan">
 </span>
-<opendev:portlet id="cadastrojogo_portet" title="Cadastro de Jogo" style="width: 450px; margin: 0px auto;">
+<opendev:portlet id="cadastrojogo_portet" title="Cadastro de Jogo">
 <form action="#">
 	<div class="inner">
-		<table class="form" cellspacing="0" cellpadding="2" style="width:100%; margin-top: 10px; margin-bottom: 10px;">
+		<table class="form table-spaced" cellspacing="0" cellpadding="2">
 			<tr>
 				<td class="label"><label for=""><fmt:message key="match.day" /></label></td>
 				<td class="widget">

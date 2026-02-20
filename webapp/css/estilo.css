@@ -228,6 +228,18 @@ div.portlet div.content div.footer {
 	margin: 0 auto;
 }
 
+#cadastrojogo_portet {
+	max-width: 450px;
+	width: 100%;
+	margin: 0 auto;
+}
+
+#participantesPortlet {
+	width: 100%;
+	max-width: 720px;
+	margin: 0 auto;
+}
+
 #loginportlet table.form,
 #cadastro_portlet table.form {
 	width: 100%;
@@ -723,6 +735,27 @@ div.legenda span.abrev {
 
 .text-center {
 	text-align: center;
+}
+
+.text-left {
+	text-align: left;
+}
+
+.text-right {
+	text-align: right;
+}
+
+.hidden {
+	display: none;
+}
+
+.mb-md {
+	margin-bottom: 1rem;
+}
+
+.table-spaced {
+	width: 100%;
+	margin: 10px 0;
 }
 
 .input-centered {

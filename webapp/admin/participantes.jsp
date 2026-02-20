@@ -30,8 +30,8 @@ function autorizarParticipante(id) {
     AdminAction.apagarParticipante(id, {callback: callBackFunc});
 }
 </script>
-<div style="float: right; width: 605px;">
-<opendev:portlet id="participantesPortlet" title="Participantes" icon="/img/users.png" style="width: 600px; margin: 0 auto;">
+<div class="dashboard-section">
+<opendev:portlet id="participantesPortlet" title="Participantes" icon="/img/users.png">
     <table cellpadding="2" cellspacing="1" width="100%" class="conteudo">
         <thead>
             <tr>
@@ -88,7 +88,7 @@ function autorizarParticipante(id) {
                         </select>
                     </td>
                     <td align="center">
-                        <img alt="" src="${base}/img/delete.png" hx-post="${base}/admin/apagarParticipanteHtmx.action?id=${participante.id}" hx-target="#linhaParticipante_${participante.id}" hx-swap="delete" hx-confirm="Deseja realmente apagar este participante?" style="cursor: pointer;" />
+                        <img alt="" src="${base}/img/delete.png" hx-post="${base}/admin/apagarParticipanteHtmx.action?id=${participante.id}" hx-target="#linhaParticipante_${participante.id}" hx-swap="delete" hx-confirm="Deseja realmente apagar este participante?" class="icon-button" />
                     </td>
                 </tr>
             </c:forEach>
