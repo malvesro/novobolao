@@ -625,3 +625,80 @@ div.legenda span.abrev {
 		width: 100%;
 	}
 }
+.table-responsive {
+	overflow-x: auto;
+}
+
+.table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.table th,
+.table td {
+	padding: 0.5rem;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.table th {
+	text-transform: uppercase;
+	font-size: 10px;
+	letter-spacing: 0.05em;
+	text-align: left;
+}
+
+.table td.text-center {
+	text-align: center;
+}
+
+.table td.text-right {
+	text-align: right;
+}
+
+.table td.text-left {
+	text-align: left;
+}
+
+.team-cell {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+}
+
+.team-cell.text-left {
+	justify-content: flex-start;
+}
+
+.team-cell.text-right {
+	justify-content: flex-end;
+}
+
+.score-value {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 2.5rem;
+	padding: 0.15rem 0.4rem;
+	border-radius: var(--radius-sm);
+	background-color: rgba(40, 63, 8, 0.08);
+	font-weight: 600;
+}
+
+.chart-wrapper {
+	text-align: center;
+	padding: 1rem 0;
+}
+
+.chart-wrapper img {
+	max-width: 100%;
+	height: auto;
+}
+
+.dashboard-section {
+	width: 100%;
+	max-width: 720px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
