@@ -89,9 +89,16 @@
 			<result name="success">/admin/participantes.jsp</result>
 		</action>
 
-		<!-- HTMX PoC: Apagar participante sem recarregar a tela e sem DWR -->
+		<action name="atualizarPapelParticipante" class="adminAction" method="atualizarPapelParticipanteHtmx">
+			<result name="success">/admin/partials/participantes-table.jsp</result>
+		</action>
+
+		<action name="atualizarStatusParticipante" class="adminAction" method="atualizarStatusParticipanteHtmx">
+			<result name="success">/admin/partials/participantes-table.jsp</result>
+		</action>
+
 		<action name="apagarParticipanteHtmx" class="adminAction" method="apagarParticipante">
-			<result name="success">/admin/empty.jsp</result>
+			<result name="success">/admin/partials/participantes-table.jsp</result>
 		</action>
 	
 	</package>
