@@ -26,7 +26,10 @@
 <meta http-equiv="pragma" content="no-cache" />
 <title><fmt:message key="app.title" /></title>
 <script type="text/javascript" src="${base}/js/htmx.min.js"></script>
-<script type="text/javascript" src="${base}/js/tooltips.js"></script>
+<script type="text/javascript">
+	window.APP_BASE_URL = '<c:out value="${base}" />';
+</script>
+<script type="module" src="${base}/assets/js/app-bundle.js"></script>
 
 
 <style type="text/css">
