@@ -23,6 +23,23 @@ body {
 	background-attachment: fixed;*/
 }
 
+.spacer {
+	display: block;
+	width: 100%;
+}
+
+.spacer-lg {
+	height: 2.5rem;
+}
+
+.spacer-xl {
+	height: 5rem;
+}
+
+.spacer-sm {
+	height: 1rem;
+}
+
 form {
 	margin: 0px;
 	padding: 0px;
@@ -218,6 +235,12 @@ div.portlet div.content div.footer {
 	
 table.form td.label {
 	text-align: right;
+}
+
+table.form {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0 0.75rem;
 }
 
 .error {
@@ -539,6 +562,17 @@ div.legenda span.abrev {
 
 .popup_text {
 	font-size: 10px;
+}
+
+.alert {
+	border: 1px dashed var(--color-border);
+	background-color: #FFFFE1;
+	padding: 1rem 1.25rem;
+	margin: 0 auto;
+	border-radius: var(--radius-base);
+	box-shadow: var(--shadow-base);
+	color: var(--color-primary);
+	max-width: 480px;
 }
 
 @media (max-width: 768px) {

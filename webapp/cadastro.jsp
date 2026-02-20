@@ -1,7 +1,7 @@
 <c:choose>
 <c:when test="${not empty sucessoCadastro and sucessoCadastro}">
-	<div style="height: 150px;"></div>
-    <div style="border: 1px dashed #283F08; padding: 2px; background-color: #FFFFE1; width: 400px; margin: 0 auto;">
+	<div class="spacer-xl"></div>
+    <div class="alert">
         <span>
             <img alt="" src="${base}/img/information.gif" style="vertical-align: top;" />
         </span>
@@ -21,22 +21,22 @@
         DWRUtil.setValue("field_info", sug);
     }    
 </script>
-<div style="height: 90px;"></div>
+<div class="spacer-lg"></div>
 <opendev:mensagensErro nomeAtributo="errosInclusao" />
-<opendev:portlet id="cadastro_portlet" icon="/img/cadastro.png" title="Cadastro" style="width: 600px; margin: 0px auto;">
+<opendev:portlet id="cadastro_portlet" icon="/img/cadastro.png" title="Cadastro" style="margin: 0 auto;">
 <c:url var="cadastroActionURL" value="/cadastro.action" />
 <form action="${cadastroActionURL}" method="post">
     <div class="inner">
-        <table class="form" cellspacing="0" cellpadding="2" style="width:100%; margin-top: 10px; margin-bottom: 10px;">
+        <table class="form" cellspacing="0" cellpadding="2" >
             <tr>
                 <td colspan="2" style="text-align: left;">
-                    <div style="border: 1px dashed #283F08; padding: 2px; background-color: #FFFFE1;">
+                    <div class="alert">
                     <span>
                         <img alt="" src="${base}/img/information.gif" style="vertical-align: top;" />
                     </span>
                     <span id="field_info"></span>
                     </div>
-                    <div style="height: 12px;"></div>
+                    <div class="spacer-sm"></div>
                 </td>
             </tr>
             <tr>
