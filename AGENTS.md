@@ -46,9 +46,8 @@ Tarefa única - Status: Executado em 17/02/2026: Na primeira vez que ler esse do
    - Nunca execute mais de uma tarefa por vez.
    - Sempre ao final de uma tarefa, explique o que foi feito de forma clara e didática e dê instruções para o build ou teste.
 
-5. **Melhoria contínua das Skills e diretrizes**
-
-- Conforme o contexto do projeto ao longo da execução das tarefas no passo-a-passo.md de ADR's criados, planos criados e logs de sessão, se justificado, planeje e sugira melhorias das Skillso (ou novas Skills) e diretrizes, mostrando como vai contribuir para melhoria do projeto no futuro.
+5. **Melhoria contínua de tarefas, das Skills e diretrizes**
+- Conforme o contexto do projeto ao longo da execução das tarefas no passo-a-passo.md, de ADR's criados, planos criados e logs de sessão, se justificado, planeje e sugira melhorias no passo-a-passo.md, das Skills (ou criação de novas Skills) e diretrizes, mostrando como vai contribuir para melhoria do projeto no futuro.
 
 > NOTE: Ajuste os caminhos conforme a estrutura real do projeto.
 

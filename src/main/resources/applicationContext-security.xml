@@ -28,9 +28,6 @@
         <!-- Note: patterns are matched in order, most specific first -->
         <security:intercept-url pattern="/login.jsp*" access="permitAll" />
         <security:intercept-url pattern="/admin/**" access="hasRole('ADMIN')" />
-        <security:intercept-url pattern="/dwr/index.html" access="hasRole('ADMIN')" />
-        <security:intercept-url pattern="/dwr/test/**" access="hasRole('ADMIN')" />
-        <security:intercept-url pattern="/dwr/**" access="hasAnyRole('ADMIN', 'USER')" />
         <security:intercept-url pattern="/seguro/jogos.jsp" access="hasAnyRole('ADMIN', 'USER')" />
         <security:intercept-url pattern="/seguro/**" access="hasAnyRole('ADMIN', 'USER')" />
         
