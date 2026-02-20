@@ -24,4 +24,4 @@
 - [ ] Codigo ajustado manualmente (detalhar abaixo).
 - [ ] Alucinacao detectada (prompt refinado).
 
-**Observacoes:** Balões DWR permanecem com estilos inline dependentes de JS legado; será necessário planejamento específico para esses componentes.
+**Observacoes:** Balões DWR receberam utilitários dedicados (`loading-inline`, `balao-middle--*`, `balao-scroll`), restando apenas ajustes futuros para modernizar o componente JS sem Prototype.
