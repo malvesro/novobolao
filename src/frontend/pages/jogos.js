@@ -4,6 +4,7 @@ const BALLOON_OFFSET = 212;
 let idJogoSelecionado = null;
 let linhaSelecionada = null;
 let meusPalpitesCarregado = false;
+let previousFocusElement = null;
 
 function getBaseUrl() {
   if (window.APP_BASE_URL) {
@@ -76,9 +77,11 @@ function fecharBalao() {
   const statusContainer = document.getElementById('palpite-status');
   if (palpiteDiv) {
     palpiteDiv.classList.remove('balao-visible');
+    palpiteDiv.setAttribute('aria-hidden', 'true');
   }
   if (palpitesDiv) {
     palpitesDiv.classList.remove('balao-visible');
+    palpitesDiv.setAttribute('aria-hidden', 'true');
   }
   if (statusContainer) {
     statusContainer.innerHTML = '';
@@ -90,6 +93,10 @@ function fecharBalao() {
   }
   if (loadingPalpites) {
     loadingPalpites.classList.remove('loading-inline--visible');
+  }
+  if (previousFocusElement) {
+    previousFocusElement.focus();
+    previousFocusElement = null;
   }
 }
 
@@ -113,6 +120,10 @@ function carregarPalpitesDoJogo(jogoId) {
 function mostrarPopupPalpite(rowElement) {
   if (!rowElement) {
     return;
+  }
+  previousFocusElement = document.activeElement;
+  if (!previousFocusElement || previousFocusElement === document.body) {
+    previousFocusElement = rowElement;
   }
   const podeDarPalpite = rowElement.dataset.palpiteAllowed === 'true';
   const jogoId = Number(rowElement.dataset.jogoId);
@@ -138,9 +149,11 @@ function mostrarPopupPalpite(rowElement) {
 
   if (palpiteDiv) {
     palpiteDiv.classList.remove('balao-visible');
+    palpiteDiv.setAttribute('aria-hidden', 'true');
   }
   if (palpitesDiv) {
     palpitesDiv.classList.remove('balao-visible');
+    palpitesDiv.setAttribute('aria-hidden', 'true');
   }
 
   const coords = getElementPosition(rowElement);
@@ -150,6 +163,7 @@ function mostrarPopupPalpite(rowElement) {
       palpiteDiv.style.top = `${coords.y - 118}px`;
       palpiteDiv.style.left = `${coords.x + BALLOON_OFFSET}px`;
       palpiteDiv.classList.add('balao-visible');
+      palpiteDiv.setAttribute('aria-hidden', 'false');
     }
     const gols1 = rowElement.dataset.palpiteGols1 || '';
     const gols2 = rowElement.dataset.palpiteGols2 || '';
@@ -168,6 +182,11 @@ function mostrarPopupPalpite(rowElement) {
       palpitesDiv.style.top = `${coords.y - GAP_ICON}px`;
       palpitesDiv.style.left = `${coords.x + BALLOON_OFFSET}px`;
       palpitesDiv.classList.add('balao-visible');
+      palpitesDiv.setAttribute('aria-hidden', 'false');
+      const closeButton = palpitesDiv.querySelector('[data-js="fechar-balao"]');
+      if (closeButton) {
+        closeButton.focus();
+      }
     }
     carregarPalpitesDoJogo(jogoId);
   }
@@ -279,9 +298,17 @@ function carregarMeusPalpites(force) {
 function bindRowEvents() {
   const rows = document.querySelectorAll('[data-jogo-id]');
   rows.forEach((row) => {
+    row.setAttribute('tabindex', '0');
+    row.setAttribute('role', 'button');
     row.addEventListener('mouseover', () => destacarLinha(row, true));
     row.addEventListener('mouseout', () => destacarLinha(row, false));
     row.addEventListener('click', () => mostrarPopupPalpite(row));
+    row.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        mostrarPopupPalpite(row);
+      }
+    });
   });
 }
 
@@ -291,6 +318,18 @@ function bindCloseIcons() {
     icon.addEventListener('click', () => fecharBalao());
     icon.addEventListener('mouseover', () => fecharIconeMouseOver(icon));
     icon.addEventListener('mouseout', () => fecharIconeMouseOut(icon));
+    icon.setAttribute('tabindex', '0');
+    icon.setAttribute('role', 'button');
+    icon.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        fecharBalao();
+      }
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        fecharBalao();
+      }
+    });
   });
 }
 
@@ -311,6 +350,20 @@ function bindTipsPanelControls() {
   const refreshButton = document.querySelector('[data-js="recarregar-meus-palpites"]');
   if (refreshButton) {
     refreshButton.addEventListener('click', () => carregarMeusPalpites(true));
+  }
+}
+
+function handleGlobalKeyDown(event) {
+  if (event.key !== 'Escape') {
+    return;
+  }
+  const palpiteDiv = document.getElementById('balao_palpite');
+  const palpitesDiv = document.getElementById('balao_palpites');
+  const palpiteVisivel = palpiteDiv && palpiteDiv.classList.contains('balao-visible');
+  const palpitesVisivel = palpitesDiv && palpitesDiv.classList.contains('balao-visible');
+  if (palpiteVisivel || palpitesVisivel) {
+    event.preventDefault();
+    fecharBalao();
   }
 }
 
@@ -351,4 +404,6 @@ export function initJogosPage() {
   window.fecharIconeMouseOut = fecharIconeMouseOut;
   window.mostrarMeusPalpites = mostrarMeusPalpites;
   window.fecharMeusPalpites = fecharMeusPalpites;
+
+  document.addEventListener('keydown', handleGlobalKeyDown);
 }

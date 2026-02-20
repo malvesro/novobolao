@@ -10,7 +10,7 @@
 			transition: opacity 1s ease-in-out;
 		}
 	</style>
-	<span id="login_error" class="error">
+	<span id="login_error" class="error" role="alert" aria-live="assertive">
 		<span><img alt="Erro" src="${base}/img/error.gif" class="icon-inline-top" /></span>
 		<span>
 			<fmt:message key="login.error" />

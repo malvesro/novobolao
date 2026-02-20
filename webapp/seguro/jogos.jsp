@@ -17,17 +17,19 @@
 <!--
 <embed src="${base}/fx/popup.wav" id="popup_show_sound" autoplay="false" autostart="false" loop="false" hidden="true"></embed>
 -->
-<div id="balao_palpite">
+<div id="balao_palpite" class="dialog" role="dialog" aria-modal="true" aria-labelledby="palpite-dialog-title" aria-describedby="palpite-dialog-description" aria-hidden="true">
 	<div class="balao_top">
 		<p>
-			<span id="loading_span" class="loading-inline">
-				<img alt="" src="${base}/img/loading.gif" class="icon-inline-top" /> <fmt:message key="general.loading" />
+			<span id="loading_span" class="loading-inline" role="status" aria-live="polite">
+				<img alt="" src="${base}/img/loading.gif" class="icon-inline-top" aria-hidden="true" /> <fmt:message key="general.loading" />
 			</span>
 			<img alt="Fechar" src="${base}/img/fechar.gif" class="icon-inline-top icon-button" data-js="fechar-balao" />
 		</p>
 	</div>
 	<div class="balao_middle balao-middle--compact">
-		<div id="palpite-status" class="balao-message"></div>
+		<h2 id="palpite-dialog-title" class="sr-only"><fmt:message key="match.tip.self" /></h2>
+		<p id="palpite-dialog-description" class="sr-only">Informe seus palpites de gols para cada equipe e confirme.</p>
+		<div id="palpite-status" class="balao-message" role="status" aria-live="assertive"></div>
 		<div class="text-center">
 			<label for="palpite_gols_eq_1"><fmt:message key="match.tip.self" /></label>
 			<input type="text" name="palpiteGolsEq1" id="palpite_gols_eq_1" class="text score-input input-centered" size="2" maxlength="2" />
@@ -40,18 +42,19 @@
 	<div class="balao_bottom"></div>
 </div>
 
-<div id="balao_palpites">
+<div id="balao_palpites" class="dialog" role="dialog" aria-modal="true" aria-labelledby="palpites-dialog-title" aria-hidden="true">
 	<div class="balao_top">
 		<p>
-			<span id="loading_span_palpites" class="loading-inline">
-				<img alt="" src="${base}/img/loading.gif" class="icon-inline-top" /> <fmt:message key="general.loading" />
+			<span id="loading_span_palpites" class="loading-inline" role="status" aria-live="polite">
+				<img alt="" src="${base}/img/loading.gif" class="icon-inline-top" aria-hidden="true" /> <fmt:message key="general.loading" />
 			</span>
 			<img alt="Fechar" src="${base}/img/fechar.gif" class="icon-inline-top icon-button" data-js="fechar-balao" />
 		</p>
 	</div>
 		<div class="balao_middle balao-middle--scroll">
 			<div class="balao-scroll">
-			<table class="table tips-panel__table">
+			<h2 id="palpites-dialog-title" class="sr-only">Palpites dos participantes</h2>
+			<table class="table tips-panel__table" aria-describedby="palpites-dialog-title">
 				<thead>
 					<tr>
 						<th scope="col"><fmt:message key="member" /></th>
@@ -75,11 +78,11 @@
 		<form action="${aplicarFiltroJogosActionURL}" method="get">
         <input type="hidden" name="usarFiltro" value="true" />
 		<div class="match-filter">
-		<table class="match-filter__table">
+		<table class="match-filter__table" role="presentation">
 			<tr>
-				<td class="label"><label for="filtro_time"><fmt:message key="filter.dates" /></label></td>
+				<td class="label"><label for="data_inicial_select"><fmt:message key="filter.dates" /></label></td>
 				<td class="widget match-filter__row">
-					<select name="dataInicial" id="data_select_id">
+					<select name="dataInicial" id="data_inicial_select">
 						<option value=""><fmt:message key="filter.fase.0" /></option>
 					<c:forTokens var="data" delims="," items="${initParam.datas}">
 						<c:choose>
@@ -93,7 +96,7 @@
 					</c:forTokens>
 					</select>
 					<fmt:message key="filter.dates.and" />
-					<select name="dataFinal" id="data_select_id">
+					<select name="dataFinal" id="data_final_select">
 						<option value=""><fmt:message key="filter.fase.0" /></option>
 					<c:forTokens var="data" delims="," items="${initParam.datas}">
 						<c:choose>
@@ -109,7 +112,7 @@
 				</td>
 			</tr>
 			<tr>
-				<td class="label"><label for="filtro_time"><fmt:message key="filter.team" /></label></td>
+				<td class="label"><label for="filtro_equipe"><fmt:message key="filter.team" /></label></td>
 				<td class="widget">
 					<select name="filtroEquipe" id="filtro_equipe">
 						<option value=""><fmt:message key="filter.fase.0" /></option>
@@ -247,7 +250,7 @@
     </div>
     <span class="spacer spacer-sm"></span>
     <div id="palpites_info" class="legenda tips-info">
-        <p><img alt="" src="${base}/img/information.gif" class="icon-inline" />
+		<p><img alt="" src="${base}/img/information.gif" class="icon-inline" aria-hidden="true" />
             <fmt:message key="match.tip.help" />
         </p>
     </div>
@@ -269,7 +272,7 @@
 		<fmt:formatDate var="dataJogoFormatada" value="${jogo.data}" pattern="dd/MM/yyyy" />
 		<div id="jogos_${dataJogoFormatada}_portlet" class="portlet collapsible-portlet">
 			<div class="title collapsible-portlet__header">
-				<img alt="" src="${base}/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+				<img alt="Alternar exibição do filtro" src="${base}/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
 					data-js="collapse-container" data-target="jogos_${dataJogoFormatada}_portlet" />
 				<fmt:message key="matchs.day">
 					<fmt:param value="${dataJogoFormatada}" />
@@ -325,7 +328,7 @@
 						<td class="match-table__team match-table__team--home">
 							<div class="team-cell text-right">
 								<span>${jogo.equipe1.nomePais}</span>
-								<img alt="" src="${base}/img/bandeiras/${jogo.equipe1.id}.gif" class="icon-inline" />
+								<img alt="${jogo.equipe1.nomePais}" src="${base}/img/bandeiras/${jogo.equipe1.id}.gif" class="icon-inline" />
 								<c:choose>
 									<c:when test="${not telaPalpites}">
 										<authz:authorize ifAllGranted="admin">
@@ -351,7 +354,7 @@
 									<span class="score-value">${jogo.golsEquipe2}</span>
 								</c:otherwise>
 								</c:choose>
-								<img alt="" src="${base}/img/bandeiras/${jogo.equipe2.id}.gif" class="icon-inline" />
+								<img alt="${jogo.equipe2.nomePais}" src="${base}/img/bandeiras/${jogo.equipe2.id}.gif" class="icon-inline" />
 								<span>${jogo.equipe2.nomePais}</span>
 							</div>
 						</td>
