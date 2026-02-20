@@ -81,7 +81,5 @@
     <p><span class="abrev"><fmt:message key="ranking.apr" /> - </span><span><fmt:message key="ranking.apr.legend" /></span></p>
 </div>
 <div style="height: 20px;"></div>
-<opendev:isIE>
-<div style="height: 350px;"></div>
-</opendev:isIE>
+
 </div>
