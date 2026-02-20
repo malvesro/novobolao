@@ -25,3 +25,4 @@
 - [ ] Alucinacao detectada (prompt refinado).
 
 **Observacoes:** Continuidade da Fase 2.5 - Tarefa 4 (Auditoria e Refatoração CSS); próxima etapa é aplicar o novo padrão às demais telas da área segura.
+Commit relacionado: 92de4d25cc62f9208337bb01aa48244cde28804f.
