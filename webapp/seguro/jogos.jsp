@@ -295,13 +295,13 @@
 				onmouseout="fecharIconeMouseOut(this);" />
 		</p>
 	</div>
-	<div class="balao_middle balao-middle--scroll">
-		<div class="balao-scroll">
-		<table cellspacing="1" cellpadding="2" align="center">
-			<thead>
-				<tr>
-					<th><fmt:message key="member" /></th>
-					<th><fmt:message key="match.tip" /></th>
+		<div class="balao_middle balao-middle--scroll">
+			<div class="balao-scroll">
+			<table class="table tips-panel__table">
+				<thead>
+					<tr>
+						<th><fmt:message key="member" /></th>
+						<th><fmt:message key="match.tip" /></th>
 					<th><fmt:message key="match.tip.points" /></th>
 				</tr>
 			</thead>
@@ -524,21 +524,22 @@
 					<fmt:param value="${dataJogoFormatada}" />
 				</fmt:message>
 			</div>
-			<div class="content collapsible-portlet__content" id="jogos_${dataJogoFormatada}_portlet_content">
-				<table width="100%" cellspacing="1" cellpadding="2" class="conteudo" align="center">
-					<thead>
-						<tr>
-							<th><fmt:message key="match.hour" /></th>
-							<th><fmt:message key="match.where" /></th>
-							<th><fmt:message key="match.group" /></th>
+				<div class="content collapsible-portlet__content" id="jogos_${dataJogoFormatada}_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th><fmt:message key="match.hour" /></th>
+								<th><fmt:message key="match.where" /></th>
+								<th><fmt:message key="match.group" /></th>
 							<th colspan="3"><fmt:message key="match.teams" /></th>
 						</tr>
 					</thead>
-					<tbody>
-		</c:if>
-		<c:choose>
-			<c:when test="${jogo.equipe1.nomePais eq 'Brasil' or jogo.equipe2.nomePais eq 'Brasil'}">
-				<c:set var="rowStyleClass" value="brasil" />
+						<tbody>
+			</c:if>
+			<c:choose>
+				<c:when test="${jogo.equipe1.nomePais eq 'Brasil' or jogo.equipe2.nomePais eq 'Brasil'}">
+					<c:set var="rowStyleClass" value="brasil" />
 			</c:when>
 			<c:when test="${rowIndex mod 2 eq 0}">
 				<c:set var="rowStyleClass" value="impar" />
