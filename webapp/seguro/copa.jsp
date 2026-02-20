@@ -5,6 +5,6 @@
 <%@taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@taglib prefix="opendev" uri="http://www.opendev.com.br/tld" %>
 
-<div style="float: right; width: 605px;">
+<div class="dashboard-section">
 
 </div>
