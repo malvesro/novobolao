@@ -37,6 +37,7 @@ Tarefa única - Status: Executado em 17/02/2026: Na primeira vez que ler esse do
 3. **Rastreabilidade**
    
    - Toda alteracao deve gerar log em `.ia/logs/` usando o template em `.ia/logs/session-template.md`.
+   - Após execução de tarefas e alterações realizadas no projeto, o respectivo log de sessão deve ser atualizado com o resultado da execução e as conclusões técnicas de forma profissional e justificada.
 
 4. **Alinhamento com o Plano**
    
