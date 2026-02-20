@@ -260,23 +260,23 @@
 <div id="balao_palpite">
 	<div class="balao_top">
 		<p>
-			<span id="loading_span" style="visibility: hidden; padding-right: 60px;">
-				<img alt="" src="${base}/img/loading.gif" style="vertical-align: top;" /> <fmt:message key="general.loading" />
+			<span id="loading_span" class="loading-inline">
+				<img alt="" src="${base}/img/loading.gif" class="icon-inline-top" /> <fmt:message key="general.loading" />
 			</span>
-			<img alt="Fechar" src="${base}/img/fechar.gif"
+			<img alt="Fechar" src="${base}/img/fechar.gif" class="icon-inline-top icon-button"
 				onclick="fecharBalao();" onmouseover="fecharIconeMouseOver(this);"
 				onmouseout="fecharIconeMouseOut(this);" />
 		</p>
 	</div>
-	<div class="balao_middle" style="height: 32px;">
-		<div style="height: 16px; text-align: center;" id="balao_mensagem_retorno">
-			<span id="span_retorno" style="visibility: hidden;"><img alt="" src="" id="img_msg_retorno" style="vertical-align: top;" /><span id="span_msg_retorno"></span></span>
+	<div class="balao_middle balao-middle--compact">
+		<div id="balao_mensagem_retorno" class="balao-message">
+			<span id="span_retorno" class="message-inline"><img alt="" src="" id="img_msg_retorno" class="icon-inline-top" /><span id="span_msg_retorno"></span></span>
 		</div>
-		<div style="text-align: center;">
+		<div class="text-center">
 			<label for="palpite_gols_eq_1"><fmt:message key="match.tip.self" /></label>
-			<input type="text" name="palpiteGolsEq1" id="palpite_gols_eq_1" class="text" size="2" maxlength="2" style="text-align: center;" />
+			<input type="text" name="palpiteGolsEq1" id="palpite_gols_eq_1" class="text score-input input-centered" size="2" maxlength="2" />
 			<span>X</span>
-			<input type="text" name="palpiteGolsEq2" id="palpite_gols_eq_2" class="text" size="2" maxlength="2" style="text-align: center;" />
+			<input type="text" name="palpiteGolsEq2" id="palpite_gols_eq_2" class="text score-input input-centered" size="2" maxlength="2" />
 			<fmt:message var="palpiteSubmitLabel" key="match.tip.confirm" />
 			<input type="button" class="button" name="confirmarPalpite" id="confirmar_palpite_button" value="${palpiteSubmitLabel}" onclick="atualizarPalpite();" />
 		</div>
@@ -287,16 +287,16 @@
 <div id="balao_palpites">
 	<div class="balao_top">
 		<p>
-			<span id="loading_span_palpites" style="visibility: hidden; padding-right: 60px;">
-				<img alt="" src="${base}/img/loading.gif" style="vertical-align: top;" /> <fmt:message key="general.loading" />
+			<span id="loading_span_palpites" class="loading-inline">
+				<img alt="" src="${base}/img/loading.gif" class="icon-inline-top" /> <fmt:message key="general.loading" />
 			</span>
-			<img alt="Fechar" src="${base}/img/fechar.gif"
+			<img alt="Fechar" src="${base}/img/fechar.gif" class="icon-inline-top icon-button"
 				onclick="fecharBalao();" onmouseover="fecharIconeMouseOver(this);"
 				onmouseout="fecharIconeMouseOut(this);" />
 		</p>
 	</div>
-	<div class="balao_middle" style="height: 122px;">
-		<div style="overflow: scroll; width: 250px; margin: 0 auto; height: 112px;">
+	<div class="balao_middle balao-middle--scroll">
+		<div class="balao-scroll">
 		<table cellspacing="1" cellpadding="2" align="center">
 			<thead>
 				<tr>
@@ -517,16 +517,14 @@
 	</c:if>
 	<c:if test="${empty dataJogo or dataJogo ne jogo.data}">
 		<fmt:formatDate var="dataJogoFormatada" value="${jogo.data}" pattern="dd/MM/yyyy" />
-		<div id="jogos_${dataJogoFormatada}_portlet" class="portlet" style="width: 600px; margin: 0 auto;">
-			<div class="title" style="color: #283F08; text-align: center; background-image: url('${base}/img/fundo_cinza.png');">
-				<span><img alt="" src="${base}/img/arrow_down.png" onclick="collapseContainer('jogos_${dataJogoFormatada}_portlet', this)" style="vertical-align: top; margin-top: 2px; cursor: pointer;" /></span>
-				<span>
-					<fmt:message key="matchs.day">
-						<fmt:param value="${dataJogoFormatada}" />
-					</fmt:message>
-				</span>
+		<div id="jogos_${dataJogoFormatada}_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="" src="${base}/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button" onclick="collapseContainer('jogos_${dataJogoFormatada}_portlet', this)" />
+				<fmt:message key="matchs.day">
+					<fmt:param value="${dataJogoFormatada}" />
+				</fmt:message>
 			</div>
-			<div class="content" id="jogos_${dataJogoFormatada}_portlet_content" style="padding: 0px;">
+			<div class="content collapsible-portlet__content" id="jogos_${dataJogoFormatada}_portlet_content">
 				<table width="100%" cellspacing="1" cellpadding="2" class="conteudo" align="center">
 					<thead>
 						<tr>
@@ -562,37 +560,41 @@
 					<tr class="${rowStyleClass}" id="jogoTr_${jogo.id}">
 				</c:otherwise>
 			</c:choose>
-						<td align="center" style="width: 10%;">${horaJogoFormatada}</td>
-						<td style="width: 16%;">${jogo.local}</td>
-						<td align="center" style="width: 10%;">${jogo.equipe1.grupo}</td>
-						<td align="right" style="width: 30%;">
-							<span>${jogo.equipe1.nomePais}</span>
-							<span><img alt="" src="${base}/img/bandeiras/${jogo.equipe1.id}.gif" /></span>							
-							<c:choose>
-								<c:when test="${not telaPalpites}">
-									<authz:authorize ifAllGranted="admin">
-										<span><input type="text" name="golsEquipe1" id="golsEquipe1_tf_${jogo.id}" class="text" maxlength="2" size="2" value="${jogo.golsEquipe1}" style="font-weight: normal; text-align: center;" /></span>
-									</authz:authorize>
-								</c:when>
-								<c:otherwise>
-									<span style="padding-left: 5px; padding-right: 5px; text-align: center;">${jogo.golsEquipe1}</span>
-								</c:otherwise>
-							</c:choose>
+						<td class="match-table__time">${horaJogoFormatada}</td>
+						<td class="match-table__location">${jogo.local}</td>
+						<td class="match-table__group">${jogo.equipe1.grupo}</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>${jogo.equipe1.nomePais}</span>
+								<img alt="" src="${base}/img/bandeiras/${jogo.equipe1.id}.gif" class="icon-inline" />
+								<c:choose>
+									<c:when test="${not telaPalpites}">
+										<authz:authorize ifAllGranted="admin">
+											<input type="text" name="golsEquipe1" id="golsEquipe1_tf_${jogo.id}" class="text score-input input-centered" maxlength="2" size="2" value="${jogo.golsEquipe1}" />
+										</authz:authorize>
+									</c:when>
+									<c:otherwise>
+										<span class="score-value">${jogo.golsEquipe1}</span>
+									</c:otherwise>
+								</c:choose>
+							</div>
 						</td>
-						<td align="center" style="width: 4%;">X</td>
-						<td align="left" style="width: 30%;">
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
 								<c:choose>
 								<c:when test="${not telaPalpites}">
 									<authz:authorize ifAllGranted="admin">
-										<span><input type="text" name="golsEquipe2" id="golsEquipe2_tf_${jogo.id}" class="text" maxlength="2" size="2" value="${jogo.golsEquipe2}" style="font-weight: normal; text-align: center;" onblur="atualizarResultado(this);" /></span>
+										<input type="text" name="golsEquipe2" id="golsEquipe2_tf_${jogo.id}" class="text score-input input-centered" maxlength="2" size="2" value="${jogo.golsEquipe2}" onblur="atualizarResultado(this);" />
 									</authz:authorize>
 								</c:when>
 								<c:otherwise>
-									<span style="padding-left: 5px; padding-right: 5px; text-align: center;">${jogo.golsEquipe2}</span>
+									<span class="score-value">${jogo.golsEquipe2}</span>
 								</c:otherwise>
 								</c:choose>
-							<span><img alt="" src="${base}/img/bandeiras/${jogo.equipe2.id}.gif" /></span>
-							<span>${jogo.equipe2.nomePais}</span>
+								<img alt="" src="${base}/img/bandeiras/${jogo.equipe2.id}.gif" class="icon-inline" />
+								<span>${jogo.equipe2.nomePais}</span>
+							</div>
 						</td>
 					</tr>
 	<c:set var="dataJogo" value="${jogo.data}" />

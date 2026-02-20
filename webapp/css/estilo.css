@@ -712,6 +712,28 @@ div.legenda span.abrev {
 	color: inherit;
 }
 
+.loading-inline {
+	visibility: hidden;
+	padding-right: 60px;
+}
+
+.message-inline {
+	visibility: hidden;
+}
+
+.text-center {
+	text-align: center;
+}
+
+.input-centered {
+	text-align: center;
+}
+
+.score-input {
+	font-weight: normal;
+	text-align: center;
+}
+
 .match-filter {
 	display: flex;
 	flex-direction: column;
@@ -725,6 +747,7 @@ div.legenda span.abrev {
 
 .match-filter__table td {
 	padding: 0.35rem 0;
+	vertical-align: middle;
 }
 
 .match-filter__table .label {
@@ -740,14 +763,80 @@ div.legenda span.abrev {
 	align-items: center;
 }
 
+.match-filter__row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: center;
+}
+
 .match-filter__actions {
 	display: flex;
 	justify-content: flex-end;
 	padding-top: 0.5rem;
 }
 
+.match-table__time,
+.match-table__group {
+	width: 10%;
+	text-align: center;
+}
+
+.match-table__location {
+	width: 16%;
+}
+
+.match-table__team {
+	width: 30%;
+}
+
+.match-table__team--home .team-cell {
+	justify-content: flex-end;
+}
+
+.match-table__team--away .team-cell {
+	justify-content: flex-start;
+}
+
+.match-table__separator {
+	width: 4%;
+	text-align: center;
+}
+
+.collapsible-portlet {
+	width: 100%;
+	max-width: 720px;
+	margin: 0 auto;
+}
+
+.collapsible-portlet__header {
+	color: var(--color-primary);
+	text-align: center;
+	background-image: url("../img/fundo_cinza.png");
+	background-repeat: repeat-x;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.5rem 0;
+}
+
+.collapsible-portlet__content {
+	padding: 0;
+}
+
+.collapse-toggle {
+	vertical-align: top;
+	margin-top: 2px;
+	cursor: pointer;
+}
+
 .icon-inline {
 	vertical-align: middle;
+}
+
+.icon-inline-top {
+	vertical-align: top;
 }
 
 .icon-button {
@@ -785,6 +874,26 @@ div.legenda span.abrev {
 .notice-card__icon {
 	width: 48px;
 	height: 48px;
+}
+
+.balao-middle--compact {
+	height: 32px;
+}
+
+.balao-middle--scroll {
+	height: 122px;
+}
+
+.balao-message {
+	height: 16px;
+	text-align: center;
+}
+
+.balao-scroll {
+	overflow: auto;
+	width: 250px;
+	margin: 0 auto;
+	height: 112px;
 }
 
 .tips-panel {
