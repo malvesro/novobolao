@@ -22,6 +22,12 @@ Estas diretrizes definem padroes obrigatorios para evolucao do sistema, garantin
 
 > NOTE: Preencha com versoes reais e restricoes do ambiente.
 
+### 2.1 Simplicidade Tecnológica
+
+- Cada nova biblioteca, framework ou camada deve ser avaliada criticamente quanto a complexidade que adiciona, impacto na operação e risco de segurança.
+- Prefira soluções simples e eficientes que atendam o requisito com menor custo de manutenção.
+- Justifique formalmente adoções tecnológicas relevantes (ADR ou log dedicado), demonstrando benefícios concretos versus os custos de integração, suporte e treinamento.
+
 ## 3. Camadas e Dependencias (Regra de Ouro)
 
 Fluxo recomendado (ajuste conforme o projeto):
