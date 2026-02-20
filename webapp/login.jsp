@@ -42,32 +42,25 @@
 <opendev:portlet id="loginportlet" icon="/img/lock.png" title="Login">
 	<form action="j_security_check" method="post">
 			<div class="inner">
-				<div class="table-responsive">
-				<table class="form table-spaced">
-					<tr>
-						<td class="label"><label for="login_username">
-								<fmt:message key="login.username" />
-							</label></td>
-					<td class="widget"><input id="login_username" type="text" name="j_username" class="text" /></td>
-				</tr>
-				<tr>
-					<td class="label"><label for="login_pwd">
+				<div class="form-grid">
+					<div class="form-row">
+						<label for="login_username">
+							<fmt:message key="login.username" />
+						</label>
+						<input id="login_username" type="text" name="j_username" class="text" />
+					</div>
+					<div class="form-row">
+						<label for="login_pwd">
 							<fmt:message key="login.pwd" />
-					</td>
-					<td class="widget"><input id="login_pwd" type="password" name="j_password" class="text" /></td>
-				</tr>
-				<tr>
-					<td colspan="2"><br /></td>
-				</tr>
-				<tr>
-					<td class="text-center" colspan="2">
+						</label>
+						<input id="login_pwd" type="password" name="j_password" class="text" />
+					</div>
+					<div class="form-links">
 						<c:url var="cadastroFormURL" value="/cadastro.jsp" />
 						<a href="${cadastroFormURL}">
 							<fmt:message key="login.signin" />
 						</a>
-						</td>
-					</tr>
-				</table>
+					</div>
 				</div>
 			</div>
 		<div class="footer">

@@ -11,12 +11,13 @@
 ## 2. Resposta da IA (Output Resumido)
 
 > Atualizadas `webapp/admin/participantes.jsp`, `webapp/admin/inclusaoJogo.jsp`, `webapp/login.jsp`, `webapp/cadastro.jsp` e `webapp/seguro/jogos.jsp` para remover atributos HTML obsoletos (`align`, `width`, `cellpadding`, `cellspacing`) e adicionar wrappers responsivos. CSS (`webapp/css/estilo.css`) recebeu os utilitários `visually-hidden`, ajuste de `table.conteudo` e seletor `table-participants__select`. Encodings convertidos para UTF-8 quando necessário.  
-> Complemento: adicionados atributos semânticos `scope` nas tabelas principais (`webapp/seguro/principal.jsp`, `webapp/seguro/classificacao.jsp`, `webapp/seguro/jogos.jsp`) garantindo acessibilidade em leitores de tela.
+> Complemento 1: adicionados atributos semânticos `scope` nas tabelas principais (`webapp/seguro/principal.jsp`, `webapp/seguro/classificacao.jsp`, `webapp/seguro/jogos.jsp`) garantindo acessibilidade em leitores de tela.  
+> Complemento 2: formulários de `login.jsp`, `cadastro.jsp` e `admin/inclusaoJogo.jsp` migrados de tabelas para `form-grid` responsivo, com novos utilitários CSS (`form-grid`, `form-row`, `form-field-group`, etc.) mantendo funcionalidade DWR e HTMX.
 
 ## 3. Validacao (Build/Teste)
 
-- Comando: mvn test  
-- Resultado: Sucesso (5 testes executados)  
+- Comando: mvn test (executado após cada ciclo)  
+- Resultado: Sucesso (5 testes executados em ambas as execuções)  
 - Observacoes: Aviso conhecido do Log4j (provider ausente) permanece sem impacto.
 
 ## 4. Analise Humana (Veredito)
