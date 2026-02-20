@@ -32,3 +32,6 @@ Desktop.ini
 # Nota: Mantemos os recursos (.xml, .properties, .html) versionados
 # mas ignoramos arquivos .class que podem ser gerados durante desenvolvimento
 webapp/WEB-INF/classes/**/*.class
+
+# Node.js
+/node_modules/

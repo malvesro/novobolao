@@ -5,273 +5,9 @@
 <%@taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@taglib prefix="opendev" uri="http://www.opendev.com.br/tld" %>
 
-<script type="text/javascript">
-	const baseUrl = "${base}";
-	const arrowRightSrc = baseUrl + "/img/arrow_right.png";
-	const arrowDownSrc = baseUrl + "/img/arrow_down.png";
-	let idJogoSelecionado = null;
-	let linhaSelecionada = null;
-	let meusPalpitesCarregado = false;
 
-	function collapseContainer(containerId, imgElement) {
-		const content = document.getElementById(containerId + "_content");
-		if (!content) {
-			return;
-		}
-		const isHidden = content.classList.toggle("collapsible-portlet__content--hidden");
-		imgElement.src = isHidden ? arrowRightSrc : arrowDownSrc;
-	}
 
-	function getElementPosition(element) {
-		const rect = element.getBoundingClientRect();
-		return {
-			x: rect.left + window.scrollX,
-			y: rect.top + window.scrollY
-		};
-	}
-
-	function destacarLinha(row, highlight) {
-		if (highlight) {
-			row.dataset.originalClass = row.dataset.originalClass || row.className;
-			if ((row.dataset.originalClass || "").indexOf("brasil") !== -1) {
-				row.className = "destacado_brasil";
-			} else {
-				row.className = "destacado";
-			}
-		} else if (row.dataset.originalClass) {
-			row.className = row.dataset.originalClass;
-		}
-	}
-
-	function mostrarPopupPalpite(rowElement) {
-		if (!rowElement) {
-			return;
-		}
-		const podeDarPalpite = rowElement.dataset.palpiteAllowed === "true";
-		const jogoId = Number(rowElement.dataset.jogoId);
-		const palpiteDiv = document.getElementById("balao_palpite");
-		const palpitesDiv = document.getElementById("balao_palpites");
-		const statusContainer = document.getElementById("palpite-status");
-		const loadingPalpite = document.getElementById("loading_span");
-		const loadingPalpites = document.getElementById("loading_span_palpites");
-
-		idJogoSelecionado = jogoId;
-		linhaSelecionada = rowElement;
-
-		if (statusContainer) {
-			statusContainer.innerHTML = "";
-		}
-
-		if (loadingPalpite) {
-			loadingPalpite.classList.remove("loading-inline--visible");
-		}
-		if (loadingPalpites) {
-			loadingPalpites.classList.remove("loading-inline--visible");
-		}
-
-		if (palpiteDiv) {
-			palpiteDiv.classList.remove("balao-visible");
-		}
-		if (palpitesDiv) {
-			palpitesDiv.classList.remove("balao-visible");
-		}
-
-		const coords = getElementPosition(rowElement);
-
-		if (podeDarPalpite) {
-			if (palpiteDiv) {
-				palpiteDiv.style.top = (coords.y - 118) + "px";
-				palpiteDiv.style.left = (coords.x + 212) + "px";
-				palpiteDiv.classList.add("balao-visible");
-			}
-			const gols1 = rowElement.dataset.palpiteGols1 || "";
-			const gols2 = rowElement.dataset.palpiteGols2 || "";
-			const inputGols1 = document.getElementById("palpite_gols_eq_1");
-			const inputGols2 = document.getElementById("palpite_gols_eq_2");
-			if (inputGols1) {
-				inputGols1.value = gols1;
-				inputGols1.focus();
-			}
-			if (inputGols2) {
-				inputGols2.value = gols2;
-			}
-		} else {
-			if (palpitesDiv) {
-				palpitesDiv.style.top = (coords.y - 206) + "px";
-				palpitesDiv.style.left = (coords.x + 212) + "px";
-				palpitesDiv.classList.add("balao-visible");
-			}
-			carregarPalpitesDoJogo(jogoId);
-		}
-	}
-
-	function carregarPalpitesDoJogo(jogoId) {
-		const loading = document.getElementById("loading_span_palpites");
-		if (loading) {
-			loading.classList.add("loading-inline--visible");
-		}
-		const request = htmx.ajax("GET", baseUrl + "/seguro/palpitesDoJogoPartial.action", {
-			target: "#balao_table_palpites",
-			swap: "innerHTML",
-			values: { jogoId: jogoId }
-		});
-		request.addEventListener("loadend", function() {
-			if (loading) {
-				loading.classList.remove("loading-inline--visible");
-			}
-		});
-	}
-
-	function atualizarPalpite() {
-		if (idJogoSelecionado === null) {
-			return;
-		}
-		const inputGols1 = document.getElementById("palpite_gols_eq_1");
-		const inputGols2 = document.getElementById("palpite_gols_eq_2");
-		if (!inputGols1 || !inputGols2) {
-			return;
-		}
-		const gols1 = inputGols1.value === "" ? "0" : inputGols1.value;
-		const gols2 = inputGols2.value === "" ? "0" : inputGols2.value;
-		inputGols1.value = gols1;
-		inputGols2.value = gols2;
-
-		if (linhaSelecionada) {
-			linhaSelecionada.dataset.palpiteGols1 = gols1;
-			linhaSelecionada.dataset.palpiteGols2 = gols2;
-		}
-
-		const loading = document.getElementById("loading_span");
-		if (loading) {
-			loading.classList.add("loading-inline--visible");
-		}
-
-		const request = htmx.ajax("POST", baseUrl + "/seguro/atualizarPalpitePartial.action", {
-			target: "#palpite-status",
-			swap: "innerHTML",
-			values: {
-				jogoId: idJogoSelecionado,
-				palpiteGolsEquipe1: gols1,
-				palpiteGolsEquipe2: gols2
-			}
-		});
-
-		request.addEventListener("loadend", function() {
-			if (loading) {
-				loading.classList.remove("loading-inline--visible");
-			}
-			if (request.status >= 200 && request.status < 300) {
-				const meusPalpitesPainel = document.getElementById("todos_palpites_div");
-				if (meusPalpitesPainel && meusPalpitesPainel.classList.contains("tips-panel--visible")) {
-					carregarMeusPalpites(true);
-				}
-			}
-		});
-	}
-
-	function atualizarResultado(input) {
-		const jogoId = input.id.substring(input.id.lastIndexOf("_") + 1);
-		const tr = document.getElementById("jogoTr_" + jogoId);
-		const golsEq1Field = document.getElementById("golsEquipe1_tf_" + jogoId);
-		const golsEq1 = golsEq1Field && golsEq1Field.value !== "" ? golsEq1Field.value : "-1";
-		const golsEq2 = input.value !== "" ? input.value : "-1";
-
-		fetch(baseUrl + "/admin/atualizarResultadoJogo.action", {
-			method: "POST",
-			headers: { "Content-Type": "application/x-www-form-urlencoded" },
-			body: new URLSearchParams({
-				id: jogoId,
-				golsEquipe1: golsEq1,
-				golsEquipe2: golsEq2
-			})
-		}).then(function(response) {
-			destacarAtualizacao(tr, response.ok);
-		}).catch(function() {
-			destacarAtualizacao(tr, false);
-		});
-	}
-
-	function destacarAtualizacao(row, sucesso) {
-		if (!row) {
-			return;
-		}
-		row.classList.remove("row-highlight--success", "row-highlight--error");
-		void row.offsetWidth;
-		row.classList.add(sucesso ? "row-highlight--success" : "row-highlight--error");
-	}
-
-	function fecharBalao() {
-		const palpiteDiv = document.getElementById("balao_palpite");
-		const palpitesDiv = document.getElementById("balao_palpites");
-		const statusContainer = document.getElementById("palpite-status");
-		if (palpiteDiv) {
-			palpiteDiv.classList.remove("balao-visible");
-		}
-		if (palpitesDiv) {
-			palpitesDiv.classList.remove("balao-visible");
-		}
-		if (statusContainer) {
-			statusContainer.innerHTML = "";
-		}
-		const loadingPalpite = document.getElementById("loading_span");
-		const loadingPalpites = document.getElementById("loading_span_palpites");
-		if (loadingPalpite) {
-			loadingPalpite.classList.remove("loading-inline--visible");
-		}
-		if (loadingPalpites) {
-			loadingPalpites.classList.remove("loading-inline--visible");
-		}
-	}
-
-	function fecharIconeMouseOver(img) {
-		img.src = baseUrl + "/img/fechar_hover.gif";
-	}
-
-	function fecharIconeMouseOut(img) {
-		img.src = baseUrl + "/img/fechar.gif";
-	}
-
-	function mostrarMeusPalpites() {
-		const painel = document.getElementById("todos_palpites_div");
-		if (!painel) {
-			return;
-		}
-		painel.classList.add("tips-panel--visible");
-		carregarMeusPalpites(false);
-	}
-
-	function fecharMeusPalpites() {
-		const painel = document.getElementById("todos_palpites_div");
-		if (painel) {
-			painel.classList.remove("tips-panel--visible");
-		}
-	}
-
-	function carregarMeusPalpites(force) {
-		if (!force && meusPalpitesCarregado) {
-			return;
-		}
-		const request = htmx.ajax("GET", baseUrl + "/seguro/meusPalpitesPartial.action", {
-			target: "#todos_palpites_table",
-			swap: "innerHTML"
-		});
-		request.addEventListener("loadend", function() {
-			meusPalpitesCarregado = request.status >= 200 && request.status < 300;
-		});
-	}
-
-	document.addEventListener("DOMContentLoaded", function() {
-		const link = document.getElementById("mostrarMeusPalpitesLink");
-		if (link) {
-			link.addEventListener("click", function(event) {
-				event.preventDefault();
-				mostrarMeusPalpites();
-			});
-		}
-	});
-</script>
-
-<div class="dashboard-section">
+<div id="jogos-page-wrapper" class="dashboard-section">
 <form action="#" method="POST">
 
 <c:set var="dataJogo" />
@@ -287,9 +23,7 @@
 			<span id="loading_span" class="loading-inline">
 				<img alt="" src="${base}/img/loading.gif" class="icon-inline-top" /> <fmt:message key="general.loading" />
 			</span>
-			<img alt="Fechar" src="${base}/img/fechar.gif" class="icon-inline-top icon-button"
-				onclick="fecharBalao();" onmouseover="fecharIconeMouseOver(this);"
-				onmouseout="fecharIconeMouseOut(this);" />
+			<img alt="Fechar" src="${base}/img/fechar.gif" class="icon-inline-top icon-button" data-js="fechar-balao" />
 		</p>
 	</div>
 	<div class="balao_middle balao-middle--compact">
@@ -300,7 +34,7 @@
 			<span>X</span>
 			<input type="text" name="palpiteGolsEq2" id="palpite_gols_eq_2" class="text score-input input-centered" size="2" maxlength="2" />
 			<fmt:message var="palpiteSubmitLabel" key="match.tip.confirm" />
-			<input type="button" class="button" name="confirmarPalpite" id="confirmar_palpite_button" value="${palpiteSubmitLabel}" onclick="atualizarPalpite();" />
+			<input type="button" class="button" name="confirmarPalpite" id="confirmar_palpite_button" value="${palpiteSubmitLabel}" />
 		</div>
 	</div>
 	<div class="balao_bottom"></div>
@@ -312,9 +46,7 @@
 			<span id="loading_span_palpites" class="loading-inline">
 				<img alt="" src="${base}/img/loading.gif" class="icon-inline-top" /> <fmt:message key="general.loading" />
 			</span>
-			<img alt="Fechar" src="${base}/img/fechar.gif" class="icon-inline-top icon-button"
-				onclick="fecharBalao();" onmouseover="fecharIconeMouseOver(this);"
-				onmouseout="fecharIconeMouseOut(this);" />
+			<img alt="Fechar" src="${base}/img/fechar.gif" class="icon-inline-top icon-button" data-js="fechar-balao" />
 		</p>
 	</div>
 		<div class="balao_middle balao-middle--scroll">
@@ -490,11 +222,11 @@
     <div id="todos_palpites_div" class="tips-panel">
     	<div class="tips-panel__body">
     		<div id="todos_palpites_loading" class="tips-panel__header">
-    			<button type="button" class="link-button" onclick="fecharMeusPalpites();"><fmt:message key="match.tip.close" /></button>
+    			<button type="button" class="link-button" data-js="fechar-meus-palpites"><fmt:message key="match.tip.close" /></button>
     		</div>
     		<div class="tips-panel__footer">
     			<p><fmt:message key="match.tip.now" /></p>
-    			<img alt="" src="${base}/img/refresh.png" class="icon-inline icon-button" onclick="carregarMeusPalpites(true);" />
+    			<img alt="" src="${base}/img/refresh.png" class="icon-inline icon-button" data-js="recarregar-meus-palpites" />
     		</div>
     		<div class="tips-panel__scroll">
     		<table class="table tips-panel__table">
@@ -537,7 +269,8 @@
 		<fmt:formatDate var="dataJogoFormatada" value="${jogo.data}" pattern="dd/MM/yyyy" />
 		<div id="jogos_${dataJogoFormatada}_portlet" class="portlet collapsible-portlet">
 			<div class="title collapsible-portlet__header">
-				<img alt="" src="${base}/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button" onclick="collapseContainer('jogos_${dataJogoFormatada}_portlet', this)" />
+				<img alt="" src="${base}/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_${dataJogoFormatada}_portlet" />
 				<fmt:message key="matchs.day">
 					<fmt:param value="${dataJogoFormatada}" />
 				</fmt:message>
@@ -576,7 +309,7 @@
 						<c:set var="palpiteGols2Attr" value="${palpiteUsuario.golsEquipe2}" />
 					</c:if>
 					<authz:authorize ifAllGranted="geral">
-					<tr class="${rowStyleClass}" id="jogoTr_${jogo.id}" data-jogo-id="${jogo.id}" data-palpite-allowed="${jogo.podeDarPalpite}" data-palpite-gols1="${palpiteGols1Attr}" data-palpite-gols2="${palpiteGols2Attr}" onmouseover="destacarLinha(this, true);" onmouseout="destacarLinha(this, false);" onclick="mostrarPopupPalpite(this);">
+					<tr class="${rowStyleClass}" id="jogoTr_${jogo.id}" data-jogo-id="${jogo.id}" data-palpite-allowed="${jogo.podeDarPalpite}" data-palpite-gols1="${palpiteGols1Attr}" data-palpite-gols2="${palpiteGols2Attr}">
 					</authz:authorize>
 					<authz:authorize ifAllGranted="restrito">
 					<tr class="${rowStyleClass}" id="jogoTr_${jogo.id}">
@@ -596,7 +329,7 @@
 								<c:choose>
 									<c:when test="${not telaPalpites}">
 										<authz:authorize ifAllGranted="admin">
-											<input type="text" name="golsEquipe1" id="golsEquipe1_tf_${jogo.id}" class="text score-input input-centered" maxlength="2" size="2" value="${jogo.golsEquipe1}" />
+											<input type="text" name="golsEquipe1" id="golsEquipe1_tf_${jogo.id}" class="text score-input input-centered" maxlength="2" size="2" value="${jogo.golsEquipe1}" data-js="resultado-input" />
 										</authz:authorize>
 									</c:when>
 									<c:otherwise>
@@ -611,7 +344,7 @@
 								<c:choose>
 								<c:when test="${not telaPalpites}">
 									<authz:authorize ifAllGranted="admin">
-										<input type="text" name="golsEquipe2" id="golsEquipe2_tf_${jogo.id}" class="text score-input input-centered" maxlength="2" size="2" value="${jogo.golsEquipe2}" onblur="atualizarResultado(this);" />
+										<input type="text" name="golsEquipe2" id="golsEquipe2_tf_${jogo.id}" class="text score-input input-centered" maxlength="2" size="2" value="${jogo.golsEquipe2}" onblur="atualizarResultado(this);" data-js="resultado-input" />
 									</authz:authorize>
 								</c:when>
 								<c:otherwise>
