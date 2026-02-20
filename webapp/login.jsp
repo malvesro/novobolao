@@ -39,7 +39,7 @@
 	</script>
 	<br />
 </c:if>
-<opendev:portlet id="loginportlet" icon="/img/lock.png" title="Login" style="width: 350px; margin: 0px auto;">
+<opendev:portlet id="loginportlet" icon="/img/lock.png" title="Login" style="margin: 0 auto;">
 	<form action="j_security_check" method="post">
 		<div class="inner">
 			<table class="form" cellspacing="0" cellpadding="2"

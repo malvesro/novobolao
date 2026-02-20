@@ -255,9 +255,9 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260219-inventario-condicionais-ie.md`, `.ia/logs/session-20260219-remocao-condicionais-ie.md`
     Skill: N/A (nenhuma skill aplicável)
-*   2026-02-19: **[Em Progresso]** Auditoria do CSS (Fase 2.5 - Subtarefa 4). Levantamento de problemas do `estilo.css` e plano de refatoração responsiva registrados.
+*   2026-02-19: **[Em Progresso]** Auditoria do CSS (Fase 2.5 - Subtarefa 4). Levantamento de problemas do `estilo.css` e plano de refatoração responsiva registrados; wrapper e tela de login já atualizados para layout moderno.
     Auto-Analise: [Risco: Medio] | [Compatibilidade: Atenção] | [Veredito: Revisar]
-    Referência Log: `.ia/logs/session-20260219-auditoria-css.md`
+    Referência Log: `.ia/logs/session-20260219-auditoria-css.md`, `.ia/logs/session-20260219-refatoracao-css-login.md`
     Skill: N/A (nenhuma skill aplicável)
 *   2026-02-19: **[Concluído]** Auditoria Visual Completa (Fase 2.5 - Tarefa 1). Checklists das telas principais executados via Docker; páginas protegidas retornam HTTP 200, endpoints de gráficos entregam PNG válidos e RBAC bloqueia acessos não autorizados. Identificado redirecionamento 302 indevido em `cadastro.jsp` (ausência de `permitAll` na configuração de segurança) para tratar em tarefa futura.
     Auto-Analise: [Risco: Medio] | [Compatibilidade: Atenção] | [Veredito: Revisar]
