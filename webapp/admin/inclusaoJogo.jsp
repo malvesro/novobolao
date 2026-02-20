@@ -8,12 +8,13 @@
 </span>
 <opendev:portlet id="cadastrojogo_portet" title="Cadastro de Jogo">
 <form action="#">
-	<div class="inner">
-		<table class="form table-spaced" cellspacing="0" cellpadding="2">
-			<tr>
-				<td class="label"><label for=""><fmt:message key="match.day" /></label></td>
-				<td class="widget">
-					<select name="data" id="data_select_id">
+		<div class="inner">
+			<div class="table-responsive">
+			<table class="form table-spaced">
+				<tr>
+					<td class="label"><label for=""><fmt:message key="match.day" /></label></td>
+					<td class="widget">
+						<select name="data" id="data_select_id">
 						<option value=""><fmt:message key="filter.fase.0" /></option>
 					<c:forTokens var="data" delims="," items="${initParam.datas}">
 						<option value="${data}">${data}</option>
@@ -83,10 +84,11 @@
 						<option value="${fase}"><fmt:message key="filter.fase.${fase}" /></option>
 					</c:forTokens>
 					</select>
-				</td>
-			</tr>
-		</table>
-	</div>
+					</td>
+				</tr>
+			</table>
+			</div>
+		</div>
 	<div class="footer">
 		<fmt:message var="loginSubmitLabel" key="match.submit" />
 		<input type="button" name="submit" class="button" value="${loginSubmitLabel}" onclick="submeterNovoJogo();"; />

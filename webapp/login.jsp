@@ -41,12 +41,13 @@
 </c:if>
 <opendev:portlet id="loginportlet" icon="/img/lock.png" title="Login">
 	<form action="j_security_check" method="post">
-		<div class="inner">
-			<table class="form table-spaced" cellspacing="0" cellpadding="2">
-				<tr>
-					<td class="label"><label for="login_username">
-							<fmt:message key="login.username" />
-						</label></td>
+			<div class="inner">
+				<div class="table-responsive">
+				<table class="form table-spaced">
+					<tr>
+						<td class="label"><label for="login_username">
+								<fmt:message key="login.username" />
+							</label></td>
 					<td class="widget"><input id="login_username" type="text" name="j_username" class="text" /></td>
 				</tr>
 				<tr>
@@ -64,10 +65,11 @@
 						<a href="${cadastroFormURL}">
 							<fmt:message key="login.signin" />
 						</a>
-					</td>
-				</tr>
-			</table>
-		</div>
+						</td>
+					</tr>
+				</table>
+				</div>
+			</div>
 		<div class="footer">
 			<fmt:message var="loginSubmitLabel" key="login.go" />
 			<input type="submit" name="submit" class="button" value="${loginSubmitLabel}" />
