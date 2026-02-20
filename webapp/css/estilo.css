@@ -712,6 +712,48 @@ div.legenda span.abrev {
 	color: inherit;
 }
 
+.match-filter {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.match-filter__table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.match-filter__table td {
+	padding: 0.35rem 0;
+}
+
+.match-filter__table .label {
+	width: 160px;
+	font-weight: 600;
+	color: var(--color-primary);
+}
+
+.match-filter__table .widget {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.match-filter__actions {
+	display: flex;
+	justify-content: flex-end;
+	padding-top: 0.5rem;
+}
+
+.icon-inline {
+	vertical-align: middle;
+}
+
+.icon-button {
+	cursor: pointer;
+}
+
 .notice-card {
 	display: flex;
 	flex-direction: column;
@@ -743,6 +785,56 @@ div.legenda span.abrev {
 .notice-card__icon {
 	width: 48px;
 	height: 48px;
+}
+
+.tips-panel {
+	display: none;
+	width: 100%;
+	max-width: 720px;
+	margin: 0 auto;
+	background-color: var(--color-surface);
+	border: 1px dashed var(--color-border);
+	border-radius: var(--radius-base);
+	box-shadow: var(--shadow-base);
+}
+
+.tips-panel__body {
+	padding: 1rem;
+}
+
+.tips-panel__header {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.tips-panel__table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 0.5rem;
+}
+
+.tips-panel__table th,
+.tips-panel__table td {
+	padding: 0.4rem;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.tips-panel__footer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-top: 0.75rem;
+}
+
+.tips-panel__scroll {
+	max-height: 140px;
+	overflow: auto;
+}
+
+.tips-info {
+	width: 100%;
+	max-width: 720px;
+	margin: 0 auto;
 }
 
 .score-value {
