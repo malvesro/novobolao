@@ -7,6 +7,8 @@ export default defineConfig({
   build: {
     outDir: resolve(__dirname, 'webapp/assets'),
     emptyOutDir: true,
+    assetsDir: '',
+    manifest: true,
     rollupOptions: {
       input: resolve(__dirname, 'src/frontend/main.js'),
       output: {
