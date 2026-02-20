@@ -316,7 +316,7 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260220-refatoracao-css-batepapo.md`
     Skill: N/A (nenhuma skill aplicável)
-*   2026-02-20: **[Em Progresso]** Refatoração CSS da página de jogos (Fase 2.5 - Tarefa 4). Filtro de palpites e painel “Meus palpites” reorganizados com `match-filter`, `.tips-panel`, `.icon-button` e utilitários responsivos; estilos inline removidos em `webapp/seguro/jogos.jsp`. `mvn test` executado com sucesso (5 testes).
+*   2026-02-20: **[Em Progresso]** Refatoração CSS da página de jogos (Fase 2.5 - Tarefa 4). Filtro de palpites, painel “Meus palpites” e balões DWR reorganizados com `match-filter`, `.tips-panel`, `.loading-inline`, `.balao-*` e classes de tabela responsivas; estilos inline removidos em `webapp/seguro/jogos.jsp`. `mvn test` executado com sucesso (5 testes).
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260220-refatoracao-css-jogos.md`
     Skill: N/A (nenhuma skill aplicável)
