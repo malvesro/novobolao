@@ -3,13 +3,13 @@
 	<div class="spacer-xl"></div>
     <div class="alert">
         <span>
-            <img alt="" src="${base}/img/information.gif" style="vertical-align: top;" />
+            <img alt="" src="${base}/img/information.gif" class="icon-inline-top" />
         </span>
         <span id="field_info">
             Pedido de cadastro enviado! Em alguns minutos você receberá um email confirmando o seu cadastro
             caso você esteja participando do bolão! Aguarde!
         </span>
-        <div style="text-align: center">
+        <div class="text-center">
             <c:url var="contextURL" value="/" />
             <a href="${contextURL}">Página principal</a>
         </div>
@@ -23,16 +23,16 @@
 </script>
 <div class="spacer-lg"></div>
 <opendev:mensagensErro nomeAtributo="errosInclusao" />
-<opendev:portlet id="cadastro_portlet" icon="/img/cadastro.png" title="Cadastro" style="margin: 0 auto;">
+<opendev:portlet id="cadastro_portlet" icon="/img/cadastro.png" title="Cadastro">
 <c:url var="cadastroActionURL" value="/cadastro.action" />
 <form action="${cadastroActionURL}" method="post">
     <div class="inner">
         <table class="form" cellspacing="0" cellpadding="2" >
             <tr>
-                <td colspan="2" style="text-align: left;">
+                <td colspan="2" class="text-left">
                     <div class="alert">
                     <span>
-                        <img alt="" src="${base}/img/information.gif" style="vertical-align: top;" />
+                        <img alt="" src="${base}/img/information.gif" class="icon-inline-top" />
                     </span>
                     <span id="field_info"></span>
                     </div>

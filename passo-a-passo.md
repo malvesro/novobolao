@@ -324,3 +324,7 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
     Referência Log: `.ia/logs/session-20260220-refatoracao-css-copa.md`
     Skill: N/A (nenhuma skill aplicável)
+*   2026-02-20: **[Em Progresso]** Refatoração CSS dos formulários públicos e telas administrativas (Fase 2.5 - Tarefa 4). Ajustados `webapp/cadastro.jsp`, `webapp/login.jsp`, `webapp/admin/inclusaoJogo.jsp`, `webapp/admin/participantes.jsp` e `webapp/template/menu.jspf` para usar utilitários (`text-left`, `icon-inline-top`, `table-spaced`, `dashboard-section`, `icon-button`, `hidden`, `mb-md`) e centralização via CSS. `mvn test` executado com sucesso (5 testes).
+    Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+    Referência Log: `.ia/logs/session-20260220-refatoracao-css-formularios.md`
+    Skill: N/A (nenhuma skill aplicável)
