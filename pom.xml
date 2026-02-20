@@ -153,7 +153,7 @@
         <version>3.0.1</version>
     </dependency>
 
-    <!-- JFreeChart & Cewolf (Legacy Charting) -->
+    <!-- JFreeChart (Charting) -->
     <dependency>
       <groupId>org.jfree</groupId>
       <artifactId>jcommon</artifactId>
@@ -164,22 +164,6 @@
       <artifactId>jfreechart</artifactId>
       <version>1.5.4</version>
     </dependency>
-    <!-- Cewolf (Legacy Charting - DEPRECATED)
-         Biblioteca descontinuada, não disponível em repositórios Maven atuais.
-         TODO: Migrar gráficos para JFreeChart direto ou biblioteca JS moderna.
-    <dependency>
-        <groupId>net.sourceforge.cewolf</groupId>
-        <artifactId>cewolf</artifactId>
-        <version>1.2.4</version>
-        <exclusions>
-            <exclusion>
-                <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-            </exclusion>
-        </exclusions>
-    </dependency>
-    -->
-
     <!-- Batik (SVG Support for Charts) -->
     <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
