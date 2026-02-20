@@ -22,6 +22,8 @@ public class AdminAction extends ActionSupport {
 	private List jogos;
     private List participantes;
     private Long id;
+	private String papel;
+	private String status;
 	
 	
 	public String carregarInfoEquipes() {
@@ -60,6 +62,7 @@ public class AdminAction extends ActionSupport {
     
     public String apagarParticipante() {
         getParticipanteService().apagar(id);
+        this.participantes = getParticipanteService().buscarTodos();
         return SUCCESS;
     }
     
@@ -70,6 +73,19 @@ public class AdminAction extends ActionSupport {
     public void atualizarPapelParticipante(Long id, String papel) {
         getParticipanteService().atualizarPapel(id, papel);
     }
+
+	public String atualizarPapelParticipanteHtmx() {
+		getParticipanteService().atualizarPapel(id, papel);
+		this.participantes = getParticipanteService().buscarTodos();
+		return SUCCESS;
+	}
+
+	public String atualizarStatusParticipanteHtmx() {
+		boolean habilitado = "true".equalsIgnoreCase(status) || "Sim".equalsIgnoreCase(status);
+		getParticipanteService().atualizarAutorizacao(id, habilitado);
+		this.participantes = getParticipanteService().buscarTodos();
+		return SUCCESS;
+	}
 
 	public EquipeService getEquipeService() {
 		return equipeService;
@@ -116,6 +132,16 @@ public class AdminAction extends ActionSupport {
 	@StrutsParameter
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	@StrutsParameter
+	public void setPapel(String papel) {
+		this.papel = papel;
+	}
+
+	@StrutsParameter
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 }

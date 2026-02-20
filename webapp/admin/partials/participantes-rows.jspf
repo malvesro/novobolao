@@ -1,0 +1,65 @@
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<c:forEach var="participante" items="${participantes}" varStatus="loop">
+    <c:choose>
+        <c:when test="${loop.count mod 2 eq 0}">
+            <c:set var="rowClasses" value="impar" />
+        </c:when>
+        <c:otherwise>
+            <c:set var="rowClasses" value="par" />
+        </c:otherwise>
+    </c:choose>
+    <c:if test="${participante.login eq pageContext.request.userPrincipal.name}">
+        <c:set var="rowClasses" value="${rowClasses} ranking-highlight" />
+    </c:if>
+    <tr id="linhaParticipante_${participante.id}" class="${rowClasses}">
+        <td class="text-center">${loop.count}</td>
+        <td class="text-left"><c:out value="${participante.nomeFormatado}" /></td>
+        <td class="text-left"><c:out value="${participante.login}" /></td>
+        <td class="text-left"><c:out value="${participante.email}" /></td>
+        <td class="text-center">
+            <select name="papel"
+                    class="form-control input-centered table-participants__select"
+                    aria-label="Papel do participante ${participante.login}"
+                    hx-post="${base}/admin/atualizarPapelParticipante.action"
+                    hx-target="#participantesTableBody"
+                    hx-swap="outerHTML"
+                    hx-trigger="change"
+                    hx-vals='{"id":"${participante.id}"}'>
+                <c:forTokens var="nivel" items="Nenhum,admin,geral,restrito" delims=",">
+                    <c:choose>
+                        <c:when test="${nivel eq participante.privilegio.papel}">
+                            <option value="${nivel}" selected="selected">${nivel}</option>
+                        </c:when>
+                        <c:otherwise>
+                            <option value="${nivel}">${nivel}</option>
+                        </c:otherwise>
+                    </c:choose>
+                </c:forTokens>
+            </select>
+        </td>
+        <td class="text-center">
+            <select name="status"
+                    class="form-control input-centered table-participants__select"
+                    aria-label="Status do participante ${participante.login}"
+                    hx-post="${base}/admin/atualizarStatusParticipante.action"
+                    hx-target="#participantesTableBody"
+                    hx-swap="outerHTML"
+                    hx-trigger="change"
+                    hx-vals='{"id":"${participante.id}"}'>
+                <option value="true" <c:if test="${participante.habilitado}">selected="selected"</c:if>>Sim</option>
+                <option value="false" <c:if test="${not participante.habilitado}">selected="selected"</c:if>>Não</option>
+            </select>
+        </td>
+        <td class="text-center">
+            <img alt="Remover participante"
+                 src="${base}/img/delete.png"
+                 hx-post="${base}/admin/apagarParticipanteHtmx.action"
+                 hx-target="#participantesTableBody"
+                 hx-swap="outerHTML"
+                 hx-vals='{"id":"${participante.id}"}'
+                 hx-confirm="Deseja realmente apagar este participante?"
+                 class="icon-button" />
+        </td>
+    </tr>
+</c:forEach>
