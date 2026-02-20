@@ -158,6 +158,12 @@ Sugira a criação de commits frequentes para não perder conteúdo relevante, o
 
 * Sempre ao final de uma tarefa, explique o que foi feito de forma clara e didática e dê instruções para o build ou teste.
 
+* Para atividades complexas, proponha a criação de um plano e guade em uma pasta ./ia/planos e referencie o plano na atividade relacionada no passo-a-passo.md
+
+* Informações importantes para o projeto e considerações relevantes devem ser registradas na documentação adequada (ADR, log de sessão, README.md, passo-a-passo.md, ...) para não serem perdidas: Faça a sugestão de forma justificada e confirme aprovação.
+
+* Não reintroduza dependências DWR/Prototype/Scriptaculous. Toda interação assíncrona deve priorizar HTMX/fetch ou APIs nativas já adotadas. Ao identificar resquícios legados, registre subtarefa no passo-a-passo.md antes de atuar.
+
 ### IMPORTANTE:
 
 * Todo documento novo criado deve ser colocado na estrutura de pastas .ia/ do projeto.
