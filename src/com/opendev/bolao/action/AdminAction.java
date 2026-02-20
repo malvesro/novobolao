@@ -8,7 +8,10 @@ import com.opendev.bolao.service.JogoService;
 import com.opendev.bolao.service.ParticipanteService;
 import com.opendev.bolao.util.ConversaoUtils;
 import org.apache.struts2.ActionSupport;
+import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.interceptor.parameter.StrutsParameter;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 public class AdminAction extends ActionSupport {
 
@@ -24,6 +27,14 @@ public class AdminAction extends ActionSupport {
     private Long id;
 	private String papel;
 	private String status;
+    private Integer golsEquipe1;
+    private Integer golsEquipe2;
+    private String data;
+    private String hora;
+    private Long equipe1Id;
+    private Long equipe2Id;
+    private String local;
+    private Integer fase;
 	
 	
 	public String carregarInfoEquipes() {
@@ -48,6 +59,44 @@ public class AdminAction extends ActionSupport {
 			throw new IllegalArgumentException();
 		}
 		getJogoService().atualizarResultado(idJogo, golsEquipe1, golsEquipe2);
+	}
+
+	public String atualizarResultadoDoJogoHtmx() {
+		HttpServletResponse response = ServletActionContext.getResponse();
+		if (response == null) {
+			return NONE;
+		}
+		int statusCode = HttpServletResponse.SC_NO_CONTENT;
+		try {
+			atualizarResultadoDoJogo(this.id, this.golsEquipe1, this.golsEquipe2);
+		} catch (IllegalArgumentException ex) {
+			statusCode = HttpServletResponse.SC_BAD_REQUEST;
+		} catch (Exception ex) {
+			statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+		}
+		response.setStatus(statusCode);
+		return NONE;
+	}
+
+	public String criarNovoJogoHtmx() {
+		HttpServletResponse response = ServletActionContext.getResponse();
+		if (response == null) {
+			return NONE;
+		}
+		int statusCode = HttpServletResponse.SC_NO_CONTENT;
+		try {
+			if (this.data == null || this.hora == null || this.equipe1Id == null || this.equipe2Id == null
+					|| this.local == null || this.fase == null) {
+				throw new IllegalArgumentException();
+			}
+			criarNovoJogo(this.data, this.hora, this.equipe1Id, this.equipe2Id, this.local, this.fase.intValue());
+		} catch (IllegalArgumentException ex) {
+			statusCode = HttpServletResponse.SC_BAD_REQUEST;
+		} catch (Exception ex) {
+			statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+		}
+		response.setStatus(statusCode);
+		return NONE;
 	}
 	
 	public String carregarJogos() {
@@ -142,6 +191,46 @@ public class AdminAction extends ActionSupport {
 	@StrutsParameter
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	@StrutsParameter
+	public void setGolsEquipe1(Integer golsEquipe1) {
+		this.golsEquipe1 = golsEquipe1;
+	}
+
+	@StrutsParameter
+	public void setGolsEquipe2(Integer golsEquipe2) {
+		this.golsEquipe2 = golsEquipe2;
+	}
+
+	@StrutsParameter
+	public void setData(String data) {
+		this.data = data;
+	}
+
+	@StrutsParameter
+	public void setHora(String hora) {
+		this.hora = hora;
+	}
+
+	@StrutsParameter
+	public void setEquipe1Id(Long equipe1Id) {
+		this.equipe1Id = equipe1Id;
+	}
+
+	@StrutsParameter
+	public void setEquipe2Id(Long equipe2Id) {
+		this.equipe2Id = equipe2Id;
+	}
+
+	@StrutsParameter
+	public void setLocal(String local) {
+		this.local = local;
+	}
+
+	@StrutsParameter
+	public void setFase(Integer fase) {
+		this.fase = fase;
 	}
 
 }

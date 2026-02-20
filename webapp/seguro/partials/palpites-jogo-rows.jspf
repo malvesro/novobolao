@@ -1,0 +1,26 @@
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<c:choose>
+    <c:when test="${empty palpites}">
+        <tr>
+            <td colspan="3" class="text-center">
+                <fmt:message key="match.tip.none" />
+            </td>
+        </tr>
+    </c:when>
+    <c:otherwise>
+        <c:forEach var="palpite" items="${palpites}">
+            <tr>
+                <td>
+                    <c:out value="${palpite.nomeParticipante}" />
+                </td>
+                <td class="text-center">
+                    <c:out value="${palpite.representacaoPalpite}" />
+                </td>
+                <td class="text-center">
+                    <c:out value="${palpite.pontos}" />
+                </td>
+            </tr>
+        </c:forEach>
+    </c:otherwise>
+</c:choose>

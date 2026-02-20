@@ -784,8 +784,29 @@ div.legenda span.abrev {
 	padding-right: 60px;
 }
 
+.loading-inline--visible {
+	visibility: visible;
+}
+
 .message-inline {
 	visibility: hidden;
+}
+
+.message-inline--visible {
+	visibility: visible;
+}
+
+.message-inline--success {
+	color: var(--color-success, #1b7f5f);
+}
+
+.message-inline--error {
+	color: var(--color-danger, #b22727);
+}
+
+.message-inline__detail {
+	display: inline-block;
+	margin-left: 0.5rem;
 }
 
 .text-center {
@@ -1007,6 +1028,24 @@ div.legenda span.abrev {
 	box-shadow: var(--shadow-base);
 }
 
+.tips-panel--visible {
+	display: block;
+}
+
+.link-button {
+	background: none;
+	border: none;
+	color: var(--color-accent);
+	cursor: pointer;
+	font: inherit;
+	padding: 0;
+	text-decoration: underline;
+}
+
+.link-button:hover {
+	text-decoration: none;
+}
+
 .tips-panel__body {
 	padding: 1rem;
 }
@@ -1078,4 +1117,44 @@ div.legenda span.abrev {
 	display: flex;
 	flex-direction: column;
 	gap: 1.5rem;
+}
+#balao_palpite,
+#balao_palpites {
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.balao-visible {
+	visibility: visible !important;
+	opacity: 0.95;
+}
+
+.collapsible-portlet__content--hidden {
+	display: none;
+}
+
+.row-highlight--success {
+	animation: rowHighlightSuccess 2s ease-out;
+}
+
+.row-highlight--error {
+	animation: rowHighlightError 2s ease-out;
+}
+
+@keyframes rowHighlightSuccess {
+	0% {
+		background-color: #e6ffed;
+	}
+	100% {
+		background-color: inherit;
+	}
+}
+
+@keyframes rowHighlightError {
+	0% {
+		background-color: #ffe6df;
+	}
+	100% {
+		background-color: inherit;
+	}
 }

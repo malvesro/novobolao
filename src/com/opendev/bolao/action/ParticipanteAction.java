@@ -5,6 +5,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -31,11 +33,12 @@ public class ParticipanteAction extends ActionSupport {
 	private static final long serialVersionUID = 1L;
 	
 	private PalpiteService palpiteService;
-	private ParticipanteService participanteService;
-	private JogoService jogoService;
-	private EquipeService equipeService;
-	private boolean telaPalpites;
-	private List jogos;
+    private ParticipanteService participanteService;
+    private JogoService jogoService;
+    private EquipeService equipeService;
+    private boolean telaPalpites;
+    private List jogos;
+    private List palpites;
     private List errosInclusao;
     private Participante tentativaInclusao;
     private boolean sucessoCadastro;
@@ -43,6 +46,12 @@ public class ParticipanteAction extends ActionSupport {
     private List equipes;
     private FiltroBuscaJogos filtro;
     private Participante participanteLogado;
+    private Map<Long, Palpite> palpitesUsuario;
+    private Long jogoId;
+    private Integer palpiteGolsEquipe1;
+    private Integer palpiteGolsEquipe2;
+    private boolean palpiteAtualizado;
+    private String palpiteErro;
     
     // Dados página principal
     private List jogosDeHoje;
@@ -71,7 +80,7 @@ public class ParticipanteAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
-	public String prepararInfoPalpites() {
+public String prepararInfoPalpites() {
         FiltroBuscaJogos filtro = obterFiltro();
         if (filtro == null) {
             setJogos(getJogoService().buscarTodos());
@@ -79,10 +88,30 @@ public class ParticipanteAction extends ActionSupport {
             setJogos(getJogoService().buscarUsandoFiltro(filtro));
             setFiltro(filtro);
         }
-		setEquipes(getEquipeService().buscarTodasEquipes());
-		setTelaPalpites(true);
-		return SUCCESS;
-	}
+        setEquipes(getEquipeService().buscarTodasEquipes());
+        setTelaPalpites(true);
+        prepararMapaPalpitesUsuario();
+        return SUCCESS;
+    }
+
+    private void prepararMapaPalpitesUsuario() {
+        String login = RequestUtils.getLoginParticipanteAutenticado();
+        if (login == null) {
+            return;
+        }
+        List palpitesDoUsuario = getPalpiteService().buscarPalpitesDoParticipante(login);
+        if (palpitesDoUsuario == null) {
+            return;
+        }
+        Map<Long, Palpite> mapa = new HashMap<>();
+        for (Object objeto : palpitesDoUsuario) {
+            Palpite palpite = (Palpite) objeto;
+            if (palpite.getJogo() != null && palpite.getJogo().getId() != null) {
+                mapa.put(palpite.getJogo().getId(), palpite);
+            }
+        }
+        setPalpitesUsuario(mapa);
+    }
 	
     public String gerarGraficoDesempenho() {
         String login = RequestUtils.getLoginParticipanteAutenticado();
@@ -222,6 +251,45 @@ public class ParticipanteAction extends ActionSupport {
     	String login = RequestUtils.getLoginParticipanteAutenticado();
     	return getPalpiteService().buscarPalpitesDoParticipante(login);
     }
+    
+    public String listarMeusPalpitesHtmx() {
+    	String login = RequestUtils.getLoginParticipanteAutenticado();
+    	this.palpites = getPalpiteService().buscarPalpitesDoParticipante(login);
+    	return SUCCESS;
+    }
+
+    public String listarPalpitesDoJogoHtmx() {
+        if (this.jogoId == null) {
+            this.palpites = Collections.emptyList();
+            return SUCCESS;
+        }
+        this.palpites = getPalpiteService().buscarPalpitesDoJogo(this.jogoId);
+        return SUCCESS;
+    }
+
+    public String atualizarPalpiteHtmx() {
+        String login = RequestUtils.getLoginParticipanteAutenticado();
+        if (login == null) {
+            this.palpiteAtualizado = false;
+            this.palpiteErro = null;
+            return ERROR;
+        }
+        if (this.jogoId == null || this.palpiteGolsEquipe1 == null || this.palpiteGolsEquipe2 == null) {
+            this.palpiteAtualizado = false;
+            this.palpiteErro = null;
+            return ERROR;
+        }
+        try {
+            getPalpiteService().atualizarPalpite(login, this.jogoId, this.palpiteGolsEquipe1, this.palpiteGolsEquipe2, RequestUtils.getIpDaRequisicao());
+            this.palpiteAtualizado = true;
+            prepararMapaPalpitesUsuario();
+            return SUCCESS;
+        } catch (Exception ex) {
+            this.palpiteAtualizado = false;
+            this.palpiteErro = null;
+            return ERROR;
+        }
+    }
 
 	public String cadastrar() {
         Participante p = obterParticipante();
@@ -285,13 +353,21 @@ public class ParticipanteAction extends ActionSupport {
 		this.jogoService = jogoService;
 	}
 
-	public List getJogos() {
-		return jogos;
-	}
+    public List getJogos() {
+        return jogos;
+    }
 
-	public void setJogos(List jogos) {
-		this.jogos = jogos;
-	}
+    public void setJogos(List jogos) {
+        this.jogos = jogos;
+    }
+
+    public Map<Long, Palpite> getPalpitesUsuario() {
+        return palpitesUsuario;
+    }
+
+    public void setPalpitesUsuario(Map<Long, Palpite> palpitesUsuario) {
+        this.palpitesUsuario = palpitesUsuario;
+    }
 
 	public boolean isTelaPalpites() {
 		return telaPalpites;
@@ -305,12 +381,24 @@ public class ParticipanteAction extends ActionSupport {
 		return participanteService;
 	}
 
-	public void setParticipanteService(ParticipanteService participanteService) {
-		this.participanteService = participanteService;
-	}
+    public void setParticipanteService(ParticipanteService participanteService) {
+        this.participanteService = participanteService;
+    }
 
     public List getParticipantes() {
         return this.participantes;
+    }
+
+    public List getPalpites() {
+        return palpites;
+    }
+
+    public boolean isPalpiteAtualizado() {
+        return palpiteAtualizado;
+    }
+
+    public String getPalpiteErro() {
+        return palpiteErro;
     }
 
     public List getErrosInclusao() {
@@ -376,6 +464,25 @@ public class ParticipanteAction extends ActionSupport {
     
     public InputStream getGraficoStream() {
         return this.graficoStream;
+    }
+
+    public Long getJogoId() {
+        return jogoId;
+    }
+
+    @StrutsParameter
+    public void setJogoId(Long jogoId) {
+        this.jogoId = jogoId;
+    }
+
+    @StrutsParameter
+    public void setPalpiteGolsEquipe1(Integer palpiteGolsEquipe1) {
+        this.palpiteGolsEquipe1 = palpiteGolsEquipe1;
+    }
+
+    @StrutsParameter
+    public void setPalpiteGolsEquipe2(Integer palpiteGolsEquipe2) {
+        this.palpiteGolsEquipe2 = palpiteGolsEquipe2;
     }
 
     public String getRival() {
