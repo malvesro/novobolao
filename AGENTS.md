@@ -32,7 +32,7 @@ Tarefa única - Status: Executado em 17/02/2026: Na primeira vez que ler esse do
 
 2. **Consciencia de Contexto**
    
-   - Antes de gerar codigo, leia `.ia/diretrizes/arquitetura.md` e o `README.md`.
+   - Antes de gerar codigo, leia `.ia/diretrizes/arquitetura.md`, `.ia/diretrizes/frontend.md`, `.ia/diretrizes/seguranca.md`,  o `README.md`, os logs de sessão mais recentes e o passo-a-passo.md, se existirem.
 
 3. **Rastreabilidade**
    

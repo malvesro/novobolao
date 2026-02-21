@@ -51,7 +51,7 @@ Premissas de compatibilidade (críticas):
        Referência ADR: `.ia/historico/ADR-20260219-upgrade-struts-7.md`
        Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 
-2. **[Em Progresso] Migração da Segurança:** Planejar e executar a substituição do Acegi Security 1.0.0 por Spring Security 6+.
+2. **[Concluído] Migração da Segurança:** Planejar e executar a substituição do Acegi Security 1.0.0 por Spring Security 6+.
    **CRÍTICO - BLOQUEADOR**: Durante testes do Docker (2026-02-18), identificado que `applicationContext-security.xml` ainda usa classes do Acegi Security (EOL desde 2006), incompatível com Jakarta EE 10. Spring Security 6.2.2 já está no `pom.xml` mas não é utilizado. Necessário reescrever completamente a configuração de segurança.
    
    * **[Concluído]** Reescrever `applicationContext-security.xml` usando Spring Security 6
@@ -104,8 +104,8 @@ Premissas de compatibilidade (críticas):
    * **Evidências:** Sessão `.ia/logs/session-20260219-auditoria-visual-validacao-telas.md` registrou verificações via Docker (HTTP 200 nas páginas autenticadas, gráficos JFreeChart gerando PNGs válidos e RBAC retornando 403 para usuários sem papel ADMIN). Login público `login.jsp` ativo.
    * **Achados:** `cadastro.jsp` responde 302 redirecionando para `/login.jsp` devido à ausência de `permitAll` na configuração de segurança; sugerir ajuste específico antes de reabrir cadastros. Prototype/Scriptaculous continuam carregados no `cabecalho.jspf`, alinhado às tarefas 2 e 3.
    * **Limitações:** Auditoria cURL não substitui testes visuais responsivos; execução em navegadores reais permanece recomendada após higienização de scripts/CSS.
-2. **[Em Progresso] Inventário e Análise de Scripts:** Mapear todos os arquivos JavaScript, identificar dependências e decidir manter/refatorar/remover cada um. Resultado alimentará as tarefas 3 e 4.
-   * **Parcial (19/02/2026):** Inventário inicial concluído (`.ia/logs/session-20260219-inventario-scripts-fase-2-5.md`). Bibliotecas legadas identificadas: Prototype/Scriptaculous (`webapp/js/prototype.js`, `scriptaculous.js`, `effects.js`), DWR (engine/util + interfaces geradas), Overlib (`overlib.js`) e BrowserDetector.
+2. **[Concluído] Inventário e Análise de Scripts:** Mapear todos os arquivos JavaScript, identificar dependências e decidir manter/refatorar/remover cada um. Resultado alimentará as tarefas 3 e 4.
+   * **Concluído (19/02/2026):** Inventário e análise concluídos (`.ia/logs/session-20260219-inventario-scripts-fase-2-5.md`). Bibliotecas legadas identificadas: Prototype/Scriptaculous (`webapp/js/prototype.js`, `scriptaculous.js`, `effects.js`), DWR (engine/util + interfaces geradas), Overlib (`overlib.js`) e BrowserDetector.
    * **Próximas subtarefas:**
      1. Documentar plano de substituição de Prototype/Scriptaculous por HTMX/Fetch e CSS transitions, alinhado com a remoção de dependências DWR. **Status:** Concluído em 19/02/2026 (`.ia/planos/plano-migracao-dwr-htmx.md`).
      2. Especificar migração dos fluxos críticos DWR (`webapp/seguro/jogos.jsp`, `webapp/admin/participantes.jsp`) para endpoints Struts REST + HTMX, incluindo impacto nas tags Struts. **Status:** Plano consolidado (19/02/2026); aguarda execução das tarefas derivadas.
@@ -160,7 +160,7 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
 
 Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 
-1. **[Pendente] Auditoria de Vulnerabilidades:** Integrar o OWASP Maven Dependency Check no `pom.xml` para monitoramento contínuo de CVEs.
+1. **[Em Progresso] Auditoria de Vulnerabilidades:** Integrar o OWASP Maven Dependency Check no `pom.xml` para monitoramento contínuo de CVEs.
    <security:intercept-url pattern="/seguro/**" access="hasAnyRole('ADMIN', 'USER')" />
 2. **[Pendente] Proteção de Recursos Estáticos:** Mover todos os arquivos JSP para dentro de `WEB-INF/` (ex: `WEB-INF/content/`) para impedir o acesso direto via browser, forçando a passagem pelas Actions do Struts.
 3. **[Pendente] Proteção na Camada Web:** Configurar cabeçalhos de segurança (HSTS, CSP, X-Frame-Options) e proteção CSRF.
