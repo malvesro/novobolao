@@ -43,6 +43,13 @@ docker/
 > # edite .env para definir senhas seguras
 > ```
 
+### Como o `.env` é usado e por que é mais seguro?
+
+- O arquivo `.env` deve ficar **na raiz do projeto** (mesmo nível do `docker-compose.yml`). O Docker Compose carrega automaticamente esse arquivo e substitui as variáveis declaradas no compose (`${VARIAVEL}`).
+- O template `docker/.env.example` contém valores fictícios; ao copiá-lo para `.env`, você define senhas reais **fora do versionamento** (o `.env` permanece ignorado pelo Git).
+- Dessa forma, as credenciais não aparecem no repositório, mas a aplicação continua funcionando localmente porque o Compose injeta essas variáveis nos containers (`MYSQL_ROOT_PASSWORD`, `MYSQL_PASSWORD`, `DB_PASS`, etc.).
+- Sempre use senhas fortes e, se compartilhar o projeto, distribua o template (`.env.example`) em vez de expor o `.env`.
+
 ### Comandos
 
 #### 1. Build e Start (primeira vez ou após mudanças)
