@@ -193,7 +193,7 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
    * Plano registrado em `.ia/planos/plano-fase-6-copa-2026.md` com escopo, premissas e trilhas de execução (21/02/2026). Skills: N/A.
    * Subtarefas planejadas (status inicial `Pendente`):
      - **F6-T2-Dados:** normalizar `data/copa2026_tabela_brt.csv`, gerar `03-copa-2026-data.sql`, automatizar atualização pós-playoffs e documentar o processo.
-       * Estrutura alvo definida em 21/02/2026 (`.ia/documentacao/fase6-normalizacao-dataset.md`); normalização e scripts seguem pendentes.
+       * Estrutura alvo definida em 21/02/2026 (`.ia/documentacao/fase6-normalizacao-dataset.md`). Dataset normalizado disponível em `data/copa2026_tabela_brt_normalizado.csv`; geração do script SQL e automação pós-playoffs permanecem pendentes.
      - **F6-T2-Dominio:** inventariar o modelo atual (HBM, scripts SQL, constraints) e, se necessário, modelar 32-avos, ampliar entidades/fases, atualizar validações de palpites e criar testes cobrindo as novas regras.
        * Inventário concluído em 21/02/2026 (`.ia/documentacao/fase6-inventario-modelo-dados.md`). Próximos subitens permanecem pendentes.
      - **F6-T2-Frontend:** reorganizar telas de grupos/classificação, atualizar filtros/dashboards, produzir nova identidade visual (`bolao_logo.png`), validar experiência mobile e atualizar diretrizes de frontend.
