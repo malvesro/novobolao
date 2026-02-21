@@ -31,3 +31,6 @@
 - [ ] Alucinacao detectada (prompt refinado).
 
 **Observacoes:** Próximos passos: rodar varredura axe/Lighthouse para confirmar score > 90 e tratar issues remanescentes (alertas cromáticos, possíveis contrastes). Analisar necessidade de descrever ícones decorativos adicionais via `aria-hidden`.
+
+
+**Status:** Auditoria automatizada adiada devido a restrição do Chrome headless no ambiente atual; retomar quando houver máquina com permissões adequadas.
