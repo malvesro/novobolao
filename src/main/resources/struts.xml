@@ -27,41 +27,61 @@
 
 		<default-interceptor-ref name="bolaoStack" />
 
+		<action name="index" class="participanteAction" method="index">
+			<result name="success">/WEB-INF/content/index.jsp</result>
+		</action>
+
+		<action name="login" class="participanteAction" method="login">
+			<result name="success">/WEB-INF/content/login.jsp</result>
+		</action>
+
 		<action name="logout" class="participanteAction" method="logout">
-			<result name="success">/login.jsp</result>
+			<result name="success">/WEB-INF/content/login.jsp</result>
+		</action>
+
+		<action name="cadastroForm" class="participanteAction" method="cadastroForm">
+			<result name="success">/WEB-INF/content/cadastro.jsp</result>
 		</action>
 		
 		<action name="cadastro" class="participanteAction" method="cadastrar">
-			<result name="success">/cadastro.jsp</result>
-			<result name="input">/cadastro.jsp</result>
+			<result name="success">/WEB-INF/content/cadastro.jsp</result>
+			<result name="input">/WEB-INF/content/cadastro.jsp</result>
 		</action>
 		
 	</package>
 	
 	<package name="seguro" extends="bolao-default" namespace="/seguro">
 		<action name="ranking" class="participanteAction" method="buscarParticipantes">
-			<result name="success">/seguro/classificacao.jsp</result>
+			<result name="success">/WEB-INF/content/seguro/classificacao.jsp</result>
 		</action>
 
 		<action name="palpites" class="participanteAction" method="prepararInfoPalpites">
-			<result name="success">/seguro/jogos.jsp</result>
+			<result name="success">/WEB-INF/content/seguro/jogos.jsp</result>
+		</action>
+
+		<action name="batePapo" class="participanteAction" method="batePapo">
+			<result name="success">/WEB-INF/content/seguro/batePapo.jsp</result>
+		</action>
+
+		<action name="trocaSenha" class="participanteAction" method="trocaSenha">
+			<result name="success">/WEB-INF/content/seguro/trocaSenha.jsp</result>
 		</action>
 		
 		<action name="meusPalpitesPartial" class="participanteAction" method="listarMeusPalpitesHtmx">
-			<result name="success">/seguro/partials/meus-palpites-rows.jspf</result>
+			<result name="success">/WEB-INF/content/seguro/partials/meus-palpites-rows.jspf</result>
 		</action>
 
 		<action name="palpitesDoJogoPartial" class="participanteAction" method="listarPalpitesDoJogoHtmx">
-			<result name="success">/seguro/partials/palpites-jogo-rows.jspf</result>
+			<result name="success">/WEB-INF/content/seguro/partials/palpites-jogo-rows.jspf</result>
 		</action>
 
 		<action name="atualizarPalpitePartial" class="participanteAction" method="atualizarPalpiteHtmx">
-			<result name="success">/seguro/partials/palpite-status.jspf</result>
-			<result name="error">/seguro/partials/palpite-status.jspf</result>
+			<result name="success">/WEB-INF/content/seguro/partials/palpite-status.jspf</result>
+			<result name="error">/WEB-INF/content/seguro/partials/palpite-status.jspf</result>
 		</action>
 
 		<action name="graficoDesempenho" class="participanteAction" method="gerarGraficoDesempenho">
-			<result name="success">/seguro/graficoDesempenho.jsp</result>
+			<result name="success">/WEB-INF/content/seguro/graficoDesempenho.jsp</result>
 		</action>
 
 		<action name="graficoDesempenhoImagem" class="participanteAction" method="gerarGraficoDesempenhoImagem">
@@ -72,11 +92,11 @@
 		</action>
 		
 		<action name="copa" class="participanteAction" method="gerarClassificacaoDaCopa">
-			<result name="success">/seguro/copa.jsp</result>
+			<result name="success">/WEB-INF/content/seguro/copa.jsp</result>
 		</action>
 		
 		<action name="principal" class="participanteAction" method="obterDadosPaginaPrincipal">
-			<result name="success">/seguro/principal.jsp</result>
+			<result name="success">/WEB-INF/content/seguro/principal.jsp</result>
 		</action>
 
 		<action name="graficoLiderancaImagem" class="participanteAction" method="gerarGraficoLiderancaImagem">
@@ -91,15 +111,15 @@
 	<package name="admin" extends="bolao-default" namespace="/admin">
 	
 		<action name="infoEquipes" class="adminAction" method="carregarInfoEquipes">
-			<result name="success">/admin/inclusaoJogo.jsp</result>
+			<result name="success">/WEB-INF/content/admin/inclusaoJogo.jsp</result>
 		</action>
 		
 		<action name="jogos" class="adminAction" method="carregarJogos">
-			<result name="success">/seguro/jogos.jsp</result>
+			<result name="success">/WEB-INF/content/seguro/jogos.jsp</result>
 		</action>
 		
 		<action name="participantes" class="adminAction" method="carregarParticipantes">
-			<result name="success">/admin/participantes.jsp</result>
+			<result name="success">/WEB-INF/content/admin/participantes.jsp</result>
 		</action>
 
 		<action name="criarJogo" class="adminAction" method="criarNovoJogoHtmx" />
@@ -107,15 +127,15 @@
 		<action name="atualizarResultadoJogo" class="adminAction" method="atualizarResultadoDoJogoHtmx" />
 		
 		<action name="atualizarPapelParticipante" class="adminAction" method="atualizarPapelParticipanteHtmx">
-			<result name="success">/admin/partials/participantes-table.jsp</result>
+			<result name="success">/WEB-INF/content/admin/partials/participantes-table.jsp</result>
 		</action>
 
 		<action name="atualizarStatusParticipante" class="adminAction" method="atualizarStatusParticipanteHtmx">
-			<result name="success">/admin/partials/participantes-table.jsp</result>
+			<result name="success">/WEB-INF/content/admin/partials/participantes-table.jsp</result>
 		</action>
 
 		<action name="apagarParticipanteHtmx" class="adminAction" method="apagarParticipante">
-			<result name="success">/admin/partials/participantes-table.jsp</result>
+			<result name="success">/WEB-INF/content/admin/partials/participantes-table.jsp</result>
 		</action>
 	
 	</package>

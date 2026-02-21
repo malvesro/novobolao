@@ -163,7 +163,8 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 1. **[Concluído] Auditoria de Vulnerabilidades:** Integrar o OWASP Maven Dependency Check no `pom.xml` para monitoramento contínuo de CVEs.
    * **Concluído (21/02/2026):** Plugin `dependency-check-maven` já configurado no `pom.xml` (goal `check`, `failBuildOnCVSS=7`, saída `ALL`). (Skill: `security-audit v1.0.0`)
    <security:intercept-url pattern="/seguro/**" access="hasAnyRole('ADMIN', 'USER')" />
-2. **[Pendente] Proteção de Recursos Estáticos:** Mover todos os arquivos JSP para dentro de `WEB-INF/` (ex: `WEB-INF/content/`) para impedir o acesso direto via browser, forçando a passagem pelas Actions do Struts.
+2. **[Concluído] Proteção de Recursos Estáticos:** Mover todos os arquivos JSP para dentro de `WEB-INF/` (ex: `WEB-INF/content/`) para impedir o acesso direto via browser, forçando a passagem pelas Actions do Struts.
+   * **Concluído (21/02/2026):** Includes administrativos atualizados para `/WEB-INF/content`, menu público apontando para `index.action`, novas actions Struts (`index`, `batePapo`, `trocaSenha`) e ajustes correspondentes no Spring Security para eliminar referências a `.jsp` públicas. Build validado com `mvn test -Dfrontend.skip=true`. (Skill: `security-audit v1.0.0`) Referência Log: `.ia/logs/session-20260221-protecao-recursos-estaticos-continuacao.md`.
 3. **[Pendente] Proteção na Camada Web:** Configurar cabeçalhos de segurança (HSTS, CSP, X-Frame-Options) e proteção CSRF.
 4. **[Pendente] Sanitização e Validação:** Revisar validadores do Struts 6 e implementar proteção robusta contra XSS.
 5. **[Pendente] Auditoria de Segredos:** Implementar varredura de credenciais e senhas em arquivos de configuração.

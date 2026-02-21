@@ -56,7 +56,7 @@
 						<input id="login_pwd" type="password" name="j_password" class="text" />
 					</div>
 					<div class="form-links">
-						<c:url var="cadastroFormURL" value="/cadastro.jsp" />
+						<c:url var="cadastroFormURL" value="/cadastroForm.action" />
 						<a href="${cadastroFormURL}">
 							<fmt:message key="login.signin" />
 						</a>
