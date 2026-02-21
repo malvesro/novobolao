@@ -159,7 +159,7 @@
 				<td class="widget">
 					<select name="filtroFase" id="filtro_fase">
 						<option value=""><fmt:message key="filter.fase.0" /></option>
-						<c:forTokens var="fase" items="11,12,13,8,4,2,3,1" delims=",">
+						<c:forTokens var="fase" items="11,12,13,16,8,4,2,3,1" delims=",">
 							<c:choose>
 								<c:when test="${not empty filtro and filtro.fase eq fase}">
 									<option value="${fase}" selected="selected"><fmt:message key="filter.fase.${fase}" /></option>

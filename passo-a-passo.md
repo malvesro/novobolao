@@ -198,6 +198,7 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
        * Script `scripts/atualizar_copa2026_dataset.py` implementado em 21/02/2026 (suporte a CSV normalizado, placeholders e geração do SQL). Execução efetuada em `--dry-run`; geração efetiva do SQL aguardará aprovação.
      - **F6-T2-Dominio:** inventariar o modelo atual (HBM, scripts SQL, constraints) e, se necessário, modelar 32-avos, ampliar entidades/fases, atualizar validações de palpites e criar testes cobrindo as novas regras.
        * Inventário concluído em 21/02/2026 (`.ia/documentacao/fase6-inventario-modelo-dados.md`). Próximos subitens permanecem pendentes.
+       * Código da fase 32-avos (`JOG_FASE=16`) formalizado em 21/02/2026 (schema, modelo `Jogo` e seletores JSP atualizados; mensagens `filter.fase.16` criadas).
      - **F6-T2-Frontend:** reorganizar telas de grupos/classificação, atualizar filtros/dashboards, produzir nova identidade visual (`bolao_logo.png`), validar experiência mobile e atualizar diretrizes de frontend.
      - **F6-T2-Integracao:** revisar APIs/exports, monitorar performance/índices e reforçar logs/auditoria para os novos eventos.
      - **F6-T2-QA:** elaborar plano de testes, automatizar regressões, definir checklist de implantação e preparar comunicação aos usuários.
