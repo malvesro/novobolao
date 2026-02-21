@@ -1123,6 +1123,18 @@ div.legenda span.abrev {
 	text-decoration: none;
 }
 
+.logout-banner {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+
+.logout-form {
+	display: inline-flex;
+	margin-left: 0;
+}
+
 .tips-panel__body {
 	padding: 1rem;
 }
