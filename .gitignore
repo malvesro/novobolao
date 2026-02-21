@@ -35,3 +35,6 @@ webapp/WEB-INF/classes/**/*.class
 
 # Node.js
 /node_modules/
+
+# Variáveis de ambiente locais
+.env
