@@ -44,7 +44,24 @@
                     <fmt:formatDate var="horaJogoFormatada" value="${jogo.hora}" pattern="HH:mm" />
 					<td class="text-center">${horaJogoFormatada}</td>
 					<td>${jogo.local}</td>
-					<td class="text-center">${jogo.equipe1.grupo}</td>
+					<td class="text-center">
+						<c:choose>
+							<c:when test="${jogo.faseDeGrupos}">
+								<c:choose>
+									<c:when test="${not empty jogo.equipe1.grupo}">
+										<fmt:message key="match.group" var="grupoLabel" />
+										<span>${grupoLabel} ${jogo.equipe1.grupo}</span>
+									</c:when>
+									<c:otherwise>
+										<span>${jogo.descricaoFase}</span>
+									</c:otherwise>
+								</c:choose>
+							</c:when>
+							<c:otherwise>
+								<span>${jogo.descricaoFase}</span>
+							</c:otherwise>
+						</c:choose>
+					</td>
 					<td class="text-right">
 						<div class="team-cell text-right">
 							<span>${jogo.equipe1.nomePais}</span>
