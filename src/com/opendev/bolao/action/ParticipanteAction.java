@@ -74,6 +74,26 @@ public class ParticipanteAction extends ActionSupport {
     private boolean filtroSemPalpite;
     private boolean filtroJogosNaoOcorreram;
 
+    public String index() {
+        return SUCCESS;
+    }
+
+    public String login() {
+        return SUCCESS;
+    }
+
+    public String cadastroForm() {
+        return SUCCESS;
+    }
+
+    public String batePapo() {
+        return SUCCESS;
+    }
+
+    public String trocaSenha() {
+        return SUCCESS;
+    }
+
 	public String logout() {
 		HttpSession session = RequestUtils.getRequest().getSession();
 		session.invalidate();

@@ -106,7 +106,7 @@
 	</session-config>
 
 	<welcome-file-list>
-		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>index.action</welcome-file>
 	</welcome-file-list>
 
 	<jsp-config>
@@ -116,8 +116,8 @@
 		</taglib>
 		<jsp-property-group>
 			<url-pattern>*.jsp</url-pattern>
-			<include-prelude>/template/cabecalho.jspf</include-prelude>
-			<include-coda>/template/rodape.jspf</include-coda>
+			<include-prelude>/WEB-INF/content/template/cabecalho.jspf</include-prelude>
+			<include-coda>/WEB-INF/content/template/rodape.jspf</include-coda>
 		</jsp-property-group>
 	</jsp-config>
 

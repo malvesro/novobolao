@@ -28,7 +28,7 @@ function esconderOuMostrarMenu(menuHeader) {
   </div>
   <div id="geral_itens" class="menu_item">
     <span>
-    <c:url var="indexUrl" value="/index.jsp" />
+    <c:url var="indexUrl" value="/index.action" />
     <a href="${indexUrl}">
       <span><fmt:message key="menu.geral.principal" /></span>
     </a>
@@ -36,7 +36,7 @@ function esconderOuMostrarMenu(menuHeader) {
       <span><fmt:message key="menu.geral.rules" /></span>
     </a>
     <%--
-    <c:url var="chatUrl" value="/seguro/batePapo.jsp" />
+    <c:url var="chatUrl" value="/seguro/batePapo.action" />
     <a href="${chatUrl}">
       <span><fmt:message key="menu.geral.chat" /></span>
     </a>
@@ -48,7 +48,7 @@ function esconderOuMostrarMenu(menuHeader) {
 		<span><fmt:message key="menu.participante.title" /></span>
 	</div>
 	<div id="participante_itens" class="menu_item">
-		<c:url var="trocarSenhaURL" value="/seguro/trocarSenha.jsp" />
+		<c:url var="trocarSenhaURL" value="/seguro/trocarSenha.action" />
 		<span>
 		<a href="${trocarSenhaURL}">
 			<span><fmt:message key="menu.participante.pwd" /></span>
