@@ -169,7 +169,8 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
    * **Concluído (21/02/2026):** Reabilitado o CSRF com `CookieCsrfTokenRepository`, tokens injetados em formulários/HTMX/fetch via prelude JSP e logout convertido para POST seguro. Adicionados cabeçalhos HSTS, CSP e Referrer-Policy mantendo o X-Frame-Options. Build validado com `mvn test -Dfrontend.skip=true`. (Skill: `security-audit v1.0.0`) Referência Log: `.ia/logs/session-20260221-protecao-camada-web.md`.
 4. **[Concluído] Sanitização e Validação:** Revisar validadores do Struts 6 e implementar proteção robusta contra XSS.
    * **Concluído (21/02/2026):** Criado utilitário `SanitizationUtils` com normalização Unicode, remoção de HTML e validações de formato. Ações `ParticipanteAction` e `AdminAction` passaram a sanitizar setters críticos e o fluxo de cadastro valida login/nome/e-mail/senha antes de persistir. Build validado com `mvn test -Dfrontend.skip=true`. (Skill: `security-audit v1.0.0`) Referência Log: `.ia/logs/session-20260221-sanitizacao-validacao.md`.
-5. **[Pendente] Auditoria de Segredos:** Implementar varredura de credenciais e senhas em arquivos de configuração.
+5. **[Concluído] Auditoria de Segredos:** Implementar varredura de credenciais e senhas em arquivos de configuração.
+   * **Concluído (21/02/2026):** Removido fallback de senha do datasource (`applicationContext-resources.xml`), docker-compose passou a exigir variáveis obrigatórias e criado `scripts/scan-secrets.sh` para varredura baseada em `rg`. Documentação atualizada em `.ia/documentacao/README-migracao.md`. (Skill: `security-audit v1.0.0`) Referência Log: `.ia/logs/session-20260221-auditoria-segredos.md`.
 
 ## Fase 5: Longo Prazo - Modernização se justificado
 
