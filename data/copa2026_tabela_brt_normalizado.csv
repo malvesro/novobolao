@@ -1,0 +1,90 @@
+fase,fase_codigo,fase_ordem,grupo,rodada,data,data_iso,hora_brt,mandante,mandante_slot,visitante,visitante_slot,estadio,cidade,pais,fuso_lista
+Grupos,11,1,A,1,11/06/2026,2026-06-11,16:00,México,,África do Sul,,Estádio Azteca,Cidade do México,México,BRT
+Grupos,11,1,A,1,11/06/2026,2026-06-11,23:00,Coreia do Sul,,DEN/MKD/CZE/IRL,UEFA Playoff D,Estadio Akron,Guadalajara,México,BRT
+Grupos,11,1,B,1,12/06/2026,2026-06-12,16:00,Canadá,,ITA/NIR/WAL/BIH,UEFA Playoff A,BMO Field,Toronto,Canadá,BRT
+Grupos,11,1,D,1,12/06/2026,2026-06-12,22:00,EUA,,Paraguai,,SoFi Stadium,Los Angeles,EUA,BRT
+Grupos,11,1,D,1,13/06/2026,2026-06-13,01:00,Austrália,,TUR/ROU/SVK/KOS,UEFA Playoff C,BC Place,Vancouver,Canadá,BRT
+Grupos,11,1,B,1,13/06/2026,2026-06-13,16:00,Catar,,Suíça,,Levi’s Stadium,Santa Clara,EUA,BRT
+Grupos,11,1,C,1,13/06/2026,2026-06-13,19:00,Brasil,,Marrocos,,MetLife Stadium,Nova York/Nova Jersey,EUA,BRT
+Grupos,11,1,C,1,13/06/2026,2026-06-13,22:00,Haiti,,Escócia,,Gillette Stadium,Boston,EUA,BRT
+Grupos,11,1,E,1,14/06/2026,2026-06-14,14:00,Alemanha,,Curaçao,,NRG Stadium,Houston,EUA,BRT
+Grupos,11,1,F,1,14/06/2026,2026-06-14,17:00,Holanda,,Japão,,AT&T Stadium,Dallas,EUA,BRT
+Grupos,11,1,E,1,14/06/2026,2026-06-14,20:00,Costa do Marfim,,Equador,,Lincoln Financial Field,Filadélfia,EUA,BRT
+Grupos,11,1,F,1,14/06/2026,2026-06-14,22:00,UKR/SWE/POL/ALB,UEFA Playoff B,Tunísia,,Estadio BBVA,Monterrey,México,BRT
+Grupos,11,1,H,1,15/06/2026,2026-06-15,13:00,Espanha,,Cabo Verde,,Mercedes-Benz Stadium,Atlanta,EUA,BRT
+Grupos,11,1,G,1,15/06/2026,2026-06-15,16:00,Bélgica,,Egito,,Lumen Field,Seattle,EUA,BRT
+Grupos,11,1,H,1,15/06/2026,2026-06-15,19:00,Arábia Saudita,,Uruguai,,Hard Rock Stadium,Miami,EUA,BRT
+Grupos,11,1,G,1,15/06/2026,2026-06-15,22:00,Irã,,Nova Zelândia,,SoFi Stadium,Los Angeles,EUA,BRT
+Grupos,11,1,I,1,16/06/2026,2026-06-16,16:00,França,,Senegal,,MetLife Stadium,Nova York/Nova Jersey,EUA,BRT
+Grupos,11,1,I,1,16/06/2026,2026-06-16,19:00,IRQ/BOL/SUR,Playoff Intercontinental 2,Noruega,,Gillette Stadium,Boston,EUA,BRT
+Grupos,11,1,J,1,16/06/2026,2026-06-16,22:00,Argentina,,Argélia,,Arrowhead Stadium,Kansas City,EUA,BRT
+Grupos,11,1,J,1,17/06/2026,2026-06-17,01:00,Áustria,,Jordânia,,Levi’s Stadium,Santa Clara,EUA,BRT
+Grupos,11,1,K,1,17/06/2026,2026-06-17,14:00,Portugal,,COD/JAM/NCL,Playoff Intercontinental 1,NRG Stadium,Houston,EUA,BRT
+Grupos,11,1,L,1,17/06/2026,2026-06-17,17:00,Inglaterra,,Croácia,,AT&T Stadium,Dallas,EUA,BRT
+Grupos,11,1,L,1,17/06/2026,2026-06-17,20:00,Gana,,Panamá,,BMO Field,Toronto,Canadá,BRT
+Grupos,11,1,K,1,17/06/2026,2026-06-17,21:00,Uzbequistão,,Colômbia,,Estádio Azteca,Cidade do México,México,BRT
+Grupos,12,1,A,2,18/06/2026,2026-06-18,13:00,DEN/MKD/CZE/IRL,UEFA Playoff D,África do Sul,,Mercedes-Benz Stadium,Atlanta,EUA,BRT
+Grupos,12,1,B,2,18/06/2026,2026-06-18,16:00,Suíça,,ITA/NIR/WAL/BIH,UEFA Playoff A,SoFi Stadium,Los Angeles,EUA,BRT
+Grupos,12,1,B,2,18/06/2026,2026-06-18,19:00,Canadá,,Catar,,BC Place,Vancouver,Canadá,BRT
+Grupos,12,1,A,2,18/06/2026,2026-06-18,22:00,México,,Coreia do Sul,,Estadio Akron,Guadalajara,México,BRT
+Grupos,12,1,D,2,19/06/2026,2026-06-19,01:00,TUR/ROU/SVK/KOS,UEFA Playoff C,Paraguai,,Levi’s Stadium,Santa Clara,EUA,BRT
+Grupos,12,1,D,2,19/06/2026,2026-06-19,16:00,EUA,,Austrália,,Lumen Field,Seattle,EUA,BRT
+Grupos,12,1,C,2,19/06/2026,2026-06-19,19:00,Escócia,,Marrocos,,Gillette Stadium,Boston,EUA,BRT
+Grupos,12,1,C,2,19/06/2026,2026-06-19,22:00,Brasil,,Haiti,,Lincoln Financial Field,Filadélfia,EUA,BRT
+Grupos,12,1,F,2,20/06/2026,2026-06-20,14:00,Holanda,,UKR/SWE/POL/ALB,UEFA Playoff B,NRG Stadium,Houston,EUA,BRT
+Grupos,12,1,E,2,20/06/2026,2026-06-20,17:00,Alemanha,,Costa do Marfim,,BMO Field,Toronto,Canadá,BRT
+Grupos,12,1,E,2,20/06/2026,2026-06-20,21:00,Equador,,Curaçao,,Arrowhead Stadium,Kansas City,EUA,BRT
+Grupos,12,1,F,2,20/06/2026,2026-06-20,23:00,Tunísia,,Japão,,Estadio BBVA,Monterrey,México,BRT
+Grupos,12,1,H,2,21/06/2026,2026-06-21,13:00,Espanha,,Arábia Saudita,,Mercedes-Benz Stadium,Atlanta,EUA,BRT
+Grupos,12,1,G,2,21/06/2026,2026-06-21,16:00,Bélgica,,Irã,,SoFi Stadium,Los Angeles,EUA,BRT
+Grupos,12,1,H,2,21/06/2026,2026-06-21,19:00,Uruguai,,Cabo Verde,,Hard Rock Stadium,Miami,EUA,BRT
+Grupos,12,1,G,2,21/06/2026,2026-06-21,22:00,Nova Zelândia,,Egito,,BC Place,Vancouver,Canadá,BRT
+Grupos,12,1,J,2,22/06/2026,2026-06-22,14:00,Argentina,,Áustria,,AT&T Stadium,Dallas,EUA,BRT
+Grupos,12,1,I,2,22/06/2026,2026-06-22,18:00,França,,IRQ/BOL/SUR,Playoff Intercontinental 2,Lincoln Financial Field,Filadélfia,EUA,BRT
+Grupos,12,1,I,2,22/06/2026,2026-06-22,21:00,Noruega,,Senegal,,MetLife Stadium,Nova York/Nova Jersey,EUA,BRT
+Grupos,12,1,J,2,23/06/2026,2026-06-23,00:00,Jordânia,,Argélia,,Levi’s Stadium,Santa Clara,EUA,BRT
+Grupos,12,1,K,2,23/06/2026,2026-06-23,14:00,Portugal,,Uzbequistão,,NRG Stadium,Houston,EUA,BRT
+Grupos,12,1,L,2,23/06/2026,2026-06-23,17:00,Inglaterra,,Gana,,Gillette Stadium,Boston,EUA,BRT
+Grupos,12,1,L,2,23/06/2026,2026-06-23,20:00,Panamá,,Croácia,,BMO Field,Toronto,Canadá,BRT
+Grupos,12,1,K,2,23/06/2026,2026-06-23,23:00,Colômbia,,COD/JAM/NCL,Playoff Intercontinental 1,Estadio Akron,Guadalajara,México,BRT
+Grupos,13,1,B,3,24/06/2026,2026-06-24,16:00,Suíça,,Canadá,,BC Place,Vancouver,Canadá,BRT
+Grupos,13,1,B,3,24/06/2026,2026-06-24,16:00,ITA/NIR/WAL/BIH,UEFA Playoff A,Catar,,Lumen Field,Seattle,EUA,BRT
+Grupos,13,1,C,3,24/06/2026,2026-06-24,19:00,Escócia,,Brasil,,Hard Rock Stadium,Miami,EUA,BRT
+Grupos,13,1,C,3,24/06/2026,2026-06-24,19:00,Marrocos,,Haiti,,Mercedes-Benz Stadium,Atlanta,EUA,BRT
+Grupos,13,1,A,3,24/06/2026,2026-06-24,20:00,DEN/MKD/CZE/IRL,UEFA Playoff D,México,,Estádio Azteca,Cidade do México,México,BRT
+Grupos,13,1,A,3,24/06/2026,2026-06-24,22:00,África do Sul,,Coreia do Sul,,Estadio BBVA,Monterrey,México,BRT
+Grupos,13,1,E,3,25/06/2026,2026-06-25,17:00,Equador,,Alemanha,,MetLife Stadium,Nova York/Nova Jersey,EUA,BRT
+Grupos,13,1,E,3,25/06/2026,2026-06-25,17:00,Curaçao,,Costa do Marfim,,Lincoln Financial Field,Filadélfia,EUA,BRT
+Grupos,13,1,F,3,25/06/2026,2026-06-25,20:00,Japão,,UKR/SWE/POL/ALB,UEFA Playoff B,AT&T Stadium,Dallas,EUA,BRT
+Grupos,13,1,F,3,25/06/2026,2026-06-25,20:00,Tunísia,,Holanda,,Arrowhead Stadium,Kansas City,EUA,BRT
+Grupos,13,1,D,3,25/06/2026,2026-06-25,23:00,TUR/ROU/SVK/KOS,UEFA Playoff C,EUA,,SoFi Stadium,Los Angeles,EUA,BRT
+Grupos,13,1,D,3,25/06/2026,2026-06-25,23:00,Paraguai,,Austrália,,Levi’s Stadium,Santa Clara,EUA,BRT
+Grupos,13,1,G,3,26/06/2026,2026-06-26,00:00,Egito,,Irã,,Lumen Field,Seattle,EUA,BRT
+Grupos,13,1,G,3,26/06/2026,2026-06-26,00:00,Nova Zelândia,,Bélgica,,BC Place,Vancouver,Canadá,BRT
+Grupos,13,1,I,3,26/06/2026,2026-06-26,16:00,Noruega,,França,,Gillette Stadium,Boston,EUA,BRT
+Grupos,13,1,I,3,26/06/2026,2026-06-26,16:00,Senegal,,IRQ/BOL/SUR,Playoff Intercontinental 2,BMO Field,Toronto,Canadá,BRT
+Grupos,13,1,H,3,26/06/2026,2026-06-26,21:00,Cabo Verde,,Arábia Saudita,,NRG Stadium,Houston,EUA,BRT
+Grupos,13,1,H,3,26/06/2026,2026-06-26,21:00,Uruguai,,Espanha,,Estadio Akron,Guadalajara,México,BRT
+Grupos,13,1,L,3,27/06/2026,2026-06-27,18:00,Panamá,,Inglaterra,,MetLife Stadium,Nova York/Nova Jersey,EUA,BRT
+Grupos,13,1,L,3,27/06/2026,2026-06-27,18:00,Croácia,,Gana,,Lincoln Financial Field,Filadélfia,EUA,BRT
+Grupos,13,1,K,3,27/06/2026,2026-06-27,20:30,Colômbia,,Portugal,,Hard Rock Stadium,Miami,EUA,BRT
+Grupos,13,1,K,3,27/06/2026,2026-06-27,20:30,COD/JAM/NCL,Playoff Intercontinental 1,Uzbequistão,,Mercedes-Benz Stadium,Atlanta,EUA,BRT
+Grupos,13,1,J,3,27/06/2026,2026-06-27,23:00,Argélia,,Áustria,,Arrowhead Stadium,Kansas City,EUA,BRT
+Grupos,13,1,J,3,27/06/2026,2026-06-27,23:00,Jordânia,,Argentina,,AT&T Stadium,Dallas,EUA,BRT
+32-avos,16,2,,,28/06/2026,2026-06-28,16:00,2º A,2º A,2º B,2º B,SoFi Stadium,Los Angeles,EUA,BRT
+32-avos,16,2,,,29/06/2026,2026-06-29,14:00,1º C,1º C,2º F,2º F,NRG Stadium,Houston,EUA,BRT
+32-avos,16,2,,,29/06/2026,2026-06-29,17:30,1º E,1º E,3º (A/B/C/D/F),3º (A/B/C/D/F),Gillette Stadium,Boston,EUA,BRT
+32-avos,16,2,,,29/06/2026,2026-06-29,22:00,1º F,1º F,2º C,2º C,Estadio BBVA,Monterrey,México,BRT
+32-avos,16,2,,,30/06/2026,2026-06-30,14:00,2º E,2º E,2º I,2º I,AT&T Stadium,Dallas,EUA,BRT
+32-avos,16,2,,,30/06/2026,2026-06-30,18:00,1º I,1º I,3º (C/D/F/G/H),3º (C/D/F/G/H),MetLife Stadium,Nova York/Nova Jersey,EUA,BRT
+32-avos,16,2,,,30/06/2026,2026-06-30,22:00,1º A,1º A,3º (C/E/F/H/I),3º (C/E/F/H/I),Estádio Azteca,Cidade do México,México,BRT
+32-avos,16,2,,,01/07/2026,2026-07-01,13:00,1º L,1º L,3º (E/H/I/J/K),3º (E/H/I/J/K),Mercedes-Benz Stadium,Atlanta,EUA,BRT
+32-avos,16,2,,,01/07/2026,2026-07-01,17:00,1º G,1º G,3º (A/E/H/I/J),3º (A/E/H/I/J),Lumen Field,Seattle,EUA,BRT
+32-avos,16,2,,,01/07/2026,2026-07-01,21:00,1º D,1º D,3º (B/E/F/I/J),3º (B/E/F/I/J),Levi’s Stadium,Santa Clara,EUA,BRT
+32-avos,16,2,,,02/07/2026,2026-07-02,00:00,1º B,1º B,3º (E/F/G/I/J),3º (E/F/G/I/J),BC Place,Vancouver,Canadá,BRT
+32-avos,16,2,,,02/07/2026,2026-07-02,16:00,1º H,1º H,2º J,2º J,SoFi Stadium,Los Angeles,EUA,BRT
+32-avos,16,2,,,02/07/2026,2026-07-02,20:00,2º K,2º K,2º L,2º L,BMO Field,Toronto,Canadá,BRT
+32-avos,16,2,,,03/07/2026,2026-07-03,15:00,2º D,2º D,2º G,2º G,AT&T Stadium,Dallas,EUA,BRT
+32-avos,16,2,,,03/07/2026,2026-07-03,19:00,1º J,1º J,2º H,2º H,Hard Rock Stadium,Miami,EUA,BRT
+32-avos,16,2,,,03/07/2026,2026-07-03,22:30,1º K,1º K,3º (D/E/I/J/L),3º (D/E/I/J/L),Arrowhead Stadium,Kansas City,EUA,BRT
+Final,1,7,,,19/07/2026,2026-07-19,16:00,V101,V101,V102,V102,MetLife Stadium,Nova York/Nova Jersey,EUA,BRT
