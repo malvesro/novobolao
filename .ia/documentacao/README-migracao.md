@@ -95,7 +95,7 @@ Todas as políticas abaixo são definidas em `src/main/resources/applicationCont
 
 ### 4.7 Auditoria de Segredos
 - **Datasource:** senhas do banco lidas exclusivamente de variáveis de ambiente (`DB_PASS`) em `applicationContext-resources.xml`.
-- **Docker Compose:** exige `MYSQL_ROOT_PASSWORD`/`MYSQL_PASSWORD` (configure via `.env`, ex. `docker/.env.example`) e reutiliza variáveis nos health checks, evitando senhas hardcoded.
+- **Docker Compose:** exige `MYSQL_ROOT_PASSWORD`/`MYSQL_PASSWORD` (configure via `.env`, ex. `docker/.env.example`); o arquivo `.env` na raiz é carregado automaticamente pelo Compose e permanece fora do versionamento, garantindo que senhas reais não fiquem no repositório.
 - **Varredura automatizada:** `scripts/scan-secrets.sh` usa `rg` para detectar possíveis segredos; incluir em pipelines locais/CI.
 
 ## 5. Migração das Views para `WEB-INF`
