@@ -353,6 +353,15 @@
         <configuration>
           <failBuildOnCVSS>7</failBuildOnCVSS>
           <format>ALL</format>
+          <skipProvidedScope>true</skipProvidedScope>
+          <skipTestScope>true</skipTestScope>
+          <dataDirectory>${user.home}/.m2/repository/org/owasp/dependency-check-data</dataDirectory>
+          <!-- Opcional: aumentar validade para reduzir updates -->
+          <cveValidForHours>24</cveValidForHours>
+          <!-- Use a NVD API Key via variável de ambiente (não commitar chave no repositório) -->
+          <nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
+          <!-- (Opcional) delay entre chamadas à API NVD (ms) -->
+          <nvdApiDelay>3000</nvdApiDelay>
         </configuration>
       </plugin>
     </plugins>
