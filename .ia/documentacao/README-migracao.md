@@ -87,6 +87,12 @@ Todas as políticas abaixo são definidas em `src/main/resources/applicationCont
 - **Configuração:** `<security:frame-options policy="SAMEORIGIN" />`
 - **Motivo:** previne clickjacking mantendo possíveis embeds controlados dentro do mesmo domínio.
 
+### 4.6 Sanitização e Validação de Entrada
+- **Utilitário central:** `SanitizationUtils` (strings normalizadas com `Normalizer`, limpeza via Jsoup e limites de tamanho).
+- **Ações Struts:** setters anotados com `@StrutsParameter` agora sanitizam entradas críticas (`ParticipanteAction`, `AdminAction`).
+- **Fluxo de cadastro:** validações explícitas para login, nome, e-mail e senha; rejeição de HTML/scripts e feedback ao usuário.
+- **Campos administrativos:** dados como `local`, `status` e `papel` são higienizados antes de persistidos.
+
 ## 5. Migração das Views para `WEB-INF`
 
 - Todas as JSPs (públicas e autenticadas) residem agora em `webapp/WEB-INF/content/`.
