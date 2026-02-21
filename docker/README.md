@@ -43,6 +43,20 @@ docker/
 > # edite .env para definir senhas seguras
 > ```
 
+Exemplo de conteúdo para `.env`:
+
+```
+# Credenciais do banco
+MYSQL_ROOT_PASSWORD=MinhaSenhaRoot@2026
+MYSQL_DATABASE=bolao
+MYSQL_USER=user_bolao
+MYSQL_PASSWORD=MinhaSenhaApp@2026
+
+# Variáveis consumidas pela aplicação
+DB_HOST=db
+DB_PASS=${MYSQL_PASSWORD}
+```
+
 ### Como o `.env` é usado e por que é mais seguro?
 
 - O arquivo `.env` deve ficar **na raiz do projeto** (mesmo nível do `docker-compose.yml`). O Docker Compose carrega automaticamente esse arquivo e substitui as variáveis declaradas no compose (`${VARIAVEL}`).
