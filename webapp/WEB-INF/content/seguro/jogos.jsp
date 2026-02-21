@@ -328,7 +328,24 @@
 			</c:choose>
 						<td class="match-table__time">${horaJogoFormatada}</td>
 						<td class="match-table__location">${jogo.local}</td>
-						<td class="match-table__group">${jogo.equipe1.grupo}</td>
+						<td class="match-table__group">
+							<c:choose>
+								<c:when test="${jogo.faseDeGrupos}">
+									<c:choose>
+										<c:when test="${not empty jogo.equipe1.grupo}">
+											<fmt:message key="match.group" var="grupoLabel" />
+											<span>${grupoLabel} ${jogo.equipe1.grupo}</span>
+										</c:when>
+										<c:otherwise>
+											<span>${jogo.descricaoFase}</span>
+										</c:otherwise>
+									</c:choose>
+								</c:when>
+								<c:otherwise>
+									<span>${jogo.descricaoFase}</span>
+								</c:otherwise>
+							</c:choose>
+						</td>
 						<td class="match-table__team match-table__team--home">
 							<div class="team-cell text-right">
 								<span>${jogo.equipe1.nomePais}</span>

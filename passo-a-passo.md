@@ -76,7 +76,8 @@ Premissas de compatibilidade (críticas):
    
    * **[Adiada]** **Atualização de Dados (SQL):** Criar e aplicar script de carga (`03-copa-2026-data.sql`). Aguardando agenda oficial das fases finais e definição dos playoffs para completar 104 partidas.
    * **[Concluído]** **Configurações de Contexto:** Atualizar parâmetros de cidades-sede e datas no `web.xml` para refletir o calendário de Junho/Julho de 2026 (`web.xml` ajustado em 21/02/2026 com datas 11/06–19/07, horários em BRT e estádios oficiais).
-   * **[Pendente]** **Lógica de Fases:** Adaptar o sistema para suportar a nova fase de "16-avos de final" (mata-mata ampliado).
+   * **[Concluído]** **Lógica de Fases:** Adaptar o sistema para suportar a nova fase de "16-avos de final" (mata-mata ampliado).
+   * `Jogo` passou a expor `isFaseDeGrupos`/`descricaoFase` via `FaseUtils`; tabela de jogos exibe o nome da fase (ex.: 32-avos) quando não há grupo.
    * **[Pendente]** **Auditoria Visual de Escala:** Garantir que as telas de palpites e classificação suportem o aumento de volume de dados (48 seleções vs 32 anteriores).
      Referência FIFA: `https://www.fifa.com/pt/tournaments/mens/worldcup/canadamexicousa2026/articles/copa-mundo-2026-tabela-jogos`
 

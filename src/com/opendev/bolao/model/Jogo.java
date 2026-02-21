@@ -5,8 +5,11 @@ import java.sql.Time;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import com.opendev.bolao.util.ConversaoUtils;
+import com.opendev.bolao.util.FaseUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 
 public class Jogo implements Serializable, Comparable {
 
@@ -141,17 +144,26 @@ public class Jogo implements Serializable, Comparable {
 		return true;
 	}
 
-	public boolean jaFoiAtualizado() {
-		return getGolsEquipe1() != null && getGolsEquipe2() != null;
+    public boolean jaFoiAtualizado() {
+        return getGolsEquipe1() != null && getGolsEquipe2() != null;
+    }
+
+    public int getFase() {
+        return fase;
 	}
 
-	public int getFase() {
-		return fase;
-	}
+    public void setFase(int fase) {
+        this.fase = fase;
+    }
 
-	public void setFase(int fase) {
-		this.fase = fase;
-	}
+    public boolean isFaseDeGrupos() {
+        return FaseUtils.isFaseDeGrupos(this.fase);
+    }
+
+    public String getDescricaoFase() {
+        Locale locale = LocaleContextHolder.getLocale();
+        return FaseUtils.getDescricaoFase(this.fase, locale);
+    }
     
     public String getRepresentacaoEquipes() {
         return getEquipe1().getNomePais() + " X " + getEquipe2().getNomePais();
