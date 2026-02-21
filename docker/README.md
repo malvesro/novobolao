@@ -35,6 +35,13 @@ docker/
 - Docker instalado
 - Docker Compose instalado
 - Portas 8080 e 3306 disponíveis
+- Arquivo `.env` configurado na raiz do projeto (use `docker/.env.example` como base)
+
+> **Dica:** copie o template e ajuste valores fortes antes de subir os serviços:
+> ```bash
+> cp docker/.env.example .env
+> # edite .env para definir senhas seguras
+> ```
 
 ### Comandos
 
