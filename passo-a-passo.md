@@ -195,6 +195,7 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
      - **F6-T2-Dados:** normalizar `data/copa2026_tabela_brt.csv`, gerar `03-copa-2026-data.sql`, automatizar atualização pós-playoffs e documentar o processo.
        * Estrutura alvo definida em 21/02/2026 (`.ia/documentacao/fase6-normalizacao-dataset.md`). Dataset normalizado disponível em `data/copa2026_tabela_brt_normalizado.csv`; geração do script SQL e automação pós-playoffs permanecem pendentes.
        * Plano do script gerador registrado em `.ia/planos/plano-script-copa2026-sql.md`.
+       * Script `scripts/atualizar_copa2026_dataset.py` implementado em 21/02/2026 (suporte a CSV normalizado, placeholders e geração do SQL). Execução efetuada em `--dry-run`; geração efetiva do SQL aguardará aprovação.
      - **F6-T2-Dominio:** inventariar o modelo atual (HBM, scripts SQL, constraints) e, se necessário, modelar 32-avos, ampliar entidades/fases, atualizar validações de palpites e criar testes cobrindo as novas regras.
        * Inventário concluído em 21/02/2026 (`.ia/documentacao/fase6-inventario-modelo-dados.md`). Próximos subitens permanecem pendentes.
      - **F6-T2-Frontend:** reorganizar telas de grupos/classificação, atualizar filtros/dashboards, produzir nova identidade visual (`bolao_logo.png`), validar experiência mobile e atualizar diretrizes de frontend.
@@ -394,6 +395,14 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 * 2026-02-21: **[Concluído]** Fase 6 - Tarefa 2 (plano Copa 2026). Elaborado o plano `.ia/planos/plano-fase-6-copa-2026.md` com trilhas F6-T2-Dados, Domínio, Frontend, Integração e QA; passo-a-passo atualizado com subtarefas. Nenhuma skill específica aplicada.
   Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
   Referência Log: `.ia/logs/session-20260221-fase6-plano.md`, `.ia/logs/session-20260221-fase6-plano-ajuste.md`
+  Skill: N/A (nenhuma skill aplicável)
+* 2026-02-21: **[Concluído]** Normalização do dataset Copa 2026 (F6-T2-Dados). Gerado `data/copa2026_tabela_brt_normalizado.csv` com colunas auxiliares (`fase_codigo`, `fase_ordem`, `grupo`, `rodada`, placeholders padronizados) e documentado o fluxo em `.ia/documentacao/fase6-normalizacao-dataset.md`.
+  Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+  Referência Log: `.ia/logs/session-20260221-fase6-dataset-analise.md`, `.ia/logs/session-20260221-fase6-dataset-normalizacao.md`
+  Skill: N/A (nenhuma skill aplicável)
+* 2026-02-21: **[Concluído]** Planejamento e implementação inicial do gerador SQL (F6-T2-Dados). Criado o plano `.ia/planos/plano-script-copa2026-sql.md` e o script `scripts/atualizar_copa2026_dataset.py`; execução validada em modo `--dry-run`.
+  Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+  Referência Log: `.ia/logs/session-20260221-fase6-sql-plano.md`, `.ia/logs/session-20260221-fase6-sql-script.md`
   Skill: N/A (nenhuma skill aplicável)
 * 2026-02-20: **[Em Progresso]** Planejamento do bundler frontend (Fase 2.5 - Tarefa 2, subtarefa 6). Documento `.ia/planos/plano-bundler-frontend.md` detalha adoção do Vite/ESBuild, integração com WAR e próximos passos; registrado log `.ia/logs/session-20260220-plano-bundler-frontend.md`. Estrutura inicial criada e fallback `webapp/assets/js/app-bundle.js` anotados em `.ia/logs/session-20260220-bundler-setup-parcial.md`.
   Auto-Analise: [Risco: Médio] | [Compatibilidade: Atenção] | [Veredito: Revisar]
