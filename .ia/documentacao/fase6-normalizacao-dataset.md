@@ -37,7 +37,7 @@ Regras adicionais:
 ## 4. Fluxo de Geração de Dados
 1. **Normalização do CSV existente** aplicando as colunas derivadas e correções de texto. *(21/02/2026: gerado `data/copa2026_tabela_brt_normalizado.csv` com os campos definidos acima, preservando o arquivo bruto original.)*
 2. **Script Python** (`scripts/atualizar_copa2026_dataset.py`, a ser criado) para:
-   - Atualizar placeholders após definição de playoffs.
+   - Atualizar placeholders após definição de playoffs (arquivo de apoio `data/copa2026_placeholders.json` criado em 21/02/2026).
    - Preencher fases eliminatórias restantes assim que a FIFA divulgar horários.
    - Exportar diretamente o script SQL (`03-copa-2026-data.sql`) a partir do CSV normalizado.
 3. **Integrar no build/documentação**:
@@ -51,7 +51,7 @@ Regras adicionais:
 2. Definir oficialmente o código numérico da fase de 32-avos (sugerido `16`) e refletir no schema/documentação.  
 3. Criar o script automatizador para atualizar placeholders e gerar o SQL (`scripts/atualizar_copa2026_dataset.py`):  
    - Ler `data/copa2026_tabela_brt_normalizado.csv`.  
-   - Atualizar slots concluídos (playoffs) a partir de entrada JSON/CSV auxiliar.  
+   - Atualizar slots concluídos (playoffs) a partir de `data/copa2026_placeholders.json`.  
    - Emitir `03-copa-2026-data.sql` com inserts ordenados por `fase_ordem`, `data_iso`, `hora_brt`.  
    - Opcional: gerar diff para revisar alterações (✔ feita versão inicial sem substituição de placeholders).  
 4. Atualizar as telas e filtros para consumir `fase_codigo`/`grupo` ampliado, garantindo compatibilidade com o novo dataset.

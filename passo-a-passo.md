@@ -196,6 +196,7 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
        * Estrutura alvo definida em 21/02/2026 (`.ia/documentacao/fase6-normalizacao-dataset.md`). Dataset normalizado disponível em `data/copa2026_tabela_brt_normalizado.csv`; geração do script SQL e automação pós-playoffs permanecem pendentes.
        * Plano do script gerador registrado em `.ia/planos/plano-script-copa2026-sql.md`.
        * Script `scripts/atualizar_copa2026_dataset.py` implementado em 21/02/2026 (suporte a CSV normalizado, placeholders e geração do SQL). Execução efetuada em `--dry-run`; geração efetiva do SQL aguardará aprovação.
+       * Arquivo de placeholders criado em `data/copa2026_placeholders.json` para futuras atualizações após repescagens (21/02/2026).
      - **F6-T2-Dominio:** inventariar o modelo atual (HBM, scripts SQL, constraints) e, se necessário, modelar 32-avos, ampliar entidades/fases, atualizar validações de palpites e criar testes cobrindo as novas regras.
        * Inventário concluído em 21/02/2026 (`.ia/documentacao/fase6-inventario-modelo-dados.md`). Próximos subitens permanecem pendentes.
        * Código da fase 32-avos (`JOG_FASE=16`) formalizado em 21/02/2026 (schema, modelo `Jogo` e seletores JSP atualizados; mensagens `filter.fase.16` criadas).
