@@ -15,7 +15,7 @@
 		<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
 		<property name="jdbcUrl" value="jdbc:mysql://${DB_HOST:localhost}:3306/${DB_NAME:bolao}?useSSL=false&amp;allowPublicKeyRetrieval=true" />
 		<property name="username" value="${DB_USER:root}" />
-		<property name="password" value="${DB_PASS:copa2014brasil}" />
+		<property name="password" value="${DB_PASS}" />
 		<property name="maximumPoolSize" value="10" />
 		<property name="minimumIdle" value="2" />
 		<property name="idleTimeout" value="30000" />

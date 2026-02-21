@@ -4,10 +4,10 @@ services:
     container_name: bolao-db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: bolao
-      MYSQL_USER: user_bolao
-      MYSQL_PASSWORD: pass_bolao
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE:-bolao}"
+      MYSQL_USER: "${MYSQL_USER:-user_bolao}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}"
     ports:
       - "3306:3306"
     volumes:
@@ -16,7 +16,7 @@ services:
     networks:
       - bolao-net
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,10 +30,10 @@ services:
       - "8080:8080"
       - "8443:8443"
     environment:
-      - DB_HOST=db
-      - DB_NAME=bolao
-      - DB_USER=user_bolao
-      - DB_PASS=pass_bolao
+      DB_HOST: db
+      DB_NAME: "${MYSQL_DATABASE:-bolao}"
+      DB_USER: "${MYSQL_USER:-user_bolao}"
+      DB_PASS: "${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}"
     depends_on:
       db:
         condition: service_healthy

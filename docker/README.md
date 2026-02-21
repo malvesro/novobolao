@@ -18,10 +18,10 @@ docker/
 
 ### 1. MySQL 8.0 (db)
 - **Porta:** 3306
-- **Banco:** bolao
-- **Usuário:** user_bolao
-- **Senha:** pass_bolao
-- **Root Password:** root
+- **Banco:** `${MYSQL_DATABASE}` (padrão: `bolao`)
+- **Usuário:** `${MYSQL_USER}` (padrão: `user_bolao`)
+- **Senha:** definida via `MYSQL_PASSWORD` (obrigatória)
+- **Root Password:** definido via `MYSQL_ROOT_PASSWORD` (obrigatório)
 
 ### 2. Tomcat 10.1 + Aplicação (app)
 - **Porta:** 8080
@@ -160,16 +160,16 @@ chmod 644 docker/mysql/init/*.sql
 As seguintes variáveis podem ser customizadas no `docker-compose.yml`:
 
 ### Banco de Dados
-- `MYSQL_ROOT_PASSWORD` - Senha do root
-- `MYSQL_DATABASE` - Nome do banco
-- `MYSQL_USER` - Usuário da aplicação
-- `MYSQL_PASSWORD` - Senha do usuário
+- `MYSQL_ROOT_PASSWORD` (obrigatório) – Senha do usuário root no MySQL.
+- `MYSQL_DATABASE` (opcional, padrão `bolao`) – Nome do banco a ser criado.
+- `MYSQL_USER` (opcional, padrão `user_bolao`) – Usuário de aplicação.
+- `MYSQL_PASSWORD` (obrigatório) – Senha do usuário de aplicação.
 
 ### Aplicação
-- `DB_HOST` - Host do banco (padrão: db)
-- `DB_NAME` - Nome do banco (padrão: bolao)
-- `DB_USER` - Usuário do banco (padrão: user_bolao)
-- `DB_PASS` - Senha do banco (padrão: pass_bolao)
+- `DB_HOST` (opcional, padrão `db`) – Host do banco.
+- `DB_NAME` (opcional, padrão `bolao`) – Nome do banco utilizado pela aplicação.
+- `DB_USER` (opcional, padrão `user_bolao`) – Usuário do banco.
+- `DB_PASS` (obrigatório) – Senha do banco utilizada pela aplicação (deve espelhar `MYSQL_PASSWORD`).
 
 ## Desenvolvimento
 
@@ -192,7 +192,7 @@ wsl bash -c "docker exec -it bolao-db bash"
 ### Conectar ao MySQL Diretamente
 
 ```bash
-wsl bash -c "docker exec -it bolao-db mysql -u user_bolao -ppass_bolao bolao"
+wsl bash -c 'docker exec -it bolao-db mysql -u "${MYSQL_USER:-user_bolao}" -p"${MYSQL_PASSWORD}" "${MYSQL_DATABASE:-bolao}"'
 ```
 
 ## Logs

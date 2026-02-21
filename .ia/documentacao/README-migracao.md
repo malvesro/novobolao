@@ -88,10 +88,15 @@ Todas as políticas abaixo são definidas em `src/main/resources/applicationCont
 - **Motivo:** previne clickjacking mantendo possíveis embeds controlados dentro do mesmo domínio.
 
 ### 4.6 Sanitização e Validação de Entrada
-- **Utilitário central:** `SanitizationUtils` (strings normalizadas com `Normalizer`, limpeza via Jsoup e limites de tamanho).
+- **Utilitário central:** `SanitizationUtils` (strings normalizadas com `Normalizer`, remoção de HTML/control characters via regex e limites de tamanho).
 - **Ações Struts:** setters anotados com `@StrutsParameter` agora sanitizam entradas críticas (`ParticipanteAction`, `AdminAction`).
 - **Fluxo de cadastro:** validações explícitas para login, nome, e-mail e senha; rejeição de HTML/scripts e feedback ao usuário.
 - **Campos administrativos:** dados como `local`, `status` e `papel` são higienizados antes de persistidos.
+
+### 4.7 Auditoria de Segredos
+- **Datasource:** senhas do banco lidas exclusivamente de variáveis de ambiente (`DB_PASS`) em `applicationContext-resources.xml`.
+- **Docker Compose:** exige `MYSQL_ROOT_PASSWORD`/`MYSQL_PASSWORD` e reutiliza variáveis nos health checks, evitando senhas hardcoded.
+- **Varredura automatizada:** `scripts/scan-secrets.sh` usa `rg` para detectar possíveis segredos; incluir em pipelines locais/CI.
 
 ## 5. Migração das Views para `WEB-INF`
 
