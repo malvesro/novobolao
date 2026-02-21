@@ -25,7 +25,91 @@
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
 <meta http-equiv="pragma" content="no-cache" />
 <title><fmt:message key="app.title" /></title>
+<c:if test="${not empty _csrf}">
+	<meta name="_csrf" content="${_csrf.token}" />
+	<meta name="_csrf_header" content="${_csrf.headerName}" />
+	<meta name="_csrf_parameter" content="${_csrf.parameterName}" />
+</c:if>
 <script type="text/javascript" src="${base}/js/htmx.min.js"></script>
+<script type="text/javascript">
+	(function () {
+		'use strict';
+		function getMetaContent(name) {
+			var element = document.querySelector('meta[name=\"' + name + '\"]');
+			return element ? element.getAttribute('content') : null;
+		}
+
+		var token = getMetaContent('_csrf');
+		var headerName = getMetaContent('_csrf_header') || 'X-CSRF-TOKEN';
+		var parameterName = getMetaContent('_csrf_parameter') || '_csrf';
+
+		if (!token) {
+			return;
+		}
+
+		function ensureFormToken(form) {
+			if (!form || !(form instanceof HTMLFormElement)) {
+				return;
+			}
+			if ((form.method || 'get').toLowerCase() !== 'post') {
+				return;
+			}
+			if (form.querySelector('input[name=\"' + parameterName + '\"]')) {
+				return;
+			}
+			var input = document.createElement('input');
+			input.type = 'hidden';
+			input.name = parameterName;
+			input.value = token;
+			form.appendChild(input);
+		}
+
+		document.addEventListener('submit', function (event) {
+			var form = event.target;
+			ensureFormToken(form);
+		}, true);
+
+		document.addEventListener('DOMContentLoaded', function () {
+			var forms = document.querySelectorAll('form');
+			for (var i = 0; i < forms.length; i += 1) {
+				ensureFormToken(forms[i]);
+			}
+		});
+
+		if (window.fetch) {
+			var originalFetch = window.fetch.bind(window);
+			window.fetch = function (input, init) {
+				if (input instanceof Request) {
+					var requestHeaders = new Headers(input.headers);
+					if (!requestHeaders.has(headerName)) {
+						requestHeaders.set(headerName, token);
+					}
+					var requestInit = Object.assign({}, init || {}, { headers: requestHeaders });
+					return originalFetch(new Request(input, requestInit));
+				}
+				var nextInit = Object.assign({}, init || {});
+				var headers = new Headers(nextInit.headers || undefined);
+				if (!headers.has(headerName)) {
+					headers.set(headerName, token);
+				}
+				nextInit.headers = headers;
+				return originalFetch(input, nextInit);
+			};
+		}
+
+		if (window.htmx && window.htmx.on) {
+			window.htmx.on('htmx:configRequest', function (event) {
+				event.detail.headers[headerName] = token;
+			});
+			window.htmx.on('htmx:afterSwap', function () {
+				var forms = document.querySelectorAll('form');
+				for (var i = 0; i < forms.length; i += 1) {
+					ensureFormToken(forms[i]);
+				}
+			});
+		}
+	}());
+</script>
 <script type="text/javascript">
 	window.APP_BASE_URL = '<c:out value="${base}" />';
 </script>

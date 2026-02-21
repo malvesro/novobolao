@@ -9,12 +9,19 @@ function esconderOuMostrarMenu(menuHeader) {
 }
 </script>
 
-<p id="logout_func">
+<p id="logout_func" class="logout-banner">
 	<c:url var="logoutUrl" value="/j_logout" />
 	<fmt:message key="logout.text">
 		<fmt:param value="${pageContext.request.userPrincipal.name}" />
-		<fmt:param value="${logoutUrl}" />
 	</fmt:message>
+	<form id="logoutForm" class="logout-form" action="${logoutUrl}" method="post">
+		<button type="submit" class="link-button">
+			<fmt:message key="logout.exit" />
+		</button>
+		<c:if test="${not empty _csrf}">
+			<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+		</c:if>
+	</form>
 </p>
 <p class="text-right">
     <fmt:message key="general.online">
