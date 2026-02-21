@@ -141,16 +141,20 @@
 				<td class="widget">
 					<select name="filtroGrupo" id="filtro_grupo">
 						<option value=""><fmt:message key="filter.group.0" /></option>
-						<c:forTokens var="grupo" items="A,B,C,D,E,F,G,H" delims=",">
-							<c:choose>
-								<c:when test="${not empty filtro and filtro.grupo eq grupo}">
-									<option value="${grupo}" selected="selected">${grupo}</option>
-								</c:when>
-								<c:otherwise>
-									<option value="${grupo}">${grupo}</option>
-								</c:otherwise>
-							</c:choose>							
-						</c:forTokens>
+						<c:set var="grupoAnterior" value="" />
+						<c:forEach var="equipeGrupo" items="${equipes}">
+							<c:if test="${empty grupoAnterior or grupoAnterior ne equipeGrupo.grupo}">
+								<c:set var="grupoAnterior" value="${equipeGrupo.grupo}" />
+								<c:choose>
+									<c:when test="${not empty filtro and filtro.grupo eq grupoAnterior}">
+										<option value="${grupoAnterior}" selected="selected">${grupoAnterior}</option>
+									</c:when>
+									<c:otherwise>
+										<option value="${grupoAnterior}">${grupoAnterior}</option>
+									</c:otherwise>
+								</c:choose>
+							</c:if>
+						</c:forEach>
 					</select>
 				</td>
 			</tr>
