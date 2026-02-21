@@ -74,8 +74,8 @@ Premissas de compatibilidade (críticas):
 
 3. **[Pendente]** **Fase 2.7: Atualização para Copa do Mundo 2026:**
    
-   * **[Pendente]** **Atualização de Dados (SQL):** Criar e aplicar script de carga (`03-copa-2026-data.sql`) com as 48 seleções, 12 grupos e locais oficiais (Canadá, México, EUA). **Nota: Horários devem ser convertidos para o horário de Brasília.**
-   * **[Pendente]** **Configurações de Contexto:** Atualizar parâmetros de cidades-sede e datas no `web.xml` para refletir o calendário de Junho/Julho de 2026.
+   * **[Adiada]** **Atualização de Dados (SQL):** Criar e aplicar script de carga (`03-copa-2026-data.sql`). Aguardando agenda oficial das fases finais e definição dos playoffs para completar 104 partidas.
+   * **[Concluído]** **Configurações de Contexto:** Atualizar parâmetros de cidades-sede e datas no `web.xml` para refletir o calendário de Junho/Julho de 2026 (`web.xml` ajustado em 21/02/2026 com datas 11/06–19/07, horários em BRT e estádios oficiais).
    * **[Pendente]** **Lógica de Fases:** Adaptar o sistema para suportar a nova fase de "16-avos de final" (mata-mata ampliado).
    * **[Pendente]** **Auditoria Visual de Escala:** Garantir que as telas de palpites e classificação suportem o aumento de volume de dados (48 seleções vs 32 anteriores).
      Referência FIFA: `https://www.fifa.com/pt/tournaments/mens/worldcup/canadamexicousa2026/articles/copa-mundo-2026-tabela-jogos`
