@@ -172,7 +172,9 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 5. **[Concluído] Auditoria de Segredos:** Implementar varredura de credenciais e senhas em arquivos de configuração.
    * **Concluído (21/02/2026):** Removido fallback de senha do datasource (`applicationContext-resources.xml`), docker-compose passou a exigir variáveis obrigatórias e criado `scripts/scan-secrets.sh` para varredura baseada em `rg`. Documentação atualizada em `.ia/documentacao/README-migracao.md`. (Skill: `security-audit v1.0.0`) Referência Log: `.ia/logs/session-20260221-auditoria-segredos.md`.
 
-## Fase 5: Longo Prazo - Modernização se justificado
+## Fase 5: Longo Prazo - Modernização se justificado *(Adiada)*
+
+> **Decisão (21/02/2026):** toda a fase 5 foi adiada. Trata-se de uma reestruturação extensa (reavaliação modular, modernização completa de front-end, upgrades de Java/MySQL, observabilidade, etc.) e dependerá de planejamento futuro. As tarefas permanecerão registradas para reavaliação em momento oportuno.
 
 1. **[Pendente] Reescrita ou Migração para estrutura modular:** Avaliar a necessidade de reescrita gradual da aplicação ou a quebra do monolito em módulos (seguindo o DDD) ou um pequeno ajuste com ganho justificado ou manter na situação atual. Avalie também uma arquitetura moderna como Struts 6 ou 7.
 2. **[Pendente] Modernização Completa do Front-end:** Avaliar a necessidade de reescrita completa do front-end com um framework JavaScript moderno (React, Vue, Angular) e adoção de práticas de design responsivo, ajustado ao Struts 6 ou 7 escolhido no item 1. Tem que ser justificado para o usuário e seguir as diretrizes de arquitetura.
