@@ -160,7 +160,8 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
 
 Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 
-1. **[Em Progresso] Auditoria de Vulnerabilidades:** Integrar o OWASP Maven Dependency Check no `pom.xml` para monitoramento contínuo de CVEs.
+1. **[Concluído] Auditoria de Vulnerabilidades:** Integrar o OWASP Maven Dependency Check no `pom.xml` para monitoramento contínuo de CVEs.
+   * **Concluído (21/02/2026):** Plugin `dependency-check-maven` já configurado no `pom.xml` (goal `check`, `failBuildOnCVSS=7`, saída `ALL`). (Skill: `security-audit v1.0.0`)
    <security:intercept-url pattern="/seguro/**" access="hasAnyRole('ADMIN', 'USER')" />
 2. **[Pendente] Proteção de Recursos Estáticos:** Mover todos os arquivos JSP para dentro de `WEB-INF/` (ex: `WEB-INF/content/`) para impedir o acesso direto via browser, forçando a passagem pelas Actions do Struts.
 3. **[Pendente] Proteção na Camada Web:** Configurar cabeçalhos de segurança (HSTS, CSP, X-Frame-Options) e proteção CSRF.
