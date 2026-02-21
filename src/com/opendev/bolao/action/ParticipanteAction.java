@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,8 +21,10 @@ import com.opendev.bolao.service.JogoService;
 import com.opendev.bolao.service.PalpiteService;
 import com.opendev.bolao.service.ParticipanteService;
 import com.opendev.bolao.util.ConversaoUtils;
+import com.opendev.bolao.util.MensagemErro;
 import com.opendev.bolao.util.FiltroBuscaJogos;
 import com.opendev.bolao.util.RequestUtils;
+import com.opendev.bolao.util.SanitizationUtils;
 import com.opendev.bolao.util.ValidacaoUtils;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
@@ -73,6 +76,10 @@ public class ParticipanteAction extends ActionSupport {
     private String filtroGrupo;
     private boolean filtroSemPalpite;
     private boolean filtroJogosNaoOcorreram;
+    private boolean loginPossuiHtml;
+    private boolean nomePossuiHtml;
+    private boolean emailPossuiHtml;
+    private boolean senhaPossuiHtml;
 
     public String index() {
         return SUCCESS;
@@ -221,19 +228,31 @@ public String prepararInfoPalpites() {
 
     public String getLogin() { return login; }
     @StrutsParameter
-    public void setLogin(String login) { this.login = login; }
+    public void setLogin(String login) {
+        this.loginPossuiHtml = SanitizationUtils.containsHtml(login);
+        this.login = SanitizationUtils.cleanText(login, 32);
+    }
 
     public String getNome() { return nome; }
     @StrutsParameter
-    public void setNome(String nome) { this.nome = nome; }
+    public void setNome(String nome) {
+        this.nomePossuiHtml = SanitizationUtils.containsHtml(nome);
+        this.nome = SanitizationUtils.cleanText(nome, 80);
+    }
 
     public String getEmail() { return email; }
     @StrutsParameter
-    public void setEmail(String email) { this.email = email; }
+    public void setEmail(String email) {
+        this.emailPossuiHtml = SanitizationUtils.containsHtml(email);
+        this.email = SanitizationUtils.cleanText(email, 254);
+    }
 
     public String getSenha() { return senha; }
     @StrutsParameter
-    public void setSenha(String senha) { this.senha = senha; }
+    public void setSenha(String senha) {
+        this.senhaPossuiHtml = SanitizationUtils.containsHtml(senha);
+        this.senha = senha == null ? null : senha.trim();
+    }
 
     public boolean isUsarFiltro() { return usarFiltro; }
     @StrutsParameter
@@ -257,7 +276,9 @@ public String prepararInfoPalpites() {
 
     public String getFiltroGrupo() { return filtroGrupo; }
     @StrutsParameter
-    public void setFiltroGrupo(String filtroGrupo) { this.filtroGrupo = filtroGrupo; }
+    public void setFiltroGrupo(String filtroGrupo) {
+        this.filtroGrupo = SanitizationUtils.cleanText(filtroGrupo, 5);
+    }
 
     public boolean isFiltroSemPalpite() { return filtroSemPalpite; }
     @StrutsParameter
@@ -313,6 +334,10 @@ public String prepararInfoPalpites() {
 
 	public String cadastrar() {
         Participante p = obterParticipante();
+        if (!validarCadastroEntradas()) {
+            setTentativaInclusao(p);
+            return INPUT;
+        }
         try {
             getParticipanteService().criarNovo(p);
             setSucessoCadastro(true);
@@ -440,9 +465,40 @@ public String prepararInfoPalpites() {
     public boolean isSucessoCadastro() {
         return this.sucessoCadastro;
     }
-    
+
     public void setSucessoCadastro(boolean sucessoCadastro) {
         this.sucessoCadastro = sucessoCadastro;
+    }
+
+    private boolean validarCadastroEntradas() {
+        boolean valido = true;
+        List<MensagemErro> erros = new ArrayList<>();
+
+        if (login == null || !SanitizationUtils.isValidLogin(login) || loginPossuiHtml) {
+            registrarErro(erros, "signin.login", "cadastro.login.invalido");
+            valido = false;
+        }
+        if (nome == null || nome.isBlank() || nome.length() < 3 || nomePossuiHtml) {
+            registrarErro(erros, "signin.name", "cadastro.nome.invalido");
+            valido = false;
+        }
+        if (email == null || !SanitizationUtils.isValidEmail(email) || emailPossuiHtml) {
+            registrarErro(erros, "signin.email", "cadastro.email.invalido");
+            valido = false;
+        }
+        if (senha == null || senha.length() < 8 || senha.length() > 64 || senhaPossuiHtml) {
+            registrarErro(erros, "signin.pwd", "cadastro.senha.invalida");
+            valido = false;
+        }
+
+        this.errosInclusao = erros.isEmpty() ? null : erros;
+        return valido;
+    }
+
+    private void registrarErro(List<MensagemErro> erros, String campoKey, String mensagemKey) {
+        String campo = getText(campoKey);
+        String mensagem = getText(mensagemKey);
+        erros.add(new MensagemErro(campo, mensagem, MensagemErro.SEVERIDADE_ERRO));
     }
 
 	public List getEquipes() {

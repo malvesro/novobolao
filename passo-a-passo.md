@@ -167,7 +167,8 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
    * **Concluído (21/02/2026):** Includes administrativos atualizados para `/WEB-INF/content`, menu público apontando para `index.action`, novas actions Struts (`index`, `batePapo`, `trocaSenha`) e ajustes correspondentes no Spring Security para eliminar referências a `.jsp` públicas. Build validado com `mvn test -Dfrontend.skip=true`. (Skill: `security-audit v1.0.0`) Referência Log: `.ia/logs/session-20260221-protecao-recursos-estaticos-continuacao.md`.
 3. **[Concluído] Proteção na Camada Web:** Configurar cabeçalhos de segurança (HSTS, CSP, X-Frame-Options) e proteção CSRF.
    * **Concluído (21/02/2026):** Reabilitado o CSRF com `CookieCsrfTokenRepository`, tokens injetados em formulários/HTMX/fetch via prelude JSP e logout convertido para POST seguro. Adicionados cabeçalhos HSTS, CSP e Referrer-Policy mantendo o X-Frame-Options. Build validado com `mvn test -Dfrontend.skip=true`. (Skill: `security-audit v1.0.0`) Referência Log: `.ia/logs/session-20260221-protecao-camada-web.md`.
-4. **[Pendente] Sanitização e Validação:** Revisar validadores do Struts 6 e implementar proteção robusta contra XSS.
+4. **[Concluído] Sanitização e Validação:** Revisar validadores do Struts 6 e implementar proteção robusta contra XSS.
+   * **Concluído (21/02/2026):** Criado utilitário `SanitizationUtils` com normalização Unicode, remoção de HTML e validações de formato. Ações `ParticipanteAction` e `AdminAction` passaram a sanitizar setters críticos e o fluxo de cadastro valida login/nome/e-mail/senha antes de persistir. Build validado com `mvn test -Dfrontend.skip=true`. (Skill: `security-audit v1.0.0`) Referência Log: `.ia/logs/session-20260221-sanitizacao-validacao.md`.
 5. **[Pendente] Auditoria de Segredos:** Implementar varredura de credenciais e senhas em arquivos de configuração.
 
 ## Fase 5: Longo Prazo - Modernização se justificado
