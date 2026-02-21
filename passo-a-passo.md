@@ -187,8 +187,18 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 
 ## Fase 6: Atualização de funcionalidades para a Copa do Mundo FIFA de 2026
 
-1. **[Pendente] Analisar composição de times e chaves da copa 2026:** Avaliar com os dados obtidos em https://www.fifa.com/pt/tournaments/mens/worldcup/canadamexicousa2026/articles/copa-mundo-2026-tabela-jogos . 
-2. [Pendente] Criar um Plano passo a passo com sugestões de melhorias para atender e ser usado pelos usuários para a copa fifa 2026. 
+1. **[Concluído] Analisar composição de times e chaves da copa 2026:** Avaliar com os dados obtidos em https://www.fifa.com/pt/tournaments/mens/worldcup/canadamexicousa2026/articles/copa-mundo-2026-tabela-jogos .
+   * Resultado: Documento `.ia/documentacao/fase6-analise-grupos.md` consolidando as chaves A–L, vagas pendentes e lacunas do dataset `data/copa2026_tabela_brt.csv` (21/02/2026). Skills: N/A.
+2. **[Concluído] Criar um Plano passo a passo com sugestões de melhorias para atender e ser usado pelos usuários para a copa fifa 2026.**
+   * Plano registrado em `.ia/planos/plano-fase-6-copa-2026.md` com escopo, premissas e trilhas de execução (21/02/2026). Skills: N/A.
+   * Subtarefas planejadas (status inicial `Pendente`):
+     - **F6-T2-Dados:** normalizar `data/copa2026_tabela_brt.csv`, gerar `03-copa-2026-data.sql`, automatizar atualização pós-playoffs e documentar o processo.
+       * Estrutura alvo definida em 21/02/2026 (`.ia/documentacao/fase6-normalizacao-dataset.md`); normalização e scripts seguem pendentes.
+     - **F6-T2-Dominio:** inventariar o modelo atual (HBM, scripts SQL, constraints) e, se necessário, modelar 32-avos, ampliar entidades/fases, atualizar validações de palpites e criar testes cobrindo as novas regras.
+       * Inventário concluído em 21/02/2026 (`.ia/documentacao/fase6-inventario-modelo-dados.md`). Próximos subitens permanecem pendentes.
+     - **F6-T2-Frontend:** reorganizar telas de grupos/classificação, atualizar filtros/dashboards, produzir nova identidade visual (`bolao_logo.png`), validar experiência mobile e atualizar diretrizes de frontend.
+     - **F6-T2-Integracao:** revisar APIs/exports, monitorar performance/índices e reforçar logs/auditoria para os novos eventos.
+     - **F6-T2-QA:** elaborar plano de testes, automatizar regressões, definir checklist de implantação e preparar comunicação aos usuários.
 3. [Pendente]  Use e inspire-se na imagem em https://digitalhub.fifa.com/transform/cc8428b2-c395-456a-90ae-68fb771c9e90/FIFA-World-Cup-26-qualified-teams-wallchart-graphic-16x9?&io=transform:fill,width:1366&quality=75 para criar uma nova imagem para substituir a imagem do arquivo bolao_logo.png, mantendo as mesmas proporções para usar no sistema, sem prejudicar as telas que usam a imagem. Seja criativo e cirúrgico tecnicamente para a nova imagem. 
 
 ## Registro de Avanços
@@ -375,6 +385,14 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 * 2026-02-20: **[Concluído]** Finalização da remoção do DWR (Fase 2.5 - Tarefa 3). Retirados interceptadores `/dwr/**` da segurança, excluído `webapp/WEB-INF/dwr.xml` e confirmado que as telas migradas para HTMX permanecem funcionais após `mvn test`.
   Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
   Referência Log: `.ia/logs/session-20260220-remocao-dwr-finalizacao.md`
+  Skill: N/A (nenhuma skill aplicável)
+* 2026-02-21: **[Concluído]** Fase 6 - Tarefa 1 (análise das chaves). Criado o documento `.ia/documentacao/fase6-analise-grupos.md` consolidando grupos A–L, vagas pendentes (playoffs UEFA/Intercontinental) e lacunas do dataset `data/copa2026_tabela_brt.csv`. Nenhuma skill específica aplicada.
+  Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+  Referência Log: `.ia/logs/session-20260221-fase6-analise-grupos.md`
+  Skill: N/A (nenhuma skill aplicável)
+* 2026-02-21: **[Concluído]** Fase 6 - Tarefa 2 (plano Copa 2026). Elaborado o plano `.ia/planos/plano-fase-6-copa-2026.md` com trilhas F6-T2-Dados, Domínio, Frontend, Integração e QA; passo-a-passo atualizado com subtarefas. Nenhuma skill específica aplicada.
+  Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+  Referência Log: `.ia/logs/session-20260221-fase6-plano.md`, `.ia/logs/session-20260221-fase6-plano-ajuste.md`
   Skill: N/A (nenhuma skill aplicável)
 * 2026-02-20: **[Em Progresso]** Planejamento do bundler frontend (Fase 2.5 - Tarefa 2, subtarefa 6). Documento `.ia/planos/plano-bundler-frontend.md` detalha adoção do Vite/ESBuild, integração com WAR e próximos passos; registrado log `.ia/logs/session-20260220-plano-bundler-frontend.md`. Estrutura inicial criada e fallback `webapp/assets/js/app-bundle.js` anotados em `.ia/logs/session-20260220-bundler-setup-parcial.md`.
   Auto-Analise: [Risco: Médio] | [Compatibilidade: Atenção] | [Veredito: Revisar]
