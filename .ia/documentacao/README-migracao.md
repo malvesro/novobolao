@@ -98,6 +98,11 @@ Todas as políticas abaixo são definidas em `src/main/resources/applicationCont
 - **Docker Compose:** exige `MYSQL_ROOT_PASSWORD`/`MYSQL_PASSWORD` (configure via `.env`, ex. `docker/.env.example`); o arquivo `.env` na raiz é carregado automaticamente pelo Compose e permanece fora do versionamento, garantindo que senhas reais não fiquem no repositório.
 - **Varredura automatizada:** `scripts/scan-secrets.sh` usa `rg` para detectar possíveis segredos; incluir em pipelines locais/CI.
 
+### 4.8 Base de Jogos (Fase 6)
+- **Dataset CSV:** `data/copa2026_tabela_brt.csv` consolida 89 partidas (fase de grupos + 32-avos + final) com horário oficial de Brasília e nomes em português.
+- **Placeholders:** seleções oriundas de repescagens permanecem indicadas como `DEN/MKD/CZE/IRL`, etc., até que a FIFA confirme os classificados.
+- **Próximos passos:** completar a chave eliminatória (oitavas em diante) quando a FIFA liberar horários/estádios definitivos e atualizar os scripts de carga (`03-copa-2026-data.sql`).
+
 ## 5. Migração das Views para `WEB-INF`
 
 - Todas as JSPs (públicas e autenticadas) residem agora em `webapp/WEB-INF/content/`.
