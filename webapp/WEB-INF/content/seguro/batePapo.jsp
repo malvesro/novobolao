@@ -1,4 +1,4 @@
-<%@include file="/template/menu.jspf" %>
+<%@include file="/WEB-INF/content/template/menu.jspf" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <div class="dashboard-section">

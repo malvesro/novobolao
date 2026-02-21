@@ -1,4 +1,4 @@
-<%@include file="/template/menu.jspf" %>
+<%@include file="/WEB-INF/content/template/menu.jspf" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="opendev" uri="http://www.opendev.com.br/tld" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -18,7 +18,7 @@
             </tr>
         </thead>
         <tbody id="participantesTableBody">
-            <jsp:include page="/admin/partials/participantes-rows.jspf" />
+            <jsp:include page="/WEB-INF/content/admin/partials/participantes-rows.jspf" />
         </tbody>
     </table>
     </div>

@@ -26,9 +26,12 @@
         
         <!-- Intercept URLs -->
         <!-- Note: patterns are matched in order, most specific first -->
-        <security:intercept-url pattern="/login.jsp*" access="permitAll" />
+        <security:intercept-url pattern="/login.action*" access="permitAll" />
+        <security:intercept-url pattern="/cadastroForm.action*" access="permitAll" />
+        <security:intercept-url pattern="/cadastro.action*" access="permitAll" />
+        <security:intercept-url pattern="/index.action*" access="permitAll" />
         <security:intercept-url pattern="/admin/**" access="hasRole('ADMIN')" />
-        <security:intercept-url pattern="/seguro/jogos.jsp" access="hasAnyRole('ADMIN', 'USER')" />
+        <security:intercept-url pattern="/seguro/palpites.action" access="hasAnyRole('ADMIN', 'USER')" />
         <security:intercept-url pattern="/seguro/**" access="hasAnyRole('ADMIN', 'USER')" />
         
         <!-- Public Resources -->
@@ -36,14 +39,13 @@
         <security:intercept-url pattern="/js/**" access="permitAll" />
         <security:intercept-url pattern="/img/**" access="permitAll" />
         <security:intercept-url pattern="/fx/**" access="permitAll" />
-        <security:intercept-url pattern="/index.jsp" access="permitAll" />
         <security:intercept-url pattern="/" access="permitAll" />
 
         <!-- Form Login Configuration -->
         <security:form-login 
-            login-page="/login.jsp" 
-            authentication-failure-url="/login.jsp?status=invalido"
-            default-target-url="/seguro/principal.jsp"
+            login-page="/login.action" 
+            authentication-failure-url="/login.action?status=invalido"
+            default-target-url="/seguro/principal.action"
             login-processing-url="/j_security_check"
             username-parameter="j_username"
             password-parameter="j_password" />
@@ -54,7 +56,7 @@
         <!-- Logout Configuration -->
         <security:logout 
             logout-url="/j_logout"
-            logout-success-url="/login.jsp" 
+            logout-success-url="/login.action" 
             invalidate-session="true"
             delete-cookies="JSESSIONID" />
         

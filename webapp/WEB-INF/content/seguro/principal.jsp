@@ -4,7 +4,7 @@
 <%@taglib prefix="s" uri="/struts-tags" %>
 <%@taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@taglib prefix="opendev" uri="http://www.opendev.com.br/tld" %>
-<%@include file="/template/menu.jspf" %>
+<%@include file="/WEB-INF/content/template/menu.jspf" %>
 
 <div class="dashboard-section">
     <c:if test="${empty jogosDeHoje}">
