@@ -6,7 +6,7 @@ Automatizar a criação do script `03-copa-2026-data.sql` (e atualizações incr
 ## 2. Entradas
 1. `data/copa2026_tabela_brt_normalizado.csv`  
    - Colunas: `fase`, `fase_codigo`, `fase_ordem`, `grupo`, `rodada`, `data`, `data_iso`, `hora_brt`, `mandante`, `mandante_slot`, `visitante`, `visitante_slot`, `estadio`, `cidade`, `pais`, `fuso_lista`.
-2. Arquivo auxiliar opcional `data/copa2026_placeholders.json`  
+2. Arquivo auxiliar `data/copa2026_placeholders.json` (criado em 21/02/2026)  
    - Mapeia placeholders para seleções confirmadas e atualiza nomes de equipes e chaves.
 3. Parâmetros CLI (ex.: `--output`, `--placeholders`, `--dry-run`).
 
@@ -73,4 +73,3 @@ main()
 2. Criar JSON de placeholders padrão (`data/copa2026_placeholders.json`) com estrutura básica.
 3. Associar execução do script ao processo de build/documentação (`README-migracao.md`).
 4. Executar o script em modo `--dry-run` e registrar log da simulação.
-

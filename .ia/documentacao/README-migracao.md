@@ -102,6 +102,18 @@ Todas as políticas abaixo são definidas em `src/main/resources/applicationCont
 - **Dataset CSV:** `data/copa2026_tabela_brt.csv` consolida 89 partidas (fase de grupos + 32-avos + final) com horário oficial de Brasília e nomes em português.
 - **Placeholders:** seleções oriundas de repescagens permanecem indicadas como `DEN/MKD/CZE/IRL`, etc., até que a FIFA confirme os classificados.
 - **Próximos passos:** completar a chave eliminatória (oitavas em diante) quando a FIFA liberar horários/estádios definitivos e atualizar os scripts de carga (`03-copa-2026-data.sql`).
+- **Atualização de equipes indefinidas:**  
+  1. Edite `data/copa2026_placeholders.json` preenchendo os campos `name` (nome oficial da seleção) e, se necessário, `group` para cada vaga definida após os playoffs.  
+  2. Execute o script:  
+     ```bash
+     python3 scripts/atualizar_copa2026_dataset.py \
+       --input data/copa2026_tabela_brt_normalizado.csv \
+       --placeholders data/copa2026_placeholders.json \
+       --output-sql data/sql/03-copa-2026-data.sql \
+       --output-csv data/copa2026_tabela_brt_final.csv
+     ```  
+  3. Revise o diff do SQL antes de aplicar no banco (via Docker ou ambiente alvo).  
+  4. Registre a execução em `.ia/logs/` com os placeholders substituídos e, se necessário, crie ADR documentando a rodada final dos dados.
 
 ## 5. Migração das Views para `WEB-INF`
 

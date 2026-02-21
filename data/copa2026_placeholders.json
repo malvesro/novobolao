@@ -1,0 +1,56 @@
+{
+  "DEN/MKD/CZE/IRL": {
+    "slot": "UEFA Playoff D",
+    "group": "A",
+    "name": ""
+  },
+  "ITA/NIR/WAL/BIH": {
+    "slot": "UEFA Playoff A",
+    "group": "B",
+    "name": ""
+  },
+  "TUR/ROU/SVK/KOS": {
+    "slot": "UEFA Playoff C",
+    "group": "D",
+    "name": ""
+  },
+  "UKR/SWE/POL/ALB": {
+    "slot": "UEFA Playoff B",
+    "group": "F",
+    "name": ""
+  },
+  "IRQ/BOL/SUR": {
+    "slot": "Playoff Intercontinental 2",
+    "group": "I",
+    "name": ""
+  },
+  "COD/JAM/NCL": {
+    "slot": "Playoff Intercontinental 1",
+    "group": "K",
+    "name": ""
+  },
+  "UEFA Playoff A": {
+    "group": "B",
+    "name": ""
+  },
+  "UEFA Playoff B": {
+    "group": "F",
+    "name": ""
+  },
+  "UEFA Playoff C": {
+    "group": "D",
+    "name": ""
+  },
+  "UEFA Playoff D": {
+    "group": "A",
+    "name": ""
+  },
+  "Playoff Intercontinental 1": {
+    "group": "K",
+    "name": ""
+  },
+  "Playoff Intercontinental 2": {
+    "group": "I",
+    "name": ""
+  }
+}
