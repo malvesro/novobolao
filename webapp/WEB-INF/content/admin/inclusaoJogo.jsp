@@ -154,7 +154,7 @@
 					<label for="fase_select_id"><fmt:message key="match.phase" /></label>
 					<select name="local" id="fase_select_id">
 						<option value=""><fmt:message key="filter.fase.0" /></option>
-						<c:forTokens var="fase" items="11,12,13,8,4,2,3,1" delims=",">
+						<c:forTokens var="fase" items="11,12,13,16,8,4,2,3,1" delims=",">
 							<option value="${fase}"><fmt:message key="filter.fase.${fase}" /></option>
 						</c:forTokens>
 					</select>

@@ -11,6 +11,16 @@ import com.opendev.bolao.util.ConversaoUtils;
 public class Jogo implements Serializable, Comparable {
 
 	private static final long serialVersionUID = 1L;
+
+	public static final int FASE_FINAL = 1;
+	public static final int FASE_TERCEIRO_LUGAR = 3;
+	public static final int FASE_SEMIFINAL = 2;
+	public static final int FASE_QUARTAS = 4;
+	public static final int FASE_OITAVAS = 8;
+	public static final int FASE_TRINTA_DOIS_AVOS = 16;
+	public static final int FASE_GRUPO_RODADA_1 = 11;
+	public static final int FASE_GRUPO_RODADA_2 = 12;
+	public static final int FASE_GRUPO_RODADA_3 = 13;
 	
 	private Long id;
 	private Date data;

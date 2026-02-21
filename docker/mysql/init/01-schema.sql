@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `JOG_JOGO` (
   `JOG_EQP2_ID` BIGINT NOT NULL COMMENT 'ID da equipe 2',
   `JOG_EQP1_GOLS` INT NULL COMMENT 'Gols da equipe 1 (NULL se jogo não ocorreu)',
   `JOG_EQP2_GOLS` INT NULL COMMENT 'Gols da equipe 2 (NULL se jogo não ocorreu)',
-  `JOG_FASE` INT NOT NULL COMMENT 'Fase: 0=Grupos, 1=Oitavas, 2=Quartas, 3=Semi, 4=Final',
+  `JOG_FASE` INT NOT NULL COMMENT 'Fase: 11/12/13=Grupos (rodadas 1-3), 16=32-avos, 8=Oitavas, 4=Quartas, 2=Semifinal, 3=3º lugar, 1=Final',
   PRIMARY KEY (`JOG_ID`),
   INDEX `idx_jog_data` (`JOG_DATA`),
   INDEX `idx_jog_fase` (`JOG_FASE`),
