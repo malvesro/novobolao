@@ -114,6 +114,10 @@ Todas as políticas abaixo são definidas em `src/main/resources/applicationCont
      ```  
   3. Revise o diff do SQL antes de aplicar no banco (via Docker ou ambiente alvo).  
   4. Registre a execução em `.ia/logs/` com os placeholders substituídos e, se necessário, crie ADR documentando a rodada final dos dados.
+- **Ajustes através da interface administrativa:**  
+  - Usuários com papel `ADMIN` podem incluir/editar partidas em **Admin → Cadastrar jogos** (`admin/inclusaoJogo.jsp`) e atualizar resultados em **Admin → Atualizar resultados**.  
+  - Use as novas opções de fase (incluindo 32-avos) e grupos A–L para refletir correções pontuais antes da atualização automatizada.  
+  - Recomenda-se sincronizar qualquer alteração manual com o dataset CSV/SQL para evitar divergências entre UI e cargas automatizadas.
 
 ## 5. Migração das Views para `WEB-INF`
 
