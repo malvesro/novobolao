@@ -7,6 +7,7 @@ import com.opendev.bolao.service.EquipeService;
 import com.opendev.bolao.service.JogoService;
 import com.opendev.bolao.service.ParticipanteService;
 import com.opendev.bolao.util.ConversaoUtils;
+import com.opendev.bolao.util.SanitizationUtils;
 import org.apache.struts2.ActionSupport;
 import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.interceptor.parameter.StrutsParameter;
@@ -185,12 +186,12 @@ public class AdminAction extends ActionSupport {
 
 	@StrutsParameter
 	public void setPapel(String papel) {
-		this.papel = papel;
+		this.papel = SanitizationUtils.cleanText(papel, 32);
 	}
 
 	@StrutsParameter
 	public void setStatus(String status) {
-		this.status = status;
+		this.status = SanitizationUtils.cleanText(status, 16);
 	}
 
 	@StrutsParameter
@@ -205,12 +206,12 @@ public class AdminAction extends ActionSupport {
 
 	@StrutsParameter
 	public void setData(String data) {
-		this.data = data;
+		this.data = SanitizationUtils.cleanText(data, 16);
 	}
 
 	@StrutsParameter
 	public void setHora(String hora) {
-		this.hora = hora;
+		this.hora = SanitizationUtils.cleanText(hora, 16);
 	}
 
 	@StrutsParameter
@@ -225,7 +226,7 @@ public class AdminAction extends ActionSupport {
 
 	@StrutsParameter
 	public void setLocal(String local) {
-		this.local = local;
+		this.local = SanitizationUtils.cleanText(local, 120);
 	}
 
 	@StrutsParameter
