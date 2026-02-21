@@ -203,7 +203,8 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
      - **F6-T2-Frontend:** reorganizar telas de grupos/classificação, atualizar filtros/dashboards, produzir nova identidade visual (`bolao_logo.png`), validar experiência mobile e atualizar diretrizes de frontend.
      - **F6-T2-Integracao:** revisar APIs/exports, monitorar performance/índices e reforçar logs/auditoria para os novos eventos.
      - **F6-T2-QA:** elaborar plano de testes, automatizar regressões, definir checklist de implantação e preparar comunicação aos usuários.
-3. [Pendente]  Use e inspire-se na imagem em https://digitalhub.fifa.com/transform/cc8428b2-c395-456a-90ae-68fb771c9e90/FIFA-World-Cup-26-qualified-teams-wallchart-graphic-16x9?&io=transform:fill,width:1366&quality=75 para criar uma nova imagem para substituir a imagem do arquivo bolao_logo.png, mantendo as mesmas proporções para usar no sistema, sem prejudicar as telas que usam a imagem. Seja criativo e cirúrgico tecnicamente para a nova imagem. 
+3. **[Concluído]** Criar nova imagem do bolão para a Copa 2026 inspirada no wallchart da FIFA.
+   * Logo `webapp/img/bolao_logo.png` atualizado em 21/02/2026 com arte estática gerada programaticamente (cores dos países-sede, troféu estilizado e lettering `BOLÃO 2026`). em https://digitalhub.fifa.com/transform/cc8428b2-c395-456a-90ae-68fb771c9e90/FIFA-World-Cup-26-qualified-teams-wallchart-graphic-16x9?&io=transform:fill,width:1366&quality=75 para criar uma nova imagem para substituir a imagem do arquivo bolao_logo.png, mantendo as mesmas proporções para usar no sistema, sem prejudicar as telas que usam a imagem. Seja criativo e cirúrgico tecnicamente para a nova imagem. 
 
 ## Registro de Avanços
 
