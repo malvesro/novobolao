@@ -156,7 +156,7 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído]** Atualizar `Equipe` e demais consumidores para o novo contrato do utilitário (`src/com/opendev/bolao/model/Equipe.java`).
     * **[Concluído]** Ajustar JSPs (`webapp/WEB-INF/content/seguro/jogos.jsp`, `seguro/principal.jsp`) para priorizar `<img>` com alt descritivo, preservando fallback textual.
     * **[Concluído]** Revisar `.flag-icon` no `webapp/css/estilo.css` para suportar imagens 24x18 mantendo responsividade.
-    * **[Em Progresso]** Reexecutar `mvn test -Dfrontend.skip=true` e smoke via Docker, atualizando evidências em `telas/` se necessário.
+    * **[Concluído]** Reexecutar `mvn test -Dfrontend.skip=true` e smoke via Docker, atualizando evidências em `telas/` se necessário. Comandos: `mvn -q -Dfrontend.skip=true test`, `docker compose exec app curl -k -s https://localhost:8443/login.action | head`.
 
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
