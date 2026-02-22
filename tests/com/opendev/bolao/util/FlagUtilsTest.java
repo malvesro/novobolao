@@ -23,6 +23,7 @@ public class FlagUtilsTest {
 		assertEquals("es", FlagUtils.countryCodeFromName("Espanha"));
 		assertEquals("gb-eng", FlagUtils.countryCodeFromName("Inglaterra"));
 		assertEquals("gb-sct", FlagUtils.countryCodeFromName("Escócia"));
+		assertEquals("cl", FlagUtils.countryCodeFromName("Chile"));
 		assertEquals("gb-wls", FlagUtils.countryCodeFromName("País de Gales"));
 		assertEquals("", FlagUtils.countryCodeFromName("Seleção Inexistente"));
 	}

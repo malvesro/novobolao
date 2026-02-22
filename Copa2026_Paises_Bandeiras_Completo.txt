@@ -65,3 +65,4 @@ Inglaterra – https://flagcdn.com/24x18/gb-eng.png
 Croácia – https://flagcdn.com/24x18/hr.png
 Gana – https://flagcdn.com/24x18/gh.png
 Panamá – https://flagcdn.com/24x18/pa.png
+Chile – https://flagcdn.com/24x18/cl.png
