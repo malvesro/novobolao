@@ -1258,6 +1258,12 @@ div.legenda span.abrev {
 	animation: rowHighlightError 2s ease-out;
 }
 
+.system-version {
+	font-size: 0.75rem;
+	color: var(--color-muted, #5f6368);
+	margin-top: 0.5rem;
+}
+
 @keyframes rowHighlightSuccess {
 	0% {
 		background-color: #e6ffed;
