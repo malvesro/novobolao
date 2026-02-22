@@ -20,6 +20,7 @@
     <frontend.node.version>v20.11.1</frontend.node.version>
     <frontend.skip>true</frontend.skip>
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssXXX</maven.build.timestamp.format>
+    <build.timestamp>N/A</build.timestamp>
   </properties>
 
   <repositories>
