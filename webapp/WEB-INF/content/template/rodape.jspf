@@ -2,8 +2,22 @@
 	</div>
 	<div id="footer" role="contentinfo">
 		<div>
-			<p><fmt:message key="footer.msg1" /></p>
-			<p><fmt:message key="footer.msg2" /></p>
+			<c:set var="buildInfo" value="${applicationScope.buildInfo}" />
+			<c:choose>
+				<c:when test="${not empty buildInfo}">
+					<p class="system-version">
+						<fmt:message key="footer.version">
+							<fmt:param value="${buildInfo.version}" />
+							<fmt:param value="${buildInfo.buildDateTime}" />
+						</fmt:message>
+					</p>
+				</c:when>
+				<c:otherwise>
+					<p class="system-version">
+						<fmt:message key="footer.version.fallback" />
+					</p>
+				</c:otherwise>
+			</c:choose>
 		</div>
 	</div>
 </body>

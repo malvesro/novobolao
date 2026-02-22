@@ -157,11 +157,11 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído]** Reprocessar a base de equipes/jogos a partir da planilha `data/Copa_do_Mundo_2026_Fase_de_Grupos_Completa_Brasilia.xlsx`, gerando SQL/CSV atualizados e aplicando ao banco local. **22/02/2026:** Script `scripts/generate_copa2026_csv.py` criado, CSV bruto/normalizado regenerados e pipeline validado via `scripts/atualizar_copa2026_dataset.py --dry-run`. Log: `.ia/logs/session-20260222-copa2026-dataset-atualizado.md`.
     * **[Pendente]** Validar todas as views que exibem bandeiras (seguro/admin) após atualização dos dados.
     * **[Em Progresso]** Executar testes automatizados, rebuild Docker, smoke manual autenticado e atualizar evidências em `telas/`. **22/02/2026:** Suite `mvn -q -Dfrontend.skip=true test` executada com sucesso; rebuild Docker e evidências visuais pendentes. Log: `.ia/logs/session-20260222-bandeiras-charset-assets.md`.
-12. **[Pendente] Exibição da versão do sistema no frontend:** Expor número da versão e timestamp de build nas telas autenticadas. Plano detalhado em `.ia/planos/plano-versao-interface.md`.
-    * **[Pendente]** Inventariar fontes de versão (`pom.xml`, `build.properties`) e definir estratégia única de geração (`version.properties`).
-    * **[Pendente]** Implementar utilitário/bean (`BuildInfoProvider`) fornecendo versão e horário para as views (Struts/Spring).
-    * **[Pendente]** Atualizar fragments JSP/CSS (`rodape.jspf` ou equivalente) para exibir `Versão X.Y.Z - compilado em DD/MM/YYYY HH:MM`, respeitando acessibilidade e i18n.
-    * **[Pendente]** Cobrir com testes (unitários/integrados) e evidência visual após rebuild Docker, registrando log específico.
+12. **[Em Progresso] Exibição da versão do sistema no frontend:** Expor número da versão e timestamp de build nas telas autenticadas. Plano detalhado em `.ia/planos/plano-versao-interface.md`.
+    * **[Concluído]** Inventariar fontes de versão (`pom.xml`, `build.properties`) e definir estratégia única de geração (`version.properties`). **22/02/2026:** Maven configurado para filtrar `version.properties` com `${project.version}` e timestamp. Log: `.ia/logs/session-20260222-versao-ui-implementacao.md`.
+    * **[Concluído]** Implementar utilitário/bean (`BuildInfoProvider`) fornecendo versão e horário para as views (Struts/Spring). **22/02/2026:** Classes `BuildInfo`/`BuildInfoProvider` criadas e registradas no contexto Spring. Log: `.ia/logs/session-20260222-versao-ui-implementacao.md`.
+    * **[Concluído]** Atualizar fragments JSP/CSS (`rodape.jspf` ou equivalente) para exibir `Versão X.Y.Z - compilado em DD/MM/YYYY HH:MM`, respeitando acessibilidade e i18n. **22/02/2026:** Mensagem antiga removida, novo bloco `.system-version` aplicado no rodapé com fallback i18n. Log: `.ia/logs/session-20260222-versao-ui-implementacao.md`.
+    * **[Em Progresso]** Cobrir com testes (unitários/integrados) e evidência visual após rebuild Docker, registrando log específico. **22/02/2026:** Teste `BuildInfoProviderTest` adicionado e `mvn -q -Dfrontend.skip=true test` executado; rebuild Docker e evidências visuais pendentes. Log: `.ia/logs/session-20260222-versao-ui-implementacao.md`.
 
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
