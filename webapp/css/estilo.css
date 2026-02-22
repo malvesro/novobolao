@@ -992,6 +992,26 @@ div.legenda span.abrev {
 	vertical-align: top;
 }
 
+.flag-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 1;
+	font-size: 1.25rem;
+	min-width: 1.5rem;
+	margin: 0 0.25rem;
+	font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", emoji, sans-serif;
+}
+
+.flag-icon--fallback {
+	font-size: 0.7rem;
+	font-weight: 600;
+	background-color: var(--color-primary);
+	color: #FFFFFF;
+	padding: 0.1rem 0.25rem;
+	border-radius: var(--radius-sm);
+}
+
 .icon-button {
 	cursor: pointer;
 }
