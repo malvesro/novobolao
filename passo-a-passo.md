@@ -151,12 +151,12 @@ Premissas de compatibilidade (críticas):
 Referência ADR: `.ia/historico/ADR-20260217-fase-auditoria-frontend.md`
 Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
 
-11. **[Pendente] Renderização das Bandeiras via PNG:** Alinhar exibição das bandeiras às imagens em `webapp/img/bandeiras/`, mantendo fallback acessível. Plano detalhado em `.ia/planos/plano-renderizacao-bandeiras.md`.
-    * **[Pendente]** Refatorar `FlagUtils` para consumir `flags.properties`, expor detecção de asset e remover `System.out`. (Skill prevista: modernization-java-migration v1.0.0)
-    * **[Pendente]** Atualizar `Equipe` e demais consumidores para o novo contrato do utilitário.
-    * **[Pendente]** Ajustar JSPs (`webapp/WEB-INF/content/seguro/jogos.jsp`, `seguro/principal.jsp`) para priorizar `<img>` com alt descritivo, preservando fallback textual.
-    * **[Pendente]** Revisar `.flag-icon` no `webapp/css/estilo.css` para suportar imagens 24x18 mantendo responsividade.
-    * **[Pendente]** Reexecutar `mvn test -Dfrontend.skip=true` e smoke via Docker, atualizando evidências em `telas/` se necessário.
+11. **[Em Progresso] Renderização das Bandeiras via PNG:** Alinhar exibição das bandeiras às imagens em `webapp/img/bandeiras/`, mantendo fallback acessível. Plano detalhado em `.ia/planos/plano-renderizacao-bandeiras.md`.
+    * **[Concluído]** Refatorar `FlagUtils` para consumir `flags.properties`, expor detecção de asset e remover `System.out`. (Skill utilizada: modernization-java-migration v1.0.0). Evidência: `src/com/opendev/bolao/util/FlagUtils.java`, `tests/com/opendev/bolao/util/FlagUtilsTest.java`, build `mvn -q -Dfrontend.skip=true -Dtest=FlagUtilsTest test`.
+    * **[Concluído]** Atualizar `Equipe` e demais consumidores para o novo contrato do utilitário (`src/com/opendev/bolao/model/Equipe.java`).
+    * **[Concluído]** Ajustar JSPs (`webapp/WEB-INF/content/seguro/jogos.jsp`, `seguro/principal.jsp`) para priorizar `<img>` com alt descritivo, preservando fallback textual.
+    * **[Concluído]** Revisar `.flag-icon` no `webapp/css/estilo.css` para suportar imagens 24x18 mantendo responsividade.
+    * **[Em Progresso]** Reexecutar `mvn test -Dfrontend.skip=true` e smoke via Docker, atualizando evidências em `telas/` se necessário.
 
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 

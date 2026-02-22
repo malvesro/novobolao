@@ -350,6 +350,9 @@
 							<div class="team-cell text-right">
 								<span><c:out value="${jogo.equipe1.nomePais}" /></span>
 								<c:choose>
+									<c:when test="${not empty jogo.equipe1.bandeiraUrl}">
+										<img class="flag-icon icon-inline" src="${pageContext.request.contextPath}${jogo.equipe1.bandeiraUrl}" alt="Bandeira de ${jogo.equipe1.nomePais}" width="24" height="18" loading="lazy" />
+									</c:when>
 									<c:when test="${not empty jogo.equipe1.emojiBandeira}">
 										<span class="flag-icon icon-inline" role="img" aria-label="${jogo.equipe1.nomePais}">
 											<c:out value="${jogo.equipe1.emojiBandeira}" />
@@ -387,6 +390,9 @@
 								</c:otherwise>
 								</c:choose>
 								<c:choose>
+									<c:when test="${not empty jogo.equipe2.bandeiraUrl}">
+										<img class="flag-icon icon-inline" src="${pageContext.request.contextPath}${jogo.equipe2.bandeiraUrl}" alt="Bandeira de ${jogo.equipe2.nomePais}" width="24" height="18" loading="lazy" />
+									</c:when>
 									<c:when test="${not empty jogo.equipe2.emojiBandeira}">
 										<span class="flag-icon icon-inline" role="img" aria-label="${jogo.equipe2.nomePais}">
 											<c:out value="${jogo.equipe2.emojiBandeira}" />
