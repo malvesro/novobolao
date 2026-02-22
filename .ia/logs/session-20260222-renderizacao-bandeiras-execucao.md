@@ -17,6 +17,12 @@
 - Comando: `mvn -q -Dfrontend.skip=true -Dtest=FlagUtilsTest test`
 - Resultado: Sucesso
 - Observacoes: Teste cobre mapeamento e fallback das bandeiras (incluindo `gb-*`).
+- Comando: `mvn -q -Dfrontend.skip=true test`
+- Resultado: Sucesso
+- Observacoes: Build completo garantindo ausência de regressões.
+- Comando: `docker compose exec app curl -k -s https://localhost:8443/login.action | head`
+- Resultado: Sucesso
+- Observacoes: Smoke test confirmou resposta HTTPS da tela de login com assets acessíveis.
 
 ## 4. Analise Humana (Veredito)
 
