@@ -39,6 +39,7 @@
         <security:intercept-url pattern="/js/**" access="permitAll" />
         <security:intercept-url pattern="/img/**" access="permitAll" />
         <security:intercept-url pattern="/fx/**" access="permitAll" />
+        <security:intercept-url pattern="/favicon.ico*" access="permitAll" />
         <security:intercept-url pattern="/" access="permitAll" />
 
         <!-- Form Login Configuration -->
@@ -46,6 +47,7 @@
             login-page="/login.action" 
             authentication-failure-url="/login.action?status=invalido"
             default-target-url="/seguro/principal.action"
+            always-use-default-target="true"
             login-processing-url="/j_security_check"
             username-parameter="j_username"
             password-parameter="j_password" />

@@ -156,6 +156,8 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
 1. **[Concluído] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.
 2. **[Concluído] Orquestração com Docker Compose:** Criar `docker-compose.yml` integrando a aplicação (Tomcat 10) e o banco de dados (MySQL 8).
 3. **[Concluído] Persistência e Rede:** Configurar volumes para o banco de dados e redes isoladas entre os containers.
+   * **Atualização 21/02/2026:** Rebuild sem cache da imagem `novobolao-app`, reinicialização controlada do volume `db_data` (`docker compose down -v`) para alinhar credenciais com o `.env`, e verificação de saúde via `docker compose ps` e `docker compose exec app curl` (Skill: N/A).
+   * **Atualização 22/02/2026:** Autenticação validada; ajuste no `applicationContext-security.xml` liberou `/favicon.ico` para evitar HTTP 403 pós-login causado por requisições de favicon fora da allowlist (Skill: N/A).
 
 ### Fase 4: Segurança Progressiva (ALTA PRIORIDADE)
 
@@ -172,6 +174,11 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
    * **Concluído (21/02/2026):** Criado utilitário `SanitizationUtils` com normalização Unicode, remoção de HTML e validações de formato. Ações `ParticipanteAction` e `AdminAction` passaram a sanitizar setters críticos e o fluxo de cadastro valida login/nome/e-mail/senha antes de persistir. Build validado com `mvn test -Dfrontend.skip=true`. (Skill: `security-audit v1.0.0`) Referência Log: `.ia/logs/session-20260221-sanitizacao-validacao.md`.
 5. **[Concluído] Auditoria de Segredos:** Implementar varredura de credenciais e senhas em arquivos de configuração.
    * **Concluído (21/02/2026):** Removido fallback de senha do datasource (`applicationContext-resources.xml`), docker-compose passou a exigir variáveis obrigatórias e criado `scripts/scan-secrets.sh` para varredura baseada em `rg`. Documentação atualizada em `.ia/documentacao/README-migracao.md`. (Skill: `security-audit v1.0.0`) Referência Log: `.ia/logs/session-20260221-auditoria-segredos.md`.
+6. **[Em Progresso] Diagnóstico 403 pós-login (Fluxo Autenticado):** Investigar retornos HTTP 403 observados após login em ambiente Docker.
+   * **Escopo atual (22/02/2026):** Reproduzir cenário, coletar evidências (print `telas/Erro-apos-login.png`, logs do Tomcat), revisar filtros Spring Security e Struts para identificar recursos bloqueados (Skill: N/A). Referência log: `.ia/logs/session-20260222-login-403-favicon.md`.
+   * **Próximos passos:** Confirmar efeito do `always-use-default-target="true"`, validar respostas para `/login.action`, `/seguro/principal.action` e `/admin/*`, garantir que o navegador não recarregue URLs legadas (`login.jsp?continue`), e ajustar rota de destino se necessário antes da validação final com o usuário.
+7. **[Concluído] Correção das bandeiras dos países nas listagens de jogos:** Ajustar a renderização das flag icons exibidas em `admin/jogos.action` e demais telas que usam bandeiras.
+   * **Concluído (22/02/2026):** Bandeiras migradas para emojis gerados a partir de códigos ISO (`FlagUtils` + métodos `getEmojiBandeira`/`getSiglaPais` em `Equipe`). JSPs (`seguro/principal.jsp`, `seguro/jogos.jsp`) usam novo componente com fallback textual e CSS (`.flag-icon`), eliminando dependência das imagens númericas `img/bandeiras/*.gif`. Log: `.ia/logs/session-20260222-bandeiras-emoji.md`. (Skill: N/A)
 
 ## Fase 5: Longo Prazo - Modernização se justificado *(Adiada)*
 

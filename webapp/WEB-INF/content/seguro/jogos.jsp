@@ -348,8 +348,19 @@
 						</td>
 						<td class="match-table__team match-table__team--home">
 							<div class="team-cell text-right">
-								<span>${jogo.equipe1.nomePais}</span>
-								<img alt="${jogo.equipe1.nomePais}" src="${base}/img/bandeiras/${jogo.equipe1.id}.gif" class="icon-inline" />
+								<span><c:out value="${jogo.equipe1.nomePais}" /></span>
+								<c:choose>
+									<c:when test="${not empty jogo.equipe1.emojiBandeira}">
+										<span class="flag-icon icon-inline" role="img" aria-label="${jogo.equipe1.nomePais}">
+											<c:out value="${jogo.equipe1.emojiBandeira}" />
+										</span>
+									</c:when>
+									<c:otherwise>
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											<c:out value="${jogo.equipe1.siglaPais}" />
+										</span>
+									</c:otherwise>
+								</c:choose>
 								<c:choose>
 									<c:when test="${not telaPalpites}">
 										<authz:authorize ifAllGranted="admin">
@@ -357,7 +368,7 @@
 										</authz:authorize>
 									</c:when>
 									<c:otherwise>
-										<span class="score-value">${jogo.golsEquipe1}</span>
+										<span class="score-value"><c:out value="${jogo.golsEquipe1}" /></span>
 									</c:otherwise>
 								</c:choose>
 							</div>
@@ -372,11 +383,22 @@
 									</authz:authorize>
 								</c:when>
 								<c:otherwise>
-									<span class="score-value">${jogo.golsEquipe2}</span>
+									<span class="score-value"><c:out value="${jogo.golsEquipe2}" /></span>
 								</c:otherwise>
 								</c:choose>
-								<img alt="${jogo.equipe2.nomePais}" src="${base}/img/bandeiras/${jogo.equipe2.id}.gif" class="icon-inline" />
-								<span>${jogo.equipe2.nomePais}</span>
+								<c:choose>
+									<c:when test="${not empty jogo.equipe2.emojiBandeira}">
+										<span class="flag-icon icon-inline" role="img" aria-label="${jogo.equipe2.nomePais}">
+											<c:out value="${jogo.equipe2.emojiBandeira}" />
+										</span>
+									</c:when>
+									<c:otherwise>
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											<c:out value="${jogo.equipe2.siglaPais}" />
+										</span>
+									</c:otherwise>
+								</c:choose>
+								<span><c:out value="${jogo.equipe2.nomePais}" /></span>
 							</div>
 						</td>
 					</tr>
