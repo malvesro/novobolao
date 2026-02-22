@@ -32,10 +32,10 @@
 	<context-param>
 		<param-name>locais</param-name>
 		<param-value>
-			AT&amp;T Stadium,Arrowhead Stadium,BC Place,BMO Field,Estadio Akron,Estadio BBVA,
-			Estádio Azteca,Gillette Stadium,Hard Rock Stadium,Levi’s Stadium,Lincoln Financial Field,Lumen Field,
-			Mercedes-Benz Stadium,MetLife Stadium,NRG Stadium,SoFi Stadium
-		</param-value>
+				Atlanta,Boston,Cidade do México,Dallas,Filadélfia,Guadalajara,
+				Houston,Kansas City,Los Angeles,Miami,Monterrey,Nova York/Nova Jersey,
+				Santa Clara,Seattle,Toronto,Vancouver
+			</param-value>
 	</context-param>
 
 	<context-param>
