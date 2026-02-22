@@ -264,14 +264,15 @@
 <c:forEach var="jogo" items="${jogos}" varStatus="loop">
 	<fmt:formatDate var="dataJogoFormatada" value="${jogo.data}" pattern="dd/MM/yyyy" />
 	<fmt:formatDate var="horaJogoFormatada" value="${jogo.hora}" pattern="HH:mm" />
-	<c:if test="${not empty dataJogo and dataJogo ne jogo.data}">
-		<c:set var="rowIndex" value="0" />
-					</tbody>
-				</table>
+		<c:if test="${not empty dataJogo and dataJogo ne jogo.data}">
+			<c:set var="rowIndex" value="0" />
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
-		<span class="spacer spacer-sm"></span>
-	</c:if>
+			<span class="spacer spacer-sm"></span>
+		</c:if>
 	<c:if test="${empty dataJogo or dataJogo ne jogo.data}">
 		<fmt:formatDate var="dataJogoFormatada" value="${jogo.data}" pattern="dd/MM/yyyy" />
 		<div id="jogos_${dataJogoFormatada}_portlet" class="portlet collapsible-portlet">
@@ -409,12 +410,13 @@
 						</td>
 					</tr>
 	<c:set var="dataJogo" value="${jogo.data}" />
-	<c:if test="${loop.count eq fn:length(jogos)}">
-					</tbody>
-				</table>
+		<c:if test="${loop.count eq fn:length(jogos)}">
+						</tbody>
+					</table>
+				</div>
 			</div>
-		</div>		
-	</c:if>
+		</div>
+		</c:if>
 	<c:set var="rowIndex" value="${rowIndex + 1}" />
 </c:forEach>
 </form>
