@@ -55,9 +55,14 @@ public class Equipe implements Serializable {
 	}
 
 	public String getSiglaPais() {
-		String sigla = FlagUtils.fallbackAcronym(getCodigoPais(), this.nomePais);
-		System.out.println("[FlagDebug] " + this.nomePais + " -> codigo=" + getCodigoPais() + " sigla=" + sigla + " emoji=" + getEmojiBandeira());
-		return sigla;
+		return FlagUtils.fallbackAcronym(getCodigoPais(), this.nomePais);
 	}
 
+	public boolean hasBandeira() {
+		return FlagUtils.hasAssetForCountry(this.nomePais);
+	}
+
+	public String getBandeiraUrl() {
+		return FlagUtils.assetPathForCountry(this.nomePais).orElse("");
+	}
 }
