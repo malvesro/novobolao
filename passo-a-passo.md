@@ -152,11 +152,11 @@ Referência ADR: `.ia/historico/ADR-20260217-fase-auditoria-frontend.md`
 Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
 
 11. **[Em Progresso] Renderização das Bandeiras via PNG:** Alinhar exibição das bandeiras às imagens em `webapp/img/bandeiras/`, mantendo fallback acessível. Plano detalhado em `.ia/planos/plano-correcao-bandeiras-e-dados.md`.
-    * **[Pendente]** Corrigir assets específicos (Chile/França) garantindo download atualizado dos PNGs e regeneração opcional via script.
-    * **[Pendente]** Normalizar codificação/acentuação nas JSPs e configuração web (UTF-8 end-to-end) eliminando ocorrências como “FranÃ§a”.
+    * **[Concluído]** Corrigir assets específicos (Chile/França) garantindo download atualizado dos PNGs e regeneração opcional via script. **22/02/2026:** PNGs recriados programaticamente (`fr.png`, `cl.png`) com cores oficiais e validação via `FlagUtilsTest`. Log: `.ia/logs/session-20260222-bandeiras-charset-assets.md`.
+    * **[Concluído]** Normalizar codificação/acentuação nas JSPs e configuração web (UTF-8 end-to-end) eliminando ocorrências como “FranÃ§a”. **22/02/2026:** Aplicado `CharacterEncodingFilter`, atualizado `webwork.i18n.encoding` para UTF-8, JSPs com `pageEncoding` e JDBC com `characterEncoding=utf8mb4`. Log: `.ia/logs/session-20260222-bandeiras-charset-assets.md`.
     * **[Pendente]** Reprocessar a base de equipes/jogos a partir da planilha `data/Copa_do_Mundo_2026_Fase_de_Grupos_Completa_Brasilia.xlsx`, gerando SQL/CSV atualizados e aplicando ao banco local.
     * **[Pendente]** Validar todas as views que exibem bandeiras (seguro/admin) após atualização dos dados.
-    * **[Pendente]** Executar testes automatizados, rebuild Docker, smoke manual autenticado e atualizar evidências em `telas/`.
+    * **[Em Progresso]** Executar testes automatizados, rebuild Docker, smoke manual autenticado e atualizar evidências em `telas/`. **22/02/2026:** Suite `mvn -q -Dfrontend.skip=true test` executada com sucesso; rebuild Docker e evidências visuais pendentes. Log: `.ia/logs/session-20260222-bandeiras-charset-assets.md`.
 
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
