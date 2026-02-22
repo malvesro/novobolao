@@ -151,18 +151,12 @@ Premissas de compatibilidade (críticas):
 Referência ADR: `.ia/historico/ADR-20260217-fase-auditoria-frontend.md`
 Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
 
-11. **[Em Progresso] Renderização das Bandeiras via PNG:** Alinhar exibição das bandeiras às imagens em `webapp/img/bandeiras/`, mantendo fallback acessível. Plano detalhado em `.ia/planos/plano-renderizacao-bandeiras.md`.
-    * **[Concluído]** Refatorar `FlagUtils` para consumir `flags.properties`, expor detecção de asset e remover `System.out`. (Skill utilizada: modernization-java-migration v1.0.0). Evidência: `src/com/opendev/bolao/util/FlagUtils.java`, `tests/com/opendev/bolao/util/FlagUtilsTest.java`, build `mvn -q -Dfrontend.skip=true -Dtest=FlagUtilsTest test`.
-    * **[Concluído]** Atualizar `Equipe` e demais consumidores para o novo contrato do utilitário (`src/com/opendev/bolao/model/Equipe.java`).
-    * **[Concluído]** Ajustar JSPs (`webapp/WEB-INF/content/seguro/jogos.jsp`, `seguro/principal.jsp`) para priorizar `<img>` com alt descritivo, preservando fallback textual.
-    * **[Concluído]** Revisar `.flag-icon` no `webapp/css/estilo.css` para suportar imagens 24x18 mantendo responsividade.
-    * **[Concluído]** Reexecutar `mvn test -Dfrontend.skip=true` e smoke via Docker, atualizando evidências em `telas/` se necessário. Comandos: `mvn -q -Dfrontend.skip=true test`, `docker compose exec app curl -k -s https://localhost:8443/login.action | head`.
-    * **[Pendente]** Inventariar todas as telas que exibem bandeiras (`seguro/*.jsp`, `admin/*.jsp`, includes em `partials/`), documentando reutilizações e dependências. (Plano: `.ia/planos/plano-correcao-bandeiras-ui.md`, Skill prevista: modernization-java-migration v1.0.0)
-    * **[Pendente]** Validar empacotamento e deploy dos PNGs (`pom.xml`, `Dockerfile`, conteúdo do WAR) garantindo publicação em `img/bandeiras/`. (Plano etapa 2)
-    * **[Pendente]** Auditar o runtime no container: confirmar existência dos assets, testar requisições HTTP e comparar com `bandeiraUrl` gerado. (Plano etapa 3)
-    * **[Pendente]** Verificar modelo/serviços (normalização de `nomePais`, testes adicionais em `FlagUtils`/`Equipe`) assegurando consistência dos códigos ISO. (Plano etapa 4)
-    * **[Pendente]** Ajustar views adicionais (admin, fragmentos HTMX) harmonizando o markup e removendo duplicações que impedem renderização dos PNGs. (Plano etapa 5)
-    * **[Pendente]** Executar bateria final de testes (`mvn test -Dfrontend.skip=true`) e smoke via Docker, atualizando evidências visuais em `telas/`. (Plano etapa 6)
+11. **[Em Progresso] Renderização das Bandeiras via PNG:** Alinhar exibição das bandeiras às imagens em `webapp/img/bandeiras/`, mantendo fallback acessível. Plano detalhado em `.ia/planos/plano-correcao-bandeiras-e-dados.md`.
+    * **[Pendente]** Corrigir assets específicos (Chile/França) garantindo download atualizado dos PNGs e regeneração opcional via script.
+    * **[Pendente]** Normalizar codificação/acentuação nas JSPs e configuração web (UTF-8 end-to-end) eliminando ocorrências como “FranÃ§a”.
+    * **[Pendente]** Reprocessar a base de equipes/jogos a partir da planilha `data/Copa_do_Mundo_2026_Fase_de_Grupos_Completa_Brasilia.xlsx`, gerando SQL/CSV atualizados e aplicando ao banco local.
+    * **[Pendente]** Validar todas as views que exibem bandeiras (seguro/admin) após atualização dos dados.
+    * **[Pendente]** Executar testes automatizados, rebuild Docker, smoke manual autenticado e atualizar evidências em `telas/`.
 
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
