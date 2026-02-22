@@ -27,3 +27,8 @@
 - [ ] Alucinacao detectada (prompt refinado).
 
 **Observacoes:** Senhas omitidas do log (mascaradas no comando).
+
+## 5. Ponto de Parada
+
+- Dados de jogos/equipes resetados; integração com aplicação confirmada (consulta `França`).
+- Pendências: verificar telas HTMX após login para certificar renderização das bandeiras e manter evidências atualizadas.
