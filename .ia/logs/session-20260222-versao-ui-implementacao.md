@@ -15,8 +15,10 @@
 ## 3. Validacao (Build/Teste)
 
 - Comando: `mvn -q -Dfrontend.skip=true test`
+- Comando: `docker compose build app`
+- Comando: `docker compose up -d app`
 - Resultado: Sucesso (com aviso Log4j ainda pendente)
-- Observacoes: Build info publicado como atributo de aplicação para JSPs.
+- Observacoes: Build info publicado como atributo de aplicação para JSPs e nova imagem `novobolao-app` implantada via Docker.
 
 ## 4. Analise Humana (Veredito)
 
