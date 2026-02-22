@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
@@ -62,5 +64,25 @@ public class FlagUtilsTest {
 		Map<String, String> mapping = (Map<String, String>) field.get(null);
 		assertTrue(mapping.containsKey("pais de gales"));
 		assertEquals("gb-wls", mapping.get("pais de gales"));
+	}
+
+	@Test
+	public void everyAssetPathShouldExistOnDisk() throws Exception {
+		Path baseDir = Path.of("webapp", "img", "bandeiras");
+		assertTrue(Files.isDirectory(baseDir), "Diretório de bandeiras não encontrado: " + baseDir);
+
+		Files.list(baseDir)
+				.filter(path -> path.getFileName().toString().endsWith(".png"))
+				.forEach(path -> assertTrue(Files.isReadable(path), "Arquivo não legível: " + path));
+
+		Field field = FlagUtils.class.getDeclaredField("COUNTRY_TO_ISO");
+		field.setAccessible(true);
+		@SuppressWarnings("unchecked")
+		Map<String, String> mapping = (Map<String, String>) field.get(null);
+
+		for (String codigo : mapping.values()) {
+			Path asset = baseDir.resolve(codigo.toLowerCase().concat(".png"));
+			assertTrue(Files.exists(asset), "Asset ausente para código " + codigo);
+		}
 	}
 }
