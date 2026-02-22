@@ -28,3 +28,10 @@
 - [ ] Alucinacao detectada (prompt refinado).
 
 **Observacoes:** Nenhuma.
+
+## 5. Ponto de Parada
+
+- Versão exibida no rodapé corrigida e containers saudáveis (`docker compose ps`).
+- Dataset Copa 2026 regenerado e carregado com UTF-8; tabelas dependentes truncadas (repopulação concluída).
+- Evidência visual nas telas autenticadas ainda pendente.
+- Próximo passo aprovado no plano: validar bandeiras (Chile/França) em tempo real e registrar screenshot. Manter dataset sob revisão contínua.
