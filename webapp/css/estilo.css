@@ -1003,6 +1003,14 @@ div.legenda span.abrev {
 	font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", emoji, sans-serif;
 }
 
+.flag-icon img {
+	display: block;
+	width: 24px;
+	height: 18px;
+	border-radius: var(--radius-xs);
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
 .flag-icon--fallback {
 	font-size: 0.7rem;
 	font-weight: 600;
