@@ -157,6 +157,11 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Pendente]** Reprocessar a base de equipes/jogos a partir da planilha `data/Copa_do_Mundo_2026_Fase_de_Grupos_Completa_Brasilia.xlsx`, gerando SQL/CSV atualizados e aplicando ao banco local.
     * **[Pendente]** Validar todas as views que exibem bandeiras (seguro/admin) após atualização dos dados.
     * **[Em Progresso]** Executar testes automatizados, rebuild Docker, smoke manual autenticado e atualizar evidências em `telas/`. **22/02/2026:** Suite `mvn -q -Dfrontend.skip=true test` executada com sucesso; rebuild Docker e evidências visuais pendentes. Log: `.ia/logs/session-20260222-bandeiras-charset-assets.md`.
+12. **[Pendente] Exibição da versão do sistema no frontend:** Expor número da versão e timestamp de build nas telas autenticadas. Plano detalhado em `.ia/planos/plano-versao-interface.md`.
+    * **[Pendente]** Inventariar fontes de versão (`pom.xml`, `build.properties`) e definir estratégia única de geração (`version.properties`).
+    * **[Pendente]** Implementar utilitário/bean (`BuildInfoProvider`) fornecendo versão e horário para as views (Struts/Spring).
+    * **[Pendente]** Atualizar fragments JSP/CSS (`rodape.jspf` ou equivalente) para exibir `Versão X.Y.Z - compilado em DD/MM/YYYY HH:MM`, respeitando acessibilidade e i18n.
+    * **[Pendente]** Cobrir com testes (unitários/integrados) e evidência visual após rebuild Docker, registrando log específico.
 
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
