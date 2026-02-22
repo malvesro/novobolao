@@ -220,7 +220,7 @@ def collect_matches(
                 jogo_id=start_jogo_id + offset,
                 data_iso=row["data_iso"],
                 hora=normalize_time(row["hora_brt"]),
-                local=row["estadio"].strip(),
+                local=row["cidade"].strip(),
                 equipe1=row["mandante"].strip(),
                 equipe2=row["visitante"].strip(),
                 fase_codigo=fase_codigo,
