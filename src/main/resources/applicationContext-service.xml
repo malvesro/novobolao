@@ -5,6 +5,8 @@
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+	<bean id="buildInfoProvider" class="com.opendev.bolao.infrastructure.BuildInfoProvider" />
+
 	<bean id="transactionProxyTemplate"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
 		abstract="true" scope="singleton" depends-on="sessionFactory">
