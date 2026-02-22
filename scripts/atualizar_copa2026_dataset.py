@@ -243,6 +243,11 @@ def build_sql(
     lines.append(f"-- Gerado por atualizar_copa2026_dataset.py em {timestamp}")
     lines.append("SET NAMES utf8mb4;")
     lines.append("SET FOREIGN_KEY_CHECKS = 0;")
+    lines.append("TRUNCATE TABLE `PAI_PALPITE_INDIVIDUAL`;")
+    lines.append("TRUNCATE TABLE `BOI_BOLAO_INDIVIDUAL`;")
+    lines.append("TRUNCATE TABLE `PAL_PALPITE`;")
+    lines.append("TRUNCATE TABLE `JOG_JOGO`;")
+    lines.append("TRUNCATE TABLE `EQP_EQUIPE`;")
     lines.append("")
 
     team_entries = []
@@ -360,4 +365,3 @@ def main(argv: Sequence[str]) -> int:
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
-
