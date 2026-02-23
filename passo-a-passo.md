@@ -173,11 +173,11 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído]** Sem mudanças em assets frontend; executado `mvn -q -Dfrontend.skip=true test` para validar backend. Log: `.ia/logs/session-20260222-layout-admin-jogos-ajuste.md`.
     * **[Concluído]** Rebuild Docker (`docker compose build app` / `docker compose up -d app`) e atualização do banco para exibir cidades (consulta `JOG_JOGO`). Log: `.ia/logs/session-20260222-layout-admin-jogos-ajuste.md`.
 
-14. **[Em Progresso] README de Migração Consolidado:** Criar `README-migracao.md` com panorama atual do projeto. Plano: `.ia/planos/plano-readme-migracao.md`.
-    * **[Pendente]** Inventariar fontes (README, `analise-inicial.md`, ADRs, logs, planos) e registrar achados.
-    * **[Pendente]** Definir estrutura do documento para públicos de negócio e técnicos.
-    * **[Pendente]** Redigir o conteúdo completo, incluindo status de fases, riscos e próximos passos.
-    * **[Pendente]** Revisar, atualizar rastreabilidade (`passo-a-passo.md`, logs) e publicar documento final.
+14. **[Concluído] README de Migração Consolidado (23/02/2026):** Criar `README-migracao.md` com panorama atual do projeto. Plano: `.ia/planos/plano-readme-migracao.md`. Evidências: `.ia/logs/session-20260223-readme-migracao-execucao.md`, `README-migracao.md`.
+    * **[Concluído]** Inventariar fontes (README, `analise-inicial.md`, ADRs, logs, planos) e registrar achados (ver log 23/02/2026).
+    * **[Concluído]** Definir estrutura do documento para públicos de negócio e técnicos.
+    * **[Concluído]** Redigir o conteúdo completo, incluindo status de fases, riscos e próximos passos (arquivo `README-migracao.md`).
+    * **[Concluído]** Revisar, atualizar rastreabilidade (`passo-a-passo.md`, logs) e publicar documento final.
 
 15. **[Em Progresso] Remediação de Vulnerabilidades (Dependency-Check):** Avaliar e mitigar CVEs críticos reportados na execução do OWASP Dependency-Check. Plano: `.ia/planos/plano-remediacao-dependency-check.md`.
     * **[Concluído]** Coletar/validar relatório completo do Dependency-Check e confirmar eventuais falsos positivos (23/02/2026).
@@ -198,6 +198,14 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
         * **23/02/2026:** JFreeChart atualizado para 1.5.6; dependency-check não lista mais CVEs do componente. Log: `.ia/logs/session-20260223-jfreechart-upgrade.md`.
     * **[Pendente]** Planejar execução (subtarefas por dependência, testes necessários, documentação).
     * **[Pendente]** Implementar atualizações/testes e gerar novo relatório OWASP com status final.
+
+16. **[Concluído] Evolução README de Migração 2026 (23/02/2026):** Expandir e aprofundar o `README-migracao.md` com foco em negócio, arquitetura e operação para desenvolvedores. Plano: `.ia/planos/plano-evolucao-readme-migracao-2026.md`. Evidências: `README-migracao.md`, `.ia/logs/session-20260223-readme-migracao-planejamento-v2.md`, `.ia/logs/session-20260223-readme-migracao-execucao-v2.md`.
+    * **[Concluído]** Inventariar conteúdo existente (README atual, `analise-inicial.md`, ADRs, logs) identificando lacunas relevantes para público técnico.
+    * **[Concluído]** Propor nova estrutura do documento cobrindo visão de negócio, arquitetura, dados da Copa 2026, operação e governança.
+    * **[Concluído]** Enriquecer conteúdo com fluxos de negócio, modelos de dados, operações e troubleshooting sem perda das seções atuais.
+    * **[Concluído]** Validar alinhamento com diretrizes e artefatos (`passo-a-passo.md`, planos, ADRs), apontando referências explícitas.
+    * **[Concluído]** Atualizar governança: versionar documento anterior se necessário, registrar log e revisar rastreabilidade.
+    * **[Concluído]** Revisar e submeter para validação final com stakeholders (negócio e engenharia).
 
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
