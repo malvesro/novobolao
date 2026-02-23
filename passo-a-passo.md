@@ -216,10 +216,10 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído]** Sanitização reforçada nos setters do modelo (`Participante`) e serviço (`ParticipanteServiceImpl`) com bloqueio de HTML e normalização consistente (Skill: `modernization-java-migration v1.0.0`).
     * **[Concluído]** Sanitização preventiva adicionada no frontend (`formSanitizer.js`) e testes unitários ampliados (`ParticipanteTest`) garantindo cobertura do fluxo.
 
-19. **[Pendente] Modernização do Envio de E-mails (23/02/2026):** Atualizar o cliente SMTP para suportar TLS/STARTTLS, autenticação e configuração externa segura. Plano: `.ia/planos/plano-modernizacao-email-20260223.md`.
-    * **[Pendente]** Refatorar `Email.java` aplicando propriedades modernas (`mail.smtp.port`, `mail.smtp.starttls.enable`, `mail.smtp.ssl.enable`, timeouts) e uso de `Session.getInstance`.
-    * **[Pendente]** Externalizar credenciais (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_TLS`) via variáveis/arquivos montados no deploy, ajustando Docker e documentação.
-    * **[Pendente]** Criar testes com servidor SMTP em memória (GreenMail/Wiser) e atualizar documentação/logs com evidências de envio seguro.
+19. **[Concluído] Modernização do Envio de E-mails (23/02/2026):** Atualizar o cliente SMTP para suportar TLS/STARTTLS, autenticação e configuração externa segura. Plano: `.ia/planos/plano-modernizacao-email-20260223.md`.
+    * **[Concluído]** `Email.java` refatorado com `EmailConfiguration`, suporte a TLS/SSL, timeouts e `Session.getInstance`, mantendo autenticação segura (Skill: `modernization-java-migration v1.0.0`).
+    * **[Concluído]** Sobreposição de credenciais via arquivo externo e variáveis de ambiente (`SMTP_*`), ajustes no `docker-compose.yml` e propriedades padrão atualizadas.
+    * **[Concluído]** Testes automatizados (`EmailConfigurationTest`, `EmailSessionConfigurationTest`) cobrindo hierarquia de configuração e montagem do `MailContext`; documentação (`README-migracao.md`) revisada com instruções de SMTP.
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
 1. **[Concluído] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.
