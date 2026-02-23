@@ -2,12 +2,13 @@ package com.opendev.bolao.email;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
-import java.util.ResourceBundle;
 
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
@@ -24,8 +25,8 @@ public class Email {
     private static final String TEMPLATE_DIR = "/com/opendev/bolao/email/templates/";
 	private static final String TEMPLATE_CABECALHO = "cabecalho.html";
 	private static final String TEMPLATE_RODAPE = "rodape.html";
-	private static final ResourceBundle CONFIG = ResourceBundle.getBundle("com.opendev.bolao.email.email");
-	private static final String TITULO_PADRAO = "Bolão de Placa - TV Cipó na Copa 2006";
+    private static final String TITULO_PADRAO = "Bolão de Placa - TV Cipó na Copa 2006";
+    private static volatile EmailConfiguration CONFIG = EmailConfiguration.load();
 	
 	private Properties property;
 	private String conteudo;
@@ -54,7 +55,7 @@ public class Email {
 			titulo = TITULO_PADRAO;
 		}
 		setPropriedade("titulo", titulo);
-        setPropriedade("sistema", CONFIG.getString("mail.property.systemurl"));
+        setPropriedade("sistema", CONFIG.getProperty("mail.property.systemurl"));
 	}
 	
 	/**
@@ -67,7 +68,7 @@ public class Email {
     }
     
     public Email(String nomeTemplate, String assunto) {
-        this(nomeTemplate, null, assunto, CONFIG.getString("mail.from.address"));
+        this(nomeTemplate, null, assunto, CONFIG.getProperty("mail.from.address"));
     }
 	
 	/**
@@ -88,22 +89,15 @@ public class Email {
 		populateData();
 
 		try {
-            boolean usarAutenticação = new Boolean(CONFIG.getString("mail.smtp.auth")).booleanValue();
-            Authenticator auth = null;
-            if (usarAutenticação) {
-                auth = new Authenticator() {
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        PasswordAuthentication pwdAuth = new PasswordAuthentication(
-                                CONFIG.getString("mail.smtp.auth.user"), CONFIG.getString("mail.smtp.auth.password"));
-                        return pwdAuth;
-                    }
-                };
+            EmailConfiguration configuration = CONFIG;
+            Properties settings = configuration.asProperties();
+            String smtpHost = settings.getProperty("mail.smtp.host");
+            if (smtpHost == null || smtpHost.trim().isEmpty()) {
+                throw new EmailException("Servidor SMTP não configurado (mail.smtp.host).");
             }
-            
-			Properties propriedadesDeEnvio = new Properties(System.getProperties());
-			propriedadesDeEnvio.put("mail.smtp.host", CONFIG.getString("mail.smtp.host"));
 
-			Session session = Session.getDefaultInstance(propriedadesDeEnvio, auth);
+            MailContext mailContext = createMailContext(settings);
+			Session session = Session.getInstance(mailContext.properties(), mailContext.authenticator());
 			Message msg = new MimeMessage(session);
 			
 			// Definindo os destinatários
@@ -123,17 +117,26 @@ public class Email {
 			}
 			
 			// Propriedades da mensagem
-//			msg.setReplyTo(InternetAddress.parse("dine5.deinf@bcb.gov.br", false));
-			if (this.de != null) {
+			if (this.de != null && !this.de.trim().isEmpty()) {
 				msg.setFrom(new InternetAddress(this.de));
-			}
+			} else {
+                String fromAddress = settings.getProperty("mail.from.address");
+                if (fromAddress != null && !fromAddress.trim().isEmpty()) {
+                    String fromName = settings.getProperty("mail.from.name");
+                    if (fromName != null && !fromName.trim().isEmpty()) {
+                        msg.setFrom(new InternetAddress(fromAddress, fromName, StandardCharsets.UTF_8.name()));
+                    } else {
+                        msg.setFrom(new InternetAddress(fromAddress));
+                    }
+                }
+            }
 			msg.setSubject(getAssunto());
 			msg.setHeader("X-Mailer", "BANCO CENTRAL DO BRASIL");
 			msg.setSentDate(new Date());
-			msg.setContent(getConteudo(), "text/html");
+			msg.setContent(getConteudo(), "text/html; charset=UTF-8");
 
 			Transport.send(msg);
-		} catch (MessagingException e) {
+		} catch (MessagingException | UnsupportedEncodingException e) {
 			throw new EmailException("Erro ao enviar email! (" + getNomeTemplate() + ")", e);
 		}
 	}
@@ -303,4 +306,77 @@ public class Email {
 		}
 		return buffer.toString();
 	}
-}	
+
+    private static MailContext createMailContext(Properties settings) throws EmailException {
+        Properties propriedadesDeEnvio = new Properties();
+        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.host");
+        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.port");
+        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.starttls.enable");
+        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.starttls.required");
+        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.ssl.enable");
+        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.ssl.trust");
+        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.connectiontimeout");
+        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.timeout");
+        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.writetimeout");
+        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.auth.mechanisms");
+        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.sasl.enable");
+
+        boolean usarAutenticacao = Boolean.parseBoolean(settings.getProperty("mail.smtp.auth", "false"));
+        Authenticator auth = null;
+        if (usarAutenticacao) {
+            String usuario = settings.getProperty("mail.smtp.auth.user");
+            String senha = settings.getProperty("mail.smtp.auth.password");
+            if (usuario == null || usuario.trim().isEmpty()) {
+                throw new EmailException("Usuário SMTP não informado (mail.smtp.auth.user).");
+            }
+            propriedadesDeEnvio.setProperty("mail.smtp.auth", "true");
+            String senhaNormalizada = senha == null ? "" : senha;
+            auth = new Authenticator() {
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(usuario, senhaNormalizada);
+                }
+            };
+        } else {
+            propriedadesDeEnvio.setProperty("mail.smtp.auth", "false");
+        }
+
+        return new MailContext(propriedadesDeEnvio, auth);
+    }
+
+    private static void copyIfPresent(Properties source, Properties target, String key) {
+        String value = source.getProperty(key);
+        if (value != null && !value.trim().isEmpty()) {
+            target.setProperty(key, value.trim());
+        }
+    }
+
+    static void reloadConfiguration() {
+        CONFIG = EmailConfiguration.load();
+    }
+
+    static EmailConfiguration configuration() {
+        return CONFIG;
+    }
+
+    static MailContext mailContextForTests(Properties settings) throws EmailException {
+        return createMailContext(settings);
+    }
+
+    static final class MailContext {
+        private final Properties properties;
+        private final Authenticator authenticator;
+
+        private MailContext(Properties properties, Authenticator authenticator) {
+            this.properties = properties;
+            this.authenticator = authenticator;
+        }
+
+        Properties properties() {
+            return properties;
+        }
+
+        Authenticator authenticator() {
+            return authenticator;
+        }
+    }
+}

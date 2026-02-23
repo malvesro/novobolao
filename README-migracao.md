@@ -26,6 +26,9 @@ Documento executivo e técnico que consolida o estado da modernização do Siste
 3. **Ranking e dashboards:** serviços `ParticipanteService` e `RankingService` consolidam pontuação, alimentando gráficos (JFreeChart) e listas Struts.  
 4. **Administração:** telas `/admin/*.action` permitem criar/julgar partidas, ajustar participantes e reexecutar cálculos; interações assíncronas usam HTMX + endpoints Struts; uploads utilizam `commons-fileupload2`.  
 5. **Notificações e jobs:** Quartz agenda processos (ex.: lembretes de jogos, consolidação diária) e Angus Mail envia e-mails SMTP.  
+   - **Configuração SMTP moderna:** via `EmailConfiguration` é possível sobrepor `mail.smtp.*` com arquivo externo (`bolao.email.config` ou variável `BOLAO_EMAIL_CONFIG`) e/ou variáveis de ambiente (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_TLS`, `SMTP_SSL`, `SMTP_SSL_TRUST`).  
+   - **Docker Compose:** o serviço `app` aceita as variáveis acima; ajustar `SMTP_AUTH=true` para habilitar autenticação e utilizar TLS (`SMTP_TLS=true`) ou SMTPS (`SMTP_SSL=true`) conforme o servidor corporativo.  
+   - **Timeouts padrão:** `mail.smtp.connectiontimeout`, `mail.smtp.timeout` e `mail.smtp.writetimeout` ficam em 10s e podem ser sobrepostos sem rebuild.  
 6. **Chat legacy:** recurso histórico foi desativado durante a migração; existe ADR para futura reimplementação com tecnologias modernas.
 
 ### 2.3 Regras de Pontuação
