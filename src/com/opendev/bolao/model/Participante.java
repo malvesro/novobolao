@@ -15,6 +15,7 @@ import com.opendev.bolao.util.DadosClassificacao;
 import com.opendev.bolao.util.MensagemErro;
 import com.opendev.bolao.util.StringUtils;
 import com.opendev.bolao.util.ValidacaoUtils;
+import com.opendev.bolao.util.SanitizationUtils;
 
 public class Participante implements Serializable, Comparable {
 
@@ -27,6 +28,9 @@ public class Participante implements Serializable, Comparable {
 	private String login;
 	private String senha;
 	private String email;
+    private transient boolean loginPossuiMarkup;
+    private transient boolean nomePossuiMarkup;
+    private transient boolean emailPossuiMarkup;
 	private boolean habilitado;
     private String ip;
     private Timestamp dataHoraCadastro;
@@ -39,7 +43,20 @@ public class Participante implements Serializable, Comparable {
 	}
 
 	public void setEmail(String email) {
-		this.email = email;
+		this.emailPossuiMarkup = this.emailPossuiMarkup || SanitizationUtils.containsHtml(email);
+		this.email = SanitizationUtils.cleanText(email, 254);
+	}
+
+	public boolean isLoginPossuiMarkup() {
+		return loginPossuiMarkup;
+	}
+
+	public boolean isNomePossuiMarkup() {
+		return nomePossuiMarkup;
+	}
+
+	public boolean isEmailPossuiMarkup() {
+		return emailPossuiMarkup;
 	}
 
 	public Long getId() {
@@ -55,7 +72,8 @@ public class Participante implements Serializable, Comparable {
 	}
 
 	public void setLogin(String login) {
-		this.login = login;
+		this.loginPossuiMarkup = this.loginPossuiMarkup || SanitizationUtils.containsHtml(login);
+		this.login = SanitizationUtils.cleanText(login, 32);
 	}
 
 	public String getNome() {
@@ -63,7 +81,8 @@ public class Participante implements Serializable, Comparable {
 	}
 
 	public void setNome(String nome) {
-		this.nome = nome;
+		this.nomePossuiMarkup = this.nomePossuiMarkup || SanitizationUtils.containsHtml(nome);
+		this.nome = SanitizationUtils.cleanText(nome, 80);
 	}
 
 	public boolean isHabilitado() {
@@ -79,7 +98,7 @@ public class Participante implements Serializable, Comparable {
 	}
 
 	public void setSenha(String senha) {
-		this.senha = senha;
+		this.senha = senha == null ? null : senha.trim();
 	}
 
 	public Set getPalpites() {
@@ -218,25 +237,38 @@ public class Participante implements Serializable, Comparable {
         final String campoObrigatorio = "Campo obrigatório!";
         if (ValidacaoUtils.isVazia(getLogin())) {
             erros.add(new MensagemErro("Login", campoObrigatorio, MensagemErro.SEVERIDADE_AVISO));
+        } else {
+            if (isLoginPossuiMarkup()) {
+                erros.add(new MensagemErro("Login", "Conteudo invalido (HTML nao permitido).", MensagemErro.SEVERIDADE_ERRO));
+            } else if (!SanitizationUtils.isValidLogin(getLogin())) {
+                erros.add(new MensagemErro("Login", "Informe um login com 3 a 32 caracteres (letras, numeros, ponto, hifen ou underline).", MensagemErro.SEVERIDADE_ERRO));
+            }
         }
-        
+
         if (ValidacaoUtils.isVazia(getEmail())) {
             erros.add(new MensagemErro("E-mail", campoObrigatorio, MensagemErro.SEVERIDADE_AVISO));
+        } else {
+            if (isEmailPossuiMarkup()) {
+                erros.add(new MensagemErro("E-mail", "Conteudo invalido (HTML nao permitido).", MensagemErro.SEVERIDADE_ERRO));
+            } else if (!SanitizationUtils.isValidEmail(getEmail())) {
+                erros.add(new MensagemErro("E-mail", "Formato invalido!", MensagemErro.SEVERIDADE_ERRO));
+            }
         }
-//        else if (ValidacaoUtils.isEmailValido(getEmail())) {
-//            erros.add(new MensagemErro("E-mail", "Formato inválido!", MensagemErro.SEVERIDADE_ERRO));
-//        }
-        
+
         if (ValidacaoUtils.isVazia(getNome())) {
             erros.add(new MensagemErro("Nome", campoObrigatorio, MensagemErro.SEVERIDADE_AVISO));
-        } else if (getNome().indexOf(" ") == -1) {
-            erros.add(new MensagemErro("Nome", "Informe pelo menos um sobrenome", MensagemErro.SEVERIDADE_ERRO));
+        } else {
+            if (isNomePossuiMarkup()) {
+                erros.add(new MensagemErro("Nome", "Conteudo invalido (HTML nao permitido).", MensagemErro.SEVERIDADE_ERRO));
+            } else if (getNome().indexOf(" ") == -1) {
+                erros.add(new MensagemErro("Nome", "Informe pelo menos um sobrenome", MensagemErro.SEVERIDADE_ERRO));
+            }
         }
-        
+
         if (ValidacaoUtils.isVazia(getSenha())) {
             erros.add(new MensagemErro("Senha", campoObrigatorio, MensagemErro.SEVERIDADE_AVISO));
         } else if (!ValidacaoUtils.isSenhaValida(getSenha())) {
-            erros.add(new MensagemErro("Senha", "Deve ter entre 5 e 20 caracteres!", MensagemErro.SEVERIDADE_ERRO));
+            erros.add(new MensagemErro("Senha", "Deve ter entre 8 e 64 caracteres sem usar caracteres de controle.", MensagemErro.SEVERIDADE_ERRO));
         }
         
         if (!erros.isEmpty()) {

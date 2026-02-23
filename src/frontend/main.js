@@ -1,5 +1,6 @@
 import { initTooltips } from './modules/tooltips.js';
 import { initJogosPage } from './pages/jogos.js';
+import { initCadastroSanitizer } from './modules/formSanitizer.js';
 
 function onReady(callback) {
   if (document.readyState === 'loading') {
@@ -12,4 +13,5 @@ function onReady(callback) {
 onReady(() => {
   initTooltips();
   initJogosPage();
+  initCadastroSanitizer();
 });
