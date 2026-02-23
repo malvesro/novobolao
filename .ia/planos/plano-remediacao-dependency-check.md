@@ -56,6 +56,8 @@ avaliar e endereçar as vulnerabilidades críticas reportadas para as dependênc
 | Struts 7.0.0 + `commons-fileupload2` 2.0.0-M2 | 7.0.0 / 2.0.0-M2 | Atualizar Struts para 7.1.1 e forçar `commons-fileupload2` ≥ 2.0.0-M4 via `dependencyManagement` | `mvn test`, smoke `/admin/*.action` | CVEs 2025-66675/64775; revisar upload multipart após upgrade |
 | Spring Framework 6.1.4 (core/web) | 6.1.4 | Subir para 6.1.14 (release de segurança) mantendo compatibilidade com Spring Security 6.2.2 | `mvn test`, smoke login/logout | Cobre CVE-2024-22259 e CVE-2024-38820 |
 | Angus Mail / Activation | 2.0.3 / 2.0.2 | Atualizar todos os módulos para 2.0.4; revalidar envio de e-mails | `MailServiceTest`, smoke cadastro | CVE-2025-7962; alinhar configurações SMTP |
+
+> **Status 23/02/2026:** Artefatos `org.eclipse.angus:jakarta.mail:2.0.4` ainda não disponíveis no repositório `nx-mvn.tse.jus.br`; reavaliar assim que publicados.
 | Quartz Scheduler | 2.3.2 | Atualizar para 2.5.2 (Jakarta) ou remover módulos não usados (`quartz-jobs`) | Testes de agendamento (`ProcessadorPalpitesJob`) | CVE-2023-39017; avaliar dependência de `c3p0` legada |
 | JFreeChart | 1.5.4 | Migrar para 1.5.6 e revisar geração de PNGs | `GraficosJFreeChartTest`, smoke dashboards | CVEs contestados; upgrade reduz alertas falsos |
 | Protobuf Java | 3.25.1 (transitivo) | Fixar `protobuf-java` 3.25.5 no `pom.xml` | `mvn test` | Dependência trazida pelo MySQL Connector 8.3.0 |
