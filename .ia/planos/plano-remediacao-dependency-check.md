@@ -71,6 +71,22 @@ avaliar e endereçar as vulnerabilidades críticas reportadas para as dependênc
 3. **Atualizações complementares** (Quartz, Protobuf, JFreeChart, Log4j, Commons Lang, esbuild) agrupadas em lotes com testes dedicados.
 4. **Reexecução do Dependency-Check**, arquivando relatórios e documentando exceções justificadas.
 
+### Plano Detalhado – Spring Framework 6.1.14
+
+1. Atualizar `pom.xml`:
+   - Ajustar propriedade `<spring.version>` para `6.1.14`.
+   - Confirmar que o BOM `spring-framework-bom` é resolvido pelo novo valor (garante versões coerentes para `spring-*`, `micrometer-*`, `spring-test`).
+2. Validar compatibilidade:
+   - Verificar se `spring-security` 6.2.2 permanece compatível (revisar changelog de breaking changes; ajustar se necessário).
+   - Garantir que o plugin `struts2-spring-plugin` 7.1.1 continue alinhado (nenhuma ação adicional esperada).
+3. Testar e observar:
+   - Executar `mvn -q -Dfrontend.skip=true test`.
+   - Realizar smoke login/logout e fluxo `/admin/*.action`.
+4. Segurança:
+   - Reexecutar `mvn -Dfrontend.skip=true org.owasp:dependency-check-maven:check` para confirmar resolução do CVE-2024-22259/38820.
+5. Registrar:
+   - Atualizar `passo-a-passo.md` e criar log de sessão com evidências dos testes.
+
 ## Saídas Esperadas
 - Matriz de análise das vulnerabilidades por dependência.
 - Plano de execução priorizado.
