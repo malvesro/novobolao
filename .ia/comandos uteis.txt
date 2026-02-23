@@ -1,0 +1,55 @@
+Leia as diretivas no AGENTS.md, consulte os logs de sessão recentes, o passo-a-passo.md e verifique a tarefa em execução. Retome a Tarefa 14 (“README de Migração Consolidado”).
+
+Veja os arquivos modificados também. O container foi reconstruído com ajustes para continuar os testes.
+
+
+
+
+Leia as diretivas no AGENTS.md, consulte os logs de sessão recentes, o passo-a-passo.md e verifique a tarefa em execução. Veja os arquivos modificados também. 
+
+mvn -Dfrontend.skip=true org.owasp:dependency-check-maven:check 
+
+mvn dependency:get -Dartifact=org.quartz-scheduler:quartz:2.5.2 -DremoteRepositories=central::default::https://repo.maven.apache.org/maven2
+
+mvn dependency:get -Dartifact=com.google.protobuf:protobuf-java:3.25.5 -DremoteRepositories=central::default::https://repo.maven.apache.org/maven2
+
+mvn -Dfrontend.skip=true org.owasp:dependency-check-maven:check
+
+  mvn dependency:get -Dartifact=org.jfree:jfreechart:1.5.6 -DremoteRepositories=central::default::https://repo.maven.apache.org/maven2
+
+
+Faça também um planejamento e crie as tarefas para: 1) Atualizar os locais no web.xml com o nome das cidades onde se realizarão os jogos 2)Disponibilizei o aruivo ./telas/Erro-desing-tela.png que mostra um erro de design da tela com várias linha horizontais sem nenhuma informação entre os jogos do dia 27//06/2026 e o rodapé com a versão do sistema. Pense profundamente, crie o plano e ajuste tarefas e subtarefas. 
+
+
+Problema das bandeiras foi resolvido parcialmente, estão aparecendo corretamente agora para a maioria, mas
+  continua com bandeira errada (baixar novamente) para os países: Chile e França. Notei também a grafia errada
+  grafia correta em português do Brasil, data, horário e equipes. Verifique o plano criado e atualize as tarefas passo a
+  passo, faça o commit e comece a executar passo a passo.
+
+identifique as bandeiras que faltam. Creio que o nome das bandeiras de alguns países estão com o mesmo nome, o script python saltou ao tentar baixar uma bandeira com o mesmo nome.
+
+./scripts/run-axe-audit.sh "http://localhost:8080/novobolao" "/usr/bin/chromium-browser" "--no-sandbox --disable-dev-shm-usage --disable-gpu --remote-debugging-port=9222"
+
+./scripts/run-axe-audit.sh http://localhost:8080/novobolao /usr/bin/chromium-browser --no-sandbox --disable-dev-shm-usage --disable-gpu --remote-debugging-port=9222
+
+./scripts/run-axe-audit.sh "http://localhost:8080/novobolao" "/usr/bin/chromium-browser" "--no-sandbox --disable-dev-shm-usage --remote-debugging-port=9222"
+
+
+
+
+ sistema pode ser usado agora, mas com limitações:
+
+  - Cobertura atual: 89 partidas (fase de grupos completa + 32-avos + final) já constam no banco/dataset.
+    Usuários conseguem cadastrar palpites, consultar classificação e operar as telas administrativas
+    normalmente.
+  - O que falta: os 15 jogos das fases finais (oitavas, quartas, semifinais e 3º lugar) e a definição das 41
+    vagas de repescagem. As telas mostrarão placeholders (ex.: “UEFA Playoff A”) até que os dados oficiais sejam
+    divulgados.
+  - Impacto: conforme a competição avançar, será necessário atualizar o dataset/SQL (via data/
+    copa2026_placeholders.json + scripts/atualizar_copa2026_dataset.py) para refletir os confrontos reais.
+
+  Portanto, dá para rodar o bolão desde já, mas planeje uma atualização assim que a FIFA publicar a agenda
+  completa e confirmar os classificados das repescagens.
+
+
+› faça o rebuild da imagem, suba o container e verifique o funcionamento.
