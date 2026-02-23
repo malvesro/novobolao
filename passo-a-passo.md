@@ -207,14 +207,14 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído]** Atualizar governança: versionar documento anterior se necessário, registrar log e revisar rastreabilidade.
     * **[Concluído]** Revisar e submeter para validação final com stakeholders (negócio e engenharia).
 
-17. **[Pendente] Revisão da Política de Senhas (23/02/2026):** Permitir caracteres especiais seguros e alinhar mensagens ao usuário. Plano: `.ia/planos/plano-politica-senhas-20260223.md` (a criar).
-    * **[Pendente]** Atualizar validações backend (`ValidacaoUtils`, `ParticipanteAction`) para aceitar senhas 8–64 caracteres com caracteres especiais, mantendo hashes BCrypt.
-    * **[Pendente]** Revisar mensagens e tooltips na tela de cadastro/documentação para refletir a nova regra.
-    * **[Pendente]** Executar testes de cadastro/autenticação garantindo compatibilidade e registrar log.
+17. **[Concluído] Revisão da Política de Senhas (23/02/2026):** Permitir caracteres especiais seguros e alinhar mensagens ao usuário. Plano: `.ia/planos/plano-politica-senhas-20260223.md`.
+    * **[Concluído]** Validações backend atualizadas (`ValidacaoUtils`, `ParticipanteAction`, `Participante`) para aceitar senhas de 8–64 caracteres com símbolos seguros e bloquear caracteres de controle (Skill: `modernization-java-migration v1.0.0`).
+    * **[Concluído]** Mensagens de erro, tooltip do cadastro e documentação internacionalizada ajustadas para incentivar o uso de caracteres especiais.
+    * **[Concluído]** Testes automatizados cobrindo as novas regras (`ValidacaoUtilsTest`) executados com `mvn -q -Dfrontend.skip=true test` e frontend rebuild (`npm run build`). Evidência registrada em `.ia/logs/session-20260223-politica-senhas-sanitizacao-execucao.md`.
 
-18. **[Pendente] Sanitização Unificada das Entradas de Cadastro (23/02/2026):** Reforçar limpeza de login/nome/e-mail contra HTML/SQL. Plano: `.ia/planos/plano-sanitizacao-cadastro-20260223.md` (a criar).
-    * **[Pendente]** Aplicar `SanitizationUtils.cleanText/containsHtml` nos setters/validadores do cadastro.
-    * **[Pendente]** Ajustar utilitários/mensagens conforme necessário e testar fluxo completo.
+18. **[Concluído] Sanitização Unificada das Entradas de Cadastro (23/02/2026):** Reforçar limpeza de login/nome/e-mail contra HTML/SQL. Plano: `.ia/planos/plano-sanitizacao-cadastro-20260223.md`.
+    * **[Concluído]** Sanitização reforçada nos setters do modelo (`Participante`) e serviço (`ParticipanteServiceImpl`) com bloqueio de HTML e normalização consistente (Skill: `modernization-java-migration v1.0.0`).
+    * **[Concluído]** Sanitização preventiva adicionada no frontend (`formSanitizer.js`) e testes unitários ampliados (`ParticipanteTest`) garantindo cobertura do fluxo.
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
 1. **[Concluído] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.

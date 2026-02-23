@@ -25,16 +25,23 @@ public final class ValidacaoUtils {
         if (isVazia(senha)) {
             return false;
         }
-        if (senha.length() < 5 || senha.length() > 20) {
+
+        String trimmed = senha.trim();
+        if (trimmed.length() < 8 || trimmed.length() > 64) {
             return false;
         }
-        if (senha.indexOf("-") != -1 || senha.indexOf("_") != -1
-                || senha.indexOf("$") != -1 || senha.indexOf("%") != -1
-                || senha.indexOf("-") != -1 || senha.indexOf("&") != -1
-                || senha.indexOf("!") != -1 || senha.indexOf("*") != -1
-                || senha.indexOf(" ") != -1 || senha.indexOf("@") != -1) {
+
+        if (senha.codePoints().anyMatch(Character::isISOControl)) {
             return false;
         }
+
+        for (int index = 0; index < trimmed.length(); index++) {
+            char caractere = trimmed.charAt(index);
+            if (Character.isISOControl(caractere)) {
+                return false;
+            }
+        }
+
         return true;
     }
     

@@ -79,7 +79,6 @@ public class ParticipanteAction extends ActionSupport {
     private boolean loginPossuiHtml;
     private boolean nomePossuiHtml;
     private boolean emailPossuiHtml;
-    private boolean senhaPossuiHtml;
 
     public String index() {
         return SUCCESS;
@@ -250,7 +249,6 @@ public String prepararInfoPalpites() {
     public String getSenha() { return senha; }
     @StrutsParameter
     public void setSenha(String senha) {
-        this.senhaPossuiHtml = SanitizationUtils.containsHtml(senha);
         this.senha = senha == null ? null : senha.trim();
     }
 
@@ -486,7 +484,7 @@ public String prepararInfoPalpites() {
             registrarErro(erros, "signin.email", "cadastro.email.invalido");
             valido = false;
         }
-        if (senha == null || senha.length() < 8 || senha.length() > 64 || senhaPossuiHtml) {
+        if (!ValidacaoUtils.isSenhaValida(senha)) {
             registrarErro(erros, "signin.pwd", "cadastro.senha.invalida");
             valido = false;
         }
