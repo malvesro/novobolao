@@ -59,6 +59,7 @@ avaliar e endereçar as vulnerabilidades críticas reportadas para as dependênc
 
 > **Status 23/02/2026:** Artefatos `org.eclipse.angus:jakarta.mail:2.0.4` ainda não disponíveis no repositório `nx-mvn.tse.jus.br`; reavaliar assim que publicados.
 | Quartz Scheduler | 2.3.2 | Atualizar para 2.5.2 (Jakarta) ou remover módulos não usados (`quartz-jobs`) | Testes de agendamento (`ProcessadorPalpitesJob`) | CVE-2023-39017; avaliar dependência de `c3p0` legada |
+> **Status 23/02/2026:** Artefato `org.quartz-scheduler:quartz:2.5.2` ainda não disponível no `nx-mvn.tse.jus.br`; manter 2.3.2 até sincronização.
 | JFreeChart | 1.5.4 | Migrar para 1.5.6 e revisar geração de PNGs | `GraficosJFreeChartTest`, smoke dashboards | CVEs contestados; upgrade reduz alertas falsos |
 | Protobuf Java | 3.25.1 (transitivo) | Fixar `protobuf-java` 3.25.5 no `pom.xml` | `mvn test` | Dependência trazida pelo MySQL Connector 8.3.0 |
 | Log4j API | 2.24.2 (transitivo Struts 7.1.1) | Atualizar para 2.25.3 via `dependencyManagement` | `mvn test`, smoke logs | CVE-2025-68161 (score 4.8; acompanhar classificações futuras) |
