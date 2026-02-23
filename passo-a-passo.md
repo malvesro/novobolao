@@ -215,6 +215,11 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
 18. **[Concluído] Sanitização Unificada das Entradas de Cadastro (23/02/2026):** Reforçar limpeza de login/nome/e-mail contra HTML/SQL. Plano: `.ia/planos/plano-sanitizacao-cadastro-20260223.md`.
     * **[Concluído]** Sanitização reforçada nos setters do modelo (`Participante`) e serviço (`ParticipanteServiceImpl`) com bloqueio de HTML e normalização consistente (Skill: `modernization-java-migration v1.0.0`).
     * **[Concluído]** Sanitização preventiva adicionada no frontend (`formSanitizer.js`) e testes unitários ampliados (`ParticipanteTest`) garantindo cobertura do fluxo.
+
+19. **[Pendente] Modernização do Envio de E-mails (23/02/2026):** Atualizar o cliente SMTP para suportar TLS/STARTTLS, autenticação e configuração externa segura. Plano: `.ia/planos/plano-modernizacao-email-20260223.md`.
+    * **[Pendente]** Refatorar `Email.java` aplicando propriedades modernas (`mail.smtp.port`, `mail.smtp.starttls.enable`, `mail.smtp.ssl.enable`, timeouts) e uso de `Session.getInstance`.
+    * **[Pendente]** Externalizar credenciais (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_TLS`) via variáveis/arquivos montados no deploy, ajustando Docker e documentação.
+    * **[Pendente]** Criar testes com servidor SMTP em memória (GreenMail/Wiser) e atualizar documentação/logs com evidências de envio seguro.
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
 1. **[Concluído] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.
