@@ -49,6 +49,28 @@ avaliar e endereçar as vulnerabilidades críticas reportadas para as dependênc
    - Registrar resumo final em `.ia/logs/` incluindo versões finais e data.
    - Avaliar backlog para monitorar vulnerabilidades remanescentes ou mitigadas.
 
+## Matriz de Remediação (Atualizado em 23/02/2026)
+
+| Dependência | Versão atual | Ação proposta | Testes obrigatórios | Observações |
+| --- | --- | --- | --- | --- |
+| Struts 7.0.0 + `commons-fileupload2` 2.0.0-M2 | 7.0.0 / 2.0.0-M2 | Atualizar Struts para 7.1.1 e forçar `commons-fileupload2` ≥ 2.0.0-M4 via `dependencyManagement` | `mvn test`, smoke `/admin/*.action` | CVEs 2025-66675/64775; revisar upload multipart após upgrade |
+| Spring Framework 6.1.4 (core/web) | 6.1.4 | Subir para 6.1.14 (release de segurança) mantendo compatibilidade com Spring Security 6.2.2 | `mvn test`, smoke login/logout | Cobre CVE-2024-22259 e CVE-2024-38820 |
+| Angus Mail / Activation | 2.0.3 / 2.0.2 | Atualizar todos os módulos para 2.0.4; revalidar envio de e-mails | `MailServiceTest`, smoke cadastro | CVE-2025-7962; alinhar configurações SMTP |
+| Quartz Scheduler | 2.3.2 | Atualizar para 2.5.2 (Jakarta) ou remover módulos não usados (`quartz-jobs`) | Testes de agendamento (`ProcessadorPalpitesJob`) | CVE-2023-39017; avaliar dependência de `c3p0` legada |
+| JFreeChart | 1.5.4 | Migrar para 1.5.6 e revisar geração de PNGs | `GraficosJFreeChartTest`, smoke dashboards | CVEs contestados; upgrade reduz alertas falsos |
+| Protobuf Java | 3.25.1 (transitivo) | Fixar `protobuf-java` 3.25.5 no `pom.xml` | `mvn test` | Dependência trazida pelo MySQL Connector 8.3.0 |
+| Log4j API | 2.24.2 (transitivo Struts 7.1.1) | Atualizar para 2.25.3 via `dependencyManagement` | `mvn test`, smoke logs | CVE-2025-68161 (score 4.8; acompanhar classificações futuras) |
+| esbuild (devDependency) | 0.21.5 | Subir para ≥ 0.25.0 e reconstruir bundles | `npm run build`, `mvn package` | Requer Node 18+ (já atendido) |
+| Commons Lang | 3.14.0 | Atualizar para 3.18.0 | `mvn test` | CVE-2025-48924 (média) |
+| IH outros (monitorar) | — | Manter `dependency-check` após upgrades para garantir limpeza | `dependency-check:check` | Registrar relatório final |
+
+## Próximas Ações Planejadas
+
+1. **Planejamento e aprovação dos upgrades críticos (Struts, Spring, Angus) com avaliação de compatibilidade e impacto.**
+2. **Execução sequencial das atualizações**, começando por Struts/FileUpload (bloqueia CVEs de maior risco na camada web), seguida de Spring Framework e dependências associadas.
+3. **Atualizações complementares** (Quartz, Protobuf, JFreeChart, Log4j, Commons Lang, esbuild) agrupadas em lotes com testes dedicados.
+4. **Reexecução do Dependency-Check**, arquivando relatórios e documentando exceções justificadas.
+
 ## Saídas Esperadas
 - Matriz de análise das vulnerabilidades por dependência.
 - Plano de execução priorizado.

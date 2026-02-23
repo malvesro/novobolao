@@ -159,13 +159,13 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído]** Atualizar o contexto `locais` do `web.xml` com os nomes das cidades-sede oficiais, mantendo alinhamento com o calendário e registrando testes. **22/02/2026:** `webapp/WEB-INF/web.xml` atualizado com 16 cidades (Dallas → Los Angeles); `mvn -q -Dfrontend.skip=true test` executado (Log4j warning conhecido). Log: `.ia/logs/session-20260222-locais-webxml-cidades.md`.
     * **[Concluído]** Validar todas as views que exibem bandeiras (seguro/admin) após atualização dos dados. **22/02/2026:** Validação visual confirmada pelo usuário sem linhas pendentes. Log: `.ia/logs/session-20260222-bandeiras-validacao-final.md`.
     * **[Concluído]** Executar testes automatizados, rebuild Docker, smoke manual autenticado e atualizar evidências em `telas/`. **22/02/2026:** `mvn -q -Dfrontend.skip=true test` + `docker compose build app && docker compose up -d app` executados; resposta do `login.action` validada via `curl`. Logs: `.ia/logs/session-20260222-bandeiras-charset-assets.md`, `.ia/logs/session-20260222-bandeiras-rebuild-final.md`.
-12. **[Em Progresso] Exibição da versão do sistema no frontend:** Expor número da versão e timestamp de build nas telas autenticadas. Plano detalhado em `.ia/planos/plano-versao-interface.md`.
+12. **[Concluído] Exibição da versão do sistema no frontend:** Expor número da versão e timestamp de build nas telas autenticadas. Plano detalhado em `.ia/planos/plano-versao-interface.md`.
     * **[Concluído]** Inventariar fontes de versão (`pom.xml`, `build.properties`) e definir estratégia única de geração (`version.properties`). **22/02/2026:** Maven configurado para filtrar `version.properties` com `${project.version}` e timestamp. Log: `.ia/logs/session-20260222-versao-ui-implementacao.md`.
     * **[Concluído]** Implementar utilitário/bean (`BuildInfoProvider`) fornecendo versão e horário para as views (Struts/Spring). **22/02/2026:** Classes `BuildInfo`/`BuildInfoProvider` criadas e registradas no contexto Spring. Log: `.ia/logs/session-20260222-versao-ui-implementacao.md`.
     * **[Concluído]** Atualizar fragments JSP/CSS (`rodape.jspf` ou equivalente) para exibir `Versão X.Y.Z - compilado em DD/MM/YYYY HH:MM`, respeitando acessibilidade e i18n. **22/02/2026:** Mensagem antiga removida, novo bloco `.system-version` aplicado no rodapé com fallback i18n. Log: `.ia/logs/session-20260222-versao-ui-implementacao.md`.
     * **[Concluído]** Corrigir placeholder `${maven.build.timestamp}` no rodapé, aplicando interpolação real e validando timezone. **22/02/2026:** `BuildInfo` passou a detectar placeholders, adicionando fallback baseado no artefato; `version.properties` filtrada com `${build.timestamp}`. Log: `.ia/logs/session-20260222-versao-ui-placeholder-fix.md`.
     * **[Concluído]** Cobrir com testes (unitários/integrados) e evidência visual após rebuild Docker, registrando log específico. **22/02/2026:** Teste `BuildInfoProviderTest` adicionado, `mvn -q -Dfrontend.skip=true test` executado e ambiente Docker reconstruído (`docker compose build app && docker compose up -d app`). Evidência visual pendente para próxima sessão. Logs: `.ia/logs/session-20260222-versao-ui-implementacao.md`, `.ia/logs/session-20260222-versao-ui-placeholder-fix.md`.
-    * **[Pendente]** Registrar evidência visual do rodapé pós-correção. (Plano: `.ia/planos/plano-correcao-versao-bandeiras-dados.md`)
+    * **[Concluído]** Registrar evidência visual do rodapé pós-correção; validação confirmada pelo usuário em 23/02/2026 (Skill: `modernization-java-migration v1.0.0`). (Plano: `.ia/planos/plano-correcao-versao-bandeiras-dados.md`)
 
 13. **[Concluído] Correção do layout em `/admin/jogos.action`:** Eliminar linhas vazias entre as partidas e o rodapé, conforme evidência `telas/Erro-desing-tela.png`. Plano: `.ia/planos/plano-layout-admin-jogos.md`.
     * **[Concluído]** Diagnosticar markup e CSS envolvidos (`webapp/WEB-INF/content/seguro/jogos.jsp`, `webapp/css/estilo.css`), identificando `<div>` não fechados que geravam linhas vazias. Log: `.ia/logs/session-20260222-layout-admin-jogos-ajuste.md`.
@@ -180,9 +180,16 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Pendente]** Revisar, atualizar rastreabilidade (`passo-a-passo.md`, logs) e publicar documento final.
 
 15. **[Em Progresso] Remediação de Vulnerabilidades (Dependency-Check):** Avaliar e mitigar CVEs críticos reportados na execução do OWASP Dependency-Check. Plano: `.ia/planos/plano-remediacao-dependency-check.md`.
-    * **[Pendente]** Coletar/validar relatório completo do Dependency-Check e confirmar eventuais falsos positivos.
-    * **[Pendente]** Analisar cada dependência afetada (Angus/Jakarta Mail, Commons FileUpload, JFreeChart, Protobuf, Quartz, Spring, Struts) identificando versões corrigidas e impacto.
-    * **[Pendente]** Definir estratégia de remediação e priorização (matriz de ações, riscos, esforço).
+    * **[Concluído]** Coletar/validar relatório completo do Dependency-Check e confirmar eventuais falsos positivos (23/02/2026).
+    * **[Concluído]** Analisar cada dependência afetada (Angus/Jakarta Mail, Commons FileUpload, JFreeChart, Protobuf, Quartz, Spring, Struts) identificando versões corrigidas e impacto (23/02/2026).
+    * **[Concluído]** Definir estratégia de remediação e priorização (matriz de ações, riscos, esforço) com recomendações de upgrade documentadas (23/02/2026).
+    * **[Concluído]** Atualizar plano `.ia/planos/plano-remediacao-dependency-check.md` com matriz de remediação e cronograma (23/02/2026).
+    * **[Em Progresso]** Preparar upgrade Struts 7.1.1 + `commons-fileupload2` ≥ 2.0.0-M4 (avaliar breaking changes, ajustar dependências e planejar testes). (Skill: `modernization-java-migration v1.0.0`)
+        * **23/02/2026:** `pom.xml` atualizado (Struts 7.1.1, `commons-fileupload2` M4, `commons-lang3` 3.18.0, `commons-text` 1.12.0). `mvn -q -Dfrontend.skip=true test` executado com sucesso após disponibilização do artefato no espelho `nx-mvn.tse.jus.br`.
+        * **23/02/2026:** Nova execução do Dependency-Check (`mvn -Dfrontend.skip=true org.owasp:dependency-check-maven:check`) falhou com CVEs remanescentes (Angus Mail 2.0.3, JFreeChart 1.5.4, Quartz 2.3.2, Protobuf 3.25.1, Spring 6.1.4). Próximo passo: avançar para os upgrades planejados (Spring 6.1.14, Angus 2.0.4, Quartz 2.5.2, JFreeChart 1.5.6, Protobuf 3.25.5) antes de repetir o scan e realizar o smoke `/admin/*.action`.
+    * **[Pendente]** Planejar upgrade Spring Framework 6.1.14 alinhando compatibilidade com Spring Security 6.2.2 e camada Struts.
+    * **[Pendente]** Planejar atualização do stack Angus Mail/Activation para 2.0.4, revisando configurações SMTP.
+    * **[Pendente]** Orquestrar upgrades complementares (Quartz 2.5.2, JFreeChart 1.5.6, Protobuf 3.25.5, Log4j 2.25.3, Commons Lang 3.18.0, esbuild ≥ 0.25.0) com respectivos testes.
     * **[Pendente]** Planejar execução (subtarefas por dependência, testes necessários, documentação).
     * **[Pendente]** Implementar atualizações/testes e gerar novo relatório OWASP com status final.
 
