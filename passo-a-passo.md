@@ -173,6 +173,19 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído]** Sem mudanças em assets frontend; executado `mvn -q -Dfrontend.skip=true test` para validar backend. Log: `.ia/logs/session-20260222-layout-admin-jogos-ajuste.md`.
     * **[Concluído]** Rebuild Docker (`docker compose build app` / `docker compose up -d app`) e atualização do banco para exibir cidades (consulta `JOG_JOGO`). Log: `.ia/logs/session-20260222-layout-admin-jogos-ajuste.md`.
 
+14. **[Em Progresso] README de Migração Consolidado:** Criar `README-migracao.md` com panorama atual do projeto. Plano: `.ia/planos/plano-readme-migracao.md`.
+    * **[Pendente]** Inventariar fontes (README, `analise-inicial.md`, ADRs, logs, planos) e registrar achados.
+    * **[Pendente]** Definir estrutura do documento para públicos de negócio e técnicos.
+    * **[Pendente]** Redigir o conteúdo completo, incluindo status de fases, riscos e próximos passos.
+    * **[Pendente]** Revisar, atualizar rastreabilidade (`passo-a-passo.md`, logs) e publicar documento final.
+
+15. **[Em Progresso] Remediação de Vulnerabilidades (Dependency-Check):** Avaliar e mitigar CVEs críticos reportados na execução do OWASP Dependency-Check. Plano: `.ia/planos/plano-remediacao-dependency-check.md`.
+    * **[Pendente]** Coletar/validar relatório completo do Dependency-Check e confirmar eventuais falsos positivos.
+    * **[Pendente]** Analisar cada dependência afetada (Angus/Jakarta Mail, Commons FileUpload, JFreeChart, Protobuf, Quartz, Spring, Struts) identificando versões corrigidas e impacto.
+    * **[Pendente]** Definir estratégia de remediação e priorização (matriz de ações, riscos, esforço).
+    * **[Pendente]** Planejar execução (subtarefas por dependência, testes necessários, documentação).
+    * **[Pendente]** Implementar atualizações/testes e gerar novo relatório OWASP com status final.
+
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
 1. **[Concluído] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.
