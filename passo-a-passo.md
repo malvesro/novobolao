@@ -195,6 +195,7 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Pendente]** Orquestrar upgrades complementares (Quartz 2.5.2, JFreeChart 1.5.6, Protobuf 3.25.5, Log4j 2.25.3, Commons Lang 3.18.0, esbuild ≥ 0.25.0) com respectivos testes.
         * **23/02/2026:** Quartz 2.5.2 indisponível no `nx-mvn.tse.jus.br`; upgrade adiado, mantendo versão 2.3.2. Log: `.ia/logs/session-20260223-quartz-upgrade-parada.md`.
         * **23/02/2026:** Protobuf atualizado para 3.25.5 via `dependencyManagement`; testes OK e dependency-check sem alertas para Protobuf. Log: `.ia/logs/session-20260223-protobuf-upgrade.md`.
+        * **23/02/2026:** JFreeChart atualizado para 1.5.6; dependency-check não lista mais CVEs do componente. Log: `.ia/logs/session-20260223-jfreechart-upgrade.md`.
     * **[Pendente]** Planejar execução (subtarefas por dependência, testes necessários, documentação).
     * **[Pendente]** Implementar atualizações/testes e gerar novo relatório OWASP com status final.
 
