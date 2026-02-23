@@ -44,7 +44,7 @@
             </div>
             <div class="form-row">
                 <label for="login_tf"><fmt:message key="signin.login" /></label>
-                <input id="login_tf" type="text" name="login" onblur="atualizarSugestao('');" onfocus="atualizarSugestao('Procure usar o mesmo login da rede do BaCen para facilitar a identificação de cada um.');" class="text" value="${tentativaInclusao.login}" />
+                <input id="login_tf" type="text" name="login" onblur="atualizarSugestao('');" onfocus="atualizarSugestao('Informe um login');" class="text" value="${tentativaInclusao.login}" />
             </div>
             <div class="form-row">
                 <label for="pwd_tf"><fmt:message key="signin.pwd" /></label>
@@ -56,7 +56,7 @@
             </div>
             <div class="form-row">
                 <label for="email_tf"><fmt:message key="signin.email" /></label>
-                <input id="email_tf" type="text" name="email" onblur="atualizarSugestao('');" onfocus="atualizarSugestao('Deve-se informar o e-mail do Banco Central.');" class="text" value="${tentativaInclusao.email}" />
+                <input id="email_tf" type="text" name="email" onblur="atualizarSugestao('');" onfocus="atualizarSugestao('Deve-se informar o seu e-mail pessoal.');" class="text" value="${tentativaInclusao.email}" />
             </div>
         </div>
     </div>
