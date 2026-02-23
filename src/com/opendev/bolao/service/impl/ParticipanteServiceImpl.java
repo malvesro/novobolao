@@ -28,7 +28,8 @@ import com.opendev.bolao.model.Participante;
 import com.opendev.bolao.model.Privilegio;
 import com.opendev.bolao.service.ParticipanteService;
 import com.opendev.bolao.util.DadosClassificacao;
-import com.opendev.bolao.util.SegurancaUtils;
+import com.opendev.bolao.util.SanitizationUtils;
+import com.opendev.bolao.util.MensagemErro;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
@@ -139,13 +140,47 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         privilegios.add(privilegio);
         participante.setPrivilegios(privilegios);
     }
+
+    private void aplicarSanitizacaoCadastro(Participante participante) throws ValidacaoException {
+        if (participante == null) {
+            return;
+        }
+
+        List erros = new ArrayList();
+        String loginOriginal = participante.getLogin();
+        String nomeOriginal = participante.getNome();
+        String emailOriginal = participante.getEmail();
+
+        boolean loginComHtml = participante.isLoginPossuiMarkup() || SanitizationUtils.containsHtml(loginOriginal);
+        boolean nomeComHtml = participante.isNomePossuiMarkup() || SanitizationUtils.containsHtml(nomeOriginal);
+        boolean emailComHtml = participante.isEmailPossuiMarkup() || SanitizationUtils.containsHtml(emailOriginal);
+
+        if (loginComHtml) {
+            erros.add(new MensagemErro("Login", "Conteudo invalido (HTML nao permitido).", MensagemErro.SEVERIDADE_ERRO));
+        }
+        if (nomeComHtml) {
+            erros.add(new MensagemErro("Nome", "Conteudo invalido (HTML nao permitido).", MensagemErro.SEVERIDADE_ERRO));
+        }
+        if (emailComHtml) {
+            erros.add(new MensagemErro("E-mail", "Conteudo invalido (HTML nao permitido).", MensagemErro.SEVERIDADE_ERRO));
+        }
+
+        participante.setLogin(SanitizationUtils.cleanText(loginOriginal, 32));
+        participante.setNome(SanitizationUtils.cleanText(nomeOriginal, 80));
+        participante.setEmail(SanitizationUtils.cleanText(emailOriginal, 254));
+
+        if (!erros.isEmpty()) {
+            throw new ValidacaoException(erros);
+        }
+    }
     
     public Participante criarNovo(Participante participante) throws ValidacaoException {
+        aplicarSanitizacaoCadastro(participante);
         participante.validar();
         participante.setSenha(this.passwordEncoder.encode(participante.getSenha()));
         participante.setDataHoraCadastro(new Timestamp(System.currentTimeMillis()));
-        participante.setLogin(participante.getLogin().trim().toLowerCase());
-        participante.setEmail(participante.getEmail().trim());
+        participante.setLogin(participante.getLogin() == null ? null : participante.getLogin().trim().toLowerCase());
+        participante.setEmail(participante.getEmail() == null ? null : participante.getEmail().trim());
         getParticipanteDao().salvar(participante);
         Email email = criarEmail("novoCadastro.html", "Novo pedido de cadastro pendente");
         email.adicionarEnderecoDestino("deinf.rochett@bc");
