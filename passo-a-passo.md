@@ -191,6 +191,7 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
         * **23/02/2026:** Plano detalhado adicionado em `.ia/planos/plano-remediacao-dependency-check.md` (seção “Plano Detalhado – Spring Framework 6.1.14”) com etapas de ajuste do `pom.xml`, testes (`mvn test`, smoke login/logout, `/admin/*.action`) e reexecução do Dependency-Check pós-upgrade.
         * **23/02/2026:** Upgrade concluído após disponibilização do BOM 6.1.14 no repositório corporativo; `mvn -q -Dfrontend.skip=true test` executado com sucesso (avisos de APIs depreciadas pendentes de saneamento). Dependency-Check ainda falha pelos CVEs remanescentes (Angus Mail 2.0.3/2.0.2, JFreeChart 1.5.4, Quartz 2.3.2, Protobuf 3.25.1). Log: `.ia/logs/session-20260223-spring-upgrade-parada.md`.
     * **[Pendente]** Planejar atualização do stack Angus Mail/Activation para 2.0.4, revisando configurações SMTP.
+        * **23/02/2026:** Tentativa de upgrade para `org.eclipse.angus:jakarta.mail` 2.0.4 bloqueada; artefatos ainda não disponíveis no repositório `https://nx-mvn.tse.jus.br`. Versão revertida para 2.0.3 para manter o build íntegro. Log: `.ia/logs/session-20260223-angus-upgrade-parada.md`.
     * **[Pendente]** Orquestrar upgrades complementares (Quartz 2.5.2, JFreeChart 1.5.6, Protobuf 3.25.5, Log4j 2.25.3, Commons Lang 3.18.0, esbuild ≥ 0.25.0) com respectivos testes.
     * **[Pendente]** Planejar execução (subtarefas por dependência, testes necessários, documentação).
     * **[Pendente]** Implementar atualizações/testes e gerar novo relatório OWASP com status final.
