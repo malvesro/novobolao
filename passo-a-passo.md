@@ -193,6 +193,7 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Pendente]** Planejar atualização do stack Angus Mail/Activation para 2.0.4, revisando configurações SMTP.
         * **23/02/2026:** Tentativa de upgrade para `org.eclipse.angus:jakarta.mail` 2.0.4 bloqueada; artefatos ainda não disponíveis no repositório `https://nx-mvn.tse.jus.br`. Versão revertida para 2.0.3 para manter o build íntegro. Log: `.ia/logs/session-20260223-angus-upgrade-parada.md`.
     * **[Pendente]** Orquestrar upgrades complementares (Quartz 2.5.2, JFreeChart 1.5.6, Protobuf 3.25.5, Log4j 2.25.3, Commons Lang 3.18.0, esbuild ≥ 0.25.0) com respectivos testes.
+        * **23/02/2026:** Quartz 2.5.2 indisponível no `nx-mvn.tse.jus.br`; upgrade adiado, mantendo versão 2.3.2. Log: `.ia/logs/session-20260223-quartz-upgrade-parada.md`.
     * **[Pendente]** Planejar execução (subtarefas por dependência, testes necessários, documentação).
     * **[Pendente]** Implementar atualizações/testes e gerar novo relatório OWASP com status final.
 
