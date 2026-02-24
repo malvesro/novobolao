@@ -18,7 +18,7 @@
             </tr>
         </thead>
         <tbody id="participantesTableBody">
-            <jsp:include page="/WEB-INF/content/admin/partials/participantes-rows.jspf" />
+        <%@ include file="/WEB-INF/content/admin/partials/participantes-rows.jspf" %>
         </tbody>
     </table>
     </div>

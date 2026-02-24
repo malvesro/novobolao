@@ -29,3 +29,5 @@ Atualizações
 - [ ] Alucinacao detectada (prompt refinado).
 
 **Observacoes:** Após rebuild e publicação docker (`mvn clean package -Dfrontend.skip=false`, `docker compose build app`, `docker compose up -d app`), a tela `/admin/participantes.action` exibe corretamente o portlet e as tabelas.
+- 24/02/2026: Substituído `jsp:include` por diretivas estáticas (`%@ include`) em `admin/participantes.jsp` e `partials/participantes-table.jsp` para garantir que o fragmento `.jspf` seja processado pelo container e não enviado como texto literal.
+- 24/02/2026: Identificado que a inclusão dinâmica via `jsp:include` estava enviando diretivas JSP como texto literal quando o menu era renderizado antes das taglibs. Ajustado para `@ include` estático e confirmadas as melhorias via testes e rebuild (ainda em validação visual).
