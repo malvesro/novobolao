@@ -36,10 +36,11 @@ function esconderOuMostrarMenu(menuHeader) {
   <div id="geral_itens" class="menu_item">
     <span>
     <c:url var="indexUrl" value="/index.action" />
+    <c:url var="rulesUrl" value="/regras.action" />
     <a href="${indexUrl}">
       <span><fmt:message key="menu.geral.principal" /></span>
     </a>
-    <a href="#">
+    <a href="${rulesUrl}">
       <span><fmt:message key="menu.geral.rules" /></span>
     </a>
     <%--

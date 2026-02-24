@@ -92,6 +92,10 @@ public class ParticipanteAction extends ActionSupport {
         return SUCCESS;
     }
 
+    public String regras() {
+        return SUCCESS;
+    }
+
     public String batePapo() {
         return SUCCESS;
     }

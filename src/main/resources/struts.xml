@@ -47,6 +47,10 @@
 			<result name="success">/WEB-INF/content/cadastro.jsp</result>
 			<result name="input">/WEB-INF/content/cadastro.jsp</result>
 		</action>
+
+		<action name="regras" class="participanteAction" method="regras">
+			<result name="success">/WEB-INF/content/regras.jsp</result>
+		</action>
 		
 	</package>
 	
