@@ -40,6 +40,7 @@ Este documento consolida os padrões atuais para desenvolvimento e manutenção 
   - Classes de portlets (`opendev:portlet`) e tabelas (`.table`, `.table-responsive`).
   - Dialogs e balões devem receber classes `.dialog`, `.balao-*` e atributos ARIA adequados.
 - Ao internacionalizar títulos/atributos em JSP (ex.: `opendev:portlet`), sempre use `fmt:message` com `var="..."` e referencie a variável no atributo (`title="${rulesTitle}"`). Evita que o texto traduzido seja injetado de forma incorreta dentro do markup.
+- Fragmentos JSP (`*.jspf`) não devem declarar `<%@taglib%>` ou outras diretivas; deixe apenas o markup. O host que inclui o fragmento deve declarar as taglibs (`c`, `fmt`, etc.) antes do `include` estático. Isso impede que diretivas escapem para o HTML final quando o fragmento é processado via `@ include` e mantém as respostas HTMX válidas.
 - Imagens relevantes (bandeiras/ícones de ação) precisam de `alt` descritivo; ícones puramente decorativos devem usar `aria-hidden="true"`.
 
 ## 5. Acessibilidade
