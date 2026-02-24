@@ -235,6 +235,11 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído]** Executar `mvn -Dfrontend.skip=true test` e rebuild docker para validar a renderização pós-correção. Evidências: `.ia/logs/session-20260224-participantes-taglibs.md`.
     * **[Concluído]** Higienizar `participantes-rows.jspf` removendo diretivas `<%@taglib ...%>` e garantir que os hosts (`participantes.jsp`, `participantes-table.jsp`) declarem `c`/`fmt` antes do include.
     * **[Concluído]** Validar renderização via menu + htmx após deploy (usuário confirmou ausência de diretivas escapadas; capturar nova evidência limpa na próxima sessão).
+22. **[Em Progresso] Correção dados e papéis dos participantes seed (24/02/2026):** Ajustar a carga inicial para corrigir o nome do usuário padrão e alinhar a apresentação/armazenamento dos papéis exibidos na tela administrativa.
+    * **[Concluído]** Corrigir o nome \"Usuário Teste\" na seed inicial de participantes garantindo encoding UTF-8 consistente.
+    * **[Concluído]** Revisar privilégios seminais (`ROLE_*`) garantindo que admin e user possuam papéis adequados e únicos.
+    * **[Concluído]** Atualizar a tela administrativa para mapear corretamente os papéis retornados do backend aos níveis exibidos no dropdown.
+    * **[Em Progresso]** Executar `mvn -Dfrontend.skip=true test` e smoke pós-ajuste para validar apresentação e atualização HTMX dos papéis.
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
 1. **[Concluído] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.

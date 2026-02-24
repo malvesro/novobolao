@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.jfree.data.category.DefaultCategoryDataset;
@@ -134,11 +135,29 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 				getPrivilegioDao().apagar(p);
 			}
         }
+        String papelNormalizado = normalizarPapel(papel);
+        participante.setPrivilegios(privilegios);
+        if (papelNormalizado == null) {
+            return;
+        }
         Privilegio privilegio = new Privilegio();
         privilegio.setIdParticipante(participante.getId());
-        privilegio.setPapel(papel);
+        privilegio.setPapel(papelNormalizado);
         privilegios.add(privilegio);
-        participante.setPrivilegios(privilegios);
+    }
+
+    private String normalizarPapel(String papel) {
+        if (papel == null) {
+            return null;
+        }
+        String valor = papel.trim();
+        if (valor.isEmpty() || "Nenhum".equalsIgnoreCase(valor)) {
+            return null;
+        }
+        if (valor.startsWith("ROLE_")) {
+            return valor.toUpperCase(Locale.ROOT);
+        }
+        return "ROLE_" + valor.toUpperCase(Locale.ROOT);
     }
 
     private void aplicarSanitizacaoCadastro(Participante participante) throws ValidacaoException {

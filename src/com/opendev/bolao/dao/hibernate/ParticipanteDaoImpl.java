@@ -24,7 +24,7 @@ public class ParticipanteDaoImpl implements ParticipanteDao {
 
 	public List buscarTodosDoBolaoGeral() {
 		Query query = sessionFactory.getCurrentSession().createQuery("select p from Participante as p inner join p.privilegios as pri where pri.papel = :papel");
-		query.setParameter("papel", "geral");
+		query.setParameter("papel", "ROLE_USER");
 		return query.list();
 	}
 
