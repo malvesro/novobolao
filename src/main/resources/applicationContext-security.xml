@@ -30,6 +30,7 @@
         <security:intercept-url pattern="/cadastroForm.action*" access="permitAll" />
         <security:intercept-url pattern="/cadastro.action*" access="permitAll" />
         <security:intercept-url pattern="/index.action*" access="permitAll" />
+        <security:intercept-url pattern="/regras.action*" access="permitAll" />
         <security:intercept-url pattern="/admin/**" access="hasRole('ADMIN')" />
         <security:intercept-url pattern="/seguro/palpites.action" access="hasAnyRole('ADMIN', 'USER')" />
         <security:intercept-url pattern="/seguro/**" access="hasAnyRole('ADMIN', 'USER')" />

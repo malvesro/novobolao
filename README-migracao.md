@@ -285,7 +285,9 @@ Os fluxos abaixo cobrem a navegação principal e as regras aplicadas a cada con
 flowchart TD
     Visitante([Visitante]) --> Index[index.jsp<br/>Router inicial]
     Index -->|Não autenticado| Login[login.jsp<br/>Formulário Spring Security]
+    Index -->|Consultar regras| Regras[regras.jsp<br/>Regras do Bolão]
     Login -->|Quero me cadastrar| Cadastro[cadastro.jsp<br/>Validações: login único, senha 8-64, sanitização]
+    Login -->|Ver regras| Regras
     Cadastro -->|Pedido enviado| Login
     Login -->|Credenciais válidas| AuthSpring[(Spring Security)]
     AuthSpring --> DecidirPerfil{Perfil da sessão}
@@ -294,6 +296,7 @@ flowchart TD
     Principal --> Palpites[/seguro/palpites.action<br/>HTMX + bloqueios por horário]
     Principal --> Ranking[/seguro/ranking.action]
     Principal --> TrocaSenha[/seguro/trocaSenha.action]
+    Principal --> Regras
     AdminPortal --> AdminJogos[/admin/infoEquipes.action<br/>CRUD de partidas]
     AdminPortal --> AdminParticipantes[/admin/participantes.action<br/>RBAC, habilitação, exclusão]
     AdminPortal --> Logout[logout.action]
@@ -305,6 +308,7 @@ flowchart TD
   - `login.jsp`: formulário com CSRF, feedback centralizado; redireciona conforme papéis concedidos.  
   - `cadastro.jsp`: sanitização em todos os campos, senha 8–64 caracteres com símbolos seguros, verificação de login único no serviço.  
   - `index.jsp`: atua como roteador – direciona usuários autenticados para `/seguro/principal.action` e visitantes para `login.action`.
+  - `regras.jsp`: compila pontuação, prazos e critérios de desempate do bolão; acessível via menu “Regras” ou diretamente em `/regras.action`.
 
 - **Área Segura (`/seguro`)**  
   - `principal.jsp`: exibe jogos do dia, gráfico de liderança e mensagens de status; jogos sem resultado exibem placeholders.  

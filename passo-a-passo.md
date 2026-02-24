@@ -221,6 +221,14 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído]** `Email.java` refatorado com `EmailConfiguration`, suporte a TLS/SSL, timeouts e `Session.getInstance`, mantendo autenticação segura (Skill: `modernization-java-migration v1.0.0`).
     * **[Concluído]** Sobreposição de credenciais via arquivo externo e variáveis de ambiente (`SMTP_*`), ajustes no `docker-compose.yml` e propriedades padrão atualizadas.
     * **[Concluído]** Testes automatizados (`EmailConfigurationTest`, `EmailSessionConfigurationTest`) cobrindo hierarquia de configuração e montagem do `MailContext`; documentação (`README-migracao.md`) revisada com instruções de SMTP.
+
+20. **[Pendente] Publicar página de Regras do Bolão (24/02/2026):** Disponibilizar a opção “Regras” do menu com conteúdo acessível ao público.
+    * **[Pendente]** Consolidar conteúdo das regras (pontuação, prazos de palpite, critérios de desempate) a partir do `README-migracao.md`.
+    * **[Pendente]** Criar view `/WEB-INF/content/regras.jsp` com componentes atuais (portlet + utilitários CSS) acessível a visitantes.
+    * **[Pendente]** Adicionar action Struts `regras` em `ParticipanteAction`/`struts.xml` e liberar a URL em `applicationContext-security.xml`.
+    * **[Pendente]** Atualizar o menu para usar `c:url` apontando para `/regras.action`, garantindo acessibilidade (teclado/ARIA).
+    * **[Pendente]** Executar `mvn -Dfrontend.skip=true test` e smoke manual (login público + acesso à nova página).
+    * **[Pendente]** Atualizar documentação (README/guia do usuário) referenciando a página de regras.
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
 1. **[Concluído] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.
