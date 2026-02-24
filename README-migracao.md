@@ -241,3 +241,12 @@ docker compose logs -f app   # acompanhar startup
 |------|-------------|-----------|
 | 23/02/2026 | Assistente Técnico Líder (IA) | Criação do README consolidado conforme Tarefa 14 (versão base). |
 | 23/02/2026 | Assistente Técnico Líder (IA) | Reestruturação completa alinhada à Tarefa 16, incluindo seção de jornada de negócio, arquitetura detalhada, operação, segurança e guia expandido para desenvolvedores. |
+### 2.2.1 Configuração de E-mail
+- **Arquivos padrão:** `src/main/resources/com/opendev/bolao/email/email.properties` (e réplica para compatibilidade) contêm defaults comentados.  
+- **Externalização:**  
+  1. **Arquivo externo:** defina o caminho via variável `BOLAO_EMAIL_CONFIG` ou system property `bolao.email.config`.  
+  2. **Variáveis de ambiente:** `SMTP_HOST`, `SMTP_PORT`, `SMTP_AUTH`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_TLS`, `SMTP_STARTTLS_REQUIRED`, `SMTP_SSL`, `SMTP_SSL_TRUST`, `SMTP_CONNECTION_TIMEOUT`, `SMTP_TIMEOUT`, `SMTP_WRITE_TIMEOUT`, `SMTP_FROM_ADDRESS`, `SMTP_FROM_NAME`, `SMTP_SYSTEM_URL`.  
+  3. **System properties:** qualquer `mail.smtp.*` também pode ser passado em `JAVA_OPTS`.  
+- **Autenticação/TLS:** habilite `SMTP_AUTH=true` e informe usuário/senha; use STARTTLS (`SMTP_TLS=true`) para porta 587 ou `SMTP_SSL=true` para SMTPS (porta 465).  
+- **Timeouts:** valores padrão 10 s (conexão/leitura/escrita); ajuste conforme necessidade.  
+- **Boas práticas:** nunca versionar credenciais reais; utilize secrets manager ou `.env` local ignorado.
