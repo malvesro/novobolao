@@ -7,8 +7,10 @@
 </c:if>
 
 <div class="spacer-lg"></div>
+<fmt:message key="rules.title" var="rulesTitle" />
+
 <div class="dashboard-section">
-    <opendev:portlet id="regras_portlet" icon="/img/information.gif" title="<fmt:message key=\"rules.title\" />">
+    <opendev:portlet id="regras_portlet" icon="/img/information.gif" title="${rulesTitle}">
         <div class="portlet-body">
             <p><fmt:message key="rules.intro" /></p>
 
