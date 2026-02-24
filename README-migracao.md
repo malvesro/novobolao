@@ -247,6 +247,32 @@ docker compose logs -f app   # acompanhar startup
   1. **Arquivo externo:** defina o caminho via variável `BOLAO_EMAIL_CONFIG` ou system property `bolao.email.config`.  
   2. **Variáveis de ambiente:** `SMTP_HOST`, `SMTP_PORT`, `SMTP_AUTH`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_TLS`, `SMTP_STARTTLS_REQUIRED`, `SMTP_SSL`, `SMTP_SSL_TRUST`, `SMTP_CONNECTION_TIMEOUT`, `SMTP_TIMEOUT`, `SMTP_WRITE_TIMEOUT`, `SMTP_FROM_ADDRESS`, `SMTP_FROM_NAME`, `SMTP_SYSTEM_URL`.  
   3. **System properties:** qualquer `mail.smtp.*` também pode ser passado em `JAVA_OPTS`.  
+- **Exemplos práticos:**  
+  - *Arquivo externo (`/etc/bolao/email.properties`):*  
+    ```properties
+    mail.smtp.host = smtp.corporativo.intra
+    mail.smtp.port = 587
+    mail.smtp.auth = true
+    mail.smtp.auth.user = bolao@app
+    mail.smtp.auth.password = ********
+    mail.smtp.starttls.enable = true
+    mail.smtp.connectiontimeout = 10000
+    mail.smtp.timeout = 10000
+    mail.from.address = bolao@app
+    mail.from.name = Bolão Corporativo
+    ```  
+  - *Variáveis em `.env` (lidas pelo `docker-compose`):*  
+    ```env
+    SMTP_HOST=smtp.corporativo.intra
+    SMTP_PORT=465
+    SMTP_SSL=true
+    SMTP_SSL_TRUST=*
+    SMTP_AUTH=true
+    SMTP_USERNAME=bolao@app
+    SMTP_PASSWORD=********
+    SMTP_FROM_ADDRESS=bolao@app
+    SMTP_FROM_NAME="Bolão 2026"
+    ```  
 - **Autenticação/TLS:** habilite `SMTP_AUTH=true` e informe usuário/senha; use STARTTLS (`SMTP_TLS=true`) para porta 587 ou `SMTP_SSL=true` para SMTPS (porta 465).  
 - **Timeouts:** valores padrão 10 s (conexão/leitura/escrita); ajuste conforme necessidade.  
 - **Boas práticas:** nunca versionar credenciais reais; utilize secrets manager ou `.env` local ignorado.
