@@ -30,8 +30,8 @@ INSERT INTO `PAR_PARTICIPANTE` (
 
 -- Privilégios do administrador
 INSERT INTO `PRI_PRIVILEGIO` (`PRI_PAR_ID`, `PRI_PAPEL`) VALUES
-(1, 'ROLE_USER'),
-(1, 'ROLE_ADMIN');
+(1, 'ROLE_ADMIN'),
+(1, 'ROLE_USER');
 
 -- ============================================================================
 -- Usuário de Teste
@@ -45,7 +45,7 @@ INSERT INTO `PAR_PARTICIPANTE` (
   `PAR_HABILITADO`, `PAR_IP`, `PAR_DH_CADASTRO`
 ) VALUES (
   2, 
-  'Usuário de Teste', 
+  'Usuário Teste', 
   'user',
   '$2b$12$JZ1I7s1fL7bypQYT.K46Heh2bc854U2SKrSNGfzILkf6rR2T3kMNa', -- BCrypt de 'user123'
   'user@bolao.local', 
