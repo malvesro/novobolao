@@ -1,0 +1,365 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- saved from url=(0049)https://localhost:8443/admin/participantes.action -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+	
+		
+		
+			
+		
+	
+
+
+<meta http-equiv="pragma" content="no-cache">
+<title>...::: Bolão de Placa :::...</title>
+
+	<meta name="_csrf" content="jjDtlN6DvBI2DIy339HFEO4tFCmUWV4V8hUAnxXRGP4OaZ-PvFbdpOi22XAbb-6EvPzxItkUOUunP2k4xnQ4-yHoIMk8WK7t">
+	<meta name="_csrf_header" content="X-XSRF-TOKEN">
+	<meta name="_csrf_parameter" content="_csrf">
+
+<script type="text/javascript" src="./tela-gerenciar-participantes_files/htmx.min.js.baixados"></script>
+<script type="text/javascript">
+	(function () {
+		'use strict';
+		function getMetaContent(name) {
+			var element = document.querySelector('meta[name=\"' + name + '\"]');
+			return element ? element.getAttribute('content') : null;
+		}
+
+		var token = getMetaContent('_csrf');
+		var headerName = getMetaContent('_csrf_header') || 'X-CSRF-TOKEN';
+		var parameterName = getMetaContent('_csrf_parameter') || '_csrf';
+
+		if (!token) {
+			return;
+		}
+
+		function ensureFormToken(form) {
+			if (!form || !(form instanceof HTMLFormElement)) {
+				return;
+			}
+			if ((form.method || 'get').toLowerCase() !== 'post') {
+				return;
+			}
+			if (form.querySelector('input[name=\"' + parameterName + '\"]')) {
+				return;
+			}
+			var input = document.createElement('input');
+			input.type = 'hidden';
+			input.name = parameterName;
+			input.value = token;
+			form.appendChild(input);
+		}
+
+		document.addEventListener('submit', function (event) {
+			var form = event.target;
+			ensureFormToken(form);
+		}, true);
+
+		document.addEventListener('DOMContentLoaded', function () {
+			var forms = document.querySelectorAll('form');
+			for (var i = 0; i < forms.length; i += 1) {
+				ensureFormToken(forms[i]);
+			}
+		});
+
+		if (window.fetch) {
+			var originalFetch = window.fetch.bind(window);
+			window.fetch = function (input, init) {
+				if (input instanceof Request) {
+					var requestHeaders = new Headers(input.headers);
+					if (!requestHeaders.has(headerName)) {
+						requestHeaders.set(headerName, token);
+					}
+					var requestInit = Object.assign({}, init || {}, { headers: requestHeaders });
+					return originalFetch(new Request(input, requestInit));
+				}
+				var nextInit = Object.assign({}, init || {});
+				var headers = new Headers(nextInit.headers || undefined);
+				if (!headers.has(headerName)) {
+					headers.set(headerName, token);
+				}
+				nextInit.headers = headers;
+				return originalFetch(input, nextInit);
+			};
+		}
+
+		if (window.htmx && window.htmx.on) {
+			window.htmx.on('htmx:configRequest', function (event) {
+				event.detail.headers[headerName] = token;
+			});
+			window.htmx.on('htmx:afterSwap', function () {
+				var forms = document.querySelectorAll('form');
+				for (var i = 0; i < forms.length; i += 1) {
+					ensureFormToken(forms[i]);
+				}
+			});
+		}
+	}());
+</script>
+<script type="text/javascript">
+	window.APP_BASE_URL = '';
+</script>
+<script type="module">
+	const BASE_URL = window.APP_BASE_URL || '';
+
+	function buildAssetUrl(path) {
+		if (!path) {
+			return null;
+		}
+		if (path.startsWith('http://') || path.startsWith('https://')) {
+			return path;
+		}
+		if (path.startsWith(BASE_URL + '/')) {
+			return path;
+		}
+		if (path.startsWith('/')) {
+			return ``;
+		}
+		if (path.startsWith('assets/')) {
+			return `/`;
+		}
+		return `/assets/`;
+	}
+
+	const manifestUrl = buildAssetUrl('assets/manifest.json');
+	const fallbackModule = buildAssetUrl('assets/js/app-bundle.js');
+	const possibleEntries = [
+		'src/frontend/main.js',
+		'src/frontend/main.ts',
+		'src/frontend/main.jsx',
+		'main.js',
+		'main.ts',
+		'main.jsx'
+	];
+
+	async function loadBundle() {
+		try {
+			const response = await fetch(manifestUrl, { cache: 'no-store' });
+			if (response.ok) {
+				const manifest = await response.json();
+				const entry = possibleEntries
+					.map((key) => manifest[key])
+					.find((value) => value && value.file);
+
+				if (entry && entry.file) {
+					const entryUrl = buildAssetUrl(entry.file);
+					if (entryUrl) {
+						await import(entryUrl);
+						return;
+					}
+				}
+			}
+		} catch (error) {
+			console.warn('Manifest indisponível, usando bundle fallback.', error);
+		}
+
+		if (fallbackModule) {
+			await import(fallbackModule);
+		} else {
+			console.error('Fallback do bundle não encontrado.');
+		}
+	}
+
+	loadBundle();
+</script>
+
+
+<style type="text/css">
+	@IMPORT url("/css/estilo.css");
+</style>
+<style>                      .htmx-indicator{opacity:0}                      .htmx-request .htmx-indicator{opacity:1; transition: opacity 200ms ease-in;}                      .htmx-request.htmx-indicator{opacity:1; transition: opacity 200ms ease-in;}                    </style></head>
+<body>
+	<a class="skip-link" href="https://localhost:8443/admin/participantes.action#content">Ir para o conteúdo principal</a>
+	<div id="wrapper">
+	<div id="header" role="banner">
+	</div>
+	<main id="content" role="main" tabindex="-1">
+
+<script type="text/javascript">
+function esconderOuMostrarMenu(menuHeader) {
+	var headerId = menuHeader.id;
+	var underscoreIndex = headerId.indexOf("_");
+	var childId = headerId.substring(0, underscoreIndex);
+	childId = "#" + childId + "_itens";
+	$j(childId).slideToggle();
+}
+</script>
+
+<p id="logout_func" class="logout-banner">
+	
+	Bem vindo <strong>admin</strong>!
+	</p><form id="logoutForm" class="logout-form" action="https://localhost:8443/j_logout" method="post">
+		<button type="submit" class="link-button">
+			Sair
+		</button>
+		
+			<input type="hidden" name="_csrf" value="jjDtlN6DvBI2DIy339HFEO4tFCmUWV4V8hUAnxXRGP4OaZ-PvFbdpOi22XAbb-6EvPzxItkUOUunP2k4xnQ4-yHoIMk8WK7t">
+		
+	</form>
+<p></p>
+<p class="text-right">
+    1 participante(s) online neste momento
+</p>
+<div class="spacer-sm"></div>
+<div id="menu">
+  <div id="geral_header" class="menu_header" onclick="esconderOuMostrarMenu(this);">
+    <span>Geral</span>
+  </div>
+  <div id="geral_itens" class="menu_item">
+    <span>
+    
+    
+    <a href="https://localhost:8443/index.action">
+      <span>Página Principal</span>
+    </a>
+    <a href="https://localhost:8443/regras.action">
+      <span>Regras</span>
+    </a>
+    
+    </span>
+  </div>
+  
+	<div id="bolao_header" class="menu_header" onclick="esconderOuMostrarMenu(this);">
+		<span>Bolão</span>
+	</div>
+	<div id="bolao_itens" class="menu_item">
+		<span>
+        
+		<a href="https://localhost:8443/seguro/ranking.action">
+			<span>Classificação geral</span>
+		</a>
+        
+        
+		<a href="https://localhost:8443/seguro/graficoDesempenho.action">
+			<span>Gráfico de desempenho</span>
+		</a>
+        
+        
+		
+		<a href="https://localhost:8443/seguro/palpites.action">
+			<span>Palpites e Resultados</span>
+		</a>
+        
+		</span>
+	</div>
+
+	
+	<div id="admin_header" class="menu_header" onclick="esconderOuMostrarMenu(this);">
+		<span>Administrador</span>
+	</div>
+	<div id="admin_itens" class="menu_item">
+		<span>
+		
+		<a href="https://localhost:8443/admin/infoEquipes.action">
+			<span>Cadastrar jogos</span>
+		</a>
+		
+		<a href="https://localhost:8443/admin/jogos.action">
+			<span>Atualizar resultados</span>
+		</a>
+        
+		<a href="https://localhost:8443/admin/participantes.action">
+			<span>Gerenciar participantes</span>
+		</a>
+		</span>
+	</div>
+	
+</div>
+
+
+
+
+<div class="dashboard-section">
+<!-- Portlet generated by opendev:portlet tag. ID = participantesPortlet -->
+<div id="participantesPortlet" class="portlet">
+
+	<div class="title">
+		<span><img alt="Participantes" src="./tela-gerenciar-participantes_files/users.png" style="vertical-align: middle;"></span>
+		<span>Participantes</span>
+	</div>
+	<div class="content" id="participantesPortlet_content">
+    <div class="table-responsive">
+    
+            &lt;%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %&gt;
+&lt;%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %&gt;
+<c:foreach var="participante" items="${participantes}" varstatus="loop">
+    <c:choose>
+        <c:when test="${loop.count mod 2 eq 0}">
+            <c:set var="rowClasses" value="impar">
+        </c:set></c:when>
+        <c:otherwise>
+            <c:set var="rowClasses" value="par">
+        </c:set></c:otherwise>
+    </c:choose>
+    <c:if test="${participante.login eq pageContext.request.userPrincipal.name}">
+        <c:set var="rowClasses" value="${rowClasses} ranking-highlight">
+    </c:set></c:if>
+    </c:foreach><table class="table conteudo table-participants">
+        <thead>
+            <tr>
+                <th scope="col" class="text-center">#</th>
+                <th scope="col">Nome</th>
+                <th scope="col">Login</th>
+                <th scope="col">E-mail</th>
+                <th scope="col" class="text-center">Nível</th>
+                <th scope="col" class="text-center">Autorizado</th>
+                <th scope="col" class="text-center"><span class="visually-hidden">Ações</span></th>
+            </tr>
+        </thead>
+        <tbody id="participantesTableBody"><tr id="linhaParticipante_${participante.id}" class="${rowClasses}">
+        <td class="text-center">${loop.count}</td>
+        <td class="text-left"><c:out value="${participante.nomeFormatado}"></c:out></td>
+        <td class="text-left"><c:out value="${participante.login}"></c:out></td>
+        <td class="text-left"><c:out value="${participante.email}"></c:out></td>
+        <td class="text-center">
+            <select name="papel" class="form-control input-centered table-participants__select" aria-label="Papel do participante ${participante.login}" hx-post="${base}/admin/atualizarPapelParticipante.action" hx-target="#participantesTableBody" hx-swap="outerHTML" hx-trigger="change" hx-vals="{&quot;id&quot;:&quot;${participante.id}&quot;}">
+                <c:fortokens var="nivel" items="Nenhum,admin,geral,restrito" delims=",">
+                    <c:choose>
+                        <c:when test="${nivel eq participante.privilegio.papel}">
+                            <option value="${nivel}" selected="selected">${nivel}</option>
+                        </c:when>
+                        <c:otherwise>
+                            <option value="${nivel}">${nivel}</option>
+                        </c:otherwise>
+                    </c:choose>
+                </c:fortokens>
+            </select>
+        </td>
+        <td class="text-center">
+            <select name="status" class="form-control input-centered table-participants__select" aria-label="Status do participante ${participante.login}" hx-post="${base}/admin/atualizarStatusParticipante.action" hx-target="#participantesTableBody" hx-swap="outerHTML" hx-trigger="change" hx-vals="{&quot;id&quot;:&quot;${participante.id}&quot;}">
+                <option value="true" <c:if="" test="${participante.habilitado}">selected="selected"&gt;Sim</option>
+                <option value="false" <c:if="" test="${not participante.habilitado}">selected="selected"&gt;Não</option>
+            </select>
+        </td>
+        <td class="text-center">
+            <img alt="Remover participante" src="./tela-gerenciar-participantes_files/delete.png" hx-post="${base}/admin/apagarParticipanteHtmx.action" hx-target="#participantesTableBody" hx-swap="outerHTML" hx-vals="{&quot;id&quot;:&quot;${participante.id}&quot;}" hx-confirm="Deseja realmente apagar este participante?" class="icon-button">
+        </td>
+    </tr>
+
+
+        </tbody>
+    </table>
+    </div>
+
+	</div>
+</div>
+</div>
+	</main>
+	</div>
+	<div id="footer" role="contentinfo">
+		<div>
+			
+			
+				
+					<p class="system-version">
+						Versão 0.2.1-SNAPSHOT - compilado em 24/02/2026 17:37
+					</p>
+				
+				
+			
+		</div>
+	</div>
+
+
+</body></html>

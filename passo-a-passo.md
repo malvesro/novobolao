@@ -233,6 +233,8 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
 21. **[Concluído] Correção renderização portlet de Participantes (24/02/2026):** Ajustar declarações de taglibs e include do menu para evitar leakage de diretivas na tela administrativa.
     * **[Concluído]** Declarar taglibs antes do include em `admin/participantes.jsp` e garantir que `template/menu.jspf` contenha as diretivas necessárias.
     * **[Concluído]** Executar `mvn -Dfrontend.skip=true test` e rebuild docker para validar a renderização pós-correção. Evidências: `.ia/logs/session-20260224-participantes-taglibs.md`.
+    * **[Concluído]** Higienizar `participantes-rows.jspf` removendo diretivas `<%@taglib ...%>` e garantir que os hosts (`participantes.jsp`, `participantes-table.jsp`) declarem `c`/`fmt` antes do include.
+    * **[Concluído]** Validar renderização via menu + htmx após deploy (usuário confirmou ausência de diretivas escapadas; capturar nova evidência limpa na próxima sessão).
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
 1. **[Concluído] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.
