@@ -229,6 +229,10 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Pendente]** Atualizar o menu para usar `c:url` apontando para `/regras.action`, garantindo acessibilidade (teclado/ARIA).
     * **[Pendente]** Executar `mvn -Dfrontend.skip=true test` e smoke manual (login público + acesso à nova página).
     * **[Pendente]** Atualizar documentação (README/guia do usuário) referenciando a página de regras.
+
+21. **[Concluído] Correção renderização portlet de Participantes (24/02/2026):** Ajustar declarações de taglibs e include do menu para evitar leakage de diretivas na tela administrativa.
+    * **[Concluído]** Declarar taglibs antes do include em `admin/participantes.jsp` e garantir que `template/menu.jspf` contenha as diretivas necessárias.
+    * **[Concluído]** Executar `mvn -Dfrontend.skip=true test` e rebuild docker para validar a renderização pós-correção. Evidências: `.ia/logs/session-20260224-participantes-taglibs.md`.
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
 1. **[Concluído] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.
