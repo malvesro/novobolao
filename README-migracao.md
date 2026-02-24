@@ -276,3 +276,111 @@ docker compose logs -f app   # acompanhar startup
 - **Autenticação/TLS:** habilite `SMTP_AUTH=true` e informe usuário/senha; use STARTTLS (`SMTP_TLS=true`) para porta 587 ou `SMTP_SSL=true` para SMTPS (porta 465).  
 - **Timeouts:** valores padrão 10 s (conexão/leitura/escrita); ajuste conforme necessidade.  
 - **Boas práticas:** nunca versionar credenciais reais; utilize secrets manager ou `.env` local ignorado.
+
+### 2.2.2 Fluxos das Telas e Regras Operacionais
+Os fluxos abaixo cobrem a navegação principal e as regras aplicadas a cada contexto (público, área autenticada e administração).
+
+#### Visão Geral da Navegação
+```mermaid
+flowchart TD
+    Visitante([Visitante]) --> Index[index.jsp<br/>Router inicial]
+    Index -->|Não autenticado| Login[login.jsp<br/>Formulário Spring Security]
+    Login -->|Quero me cadastrar| Cadastro[cadastro.jsp<br/>Validações: login único, senha 8-64, sanitização]
+    Cadastro -->|Pedido enviado| Login
+    Login -->|Credenciais válidas| AuthSpring[(Spring Security)]
+    AuthSpring --> DecidirPerfil{Perfil da sessão}
+    DecidirPerfil -->|ROLE_USER| Principal[/seguro/principal.action<br/>Dashboard de jogos e ranking]
+    DecidirPerfil -->|ROLE_ADMIN| AdminPortal[/admin/participantes.action<br/>Gestão de usuários]
+    Principal --> Palpites[/seguro/palpites.action<br/>HTMX + bloqueios por horário]
+    Principal --> Ranking[/seguro/ranking.action]
+    Principal --> TrocaSenha[/seguro/trocaSenha.action]
+    AdminPortal --> AdminJogos[/admin/infoEquipes.action<br/>CRUD de partidas]
+    AdminPortal --> AdminParticipantes[/admin/participantes.action<br/>RBAC, habilitação, exclusão]
+    AdminPortal --> Logout[logout.action]
+    Logout --> Login
+```
+
+#### Regras por Área
+- **Público (não autenticado)**  
+  - `login.jsp`: formulário com CSRF, feedback centralizado; redireciona conforme papéis concedidos.  
+  - `cadastro.jsp`: sanitização em todos os campos, senha 8–64 caracteres com símbolos seguros, verificação de login único no serviço.  
+  - `index.jsp`: atua como roteador – direciona usuários autenticados para `/seguro/principal.action` e visitantes para `login.action`.
+
+- **Área Segura (`/seguro`)**  
+  - `principal.jsp`: exibe jogos do dia, gráfico de liderança e mensagens de status; jogos sem resultado exibem placeholders.  
+  - `jogos.jsp`: filtros por data, fase, grupo e equipe; HTMX para abrir modal de palpites; bloqueia atualização se `Jogo.jaOcorreu()` for verdadeiro.  
+  - `classificacao.jsp`: ordenação por pontuação total com tie-break por nome (`Participante.getNomeFormatado()`); destaca o usuário autenticado na grade.  
+  - `graficoDesempenho.jsp`: exige rival válido; gera série temporal cumulativa com JFreeChart.  
+  - `trocaSenha.jsp`: valida senha atual, aplica `BCrypt` e regras de complexidade antes de persistir.
+
+- **Administração (`/admin`)**  
+  - `participantes.jsp`: apenas `ROLE_ADMIN`; lista usuários com filtros de status; ações de habilitar, mudar papel e excluir usam HTMX retornando fragmentos.  
+  - `inclusaoJogo.jsp`: cria partidas informando data, hora, fase, equipes e local; validações impedem partidas com equipes duplicadas.  
+  - `jogos.jsp`: admins podem atualizar placar final; serviço rejeita valores negativos e jogos inexistentes.  
+  - Operações HTMX de participantes respondem com `participantes-rows.jspf` (HTTP 200); endpoints de jogos retornam 204/400/500 conforme a validação no `AdminAction`.
+
+#### Diagrama – Ciclo de Palpites
+```mermaid
+sequenceDiagram
+    participant U as Usuário Autenticado
+    participant A as ParticipanteAction
+    participant PS as ParticipanteService
+    participant JS as JogoService
+
+    U->>A: GET /seguro/palpites.action
+    A->>JS: buscarUsandoFiltro(filtro)
+    JS-->>A: lista de jogos
+    A-->>U: Renderiza jogos.jsp + filtros HTMX
+    U->>A: POST HTMX atualizarPalpite (jogoId, gols)
+    A->>PS: atualizarPalpite(login, jogoId, gols, IP)
+    PS->>JS: validar jogo e horário
+    PS-->>A: resultado (sucesso/erro)
+    A-->>U: Fragmento palpite-status.jspf com feedback
+```
+
+#### Diagrama – Operações Administrativas
+```mermaid
+flowchart LR
+    subgraph Administração
+        AP[participantes.jsp] --> Papel[Atualizar papel<br/>adminAction.atualizarPapelParticipanteHtmx]
+        AP --> Status[Habilitar/desabilitar<br/>adminAction.atualizarStatusParticipanteHtmx]
+        AP --> Remover[Excluir participante<br/>adminAction.apagarParticipante]
+        J[inclusaoJogo.jsp] --> Criar[criarNovoJogoHtmx<br/>Valida data/fase]
+        J --> Atualizar[atualizarResultadoDoJogoHtmx]
+    end
+    Papel -->|success| Refresh[Atualiza fragmento participantes-table.jsp]
+    Status -->|success| Refresh
+    Remover -->|success| Refresh
+    Criar -->|204| ToastOk[(Toast de sucesso)]
+    Atualizar -->|204| ToastOk
+    Criar -->|400/500| ToastErro[(Toast de erro)]
+    Atualizar -->|400/500| ToastErro
+```
+
+#### Fluxo de Autenticação e Redirecionamento
+```mermaid
+sequenceDiagram
+    participant U as Usuário
+    participant Login as login.jsp
+    participant Sec as Spring Security 6
+    participant Struts as Struts Dispatcher
+    participant Principal as ParticipanteAction.obterDadosPaginaPrincipal
+
+    U->>Login: POST /j_security_check (credenciais)
+    Login->>Sec: UsernamePasswordAuthenticationFilter.authenticate()
+    Sec-->>U: HTTP 302 /seguro/principal.action
+    U->>Struts: GET /seguro/principal.action
+    Struts->>Principal: carregar dados (JogoService.buscarJogosDeHoje)
+    Principal-->>U: principal.jsp com dashboard
+```
+
+#### Referência Rápida das Ações Administrativas
+| Ação | Endpoint | Método Struts | Validações chave | Resposta |
+|------|----------|---------------|------------------|----------|
+| Atualizar papel | `POST /admin/atualizarPapelParticipante.action` | `AdminAction#atualizarPapelParticipanteHtmx` | Sanitiza `papel` (32 chars) e aplica RBAC (`ROLE_ADMIN`) | 200 + fragmento `participantes-rows.jspf` |
+| Alterar status | `POST /admin/atualizarStatusParticipante.action` | `AdminAction#atualizarStatusParticipanteHtmx` | Sanitiza `status` (16 chars) e converte para booleano | 200 + fragmento `participantes-rows.jspf` |
+| Remover participante | `POST /admin/apagarParticipanteHtmx.action` | `AdminAction#apagarParticipante` | Exclui registro e recarrega lista | 200 + fragmento `participantes-rows.jspf` |
+| Criar jogo | `POST /admin/criarJogo.action` | `AdminAction#criarNovoJogoHtmx` | Exige data/hora, fase numérica e equipes distintas | 204 sucesso / 400 validação / 500 erro interno |
+| Atualizar resultado | `POST /admin/atualizarResultadoJogo.action` | `AdminAction#atualizarResultadoDoJogoHtmx` | Rejeita gols negativos e invalida cache de ranking | 204 sucesso / 400 validação / 500 erro interno |
+
+> **Observação:** toda navegação protegida passa pelo filtro Spring Security (`springSecurityFilterChain`) e pela stack `bolaoStack` do Struts (COOP/COEP/Fetch Metadata), garantindo salvaguardas contra CSRF, clickjacking e requisições cross-origin.
