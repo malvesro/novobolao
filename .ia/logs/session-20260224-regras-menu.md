@@ -72,3 +72,4 @@ Atualizações
     correspondentes em messages.properties.
   - Ajustei o README-migracao.md para documentar a nova navegação (visitantes, login e área segura agora
     referenciam regras.jsp).
+- 24/02/2026: Corrigido o título do portlet de regras usando `<fmt:message var="rulesTitle" ...>` para evitar quebra de atributo no JSP.
