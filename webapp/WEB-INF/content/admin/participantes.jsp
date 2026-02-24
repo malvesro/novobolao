@@ -1,7 +1,7 @@
-<%@include file="/WEB-INF/content/template/menu.jspf" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="opendev" uri="http://www.opendev.com.br/tld" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@include file="/WEB-INF/content/template/menu.jspf" %>
 <div class="dashboard-section">
 <opendev:portlet id="participantesPortlet" title="Participantes" icon="/img/users.png">
     <div class="table-responsive">
