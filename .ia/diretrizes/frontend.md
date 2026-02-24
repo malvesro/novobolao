@@ -39,6 +39,7 @@ Este documento consolida os padrões atuais para desenvolvimento e manutenção 
   - `skip-link` e `sr-only` para navegação acessível.
   - Classes de portlets (`opendev:portlet`) e tabelas (`.table`, `.table-responsive`).
   - Dialogs e balões devem receber classes `.dialog`, `.balao-*` e atributos ARIA adequados.
+- Ao internacionalizar títulos/atributos em JSP (ex.: `opendev:portlet`), sempre use `fmt:message` com `var="..."` e referencie a variável no atributo (`title="${rulesTitle}"`). Evita que o texto traduzido seja injetado de forma incorreta dentro do markup.
 - Imagens relevantes (bandeiras/ícones de ação) precisam de `alt` descritivo; ícones puramente decorativos devem usar `aria-hidden="true"`.
 
 ## 5. Acessibilidade
