@@ -206,6 +206,7 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído]** Validar alinhamento com diretrizes e artefatos (`passo-a-passo.md`, planos, ADRs), apontando referências explícitas.
     * **[Concluído]** Atualizar governança: versionar documento anterior se necessário, registrar log e revisar rastreabilidade.
     * **[Concluído]** Revisar e submeter para validação final com stakeholders (negócio e engenharia).
+    * **[Concluído] 24/02/2026** Adicionar diagramas Mermaid e fluxos operacionais (navegação, palpites, autenticação) ao `README-migracao.md`, além da tabela de referência das ações administrativas. Evidência: `.ia/logs/session-20260224-readme-migracao-fluxos.md`. (Skill: N/A)
 
 17. **[Concluído] Revisão da Política de Senhas (23/02/2026):** Permitir caracteres especiais seguros e alinhar mensagens ao usuário. Plano: `.ia/planos/plano-politica-senhas-20260223.md`.
     * **[Concluído]** Validações backend atualizadas (`ValidacaoUtils`, `ParticipanteAction`, `Participante`) para aceitar senhas de 8–64 caracteres com símbolos seguros e bloquear caracteres de controle (Skill: `modernization-java-migration v1.0.0`).
