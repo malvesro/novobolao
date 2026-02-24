@@ -74,3 +74,5 @@ Atualizações
     referenciam regras.jsp).
 - 24/02/2026: Corrigido o título do portlet de regras usando `<fmt:message var="rulesTitle" ...>` para evitar quebra de atributo no JSP.
 - 24/02/2026: Diretriz adicionada em `.ia/diretrizes/frontend.md` reforçando o uso de `fmt:message var=...` ao preencher atributos (ex.: título de portlets).
+- 24/02/2026: Ajustado `webapp/WEB-INF/content/admin/participantes.jsp` para declarar taglibs antes do include (`menu.jspf`), evitando que os diretórios JSP apareçam renderizados na tela de participantes.
+- 24/02/2026: Inseridas declarações de taglib (`c`, `fmt`) diretamente em `template/menu.jspf` para evitar que includes exibam diretivas na tela quando chamados antes das declarações.
