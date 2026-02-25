@@ -34,17 +34,44 @@
 <script type="text/javascript">
 	(function () {
 		'use strict';
+
 		function getMetaContent(name) {
-			var element = document.querySelector('meta[name=\"' + name + '\"]');
+			var element = document.querySelector('meta[name="' + name + '"]');
 			return element ? element.getAttribute('content') : null;
 		}
 
-		var token = getMetaContent('_csrf');
-		var headerName = getMetaContent('_csrf_header') || 'X-CSRF-TOKEN';
-		var parameterName = getMetaContent('_csrf_parameter') || '_csrf';
+		function syncMeta(meta, value) {
+			if (!meta || meta.getAttribute('content') === value) {
+				return;
+			}
+			meta.setAttribute('content', value);
+		}
 
-		if (!token) {
-			return;
+		function ensureGlobalField() {
+			var field = document.getElementById('csrfTokenField');
+			if (!field) {
+				field = document.createElement('input');
+				field.type = 'hidden';
+				field.id = 'csrfTokenField';
+				field.setAttribute('aria-hidden', 'true');
+				field.setAttribute('data-csrf-field', 'include');
+				field.setAttribute('hidden', 'hidden');
+				document.body.appendChild(field);
+			}
+			field.name = parameterName;
+			field.value = token;
+			return field;
+		}
+
+		function syncGlobalField() {
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', syncGlobalField, { once: true });
+				return;
+			}
+			if (!document.body) {
+				return;
+			}
+			ensureGlobalField();
 		}
 
 		function ensureFormToken(form) {
@@ -54,58 +81,144 @@
 			if ((form.method || 'get').toLowerCase() !== 'post') {
 				return;
 			}
-			if (form.querySelector('input[name=\"' + parameterName + '\"]')) {
-				return;
+			var existing = form.querySelector('input[data-csrf-field="include"]');
+			if (!existing) {
+				existing = form.querySelector('input[name="' + parameterName + '"]');
 			}
-			var input = document.createElement('input');
-			input.type = 'hidden';
-			input.name = parameterName;
-			input.value = token;
-			form.appendChild(input);
+			if (!existing) {
+				existing = document.createElement('input');
+				existing.type = 'hidden';
+				existing.setAttribute('data-csrf-field', 'include');
+				form.appendChild(existing);
+			}
+			existing.name = parameterName;
+			existing.value = token;
 		}
 
-		document.addEventListener('submit', function (event) {
-			var form = event.target;
-			ensureFormToken(form);
-		}, true);
-
-		document.addEventListener('DOMContentLoaded', function () {
+		function updateForms() {
 			var forms = document.querySelectorAll('form');
 			for (var i = 0; i < forms.length; i += 1) {
 				ensureFormToken(forms[i]);
 			}
-		});
+		}
+
+		function applyToken(nextToken, nextHeaderName, nextParameterName) {
+			var tokenChanged = nextToken && nextToken !== token;
+			var headerChanged = nextHeaderName && nextHeaderName !== headerName;
+			var parameterChanged = nextParameterName && nextParameterName !== parameterName;
+			if (!tokenChanged && !headerChanged && !parameterChanged) {
+				return;
+			}
+			if (tokenChanged) {
+				token = nextToken;
+				syncMeta(csrfMeta, token);
+			}
+			if (headerChanged) {
+				headerName = nextHeaderName;
+				syncMeta(csrfHeaderMeta, headerName);
+			}
+			if (parameterChanged) {
+				parameterName = nextParameterName;
+				syncMeta(csrfParameterMeta, parameterName);
+			}
+			syncGlobalField();
+			updateForms();
+		}
+
+		function extractTokenFromXhr(xhr) {
+			if (!xhr || !xhr.getResponseHeader) {
+				return;
+			}
+			var newHeaderName = xhr.getResponseHeader('X-CSRF-HEADER');
+			var newParameterName = xhr.getResponseHeader('X-CSRF-PARAM');
+			var newToken = xhr.getResponseHeader(headerName) ||
+				xhr.getResponseHeader('X-CSRF-TOKEN') ||
+				xhr.getResponseHeader('X-XSRF-TOKEN');
+			applyToken(newToken, newHeaderName, newParameterName);
+		}
+
+		function extractTokenFromResponse(response) {
+			if (!response || !response.headers || typeof response.headers.get !== 'function') {
+				return;
+			}
+			var newHeaderName = response.headers.get('X-CSRF-HEADER');
+			var newParameterName = response.headers.get('X-CSRF-PARAM');
+			var newToken = response.headers.get(headerName) ||
+				response.headers.get('X-CSRF-TOKEN') ||
+				response.headers.get('X-XSRF-TOKEN');
+			applyToken(newToken, newHeaderName, newParameterName);
+		}
+
+		var csrfMeta = document.querySelector('meta[name="_csrf"]');
+		var csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+		var csrfParameterMeta = document.querySelector('meta[name="_csrf_parameter"]');
+
+		var token = getMetaContent('_csrf');
+		var headerName = getMetaContent('_csrf_header') || 'X-CSRF-TOKEN';
+		var parameterName = getMetaContent('_csrf_parameter') || '_csrf';
+
+		if (!token) {
+			return;
+		}
+
+		syncMeta(csrfMeta, token);
+		syncGlobalField();
+		updateForms();
+
+		document.addEventListener('submit', function (event) {
+			ensureFormToken(event.target);
+		}, true);
+
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', updateForms);
+		}
 
 		if (window.fetch) {
 			var originalFetch = window.fetch.bind(window);
 			window.fetch = function (input, init) {
-				if (input instanceof Request) {
-					var requestHeaders = new Headers(input.headers);
-					if (!requestHeaders.has(headerName)) {
-						requestHeaders.set(headerName, token);
+				var requestInit = init ? Object.assign({}, init) : {};
+				var headers;
+
+				if (typeof Request !== 'undefined' && input instanceof Request) {
+					headers = new Headers(input.headers);
+					if (!headers.has(headerName)) {
+						headers.set(headerName, token);
 					}
-					var requestInit = Object.assign({}, init || {}, { headers: requestHeaders });
-					return originalFetch(new Request(input, requestInit));
+					if (headerName !== 'X-CSRF-TOKEN' && !headers.has('X-CSRF-TOKEN')) {
+						headers.set('X-CSRF-TOKEN', token);
+					}
+					requestInit.headers = headers;
+					return originalFetch(new Request(input, requestInit)).then(function (response) {
+						extractTokenFromResponse(response);
+						return response;
+					});
 				}
-				var nextInit = Object.assign({}, init || {});
-				var headers = new Headers(nextInit.headers || undefined);
+
+				headers = new Headers(requestInit.headers || undefined);
 				if (!headers.has(headerName)) {
 					headers.set(headerName, token);
 				}
-				nextInit.headers = headers;
-				return originalFetch(input, nextInit);
+				if (headerName !== 'X-CSRF-TOKEN' && !headers.has('X-CSRF-TOKEN')) {
+					headers.set('X-CSRF-TOKEN', token);
+				}
+				requestInit.headers = headers;
+				return originalFetch(input, requestInit).then(function (response) {
+					extractTokenFromResponse(response);
+					return response;
+				});
 			};
 		}
 
 		if (window.htmx && window.htmx.on) {
 			window.htmx.on('htmx:configRequest', function (event) {
 				event.detail.headers[headerName] = token;
-			});
-			window.htmx.on('htmx:afterSwap', function () {
-				var forms = document.querySelectorAll('form');
-				for (var i = 0; i < forms.length; i += 1) {
-					ensureFormToken(forms[i]);
+				if (headerName !== 'X-CSRF-TOKEN') {
+					event.detail.headers['X-CSRF-TOKEN'] = token;
 				}
+			});
+			window.htmx.on('htmx:afterSwap', updateForms);
+			window.htmx.on('htmx:afterRequest', function (event) {
+				extractTokenFromXhr(event && event.detail && event.detail.xhr);
 			});
 		}
 	}());

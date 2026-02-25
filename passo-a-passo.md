@@ -240,6 +240,12 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído]** Revisar privilégios seminais (`ROLE_*`) garantindo que admin e user possuam papéis adequados e únicos.
     * **[Concluído]** Atualizar a tela administrativa para mapear corretamente os papéis retornados do backend aos níveis exibidos no dropdown.
     * **[Em Progresso]** Executar `mvn -Dfrontend.skip=true test` e smoke pós-ajuste para validar apresentação e atualização HTMX dos papéis.
+23. **[Concluído (25/02/2026)] Correção dropdown de autorização e renderização HTMX (24/02/2026):** Garantir encoding correto e resposta parcial consistente ao alterar o status dos participantes. Plano: `.ia/planos/plano-correcao-autorizacao-participantes.md`.
+    * **[Concluído]** Diagnosticar origem do label "NÃ£o" e padronizar via i18n UTF-8 (mensagens `member.status.enabled/disabled` adicionadas).
+    * **[Concluído]** Inspecionar resposta HTMX ao alternar autorização; `hx-select="#participantesTableBody"` adicionado para garantir fragmento correto.
+    * **[Concluído]** Atualizar JSPs/JS para substituir apenas o `tbody` e validar interações com `hx-swap`.
+    * **[Concluído (25/02/2026)]** Executar `mvn -Dfrontend.skip=true test` e rebuild Docker após ajustes CSRF; comandos `mvn clean package -Dfrontend.skip=false`, `docker compose build app` e `docker compose up -d app` finalizados sem erros (Skill: `modernization-java-migration v1.0.0`). Smoke manual da tela HTMX permanece pendente para coletar novas evidências após o desbloqueio.
+    * **[Concluído (25/02/2026)]** Restaurar autenticação após erro CSRF (`planos/plano-correção-login-csrf-xor.md`); sincronização revista no `cabecalho.jspf`, login via `/j_security_check` validado com `curl` (admin/admin123) e ausência de `ArrayIndexOutOfBoundsException` confirmada nos logs do Tomcat (Skill: `modernization-java-migration v1.0.0`).
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
 1. **[Concluído] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.
