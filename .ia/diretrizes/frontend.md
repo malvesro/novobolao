@@ -56,6 +56,7 @@ Este documento consolida os padrões atuais para desenvolvimento e manutenção 
 - Nenhum script inline deve ser introduzido nas JSPs (facilita futura CSP). Use módulos e o loader do Vite.
 - Compressão/minificação: bundles do Vite (<10 KB) e CSS (~19 KB) são suficientes no momento; qualquer crescimento relevante deve desencadear nova análise (ver ADR `.ia/historico/ADR-20260220-otimizacao-minima-assets.md`).
 - Evitar carregar bibliotecas externas via CDN. Se indispensável, documentar e considerar subresource integrity (SRI).
+- CSRF (HX/fetch): não reescrever manualmente o cookie `XSRF-TOKEN`. Utilize o valor fornecido pelo `CookieCsrfTokenRepository` nas meta tags `_csrf*`, propague-o via campo hidden global (`#csrfTokenField`) e injete cabeçalhos em `fetch`/HTMX. Quando a resposta incluir cabeçalhos `X-CSRF-*`, atualize meta tags, campo hidden e formulários, preservando o handler `XorCsrfTokenRequestAttributeHandler`.
 
 ## 7. Build, QA e Ferramentas
 - **Sequência recomendada antes de merge:**
