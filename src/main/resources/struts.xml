@@ -16,7 +16,9 @@
 	<package name="bolao-default" extends="struts-default">
 		
 		<interceptors>
+			<interceptor name="htmxDebug" class="com.opendev.bolao.interceptor.HtmxDebugInterceptor" />
 			<interceptor-stack name="bolaoStack">
+				<interceptor-ref name="htmxDebug" />
 				<!-- Proteções Cross-Origin modernas -->
 				<interceptor-ref name="coop" />
 				<interceptor-ref name="coep" />
@@ -132,14 +134,17 @@
 		
 		<action name="atualizarPapelParticipante" class="adminAction" method="atualizarPapelParticipanteHtmx">
 			<result name="success">/WEB-INF/content/admin/partials/participantes-table.jsp</result>
+			<result name="fragment">/WEB-INF/content/admin/partials/participantes-table.jsp</result>
 		</action>
 
 		<action name="atualizarStatusParticipante" class="adminAction" method="atualizarStatusParticipanteHtmx">
 			<result name="success">/WEB-INF/content/admin/partials/participantes-table.jsp</result>
+			<result name="fragment">/WEB-INF/content/admin/partials/participantes-table.jsp</result>
 		</action>
 
 		<action name="apagarParticipanteHtmx" class="adminAction" method="apagarParticipante">
 			<result name="success">/WEB-INF/content/admin/partials/participantes-table.jsp</result>
+			<result name="fragment">/WEB-INF/content/admin/partials/participantes-table.jsp</result>
 		</action>
 	
 	</package>
