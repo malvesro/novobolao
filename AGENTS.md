@@ -151,6 +151,8 @@ Sugira a criação de commits frequentes para não perder conteúdo relevante, o
 
 * Verificar se os documentos relevantes também foram criados, além do código (histórico, ADR, atualizações no README.md, passo a passo, etc...). Sempre incluir a documentação gerada no commit também.
 
+* Sempre que concluir uma tarefa registrada no passo-a-passo.md, atualize a versão exposta pelo sistema antes de prosseguir para a próxima atividade.
+
 ### 7. Seguir as tarefas do documento passo-a-passo.md
 
 * Sempre trabalhar seguindo o fluxo do documenbto passo-a-passo.md: O conteúdo do arquivo template deve ser personalizado para esse projeto passo a passo conforme as recomendações para o projeto e a aprovação do usuário.
