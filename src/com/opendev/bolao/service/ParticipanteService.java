@@ -13,8 +13,10 @@ public interface ParticipanteService {
     public Participante criarNovo(Participante participante) throws ValidacaoException;
 	
 	public List buscarClassificacao();
-	
+
 	public Participante buscarPorLogin(String login);
+
+	public Participante buscarPorEmail(String email);
 
     public List buscarTodos();
     
