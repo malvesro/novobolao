@@ -36,8 +36,10 @@
                     aria-label="Papel do participante ${participante.login}"
                     hx-post="${base}/admin/atualizarPapelParticipante.action"
                     hx-target="#participantesTableBody"
+                    hx-select="#participantesTableBody"
                     hx-swap="outerHTML"
                     hx-trigger="change"
+                    hx-include="#csrfTokenField"
                     hx-vals='{"id":"${participante.id}"}'>
                 <option value="" <c:if test="${empty papelAtual}">selected="selected"</c:if>><fmt:message key="member.role.none" /></option>
                 <option value="ROLE_ADMIN" <c:if test="${papelAtual eq 'ROLE_ADMIN'}">selected="selected"</c:if>><fmt:message key="member.role.admin" /></option>
@@ -53,11 +55,13 @@
                     aria-label="Status do participante ${participante.login}"
                     hx-post="${base}/admin/atualizarStatusParticipante.action"
                     hx-target="#participantesTableBody"
+                    hx-select="#participantesTableBody"
                     hx-swap="outerHTML"
                     hx-trigger="change"
+                    hx-include="#csrfTokenField"
                     hx-vals='{"id":"${participante.id}"}'>
-                <option value="true" <c:if test="${participante.habilitado}">selected="selected"</c:if>>Sim</option>
-                <option value="false" <c:if test="${not participante.habilitado}">selected="selected"</c:if>>Não</option>
+                <option value="true" <c:if test="${participante.habilitado}">selected="selected"</c:if>><fmt:message key="member.status.enabled" /></option>
+                <option value="false" <c:if test="${not participante.habilitado}">selected="selected"</c:if>><fmt:message key="member.status.disabled" /></option>
             </select>
         </td>
         <td class="text-center">
@@ -66,6 +70,7 @@
                  hx-post="${base}/admin/apagarParticipanteHtmx.action"
                  hx-target="#participantesTableBody"
                  hx-swap="outerHTML"
+                 hx-include="#csrfTokenField"
                  hx-vals='{"id":"${participante.id}"}'
                  hx-confirm="Deseja realmente apagar este participante?"
                  class="icon-button" />
