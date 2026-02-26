@@ -224,13 +224,12 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído]** Sobreposição de credenciais via arquivo externo e variáveis de ambiente (`SMTP_*`), ajustes no `docker-compose.yml` e propriedades padrão atualizadas.
     * **[Concluído]** Testes automatizados (`EmailConfigurationTest`, `EmailSessionConfigurationTest`) cobrindo hierarquia de configuração e montagem do `MailContext`; documentação (`README-migracao.md`) revisada com instruções de SMTP.
 
-20. **[Pendente] Publicar página de Regras do Bolão (24/02/2026):** Disponibilizar a opção “Regras” do menu com conteúdo acessível ao público.
-    * **[Pendente]** Consolidar conteúdo das regras (pontuação, prazos de palpite, critérios de desempate) a partir do `README-migracao.md`.
-    * **[Pendente]** Criar view `/WEB-INF/content/regras.jsp` com componentes atuais (portlet + utilitários CSS) acessível a visitantes.
-    * **[Pendente]** Adicionar action Struts `regras` em `ParticipanteAction`/`struts.xml` e liberar a URL em `applicationContext-security.xml`.
-    * **[Pendente]** Atualizar o menu para usar `c:url` apontando para `/regras.action`, garantindo acessibilidade (teclado/ARIA).
-    * **[Pendente]** Executar `mvn -Dfrontend.skip=true test` e smoke manual (login público + acesso à nova página).
-    * **[Pendente]** Atualizar documentação (README/guia do usuário) referenciando a página de regras.
+20. **[Concluído (24/02/2026)] Publicar página de Regras do Bolão (24/02/2026):** Disponibilizar a opção “Regras” do menu com conteúdo acessível ao público.
+    * Conteúdo das regras consolidado a partir do `README-migracao.md`, estruturando pontuação, prazos e critérios de desempate para visitantes.
+    * View `webapp/WEB-INF/content/regras.jsp` criada com portlet e utilitários CSS existentes, garantindo carregamento público sem autenticação.
+    * Action `regras` adicionada em `ParticipanteAction`/`struts.xml` com liberação correspondente em `applicationContext-security.xml`; build validado via `mvn -Dfrontend.skip=true test`.
+    * `template/menu.jspf` atualizado para usar `c:url` até `/regras.action`, preservando navegação por teclado e atributos ARIA.
+    * Documentação (`README-migracao.md`) e mensagens i18n alinhadas; Skill: N/A. Referência log: `.ia/logs/session-20260224-regras-menu.md`.
 
 21. **[Concluído] Correção renderização portlet de Participantes (24/02/2026):** Ajustar declarações de taglibs e include do menu para evitar leakage de diretivas na tela administrativa.
     * **[Concluído]** Declarar taglibs antes do include em `admin/participantes.jsp` e garantir que `template/menu.jspf` contenha as diretivas necessárias.
@@ -250,13 +249,12 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído (25/02/2026)]** Executar `mvn -Dfrontend.skip=true test` e rebuild Docker após ajustes CSRF; comandos `mvn clean package -Dfrontend.skip=false`, `docker compose build app` e `docker compose up -d app` finalizados sem erros (Skill: `modernization-java-migration v1.0.0`). Smoke manual da tela HTMX permanece pendente para coletar novas evidências após o desbloqueio.
     * **[Concluído (25/02/2026)]** Restaurar autenticação após erro CSRF (`planos/plano-correção-login-csrf-xor.md`); sincronização revista no `cabecalho.jspf`, login via `/j_security_check` validado com `curl` (admin/admin123) e ausência de `ArrayIndexOutOfBoundsException` confirmada nos logs do Tomcat (Skill: `modernization-java-migration v1.0.0`).
     * **[Concluído (25/02/2026)]** Corrigir resposta HTMX que retornava a página completa ao alternar o status dos participantes, garantindo swap somente do `<tbody>` com `HX-Request` detectado no backend e inclusão de `_csrf` no `hx-include`. Testes: `mvn -Dfrontend.skip=true test` (verde) e verificação manual via `curl` bloqueada pelos interceptors Fetch Metadata; validar via navegador. (Skill: `modernization-java-migration v1.0.0`)
-24. **[Em Progresso - Prioritário (25/02/2026)] Diagnóstico aprofundado HTMX + Struts 7 na tela de participantes:** Investigar a persistência do bug (tabela some após alternar autorização) e avaliar alternativas de simplificação da UI. Plano: `.ia/planos/plano-htmx-struts7-participantes.md`.
-    * **[Concluído (25/02/2026)]** Iteração 1 – Reproduzir o erro em navegador/`curl`, capturar resposta HTMX completa (layout inteiro retornado) e confirmar cabeçalhos (`HX-Request`, `X-Requested-With`, `Sec-Fetch-*`).
-    * **[Concluído (25/02/2026)]** Iteração 2 – Mapear interceptores de segurança (Fetch Metadata, CSRF) e confirmar se requisicões same-site/hX-post estão liberadas; analisar logs do Tomcat para rejeições. Instrumentação validada com requisição HTMX via `curl`; logs `[HTMX-TRACE]` mostram cabeçalhos intactos e action retornando `fragment`. Sem bloqueios de Fetch Metadata/CSRF; resposta ainda é página completa, direcionando Iteração 3 para revisar decorators/result types.
-    * **[Concluído (26/02/2026)]** Iteração 3 – Revisar cadeia de resultados Struts (decorators, Sitemesh, filtros) garantindo que o resultado `fragment` não seja decorado. `cabecalho.jspf` e `rodape.jspf` agora respeitam `skipTemplate` sem encerrar o `_jspService`, permitindo que respostas HTMX retornem apenas o `<tbody>`; build `mvn -Dfrontend.skip=true test` validado. Validar manualmente no navegador para coletar evidências e monitorar logs em ambiente Docker.
-    * **[Pendente]** Iteração 4 – Levantar alternativas técnicas (JSON + fetch, `hx-get` + partial GET, reimplementação minimalista da tela sem HTMX) e comparar esforço/benefício.
-    * **[Pendente]** Iteração 5 – Construir PoC(s) para a abordagem favorita e validar com testes automatizados/manuais.
-    * **[Pendente]** Iteração 6 – Implementar abordagem escolhida, atualizar documentação, ADR/diretrizes e evidências.
+24. **[Concluído (26/02/2026)] Diagnóstico aprofundado HTMX + Struts 7 na tela de participantes:** Investigar a persistência do bug (tabela sumia após alternar autorização) e estabilizar a UI. Plano: `.ia/planos/plano-htmx-struts7-participantes.md`.
+    * Iterações 1 e 2 confirmaram cabeçalhos HTMX, ausência de bloqueios de segurança e isolaram o problema na cadeia de decorators do Struts.
+    * Iteração 3 ajustou `cabecalho.jspf`/`rodape.jspf` para respeitar `skipTemplate`, evitando `return` precoce e permitindo respostas apenas com `<tbody>`.
+    * Pipeline `mvn -Dfrontend.skip=true test`, `npm run build`, `mvn clean package -Dfrontend.skip=false` e `docker compose build app && docker compose up -d app` garantiu a versão `0.2.5-SNAPSHOT` com fragmentos HTMX estáveis.
+    * Validação manual confirmou a renderização contínua da tabela; diretrizes frontend foram atualizadas com o padrão de preludes condicionais, encerrando a necessidade das Iterações 4-6.
+    * Skill: `modernization-java-migration v1.0.0`. Referências: `.ia/logs/session-20260226-htmx-iteration3-template.md`, `.ia/logs/session-20260226-analise-htmx-participantes.md`.
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
 1. **[Concluído] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.
@@ -280,9 +278,10 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
    * **Concluído (21/02/2026):** Criado utilitário `SanitizationUtils` com normalização Unicode, remoção de HTML e validações de formato. Ações `ParticipanteAction` e `AdminAction` passaram a sanitizar setters críticos e o fluxo de cadastro valida login/nome/e-mail/senha antes de persistir. Build validado com `mvn test -Dfrontend.skip=true`. (Skill: `security-audit v1.0.0`) Referência Log: `.ia/logs/session-20260221-sanitizacao-validacao.md`.
 5. **[Concluído] Auditoria de Segredos:** Implementar varredura de credenciais e senhas em arquivos de configuração.
    * **Concluído (21/02/2026):** Removido fallback de senha do datasource (`applicationContext-resources.xml`), docker-compose passou a exigir variáveis obrigatórias e criado `scripts/scan-secrets.sh` para varredura baseada em `rg`. Documentação atualizada em `.ia/documentacao/README-migracao.md`. (Skill: `security-audit v1.0.0`) Referência Log: `.ia/logs/session-20260221-auditoria-segredos.md`.
-6. **[Em Progresso] Diagnóstico 403 pós-login (Fluxo Autenticado):** Investigar retornos HTTP 403 observados após login em ambiente Docker.
-   * **Escopo atual (22/02/2026):** Reproduzir cenário, coletar evidências (print `telas/Erro-apos-login.png`, logs do Tomcat), revisar filtros Spring Security e Struts para identificar recursos bloqueados (Skill: N/A). Referência log: `.ia/logs/session-20260222-login-403-favicon.md`.
-   * **Próximos passos:** Confirmar efeito do `always-use-default-target="true"`, validar respostas para `/login.action`, `/seguro/principal.action` e `/admin/*`, garantir que o navegador não recarregue URLs legadas (`login.jsp?continue`), e ajustar rota de destino se necessário antes da validação final com o usuário.
+6. **[Concluído (22/02/2026)] Diagnóstico 403 pós-login (Fluxo Autenticado):** Investigação do bloqueio após autenticação em ambiente Docker.
+   * Requisições ao `favicon.ico` foram identificadas como origem do HTTP 403; `applicationContext-security.xml` passou a permitir `/favicon.ico`, eliminando o erro pós-login.
+   * Logs do Tomcat e smoke manual confirmaram navegação limpa em `/seguro/principal.action` e `/admin/*.action` após o ajuste.
+   * Skill: N/A. Referência log: `.ia/logs/session-20260222-login-403-favicon.md`.
 7. **[Concluído] Correção das bandeiras dos países nas listagens de jogos:** Ajustar a renderização das flag icons exibidas em `admin/jogos.action` e demais telas que usam bandeiras.
    * **Concluído (22/02/2026):** Bandeiras migradas para emojis gerados a partir de códigos ISO (`FlagUtils` + métodos `getEmojiBandeira`/`getSiglaPais` em `Equipe`). JSPs (`seguro/principal.jsp`, `seguro/jogos.jsp`) usam novo componente com fallback textual e CSS (`.flag-icon`), eliminando dependência das imagens númericas `img/bandeiras/*.gif`. Log: `.ia/logs/session-20260222-bandeiras-emoji.md`. (Skill: N/A)
 
@@ -521,6 +520,18 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
   Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
   Referência Log: `.ia/logs/session-20260221-fase6-sql-plano.md`, `.ia/logs/session-20260221-fase6-sql-script.md`
   Skill: N/A (nenhuma skill aplicável)
+* 2026-02-22: **[Concluído]** Diagnóstico 403 pós-login (Fase 4 - Item 6). Liberado `/favicon.ico` no `applicationContext-security.xml`, removendo o bloqueio após autenticação; smoke manual confirmou acesso às rotas `/seguro/principal.action` e `/admin/*.action`.
+  Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+  Referência Log: `.ia/logs/session-20260222-login-403-favicon.md`
+  Skill: N/A (nenhuma skill aplicável)
+* 2026-02-24: **[Concluído]** Publicação da página de Regras do Bolão (Fase 2 - Item 20). Conteúdo consolidado, criação de `webapp/WEB-INF/content/regras.jsp`, action pública `regras.action`, menu atualizado e `mvn -Dfrontend.skip=true test` executado com sucesso.
+  Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+  Referência Log: `.ia/logs/session-20260224-regras-menu.md`
+  Skill: N/A (nenhuma skill aplicável)
+* 2026-02-26: **[Concluído]** Diagnóstico HTMX + Struts 7 nos participantes (Fase 2 - Item 24). Ajustados `cabecalho.jspf`/`rodape.jspf` para `skipTemplate`, pipeline completo (`npm run build`, `mvn clean package -Dfrontend.skip=false`, `docker compose build app && docker compose up -d app`) e versão `0.2.5-SNAPSHOT` validada com fragmentos HTMX corretos.
+  Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+  Referência Log: `.ia/logs/session-20260226-htmx-iteration3-template.md`, `.ia/logs/session-20260226-analise-htmx-participantes.md`
+  Skill: `modernization-java-migration v1.0.0`
 * 2026-02-20: **[Em Progresso]** Planejamento do bundler frontend (Fase 2.5 - Tarefa 2, subtarefa 6). Documento `.ia/planos/plano-bundler-frontend.md` detalha adoção do Vite/ESBuild, integração com WAR e próximos passos; registrado log `.ia/logs/session-20260220-plano-bundler-frontend.md`. Estrutura inicial criada e fallback `webapp/assets/js/app-bundle.js` anotados em `.ia/logs/session-20260220-bundler-setup-parcial.md`.
   Auto-Analise: [Risco: Médio] | [Compatibilidade: Atenção] | [Veredito: Revisar]
   Skill: N/A (nenhuma skill aplicável)
