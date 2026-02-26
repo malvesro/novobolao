@@ -38,3 +38,6 @@ webapp/WEB-INF/classes/**/*.class
 
 # Variáveis de ambiente locais
 .env
+
+# Anotações locais (.ia)
+.ia/*.txt

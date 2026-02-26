@@ -22,6 +22,12 @@ public class ParticipanteDaoImpl implements ParticipanteDao {
 		return (Participante) query.uniqueResult();
 	}
 
+	public Participante buscarPorEmail(String email) {
+		Query query = sessionFactory.getCurrentSession().createQuery("from Participante as p where p.email = :email");
+		query.setParameter("email", email);
+		return (Participante) query.uniqueResult();
+	}
+
 	public List buscarTodosDoBolaoGeral() {
 		Query query = sessionFactory.getCurrentSession().createQuery("select p from Participante as p inner join p.privilegios as pri where pri.papel = :papel");
 		query.setParameter("papel", "ROLE_USER");

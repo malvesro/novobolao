@@ -7,6 +7,7 @@ import com.opendev.bolao.model.Participante;
 public interface ParticipanteDao {
 
 	public Participante buscarPorLogin(String login);
+	public Participante buscarPorEmail(String email);
 
 	public List buscarTodosDoBolaoGeral();
 

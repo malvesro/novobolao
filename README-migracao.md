@@ -128,7 +128,9 @@ JSP/HTMX (UI) → Struts Actions → Serviços Spring → DAOs Hibernate → MyS
 ## 5. Experiência de Desenvolvimento
 
 ### 5.1 Pré-requisitos
-- JDK 17+, Maven 3.9+, Node.js 20.11.1 (ou usar plugin Maven), npm 10+.  
+- **Java/Maven:** JDK 17+, Maven 3.9+.  
+- **Node/npm:** Node.js 20.11.1 e npm 10+ (ou permitir que o `frontend-maven-plugin` faça o download isolado).  
+- **Bundler:** Vite 5 (instalado via `npm install`).  
 - Python 3.10+ (scripts de dados).  
 - Docker/Docker Compose opcionais para testes integrados.  
 - Acesso ao repositório Maven corporativo (`nx-mvn.tse.jus.br`) configurado em `~/.m2/settings.xml`.
@@ -140,6 +142,7 @@ npm run build                  # gera manifest Vite
 mvn -Dfrontend.skip=true test  # build rápido com testes Java
 mvn package -Dfrontend.skip=false  # build completo (Node + tests)
 ```
+> **Dica:** use o modo `-Dfrontend.skip=false` antes de qualquer deploy para garantir que o manifest Vite e os bundles hashados estejam alinhados com o WAR gerado. Esse modo executa automaticamente `npm install`/`npm run build` dentro do Maven, evitando divergência entre os assets e o backend Struts/Tomcat.
 
 ### 5.3 Frontend e Bundler
 - Código-fonte em `src/frontend/` (ES Modules).  
@@ -147,6 +150,12 @@ mvn package -Dfrontend.skip=false  # build completo (Node + tests)
 - `webapp/template/cabecalho.jspf` consulta `manifest.json`; fallback acionado se o manifest não existir.  
 - Interações assíncronas usam HTMX (`hx-get`, `hx-post`) com headers CSRF centralizados em script utilitário.  
 - Diretrizes de CSS/HTML em `.ia/diretrizes/frontend.md`; evitar inline script/style (preparação para CSP rígida).
+
+#### Por que o npm é obrigatório?
+- O frontend foi migrado para módulos ES e HTMX, empacotados via **Vite**, que roda sobre Node/npm.  
+- Cada build gera `manifest.json` com nomes hashados (`main-XYZ.js`); sem esse passo o fallback `app-bundle.js` continua válido, porém sem as otimizações nem os polyfills configurados.  
+- O Maven invoca o `frontend-maven-plugin` para instalar Node 20.11.1 isoladamente quando executado com `-Dfrontend.skip=false`, garantindo reprodutibilidade em ambientes que não têm Node pré-instalado.  
+- As tasks `npm install` e `npm run build` também atualizam os assets compartilhados (`webapp/assets/.vite/`), necessários para o Tomcat servir o bundle correto em produção e para que o cache busting funcione.
 
 ### 5.4 Testes e Qualidade
 - **JUnit/Mockito:** `mvn -q -Dfrontend.skip=true test`.  
