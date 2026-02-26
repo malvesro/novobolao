@@ -340,6 +340,10 @@ public String prepararInfoPalpites() {
             setTentativaInclusao(p);
             return INPUT;
         }
+        if (verificarDuplicidadeCadastro(p)) {
+            setTentativaInclusao(p);
+            return INPUT;
+        }
         try {
             getParticipanteService().criarNovo(p);
             setSucessoCadastro(true);
@@ -498,9 +502,74 @@ public String prepararInfoPalpites() {
     }
 
     private void registrarErro(List<MensagemErro> erros, String campoKey, String mensagemKey) {
-        String campo = getText(campoKey);
-        String mensagem = getText(mensagemKey);
+        String campo = texto(campoKey, fallbackCampo(campoKey));
+        String mensagem = texto(mensagemKey, fallbackMensagem(mensagemKey));
         erros.add(new MensagemErro(campo, mensagem, MensagemErro.SEVERIDADE_ERRO));
+    }
+
+    private boolean verificarDuplicidadeCadastro(Participante participante) {
+        List<MensagemErro> duplicidades = new ArrayList<>();
+        String loginNormalizado = participante.getLogin() == null ? null : participante.getLogin().trim().toLowerCase();
+        if (loginNormalizado != null && !loginNormalizado.isBlank()) {
+            Participante existente = getParticipanteService().buscarPorLogin(loginNormalizado);
+            if (existente != null) {
+                duplicidades.add(new MensagemErro(
+                        texto("signin.login", "Login"),
+                        texto("cadastro.login.duplicado", "Ja existe um cadastro ativo com este login."),
+                        MensagemErro.SEVERIDADE_ERRO));
+            }
+        }
+        String emailNormalizado = participante.getEmail() == null ? null : participante.getEmail().trim();
+        if (emailNormalizado != null && !emailNormalizado.isBlank()) {
+            Participante existenteEmail = getParticipanteService().buscarPorEmail(emailNormalizado);
+            if (existenteEmail != null) {
+                duplicidades.add(new MensagemErro(
+                        texto("signin.email", "E-mail"),
+                        texto("cadastro.email.duplicado", "Este e-mail ja esta associado a outro cadastro."),
+                        MensagemErro.SEVERIDADE_ERRO));
+            }
+        }
+        if (!duplicidades.isEmpty()) {
+            if (this.errosInclusao == null) {
+                this.errosInclusao = new ArrayList<>();
+            }
+            this.errosInclusao.addAll(duplicidades);
+            return true;
+        }
+        return false;
+    }
+
+    private String texto(String key, String fallback) {
+        try {
+            String valor = getText(key);
+            if (valor != null && !valor.isBlank() && !valor.equals(key)) {
+                return valor;
+            }
+        } catch (Exception ignored) {
+        }
+        return fallback;
+    }
+
+    private String fallbackCampo(String key) {
+        return switch (key) {
+            case "signin.login" -> "Login";
+            case "signin.name" -> "Nome";
+            case "signin.email" -> "E-mail";
+            case "signin.pwd" -> "Senha";
+            default -> key;
+        };
+    }
+
+    private String fallbackMensagem(String key) {
+        return switch (key) {
+            case "cadastro.login.invalido" -> "Login deve seguir o formato informado.";
+            case "cadastro.nome.invalido" -> "Informe um nome completo válido, sem HTML.";
+            case "cadastro.email.invalido" -> "Informe um e-mail válido no formato usuario@dominio.";
+            case "cadastro.senha.invalida" -> "Informe uma senha entre 8 e 64 caracteres com símbolos seguros.";
+            case "cadastro.login.duplicado" -> "Já existe um cadastro ativo com este login.";
+            case "cadastro.email.duplicado" -> "Este e-mail já está associado a outro cadastro.";
+            default -> key;
+        };
     }
 
 	public List getEquipes() {

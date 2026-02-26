@@ -10,8 +10,10 @@
             caso você esteja participando do bolão! Aguarde!
         </span>
         <div class="text-center">
-            <c:url var="contextURL" value="/" />
-            <a href="${contextURL}">Página principal</a>
+            <c:url var="homeURL" value="/index.action" />
+            <a href="${homeURL}">
+                <fmt:message key="menu.geral.principal" />
+            </a>
         </div>
     </div>
 </c:when>

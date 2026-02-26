@@ -98,9 +98,13 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         return new GraficoComparativoDesempenho(seriesCollection);
 	}
 
-	public Participante buscarPorLogin(String login) {
-		return getParticipanteDao().buscarPorLogin(login);
-	}
+    public Participante buscarPorLogin(String login) {
+        return getParticipanteDao().buscarPorLogin(login);
+    }
+
+    public Participante buscarPorEmail(String email) {
+        return getParticipanteDao().buscarPorEmail(email);
+    }
 
     public List buscarTodos() {
         return getParticipanteDao().buscarTodos();

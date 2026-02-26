@@ -242,6 +242,7 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído]** Atualizar a tela administrativa para mapear corretamente os papéis retornados do backend aos níveis exibidos no dropdown.
     * **[Concluído (25/02/2026)]** Executar `mvn -Dfrontend.skip=true test` e smoke pós-ajuste para validar apresentação e atualização HTMX dos papéis. (Skill: `modernization-java-migration v1.0.0`) Resultado: build verde com aviso conhecido do Log4j API ausente; smoke HTMX depende de navegador, manter acompanhamento.
     * **[Concluído (26/02/2026)]** Versão atualizada para `0.2.5-SNAPSHOT` após ajustes de template HTMX, com pipeline completo (`npm install`, `npm run build`, `mvn clean package -Dfrontend.skip=false`, `docker compose build app`, `docker compose up -d app`) e validação via `curl` exibindo o novo número de versão. Log: `.ia/logs/session-20260226-versao-0-2-5-deploy.md`.
+    * **[Concluído (26/02/2026)]** Versão atualizada para `0.2.6-SNAPSHOT` após correções de cadastro (duplicidade) e rebuild completo (`npm install`, `npm run build`, `mvn clean package -Dfrontend.skip=false`, `docker compose build app`, `docker compose up -d app`). `curl` confirma “Versão 0.2.6-SNAPSHOT - compilado em 26/02/2026 13:34”. Log: `.ia/logs/session-20260226-versao-0-2-6-deploy.md`.
 23. **[Concluído (25/02/2026)] Correção dropdown de autorização e renderização HTMX (24/02/2026):** Garantir encoding correto e resposta parcial consistente ao alterar o status dos participantes. Plano: `.ia/planos/plano-correcao-autorizacao-participantes.md`.
     * **[Concluído]** Diagnosticar origem do label "NÃ£o" e padronizar via i18n UTF-8 (mensagens `member.status.enabled/disabled` adicionadas).
     * **[Concluído]** Inspecionar resposta HTMX ao alternar autorização; `hx-select="#participantesTableBody"` adicionado para garantir fragmento correto.
@@ -255,6 +256,20 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * Pipeline `mvn -Dfrontend.skip=true test`, `npm run build`, `mvn clean package -Dfrontend.skip=false` e `docker compose build app && docker compose up -d app` garantiu a versão `0.2.5-SNAPSHOT` com fragmentos HTMX estáveis.
     * Validação manual confirmou a renderização contínua da tabela; diretrizes frontend foram atualizadas com o padrão de preludes condicionais, encerrando a necessidade das Iterações 4-6.
     * Skill: `modernization-java-migration v1.0.0`. Referências: `.ia/logs/session-20260226-htmx-iteration3-template.md`, `.ia/logs/session-20260226-analise-htmx-participantes.md`.
+25. **[Concluído (26/02/2026)] Corrigir link de retorno pós-cadastro (Bug público) – 26/02/2026:** Garantir que o link “Página principal” após sucesso do cadastro direcione corretamente o usuário.
+    * Link atualizado para apontar `index.action` reutilizando a mensagem `menu.geral.principal`, mantendo conformidade com diretrizes de frontend. (Skill: `modernization-java-migration v1.0.0`)
+    * `mvn -Dfrontend.skip=true test` executado com sucesso (22 testes) e registrado em `.ia/logs/session-20260226-cadastro-link.md`; smoke manual pendente de evidência visual. (Skill: N/A)
+    * Plano de referência: `.ia/planos/plano-correcao-bugs-cadastro-20260226.md`.
+26. **[Concluído (26/02/2026)] Tratar cadastros duplicados sem HTTP 500 – 26/02/2026:** Evitar `DataIntegrityViolationException` exibida ao repetir cadastro com os mesmos dados.
+    * `ParticipanteAction` passou a verificar duplicidade de login/e-mail antes do `criarNovo`, reaproveitando `MensagemErro` e exibindo feedback amigável sem quebrar a sessão. (Skill: `modernization-java-migration v1.0.0`)
+    * `ParticipanteDao`/`ParticipanteService` receberam o método `buscarPorEmail`; propriedades `messages.properties` ganharam mensagens de duplicidade com fallback seguro. (Skill: `modernization-java-migration v1.0.0`)
+    * Testes atualizados (`ParticipanteActionTest`) cobrem cenários de duplicidade; `mvn -Dfrontend.skip=true test` confirma suíte verde (24 testes). Log: `.ia/logs/session-20260226-cadastro-duplicado.md`. (Skill: `modernization-java-migration v1.0.0`)
+    * Plano de referência: `.ia/planos/plano-correcao-bugs-cadastro-20260226.md`.
+27. **[Concluído (26/02/2026)] Revisão final das correções de cadastro – 26/02/2026:** Consolidar QA após execução das tarefas 25 e 26.
+    * Smoke refeito com rebuild completo (npm/Maven/Docker) e validações via `curl`; versão 0.2.6-SNAPSHOT e labels renderizados confirmados. Log: `.ia/logs/session-20260226-cadastro-smoke.md`. (Skill: `modernization-java-migration v1.0.0`)
+    * README atualizado com justificativa do uso de npm/Vite e orientações de ambiente. (Skill: N/A)
+    * Preparar commit/PR conforme governança após registro desta sessão. (Skill: N/A)
+
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
 1. **[Concluído] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.
