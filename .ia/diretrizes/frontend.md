@@ -39,6 +39,12 @@ Este documento consolida os padrões atuais para desenvolvimento e manutenção 
   - `skip-link` e `sr-only` para navegação acessível.
   - Classes de portlets (`opendev:portlet`) e tabelas (`.table`, `.table-responsive`).
   - Dialogs e balões devem receber classes `.dialog`, `.balao-*` e atributos ARIA adequados.
+- **Fragments HTMX + Preludes:** Os includes globais `cabecalho.jspf`/`rodape.jspf` devem apenas condicionar a renderização do HTML envoltório com uma flag do request (`skipTemplate`) e nunca fazer `return;` direto. O fluxo correto é:
+  1. A action detecta uma chamada HTMX e seta `request.setAttribute("skipTemplate", Boolean.TRUE)`.
+  2. O prelude avalia `Boolean.TRUE.equals(request.getAttribute("skipTemplate"))` e, caso verdadeiro, omite apenas o wrapper `<html>…`, mantendo o corpo JSP disponível.
+  3. O coda reutiliza a mesma flag (sem redeclarar variáveis) para pular o fechamento global.
+  4. O fragmento específico (`*.jspf`) continua sendo processado normalmente, garantindo que apenas o `<tbody>` ou bloco parcial seja retornado, evitando que o swap HTMX substitua toda a página.
+  Essa abordagem impede erros de compilação Jasper (variáveis duplicadas) e bloqueia o vazamento do markup completo nas respostas HTMX.
 - Ao internacionalizar títulos/atributos em JSP (ex.: `opendev:portlet`), sempre use `fmt:message` com `var="..."` e referencie a variável no atributo (`title="${rulesTitle}"`). Evita que o texto traduzido seja injetado de forma incorreta dentro do markup.
 - Fragmentos JSP (`*.jspf`) não devem declarar `<%@taglib%>` ou outras diretivas; deixe apenas o markup. O host que inclui o fragmento deve declarar as taglibs (`c`, `fmt`, etc.) antes do `include` estático. Isso impede que diretivas escapem para o HTML final quando o fragmento é processado via `@ include` e mantém as respostas HTMX válidas.
 - Imagens relevantes (bandeiras/ícones de ação) precisam de `alt` descritivo; ícones puramente decorativos devem usar `aria-hidden="true"`.
