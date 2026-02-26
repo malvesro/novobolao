@@ -1,3 +1,7 @@
+<%
+	boolean skipTemplateFooter = Boolean.TRUE.equals(request.getAttribute("skipTemplate"));
+	if (!skipTemplateFooter) {
+%>
 	</main>
 	</div>
 	<div id="footer" role="contentinfo">
@@ -22,3 +26,6 @@
 	</div>
 </body>
 </html>
+<%
+	}
+%>
