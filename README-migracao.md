@@ -123,6 +123,238 @@ JSP/HTMX (UI) → Struts Actions → Serviços Spring → DAOs Hibernate → MyS
 - **Docker Compose:** orquestra `app` (Tomcat) e `db` (MySQL 8) com health checks e volume persistente (`db_data`).  
 - **CI/Build offline:** `frontend.skip=true` permite builds sem Node; fallback `webapp/assets/js/app-bundle.js` mantido atualizado.
 
+### 4.6 Propagação do Principal em requisições HTMX (03/03/2026)
+Para estabilizar os fluxos HTMX que dependem de `HttpServletRequest#getUserPrincipal()`, executamos uma correção arquitetural envolvendo filtro adicional, utilitário de request e documentação correlata.
+
+#### 4.6.1 Pipeline de filtros após o ajuste
+```mermaid
+flowchart LR
+    A[Cliente HTMX] --> B[StrutsPrepareAndExecuteFilter]
+    B --> C[springSecurityFilterChain]
+    C --> D[RequestContextFilter<br/>(novo)]
+    D --> E[ServletActionContext<br/>/ Struts Action]
+    E --> F[ParticipanteAction.prepararConteudoPalpite]
+```
+- **`org.springframework.web.filter.RequestContextFilter`:** adicionado imediatamente depois do `DelegatingFilterProxy` (`springSecurityFilterChain`) no `web.xml`. Ele garante que o `RequestContextHolder` utilize o wrapper provido pelo Spring Security, expondo o principal autenticado para as Actions Struts.
+- **Efeito prático:** chamadas HTMX (`HX-Request=true`) agora recebem `HttpServletRequest#getUserPrincipal()` populado, eliminando a necessidade de depender somente do `SecurityContextHolder`.
+
+#### 4.6.2 Evolução do `RequestUtils.getRequest()`
+```mermaid
+sequenceDiagram
+    participant Struts as ServletActionContext
+    participant Utils as RequestUtils
+    participant Spring as RequestContextHolder
+
+    Struts->>Utils: getRequest()
+    Utils-->>Struts: tenta ServletActionContext.getRequest()
+    alt Disponível
+        Utils->>Struts: retorna HttpServletRequest com principal
+    else Não disponível
+        Utils->>Spring: fallback via ServletRequestAttributes
+        Spring-->>Utils: retorna HttpServletRequest (se houver)
+    end
+```
+- Código agora prioriza `ServletActionContext.getRequest()` (quando Struts já está ativo) e mantém fallback para o `RequestContextHolder`.
+- Inclusão de log dedicado: `[SEC][HTMX] principal recuperado via HttpServletRequest name={usuario}` permite auditar a origem do principal durante o diagnóstico de chamadas HTMX.
+- O fallback via `SecurityContextHolder` permanece disponível apenas como contingência para cenários não Struts.
+
+#### 4.6.3 Rastreamento e governança
+- **Passo-a-passo atualizado:** a etapa “Validar contexto de segurança” foi marcada como concluída, liberando o foco para a revisão de timezone/autorizações (próxima etapa do plano).
+- **Plano dedicado (`.ia/planos/plano-correcao-palpites-popup.md`):** registra a conclusão da etapa 2 com as evidências do novo filtro e orienta a avançar para as próximas subtarefas (CSP, UX, automação).
+- **Log de sessão `.ia/logs/session-20260303-filtros-principal.md`:** documenta comandos executados (`mvn`, `docker compose`, `curl` ROLE_USER/ROLE_ADMIN) e os trechos de log que comprovam a recuperação do principal via `HttpServletRequest`.
+
+> **Verificação rápida:** execute `docker compose build app && docker compose up -d app`, autentique-se com `curl` usando cookies e chame `/seguro/palpiteFormPartial.action` com o header `HX-Request=true`. O log da aplicação deve exibir o marcador `[SEC][HTMX] principal recuperado via HttpServletRequest name=<usuário>`.
+
+### 4.7 Componentes internos e dependências
+- **Ações Struts 7:** orquestram regras de negócio e delegam para os serviços Spring. (`ParticipanteAction`, `AdminAction`).
+- **Serviços Spring 6:** encapsulam cálculos de ranking, regras de bloqueio de palpites e notificações. (`ParticipanteService`, `JogoService`).
+- **Camada de segurança:** filtros Spring Security (`springSecurityFilterChain`), interceptores Struts (`bolaoStack`) e utilitários (`RequestUtils`).
+- **Persistência Hibernate 6:** DAOs convertem requisições em HQL/Criteria e usam `SessionFactory.getCurrentSession()`.
+- **Infraestruturas assistentes:** Quartz agenda avisos de jogos; Angus Mail envia notificações; HTMX/Vite alimentam interações assíncronas documentadas em `.ia/logs/session-20260303-filtros-principal.md` e planos correlatos.
+
+```mermaid
+flowchart LR
+    subgraph UI
+        Browser[Browser/HTMX]
+        JSP[JSP + Fragments]
+        Bundler[Vite Bundles]
+    end
+    subgraph Struts7[Struts 7]
+        Interceptors[Interceptor stack bolaoStack]
+        Actions[Actions (Participante/Admin)]
+    end
+    subgraph Spring6[Spring 6]
+        Services[Serviços]
+        Security[Spring Security 6 filtros]
+    end
+    subgraph Persistence[Persistência]
+        DAOs[DAOs Hibernate 6]
+        MySQL[(MySQL 8)]
+    end
+    subgraph Infra
+        Quartz[Quartz Schedulers]
+        Angus[Angus Mail]
+        Logs[SLF4J/Logback]
+    end
+
+    Browser --> JSP
+    Bundler --> JSP
+    JSP --> Interceptors --> Actions
+    Actions --> Services --> DAOs --> MySQL
+    Services --> Quartz
+    Services --> Angus
+    Services --> Logs
+    Interceptors --> Security
+    Security --> Services
+```
+
+### 4.8 Fluxo de requisição end-to-end (público x autenticado)
+O fluxo abaixo resume o caminho de uma chamada `GET /seguro/jogos.action` (área autenticada) e evidencia a pilha de filtros configurada em `web.xml`.
+
+```mermaid
+sequenceDiagram
+    participant B as Browser/HTMX
+    participant Tomcat as Tomcat 10/11
+    participant Sec as springSecurityFilterChain
+    participant Struts as StrutsPrepareAndExecuteFilter
+    participant Service as ParticipanteService
+    participant DAO as JogoDaoImpl
+    participant DB as MySQL 8
+
+    B->>Tomcat: GET /seguro/jogos.action (HX-Request opcional)
+    Tomcat->>Sec: DelegatingFilterProxy
+    Sec-->>Tomcat: Principal autenticado + atributos CSRF
+    Tomcat->>Struts: pipeline bolaoStack (Fetch Metadata, COOP/COEP)
+    Struts->>Service: listarJogos(filtro, usuario)
+    Service->>DAO: buscarJogosPorFiltro(filtro)
+    DAO->>DB: SELECT jogos WHERE fase/data...
+    DB-->>DAO: ResultSet normalizado
+    DAO-->>Service: Lista de jogos com timezone BRT
+    Service-->>Struts: DTOs + métricas de ranking
+    Struts-->>B: JSP/fragmento (HTMX) com cabeçalhos CSP/CSRF
+```
+
+> **Diagnóstico:** Em cenários públicos (`/login.action`), o Struts continua no fluxo porém a autenticação retorna 302 para `/seguro/principal.action` ou `403` conforme regras do Spring Security 6 (`DefaultAccessDeniedHandler`).
+
+### 4.9 Segurança multicamadas
+A arquitetura de defesa distribui responsabilidades do navegador até o banco. A tabela consolida os controles ativos e suas referências para auditoria.
+
+| Camada | Controles | Evidências |
+|--------|-----------|------------|
+| Browser / Cliente | HTTPS obrigatório, HSTS parcial, tokens CSRF propagados via meta tags e `<input>` global | `.ia/logs/session-20260219-validacao-login-https.md`, `.ia/logs/session-20260219-remocao-sha1.md` |
+| Filtros Servlet | `springSecurityFilterChain`, `RequestContextFilter`, bloqueio de favicon 403, cabeçalhos CSP/COOP/COEP | `.ia/logs/session-20260303-filtros-principal.md`, `.ia/logs/session-20260222-login-403-favicon.md` |
+| Struts 7 Interceptors | Fetch Metadata, sanitização OGNL, `@StrutsParameter` | `.ia/logs/session-20260219-struts-ognl-hardening.md`, `.ia/logs/session-20260219-struts-parameter-hardening.md` |
+| Camada de Serviço | Segurança declarativa (Spring Security annotations), validações de horário/entrada, sanitização | `.ia/logs/session-20260303-requestutils-seguranca.md`, `.ia/logs/session-20260226-correcao-palpites.md` |
+| Persistência | Hibernate 6 com parâmetros nomeados, bloqueio de SQL dinâmico, auditoria de queries críticas | `.ia/logs/session-20260219-correcao-jogos-ocorridos.md`, `.ia/logs/session-20260221-auditoria-segredos.md` |
+
+```mermaid
+graph TD
+    Browser[Cliente + HTMX]
+    Filters[Spring Security Filters]
+    Interceptors[Struts Interceptors]
+    Services[Serviços Spring]
+    Persistence[Hibernate + MySQL]
+
+    Browser --> Filters --> Interceptors --> Services --> Persistence
+    Filters -->|CSRF/HSTS| Browser
+    Interceptors -->|OGNL Allowlist| Services
+    Services -->|Sanitização| Persistence
+```
+
+### 4.10 Arquitetura HTMX e renderização parcial
+- `cabecalho.jspf` avalia `skipTemplate` para controlar se a resposta envia `<html>` completo ou apenas fragmentos (`*.jspf`).
+- Interceptor `HtmxDebugInterceptor` registra `[HTMX-TRACE]` e enriquece logs com headers `HX-*`.
+- `ParticipanteAction`/`AdminAction` separam métodos `*Htmx` e métodos de página completa, mantendo coesão de templates.
+- Bundler Vite gera assets modulares (`manifest.json`), enquanto `app-bundle.js` garante fallback offline.
+
+```mermaid
+stateDiagram-v2
+    [*] --> PaginaCompleta
+    PaginaCompleta --> HXRequest: hx-get/hx-post
+    HXRequest --> SkipTemplate: request.setAttribute("skipTemplate", true)
+    SkipTemplate --> RenderFragment: inclui *.jspf
+    RenderFragment --> HtmxSwap: hx-swap processa resposta
+    HtmxSwap --> PaginaCompleta: fallback via hx-redirect / reload
+```
+
+> **Boas práticas:** Logs `[HTMX][PREP]` e `[HTMX][UPDATE]` indicam preparação/commit de palpites; revisar `.ia/logs/session-20260303-palpites-inline-instrumentacao.md` quando depurando diferenças entre fragmentos e páginas completas.
+
+### 4.11 Observabilidade e logging
+- **Trilha principal:** SLF4J → Logback (`logback.xml`) com appenders console/arquivo; marker `[SEC]` diferencia eventos sensíveis.
+- **HTMX:** `HtmxDebugInterceptor` e ações registram `[HTMX-TRACE]`, `[HTMX][PREP]`, `[HTMX][UPDATE]` para correlação em incidentes.
+- **Serviços críticos:** `ParticipanteService` e `JogoService` emitem métricas de execução e IDs de jogo/usuário em INFO.
+- **Pendências:** integração com agregador corporativo (Elastic/Stackdriver) e métricas Prometheus (ver `passo-a-passo.md` Tarefa 18 placeholder).
+
+```mermaid
+flowchart LR
+    App[Aplicação Struts/Spring]
+    SLF4J[SLF4J API]
+    Logback[Logback Config]
+    Console[stdout / docker logs]
+    File[logs/bolao-*.log]
+    Future[Observabilidade corporativa]
+
+    App --> SLF4J --> Logback
+    Logback --> Console
+    Logback --> File
+    Logback -. roadmap .-> Future
+```
+
+> **Próximos passos sugeridos:** abrir subtarefa para instrumentar MDC (`requestId`, `hx-request`) e avaliar integração com a stack corporativa de observabilidade ao concretizar o plano `.ia/planos/plano-testes-infra.md`.
+
+### 4.12 Jobs Quartz e processos assíncronos
+`applicationContext-scheduler.xml` agrupa o job `avisarSobreProximoJogo` com múltiplos gatilhos Cron (08h–14h BRT, dias úteis). O método `JogoService.avisarSobreProximoJogo()` compõe as notificações e delega o envio ao `EmailService` (Angus Mail 2.0.3).
+
+```mermaid
+flowchart TD
+    Cron08[Cron 08:00]
+    Cron09[Cron 09:00]
+    Cron10[Cron 10:00]
+    Cron11[Cron 11:00]
+    Cron13[Cron 13:00]
+    Cron14[Cron 14:00]
+    Job[Quartz MethodInvokingJob<br/>avisarSobreProximoJogo]
+    Service[JogoService]
+    Mail[Angus Mail SMTP]
+    Cache[Atualização de cache/ranking]
+
+    Cron08 --> Job
+    Cron09 --> Job
+    Cron10 --> Job
+    Cron11 --> Job
+    Cron13 --> Job
+    Cron14 --> Job
+    Job --> Service
+    Service --> Mail
+    Service --> Cache
+```
+
+> **Upgrade planejado:** assim que o mirror corporativo disponibilizar Quartz 2.5.2 e Angus 2.0.4, revalidar compatibilidade (registrado em `.ia/historico/ADR-20260223-aguardar-angus-quartz.md`).
+
+### 4.13 Configuração e deployment
+A tabela resume variáveis críticas e suas origens. Sempre utilizar secrets externos em produção.
+
+| Parâmetro | Origem recomendada | Default atual | Impacto |
+|-----------|--------------------|---------------|---------|
+| `DB_HOST`, `DB_PORT`, `DB_NAME` | Variáveis Docker / `applicationContext-resources.xml` | `db`, `3306`, `bolao` | Conexão MySQL utilizada por Hibernate |
+| `DB_USER`, `DB_PASS` | Variáveis de ambiente ou secrets manager | `bolao`, `bolao` (docker compose local) | Credenciais aplicadas ao `HikariDataSource` |
+| `SPRING_PROFILES_ACTIVE` | Variável JVM | `default` | Seleciona configs específicas (futuro) |
+| `SMTP_*` (`HOST`, `PORT`, `TLS`, `SSL`, `USERNAME`, `PASSWORD`) | `.env`/secret externo + `EmailConfiguration` | Não definido (obrigatório quando envio ativo) | Envio de notificações via Angus Mail |
+| `SMTP_FROM_ADDRESS`, `SMTP_FROM_NAME` | `.env`/arquivo externo | `bolao@localhost`, `Bolão Corporativo` | Apresentação do remetente nos e-mails |
+| `BOLAO_EMAIL_CONFIG` / `bolao.email.config` | System property | vazio | Sobrescreve todos os parâmetros SMTP por arquivo |
+| `BOLAO_CSP_REPORT_ONLY` | Variável ambiente | `true` | Controla modo report-only da CSP atual |
+| `LOG_LEVEL_ROOT` | Variável Docker | `INFO` | Ajusta níveis Logback em runtime |
+| `JAVA_TOOL_OPTIONS` | Variável Docker | `-XX:+UseContainerSupport` | Ajustes de memória/container |
+
+> **Checkpoints:** revisar `.ia/documentacao/README-migracao-2026-v1.md` para exemplos práticos de `.env` e propriedades externas. No build Maven, os parâmetros podem ser passados via `-D` para smoke tests.
+
+### 4.14 Roadmap arquitetural (2026-03)
+1. **CSP rígida sem `'unsafe-inline'`:** depende da conclusão do plano `.ia/planos/plano-bundler-frontend.md` (Passo 4 – remover inline legacy).
+2. **Observabilidade corporativa:** abrir tarefa derivada no `passo-a-passo.md` vinculada ao plano `.ia/planos/plano-testes-infra.md` para enviar logs a Stackdriver/ELK.
+3. **Quartz 2.5.2 + Angus 2.0.4:** acompanhar mirror corporativo e repetir `mvn dependency-check` para encerrar CVEs abertas (ver Tarefa 15 “Remediação Dependency-Check”).
+4. **HTMX + CSP enforcement:** continuar migração de balões de palpite conforme `.ia/planos/plano-correcao-palpites-popup.md` (Etapa 3 – CSP e UX).
+5. **Auditoria Axe + WCAG 2.1:** desbloquear infraestrutura Chrome headless e registrar evidências em `.ia/logs/` (Tarefa 7 Fase 2.5 reaberta).
+
 ---
 
 ## 5. Experiência de Desenvolvimento
