@@ -2,18 +2,23 @@ package com.opendev.bolao.model;
 
 import java.io.Serializable;
 import java.sql.Time;
-import java.util.Calendar;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 
-import com.opendev.bolao.util.ConversaoUtils;
+import com.opendev.bolao.util.BolaoTime;
 import com.opendev.bolao.util.FaseUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
 
-public class Jogo implements Serializable, Comparable {
+public class Jogo implements Serializable, Comparable<Jogo> {
 
 	private static final long serialVersionUID = 1L;
+    private static final ZoneId ZONE_ID = BolaoTime.getZoneId();
+    private static final int JANELA_CONCLUSAO_HORAS = 2;
 
 	public static final int FASE_FINAL = 1;
 	public static final int FASE_TERCEIRO_LUGAR = 3;
@@ -35,7 +40,7 @@ public class Jogo implements Serializable, Comparable {
 	private Equipe equipe1;
 	private Equipe equipe2;
 	
-	private transient Calendar dataHora;
+	private transient ZonedDateTime dataHora;
 
 	public Date getData() {
 		return data;
@@ -43,6 +48,7 @@ public class Jogo implements Serializable, Comparable {
 
 	public void setData(Date data) {
 		this.data = data;
+        this.dataHora = null;
 	}
 
 	public Time getHora() {
@@ -51,6 +57,7 @@ public class Jogo implements Serializable, Comparable {
 
 	public void setHora(Time hora) {
 		this.hora = hora;
+        this.dataHora = null;
 	}
 
 	public Equipe getEquipe1() {
@@ -101,20 +108,32 @@ public class Jogo implements Serializable, Comparable {
 		this.local = local;
 	}
 
-	public Calendar getDataHora() {
-		if (this.dataHora == null) {
-			Calendar dh = new GregorianCalendar();
-			dh.clear();
-			dh.setTime(this.getData());
-			dh.set(Calendar.HOUR_OF_DAY, ConversaoUtils.converterHoraParaInteiro(this.getHora()));
-			this.dataHora = dh;
-		}
+	public ZonedDateTime getDataHora() {
+        if (this.dataHora == null && this.data != null && this.hora != null) {
+            LocalDate localDate = Instant.ofEpochMilli(this.data.getTime()).atZone(ZONE_ID).toLocalDate();
+            LocalTime localTime = this.hora.toLocalTime();
+            this.dataHora = ZonedDateTime.of(localDate, localTime, ZONE_ID);
+        }
 		return this.dataHora;
 	}
 
-	public int compareTo(Object o) {
-		Jogo other = (Jogo) o;		
-		return this.getDataHora().compareTo(other.getDataHora());
+    @Override
+	public int compareTo(Jogo other) {
+        if (other == null) {
+            return 1;
+        }
+        ZonedDateTime atual = this.getDataHora();
+        ZonedDateTime comparacao = other.getDataHora();
+        if (atual == null && comparacao == null) {
+            return 0;
+        }
+        if (atual == null) {
+            return -1;
+        }
+        if (comparacao == null) {
+            return 1;
+        }
+		return atual.compareTo(comparacao);
 	}
 	
 	public boolean foiEmpate() {
@@ -130,18 +149,22 @@ public class Jogo implements Serializable, Comparable {
 	}
     
     public boolean getPodeDarPalpite() {
-        Calendar agora = Calendar.getInstance();
-        agora.add(Calendar.HOUR_OF_DAY, 1);
-        Calendar dataHoraJogo = getDataHora();
-        return agora.compareTo(dataHoraJogo) < 0;
+        ZonedDateTime dataHoraJogo = getDataHora();
+        if (dataHoraJogo == null) {
+            return false;
+        }
+        ZonedDateTime agoraComMargem = ZonedDateTime.now(ZONE_ID).plusHours(1);
+        return agoraComMargem.isBefore(dataHoraJogo);
     }
 	
 	public boolean jaOcorreu() {
-//		Calendar agora = Calendar.getInstance();
-//		Calendar dataHoraJogo = getDataHora();
-//		dataHoraJogo.add(Calendar.HOUR_OF_DAY, 2);
-//		return agora.compareTo(dataHoraJogo) > 0;
-		return true;
+        ZonedDateTime dataHoraJogo = getDataHora();
+        if (dataHoraJogo == null) {
+            return false;
+        }
+        ZonedDateTime corte = dataHoraJogo.plusHours(JANELA_CONCLUSAO_HORAS);
+        ZonedDateTime agora = ZonedDateTime.now(ZONE_ID);
+        return agora.isAfter(corte);
 	}
 
     public boolean jaFoiAtualizado() {
