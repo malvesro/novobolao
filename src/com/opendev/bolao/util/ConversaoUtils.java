@@ -5,11 +5,18 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 public final class ConversaoUtils {
 	
 	private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
 	private static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm");
+
+    static {
+        TimeZone timeZone = BolaoTime.getTimeZone();
+        DATE_FORMAT.setTimeZone(timeZone);
+        TIME_FORMAT.setTimeZone(timeZone);
+    }
 
 	
 	public static Date converterParaData(String s) {
