@@ -9,17 +9,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 import com.opendev.bolao.exception.ValidacaoException;
 import com.opendev.bolao.grafico.GraficoBarraLideres;
 import com.opendev.bolao.grafico.GraficoComparativoDesempenho;
+import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.model.Palpite;
 import com.opendev.bolao.model.Participante;
 import com.opendev.bolao.service.EquipeService;
 import com.opendev.bolao.service.JogoService;
+import com.opendev.bolao.service.PalpiteAuthorizationService;
 import com.opendev.bolao.service.PalpiteService;
 import com.opendev.bolao.service.ParticipanteService;
+import com.opendev.bolao.service.dto.PalpiteAuthorization;
 import com.opendev.bolao.util.ConversaoUtils;
 import com.opendev.bolao.util.MensagemErro;
 import com.opendev.bolao.util.FiltroBuscaJogos;
@@ -28,13 +32,22 @@ import com.opendev.bolao.util.SanitizationUtils;
 import com.opendev.bolao.util.ValidacaoUtils;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.apache.struts2.ActionSupport;
 import org.apache.struts2.interceptor.parameter.StrutsParameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ParticipanteAction extends ActionSupport {
 
 	private static final long serialVersionUID = 1L;
-	
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ParticipanteAction.class);
+	private static final String LOG_PREFIX_UPDATE = "[HTMX][UPDATE]";
+	private static final String LOG_PREFIX_PREPARE = "[HTMX][PREP]";
+
 	private PalpiteService palpiteService;
     private ParticipanteService participanteService;
     private JogoService jogoService;
@@ -55,6 +68,12 @@ public class ParticipanteAction extends ActionSupport {
     private Integer palpiteGolsEquipe2;
     private boolean palpiteAtualizado;
     private String palpiteErro;
+    private Jogo jogoSelecionado;
+    private Palpite palpiteSelecionado;
+    private boolean palpitePermitido;
+    private String palpiteStatus = "locked";
+    private String palpiteBloqueioMotivo;
+    private PalpiteAuthorizationService palpiteAuthorizationService;
     
     // Dados página principal
     private List jogosDeHoje;
@@ -124,9 +143,7 @@ public String prepararInfoPalpites() {
         return SUCCESS;
     }
 
-    private void prepararMapaPalpitesUsuario() {
-        String login = RequestUtils.getLoginParticipanteAutenticado();
-        if (login == null) {
+    private void prepararMapaPalpitesUsuario() {        if (login == null) {
             return;
         }
         List palpitesDoUsuario = getPalpiteService().buscarPalpitesDoParticipante(login);
@@ -296,12 +313,14 @@ public String prepararInfoPalpites() {
     }
     
     public String listarMeusPalpitesHtmx() {
+	marcarRespostaParcial();
     	String login = RequestUtils.getLoginParticipanteAutenticado();
     	this.palpites = getPalpiteService().buscarPalpitesDoParticipante(login);
     	return SUCCESS;
     }
 
     public String listarPalpitesDoJogoHtmx() {
+        marcarRespostaParcial();
         if (this.jogoId == null) {
             this.palpites = Collections.emptyList();
             return SUCCESS;
@@ -310,28 +329,264 @@ public String prepararInfoPalpites() {
         return SUCCESS;
     }
 
-    public String atualizarPalpiteHtmx() {
-        String login = RequestUtils.getLoginParticipanteAutenticado();
-        if (login == null) {
+    public String carregarPalpiteFormHtmx() {
+        marcarRespostaParcial();
+        prepararConteudoPalpite();
+        if (this.jogoSelecionado == null) {
             this.palpiteAtualizado = false;
-            this.palpiteErro = null;
+            return ERROR;
+        }
+        this.palpiteAtualizado = false;
+        return SUCCESS;
+    }
+
+    public String atualizarPalpiteHtmx() {
+        marcarRespostaParcial();
+        String login = RequestUtils.getLoginParticipanteAutenticado();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        HttpServletRequest request = RequestUtils.getRequest();
+        String ip = RequestUtils.getIpDaRequisicao();
+        this.palpiteErro = null;
+        registrarCabecalhosHtmx(request, LOG_PREFIX_UPDATE);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("{} inicio login={}, jogoId={}, gols1={}, gols2={}, ip={}, autenticado={}",
+                    LOG_PREFIX_UPDATE,
+                    login,
+                    this.jogoId,
+                    this.palpiteGolsEquipe1,
+                    this.palpiteGolsEquipe2,
+                    ip,
+                    authentication != null && authentication.isAuthenticated());
+        }
+        LOGGER.debug("atualizarPalpiteHtmx: login={}, jogoId={}, gols1={}, gols2={}, authClass={}, principal={}, sessionId={}",
+                login,
+                this.jogoId,
+                this.palpiteGolsEquipe1,
+                this.palpiteGolsEquipe2,
+                authentication == null ? "null" : authentication.getClass().getName(),
+                authentication == null ? "null" : authentication.getPrincipal(),
+                request == null ? "null" : request.getRequestedSessionId());
+        if (request != null && request.getCookies() != null) {
+            StringBuilder cookiesBuilder = new StringBuilder();
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                if (cookiesBuilder.length() > 0) {
+                    cookiesBuilder.append("; ");
+                }
+                cookiesBuilder.append(cookie.getName()).append('=') .append(cookie.getValue());
+            }
+            LOGGER.debug("atualizarPalpiteHtmx: cookies={}", cookiesBuilder);
+        }
+        if (login == null) {
+            LOGGER.warn("atualizarPalpiteHtmx: usuario nao autenticado, abortando.");
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("{} resultado=ERROR motivo=usuarioNaoAutenticado jogoId={} gols1={} gols2={}",
+                        LOG_PREFIX_UPDATE, this.jogoId, this.palpiteGolsEquipe1, this.palpiteGolsEquipe2);
+            }
+            this.palpiteAtualizado = false;
+            this.palpiteErro = getText("match.tip.error.unavailable");
+            if (this.jogoId != null) {
+                prepararConteudoPalpite();
+            }
             return ERROR;
         }
         if (this.jogoId == null || this.palpiteGolsEquipe1 == null || this.palpiteGolsEquipe2 == null) {
+            LOGGER.warn("atualizarPalpiteHtmx: parametros invalidos jogoId={}, gols1={}, gols2={}", this.jogoId, this.palpiteGolsEquipe1, this.palpiteGolsEquipe2);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("{} resultado=ERROR motivo=parametrosInvalidos jogoId={} gols1={} gols2={}",
+                        LOG_PREFIX_UPDATE, this.jogoId, this.palpiteGolsEquipe1, this.palpiteGolsEquipe2);
+            }
             this.palpiteAtualizado = false;
-            this.palpiteErro = null;
+            this.palpiteErro = getText("match.tip.error.unavailable");
+            prepararConteudoPalpite();
             return ERROR;
         }
+        String resultado;
         try {
-            getPalpiteService().atualizarPalpite(login, this.jogoId, this.palpiteGolsEquipe1, this.palpiteGolsEquipe2, RequestUtils.getIpDaRequisicao());
+            getPalpiteService().atualizarPalpite(login, this.jogoId, this.palpiteGolsEquipe1, this.palpiteGolsEquipe2, ip);
             this.palpiteAtualizado = true;
             prepararMapaPalpitesUsuario();
-            return SUCCESS;
+            prepararConteudoPalpite();
+            resultado = SUCCESS;
         } catch (Exception ex) {
+            LOGGER.error("atualizarPalpiteHtmx: falha ao atualizar palpite (login={}, jogoId={})", login, this.jogoId, ex);
             this.palpiteAtualizado = false;
-            this.palpiteErro = null;
-            return ERROR;
+            if (ex instanceof IllegalStateException) {
+                this.palpiteErro = getText("match.tip.locked.timeWindow");
+            } else {
+                this.palpiteErro = getText("match.tip.error.unavailable");
+            }
+            prepararConteudoPalpite();
+            resultado = ERROR;
         }
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("{} resultado={} palpiteAtualizado={} palpiteStatus={} palpitePermitido={} palpiteErro={}",
+                    LOG_PREFIX_UPDATE,
+                    resultado,
+                    this.palpiteAtualizado,
+                    this.palpiteStatus,
+                    this.palpitePermitido,
+                    this.palpiteErro);
+        }
+        return resultado;
+    }
+
+    private void prepararConteudoPalpite() {
+        this.palpiteSelecionado = null;
+        this.jogoSelecionado = null;
+        this.palpitePermitido = false;
+        this.palpiteStatus = "locked";
+        this.palpiteBloqueioMotivo = null;
+
+        if (this.jogoId == null) {
+            LOGGER.debug("prepararConteudoPalpite: jogoId ausente, encerrando.");
+            return;
+        }
+
+        Jogo jogo = getJogoService().buscarPorId(this.jogoId);
+        if (jogo == null) {
+            LOGGER.warn("prepararConteudoPalpite: jogo nao encontrado jogoId={}", this.jogoId);
+            return;
+        }
+        this.jogoSelecionado = jogo;
+
+        String login = RequestUtils.getLoginParticipanteAutenticado();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();        registrarCabecalhosHtmx(request, LOG_PREFIX_PREPARE);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("{} jogoId={} data={} hora={} podeDarPalpite={}",
+                    LOG_PREFIX_PREPARE,
+                    this.jogoId,
+                    jogo.getData(),
+                    jogo.getHora(),
+                    jogo.getPodeDarPalpite());
+        }
+        LOGGER.debug("prepararConteudoPalpite: login={}, authClass={}, principal={}, sessionId={}",
+                login,
+                authentication == null ? "null" : authentication.getClass().getName(),
+                authentication == null ? "null" : authentication.getPrincipal(),
+                request == null ? "null" : request.getRequestedSessionId());
+        if (request != null && request.getCookies() != null) {
+            StringBuilder cookiesBuilder = new StringBuilder();
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                if (cookiesBuilder.length() > 0) {
+                    cookiesBuilder.append("; ");
+                }
+                cookiesBuilder.append(cookie.getName()).append('=').append(cookie.getValue());
+            }
+            LOGGER.debug("prepararConteudoPalpite: cookies={}", cookiesBuilder);
+        }
+        if (login != null) {
+            try {
+                this.palpiteSelecionado = getPalpiteService().buscarPalpiteDoJogo(login, this.jogoId);
+                if (LOGGER.isInfoEnabled()) {
+                    if (this.palpiteSelecionado != null) {
+                        LOGGER.info("{} palpiteEncontrado=true login={} jogoId={} gols1={} gols2={} atualizadoEm={} ip={}",
+                                LOG_PREFIX_PREPARE,
+                                login,
+                                this.jogoId,
+                                this.palpiteSelecionado.getGolsEquipe1(),
+                                this.palpiteSelecionado.getGolsEquipe2(),
+                                this.palpiteSelecionado.getDataHoraAtualizacao(),
+                                this.palpiteSelecionado.getIp());
+                    } else {
+                        LOGGER.info("{} palpiteEncontrado=false login={} jogoId={}", LOG_PREFIX_PREPARE, login, this.jogoId);
+                    }
+                }
+            } catch (Exception ex) {
+                LOGGER.error("prepararConteudoPalpite: erro buscando palpite do jogo (login={}, jogoId={})", login, this.jogoId, ex);
+                this.palpiteSelecionado = null;
+            }
+        } else if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("{} login_nulo jogoId={} (nenhum palpite carregado)", LOG_PREFIX_PREPARE, this.jogoId);
+        }
+
+        PalpiteAuthorization authorization = avaliarAutorizacao(jogo, this.palpiteSelecionado);
+        LOGGER.debug("prepararConteudoPalpite: jogoId={}, autorizacao={{permitido={}, status={}, motivo={}}}",
+                this.jogoId, authorization.isPermitido(), authorization.getStatus(), authorization.getReason());
+        this.palpitePermitido = authorization.isPermitido();
+        this.palpiteStatus = authorization.getStatus().getKey();
+        this.palpiteBloqueioMotivo = authorization.getReason().getKey();
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("{} autorizacao login={} jogoId={} permitido={} status={} motivo={}",
+                    LOG_PREFIX_PREPARE,
+                    login,
+                    this.jogoId,
+                    this.palpitePermitido,
+                    this.palpiteStatus,
+                    this.palpiteBloqueioMotivo);
+        }
+    }
+
+    private PalpiteAuthorization avaliarAutorizacao(Jogo jogo, Palpite palpite) {
+        if (palpiteAuthorizationService != null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            return palpiteAuthorizationService.avaliar(authentication, jogo, palpite);
+        }
+        boolean possuiRole = false;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && authentication.getAuthorities() != null) {
+            for (GrantedAuthority authority : authentication.getAuthorities()) {
+                String nome = authority != null ? authority.getAuthority() : null;
+                if (nome == null) {
+                    continue;
+                }
+                String normalizado = nome.trim().toUpperCase();
+                if (!normalizado.startsWith("ROLE_")) {
+                    normalizado = "ROLE_" + normalizado;
+                }
+                if ("ROLE_USER".equals(normalizado) || "ROLE_ADMIN".equals(normalizado)) {
+                    possuiRole = true;
+                    break;
+                }
+            }
+        }
+        boolean janelaAberta = jogo != null && jogo.getPodeDarPalpite();
+        boolean permitido = possuiRole && janelaAberta;
+        PalpiteAuthorization.Status status;
+        if (palpite != null) {
+            status = PalpiteAuthorization.Status.REGISTERED;
+        } else if (permitido) {
+            status = PalpiteAuthorization.Status.PENDING;
+        } else {
+            status = PalpiteAuthorization.Status.LOCKED;
+        }
+        if (permitido) {
+            return PalpiteAuthorization.permitido(status);
+        }
+        PalpiteAuthorization.RejectionReason motivo;
+        if (!possuiRole) {
+            motivo = PalpiteAuthorization.RejectionReason.ROLE_MISSING;
+        } else if (!janelaAberta) {
+            motivo = PalpiteAuthorization.RejectionReason.TIME_WINDOW;
+        } else {
+            motivo = PalpiteAuthorization.RejectionReason.UNKNOWN;
+        }
+        return PalpiteAuthorization.negado(status, motivo);
+    }
+
+    private void marcarRespostaParcial() {
+        HttpServletRequest request = RequestUtils.getRequest();
+        if (request != null) {
+            request.setAttribute("skipTemplate", Boolean.TRUE);
+        }
+    }
+
+    private void registrarCabecalhosHtmx(HttpServletRequest request, String prefixoLog) {
+        if (!LOGGER.isInfoEnabled()) {
+            return;
+        }
+        if (request == null) {
+            LOGGER.info("{} headers indisponiveis (request nulo)", prefixoLog);
+            return;
+        }
+        LOGGER.info("{} headers hx-request={}, hx-trigger={}, hx-target={}, hx-current-url={}, hx-history-restore={}, referer={}, user-agent={}",
+                prefixoLog,
+                request.getHeader("HX-Request"),
+                request.getHeader("HX-Trigger"),
+                request.getHeader("HX-Target"),
+                request.getHeader("HX-Current-URL"),
+                request.getHeader("HX-History-Restore-Request"),
+                request.getHeader("Referer"),
+                request.getHeader("User-Agent"));
     }
 
 	public String cadastrar() {
@@ -452,6 +707,26 @@ public String prepararInfoPalpites() {
         return palpiteErro;
     }
 
+    public Jogo getJogoSelecionado() {
+        return jogoSelecionado;
+    }
+
+    public Palpite getPalpiteSelecionado() {
+        return palpiteSelecionado;
+    }
+
+    public boolean isPalpitePermitido() {
+        return palpitePermitido;
+    }
+
+    public String getPalpiteStatus() {
+        return palpiteStatus;
+    }
+
+    public String getPalpiteBloqueioMotivo() {
+        return palpiteBloqueioMotivo;
+    }
+
     public List getErrosInclusao() {
         return this.errosInclusao;
     }
@@ -474,6 +749,10 @@ public String prepararInfoPalpites() {
 
     public void setSucessoCadastro(boolean sucessoCadastro) {
         this.sucessoCadastro = sucessoCadastro;
+    }
+
+    public void setPalpiteAuthorizationService(PalpiteAuthorizationService palpiteAuthorizationService) {
+        this.palpiteAuthorizationService = palpiteAuthorizationService;
     }
 
     private boolean validarCadastroEntradas() {

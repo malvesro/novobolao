@@ -266,6 +266,7 @@ graph TD
 - Interceptor `HtmxDebugInterceptor` registra `[HTMX-TRACE]` e enriquece logs com headers `HX-*`.
 - `ParticipanteAction`/`AdminAction` separam métodos `*Htmx` e métodos de página completa, mantendo coesão de templates.
 - Bundler Vite gera assets modulares (`manifest.json`), enquanto `app-bundle.js` garante fallback offline.
+- Releases promovidas (ex.: 0.2.11) executam `npm run build`/`mvn clean package -Dfrontend.skip=false`, produzindo um bundle hashado (`main-C50fFhNb.js`) e atualizando o manifest consumido pelo loader JSP.
 
 ```mermaid
 stateDiagram-v2
@@ -278,6 +279,32 @@ stateDiagram-v2
 ```
 
 > **Boas práticas:** Logs `[HTMX][PREP]` e `[HTMX][UPDATE]` indicam preparação/commit de palpites; revisar `.ia/logs/session-20260303-palpites-inline-instrumentacao.md` quando depurando diferenças entre fragmentos e páginas completas.
+
+#### 4.10.1 Artefatos Vite por release
+- **Pipeline determinístico:** cada versão executa `npm install` → `npm run build` → `mvn clean package -Dfrontend.skip=false`, atualizando `webapp/assets/.vite/manifest.json` e gerando `main-<hash>.js`. Na release 0.2.11, o hash publicado foi `main-C50fFhNb.js`.
+- **Manifest + fallback:** o loader em `cabecalho.jspf` tenta resolver o bundle via manifest; caso o arquivo não exista (build frontend pulado), ele carrega `app-bundle.js`, mantendo a aplicação funcional.
+- **Publicação Docker:** `docker compose build app` copia o WAR com manifest e bundles para a imagem `novobolao-app`, garantindo que o runtime sirva os mesmos artefatos validados nos testes.
+- **Recuperação rápida:** hashes anteriores permanecem versionados; basta recriar o build frontend para gerar um novo hash e o loader passará a referenciá-lo sem alterações no JSP.
+
+```mermaid
+flowchart LR
+    subgraph Build
+        A[npm run build] --> B[Vite 5<br/>gera main-<hash>.js]
+        B --> C[manifest.json]
+        B --> D[app-bundle.js (fallback)]
+        C --> E[mvn clean package<br/>-Dfrontend.skip=false]
+    end
+
+    E --> F[WAR 0.2.11]
+    F --> G[docker compose build app]
+    G --> H[Imagem novobolao-app]
+    H --> I[Tomcat 10/11]
+    I --> J[cabecalho.jspf]
+    J -- manifest ok --> K[Carrega main-<hash>.js]
+    J -- manifest ausente --> L[Carrega app-bundle.js]
+    K --> M[Navegador]
+    L --> M
+```
 
 ### 4.11 Observabilidade e logging
 - **Trilha principal:** SLF4J → Logback (`logback.xml`) com appenders console/arquivo; marker `[SEC]` diferencia eventos sensíveis.
