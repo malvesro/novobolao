@@ -1,242 +1,50 @@
-const GAP_ICON = 206;
-const BALLOON_OFFSET = 212;
+const DEBUG_LABEL = '[bolao:jogos]';
 
-let idJogoSelecionado = null;
-let linhaSelecionada = null;
-let meusPalpitesCarregado = false;
-let previousFocusElement = null;
+const state = {
+  expandedMatchId: null,
+  lastInlineTrigger: null,
+  lastPanelTrigger: null,
+  meusPalpitesLoaded: false,
+  initialized: false,
+};
+
+function debugInfo(message, detail) {
+  if (!window.console || !console.info) {
+    return;
+  }
+  if (detail !== undefined) {
+    console.info(`${DEBUG_LABEL} ${message}`, detail);
+    return;
+  }
+  console.info(`${DEBUG_LABEL} ${message}`);
+}
+
+function debugWarn(message, detail) {
+  if (!window.console || !console.warn) {
+    return;
+  }
+  if (detail !== undefined) {
+    console.warn(`${DEBUG_LABEL} ${message}`, detail);
+    return;
+  }
+  console.warn(`${DEBUG_LABEL} ${message}`);
+}
 
 function getBaseUrl() {
-  if (window.APP_BASE_URL) {
-    return window.APP_BASE_URL;
-  }
-  return '';
+  return window.APP_BASE_URL || '';
 }
 
-function collapseContainer(containerId, imgElement) {
+function toggleCollapse(containerId, trigger) {
+  if (!containerId || !trigger) {
+    return;
+  }
   const content = document.getElementById(`${containerId}_content`);
-  if (!content || !imgElement) {
+  if (!content) {
+    debugWarn('Container de colapso não encontrado.', { containerId });
     return;
   }
-  const isHidden = content.classList.toggle('collapsible-portlet__content--hidden');
-  imgElement.src = isHidden ? `${getBaseUrl()}/img/arrow_right.png` : `${getBaseUrl()}/img/arrow_down.png`;
-}
-
-function getElementPosition(element) {
-  const rect = element.getBoundingClientRect();
-  return {
-    x: rect.left + window.scrollX,
-    y: rect.top + window.scrollY,
-  };
-}
-
-function destacarLinha(row, highlight) {
-  if (!row) {
-    return;
-  }
-  if (highlight) {
-    if (!row.dataset.originalClass) {
-      row.dataset.originalClass = row.className;
-    }
-    if ((row.dataset.originalClass || '').indexOf('brasil') !== -1) {
-      row.className = 'destacado_brasil';
-    } else {
-      row.className = 'destacado';
-    }
-  } else if (row.dataset.originalClass) {
-    row.className = row.dataset.originalClass;
-  }
-}
-
-function fecharIconeMouseOver(img) {
-  if (!img) {
-    return;
-  }
-  img.src = `${getBaseUrl()}/img/fechar_hover.gif`;
-}
-
-function fecharIconeMouseOut(img) {
-  if (!img) {
-    return;
-  }
-  img.src = `${getBaseUrl()}/img/fechar.gif`;
-}
-
-function destacarAtualizacao(row, sucesso) {
-  if (!row) {
-    return;
-  }
-  row.classList.remove('row-highlight--success', 'row-highlight--error');
-  void row.offsetWidth;
-  row.classList.add(sucesso ? 'row-highlight--success' : 'row-highlight--error');
-}
-
-function fecharBalao() {
-  const palpiteDiv = document.getElementById('balao_palpite');
-  const palpitesDiv = document.getElementById('balao_palpites');
-  const statusContainer = document.getElementById('palpite-status');
-  if (palpiteDiv) {
-    palpiteDiv.classList.remove('balao-visible');
-    palpiteDiv.setAttribute('aria-hidden', 'true');
-  }
-  if (palpitesDiv) {
-    palpitesDiv.classList.remove('balao-visible');
-    palpitesDiv.setAttribute('aria-hidden', 'true');
-  }
-  if (statusContainer) {
-    statusContainer.innerHTML = '';
-  }
-  const loadingPalpite = document.getElementById('loading_span');
-  const loadingPalpites = document.getElementById('loading_span_palpites');
-  if (loadingPalpite) {
-    loadingPalpite.classList.remove('loading-inline--visible');
-  }
-  if (loadingPalpites) {
-    loadingPalpites.classList.remove('loading-inline--visible');
-  }
-  if (previousFocusElement) {
-    previousFocusElement.focus();
-    previousFocusElement = null;
-  }
-}
-
-function carregarPalpitesDoJogo(jogoId) {
-  const loading = document.getElementById('loading_span_palpites');
-  if (loading) {
-    loading.classList.add('loading-inline--visible');
-  }
-  const request = window.htmx.ajax('GET', `${getBaseUrl()}/seguro/palpitesDoJogoPartial.action`, {
-    target: '#balao_table_palpites',
-    swap: 'innerHTML',
-    values: { jogoId },
-  });
-  request.addEventListener('loadend', () => {
-    if (loading) {
-      loading.classList.remove('loading-inline--visible');
-    }
-  });
-}
-
-function mostrarPopupPalpite(rowElement) {
-  if (!rowElement) {
-    return;
-  }
-  previousFocusElement = document.activeElement;
-  if (!previousFocusElement || previousFocusElement === document.body) {
-    previousFocusElement = rowElement;
-  }
-  const podeDarPalpite = rowElement.dataset.palpiteAllowed === 'true';
-  const jogoId = Number(rowElement.dataset.jogoId);
-  const palpiteDiv = document.getElementById('balao_palpite');
-  const palpitesDiv = document.getElementById('balao_palpites');
-  const statusContainer = document.getElementById('palpite-status');
-  const loadingPalpite = document.getElementById('loading_span');
-  const loadingPalpites = document.getElementById('loading_span_palpites');
-
-  idJogoSelecionado = jogoId;
-  linhaSelecionada = rowElement;
-
-  if (statusContainer) {
-    statusContainer.innerHTML = '';
-  }
-
-  if (loadingPalpite) {
-    loadingPalpite.classList.remove('loading-inline--visible');
-  }
-  if (loadingPalpites) {
-    loadingPalpites.classList.remove('loading-inline--visible');
-  }
-
-  if (palpiteDiv) {
-    palpiteDiv.classList.remove('balao-visible');
-    palpiteDiv.setAttribute('aria-hidden', 'true');
-  }
-  if (palpitesDiv) {
-    palpitesDiv.classList.remove('balao-visible');
-    palpitesDiv.setAttribute('aria-hidden', 'true');
-  }
-
-  const coords = getElementPosition(rowElement);
-
-  if (podeDarPalpite) {
-    if (palpiteDiv) {
-      palpiteDiv.style.top = `${coords.y - 118}px`;
-      palpiteDiv.style.left = `${coords.x + BALLOON_OFFSET}px`;
-      palpiteDiv.classList.add('balao-visible');
-      palpiteDiv.setAttribute('aria-hidden', 'false');
-    }
-    const gols1 = rowElement.dataset.palpiteGols1 || '';
-    const gols2 = rowElement.dataset.palpiteGols2 || '';
-    const inputGols1 = document.getElementById('palpite_gols_eq_1');
-    const inputGols2 = document.getElementById('palpite_gols_eq_2');
-    if (inputGols1) {
-      inputGols1.value = gols1;
-      inputGols1.focus();
-    }
-    if (inputGols2) {
-      inputGols2.value = gols2;
-    }
-  } else {
-    if (palpitesDiv) {
-      palpiteDiv?.classList.remove('balao-visible');
-      palpitesDiv.style.top = `${coords.y - GAP_ICON}px`;
-      palpitesDiv.style.left = `${coords.x + BALLOON_OFFSET}px`;
-      palpitesDiv.classList.add('balao-visible');
-      palpitesDiv.setAttribute('aria-hidden', 'false');
-      const closeButton = palpitesDiv.querySelector('[data-js="fechar-balao"]');
-      if (closeButton) {
-        closeButton.focus();
-      }
-    }
-    carregarPalpitesDoJogo(jogoId);
-  }
-}
-
-function atualizarPalpite() {
-  if (idJogoSelecionado === null) {
-    return;
-  }
-  const inputGols1 = document.getElementById('palpite_gols_eq_1');
-  const inputGols2 = document.getElementById('palpite_gols_eq_2');
-  if (!inputGols1 || !inputGols2) {
-    return;
-  }
-  const gols1 = inputGols1.value === '' ? '0' : inputGols1.value;
-  const gols2 = inputGols2.value === '' ? '0' : inputGols2.value;
-  inputGols1.value = gols1;
-  inputGols2.value = gols2;
-
-  if (linhaSelecionada) {
-    linhaSelecionada.dataset.palpiteGols1 = gols1;
-    linhaSelecionada.dataset.palpiteGols2 = gols2;
-  }
-
-  const loading = document.getElementById('loading_span');
-  if (loading) {
-    loading.classList.add('loading-inline--visible');
-  }
-
-  const request = window.htmx.ajax('POST', `${getBaseUrl()}/seguro/atualizarPalpitePartial.action`, {
-    target: '#palpite-status',
-    swap: 'innerHTML',
-    values: {
-      jogoId: idJogoSelecionado,
-      palpiteGolsEquipe1: gols1,
-      palpiteGolsEquipe2: gols2,
-    },
-  });
-
-  request.addEventListener('loadend', () => {
-    if (loading) {
-      loading.classList.remove('loading-inline--visible');
-    }
-    if (request.status >= 200 && request.status < 300) {
-      const meusPalpitesPainel = document.getElementById('todos_palpites_div');
-      if (meusPalpitesPainel && meusPalpitesPainel.classList.contains('tips-panel--visible')) {
-        carregarMeusPalpites(true);
-      }
-    }
-  });
+  const hidden = content.classList.toggle('collapsible-portlet__content--hidden');
+  trigger.src = hidden ? `${getBaseUrl()}/img/arrow_right.png` : `${getBaseUrl()}/img/arrow_down.png`;
 }
 
 function atualizarResultado(input) {
@@ -244,26 +52,41 @@ function atualizarResultado(input) {
     return;
   }
   const jogoId = input.id.substring(input.id.lastIndexOf('_') + 1);
-  const tr = document.getElementById(`jogoTr_${jogoId}`);
-  const golsEq1Field = document.getElementById(`golsEquipe1_tf_${jogoId}`);
-  const golsEq1 = golsEq1Field && golsEq1Field.value !== '' ? golsEq1Field.value : '-1';
-  const golsEq2 = input.value !== '' ? input.value : '-1';
+  const golsEquipe1Field = document.getElementById(`golsEquipe1_tf_${jogoId}`);
+  const golsEquipe1 = golsEquipe1Field && golsEquipe1Field.value !== '' ? golsEquipe1Field.value : '-1';
+  const golsEquipe2 = input.value !== '' ? input.value : '-1';
 
   fetch(`${getBaseUrl()}/admin/atualizarResultadoJogo.action`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
     body: new URLSearchParams({
       id: jogoId,
-      golsEquipe1: golsEq1,
-      golsEquipe2: golsEq2,
+      golsEquipe1,
+      golsEquipe2,
     }),
-  })
-    .then((response) => {
-      destacarAtualizacao(tr, response.ok);
-    })
-    .catch(() => {
-      destacarAtualizacao(tr, false);
-    });
+  }).catch(() => {
+    debugWarn('Falha ao atualizar resultado.', { jogoId });
+  });
+}
+
+function carregarMeusPalpites(force = false) {
+  if (!window.htmx) {
+    debugWarn('HTMX não disponível para carregar palpites.');
+    return;
+  }
+  if (!force && state.meusPalpitesLoaded) {
+    return;
+  }
+  debugInfo('Carregando meus palpites.', { force });
+  const request = window.htmx.ajax('GET', `${getBaseUrl()}/seguro/meusPalpitesPartial.action`, {
+    target: '#todos_palpites_table',
+    swap: 'innerHTML',
+  });
+  request.addEventListener('loadend', () => {
+    state.meusPalpitesLoaded = request.status >= 200 && request.status < 300;
+  });
 }
 
 function mostrarMeusPalpites() {
@@ -277,63 +100,390 @@ function mostrarMeusPalpites() {
 
 function fecharMeusPalpites() {
   const painel = document.getElementById('todos_palpites_div');
-  if (painel) {
-    painel.classList.remove('tips-panel--visible');
-  }
-}
-
-function carregarMeusPalpites(force) {
-  if (!force && meusPalpitesCarregado) {
+  if (!painel) {
     return;
   }
-  const request = window.htmx.ajax('GET', `${getBaseUrl()}/seguro/meusPalpitesPartial.action`, {
-    target: '#todos_palpites_table',
-    swap: 'innerHTML',
-  });
-  request.addEventListener('loadend', () => {
-    meusPalpitesCarregado = request.status >= 200 && request.status < 300;
+  painel.classList.remove('tips-panel--visible');
+}
+
+function isMeusPalpitesOpen() {
+  const painel = document.getElementById('todos_palpites_div');
+  return painel ? painel.classList.contains('tips-panel--visible') : false;
+}
+
+function storeInlineInitialState() {
+  document.querySelectorAll('.match-expand').forEach((row) => {
+    if (!row.dataset.initialContent) {
+      row.dataset.initialContent = row.innerHTML;
+    }
   });
 }
 
-function bindRowEvents() {
-  const rows = document.querySelectorAll('[data-jogo-id]');
-  rows.forEach((row) => {
-    row.setAttribute('tabindex', '0');
-    row.setAttribute('role', 'button');
-    row.addEventListener('mouseover', () => destacarLinha(row, true));
-    row.addEventListener('mouseout', () => destacarLinha(row, false));
-    row.addEventListener('click', () => mostrarPopupPalpite(row));
-    row.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        mostrarPopupPalpite(row);
+function restoreInlinePlaceholder(expandRow) {
+  if (!expandRow) {
+    return;
+  }
+  if (expandRow.dataset.initialContent) {
+    expandRow.innerHTML = expandRow.dataset.initialContent;
+  }
+}
+
+function findMatchRow(matchId) {
+  if (!matchId) {
+    return null;
+  }
+  return document.querySelector(`.match-row[data-jogo-id="${matchId}"]`);
+}
+
+function updatePalpiteSummaryCell(matchRow) {
+  const palpiteCell = matchRow.querySelector('.match-table__palpite');
+  if (!palpiteCell) {
+    return;
+  }
+  const gols1 = matchRow.dataset.palpiteGols1;
+  const gols2 = matchRow.dataset.palpiteGols2;
+  const placeholder = matchRow.dataset.palpitePlaceholder || '';
+  if (gols1 !== undefined && gols1 !== '' && gols2 !== undefined && gols2 !== '') {
+    palpiteCell.innerHTML = `<span class="palpite-score">${gols1} x ${gols2}</span>`;
+  } else {
+    palpiteCell.innerHTML = `<span class="palpite-placeholder">${placeholder}</span>`;
+  }
+}
+
+function updatePalpiteStatusBadge(matchRow) {
+  const statusCell = matchRow.querySelector('.match-table__status');
+  if (!statusCell) {
+    return;
+  }
+  const status = matchRow.dataset.palpiteStatus || 'pending';
+  const label = matchRow.dataset.palpiteStatusLabel || status;
+  let badge = statusCell.querySelector('.badge');
+  if (!badge) {
+    badge = document.createElement('span');
+    badge.classList.add('badge');
+    statusCell.innerHTML = '';
+    statusCell.appendChild(badge);
+  }
+  badge.className = `badge badge--${status}`;
+  badge.textContent = label;
+}
+
+function updateMatchRowActions(matchRow) {
+  const editButton = matchRow.querySelector('[data-js="abrir-palpite-inline"]');
+  if (!editButton) {
+    return;
+  }
+  const allowed = matchRow.dataset.palpiteAllowed === 'true';
+  if (allowed) {
+    editButton.disabled = false;
+    editButton.removeAttribute('aria-disabled');
+  } else {
+    editButton.disabled = true;
+    editButton.setAttribute('aria-disabled', 'true');
+  }
+}
+
+function updateMatchRowUI(matchRow) {
+  if (!matchRow) {
+    return;
+  }
+  updatePalpiteSummaryCell(matchRow);
+  updatePalpiteStatusBadge(matchRow);
+  updateMatchRowActions(matchRow);
+}
+
+function syncMatchRowFromExpand(expandRow) {
+  const parentId = expandRow.dataset.parent;
+  if (!parentId) {
+    return;
+  }
+  const meta = expandRow.querySelector('[data-palpite-meta="true"]');
+  if (!meta) {
+    return;
+  }
+  const matchRow = findMatchRow(parentId);
+  if (!matchRow) {
+    return;
+  }
+
+  const {
+    palpiteStatus,
+    palpiteAllowed,
+    palpiteGols1,
+    palpiteGols2,
+    palpiteStatusLabel,
+    palpitePlaceholder,
+    palpiteLockedReason,
+  } = meta.dataset;
+  if (palpiteStatus !== undefined) {
+    matchRow.dataset.palpiteStatus = palpiteStatus;
+  }
+  if (palpiteAllowed !== undefined) {
+    matchRow.dataset.palpiteAllowed = palpiteAllowed;
+  }
+  if (palpiteGols1 !== undefined) {
+    matchRow.dataset.palpiteGols1 = palpiteGols1;
+  }
+  if (palpiteGols2 !== undefined) {
+    matchRow.dataset.palpiteGols2 = palpiteGols2;
+  }
+  if (palpiteStatusLabel !== undefined) {
+    matchRow.dataset.palpiteStatusLabel = palpiteStatusLabel;
+  }
+  if (palpitePlaceholder !== undefined) {
+    matchRow.dataset.palpitePlaceholder = palpitePlaceholder;
+  }
+  if (palpiteLockedReason !== undefined) {
+    matchRow.dataset.palpiteLockedReason = palpiteLockedReason;
+  } else {
+    delete matchRow.dataset.palpiteLockedReason;
+  }
+  updateMatchRowUI(matchRow);
+}
+
+function openInlineRow(trigger) {
+  const matchRow = trigger.closest('.match-row');
+  if (!matchRow) {
+    debugWarn('Botão de palpite sem linha associada.', trigger);
+    return;
+  }
+  const matchId = matchRow.dataset.jogoId;
+  if (!matchId) {
+    debugWarn('match-row sem data-jogo-id.', matchRow);
+    return;
+  }
+
+  if (state.expandedMatchId && state.expandedMatchId !== matchId) {
+    closeInlineRow(state.expandedMatchId, { returnFocus: false, resetContent: false });
+  }
+
+  const expandRow = document.getElementById(`match-expand_${matchId}`);
+  if (!expandRow) {
+    debugWarn('Linha expandida não encontrada.', { matchId });
+    return;
+  }
+
+  expandRow.hidden = false;
+  matchRow.classList.add('match-row--expanded');
+  trigger.setAttribute('aria-expanded', 'true');
+  trigger.dataset.inlineOpen = 'true';
+
+  const placeholder = expandRow.querySelector('.palpite-inline__placeholder');
+  if (placeholder) {
+    const loadingMessage = placeholder.dataset.loadingMessage || placeholder.textContent;
+    placeholder.textContent = loadingMessage;
+  }
+
+  state.expandedMatchId = matchId;
+  state.lastInlineTrigger = trigger;
+}
+
+function closeInlineRow(matchId, options = {}) {
+  const { returnFocus = true, resetContent = true } = options;
+  const matchRow = document.querySelector(`.match-row[data-jogo-id="${matchId}"]`);
+  const expandRow = document.getElementById(`match-expand_${matchId}`);
+  if (!matchRow || !expandRow) {
+    return;
+  }
+
+  expandRow.hidden = true;
+  if (resetContent) {
+    restoreInlinePlaceholder(expandRow);
+  }
+  matchRow.classList.remove('match-row--expanded');
+
+  const trigger = matchRow.querySelector('[data-js="abrir-palpite-inline"]');
+  if (trigger) {
+    trigger.setAttribute('aria-expanded', 'false');
+    trigger.dataset.inlineOpen = 'false';
+    if (returnFocus) {
+      trigger.focus();
+    }
+  }
+
+  if (state.expandedMatchId === matchId) {
+    state.expandedMatchId = null;
+  }
+  if (returnFocus) {
+    state.lastInlineTrigger = trigger || null;
+  }
+}
+
+function isPanelOpen() {
+  const panel = document.getElementById('palpite-panel');
+  return panel ? !panel.hasAttribute('hidden') : false;
+}
+
+function openPanel(trigger) {
+  const panel = document.getElementById('palpite-panel');
+  const backdrop = document.getElementById('palpite-panel-backdrop');
+  if (!panel || !backdrop) {
+    debugWarn('Painel de palpites não encontrado.');
+    return;
+  }
+  panel.removeAttribute('hidden');
+  panel.setAttribute('aria-hidden', 'false');
+  backdrop.removeAttribute('hidden');
+  backdrop.setAttribute('aria-hidden', 'false');
+  document.documentElement.classList.add('dialog-open');
+  state.lastPanelTrigger = trigger;
+}
+
+function closePanel(options = {}) {
+  const { returnFocus = true } = options;
+  const panel = document.getElementById('palpite-panel');
+  const backdrop = document.getElementById('palpite-panel-backdrop');
+  if (!panel || !backdrop) {
+    return;
+  }
+  panel.setAttribute('hidden', 'hidden');
+  panel.setAttribute('aria-hidden', 'true');
+  backdrop.setAttribute('hidden', 'hidden');
+  backdrop.setAttribute('aria-hidden', 'true');
+  document.documentElement.classList.remove('dialog-open');
+  if (returnFocus && state.lastPanelTrigger) {
+    state.lastPanelTrigger.focus();
+  }
+  state.lastPanelTrigger = null;
+}
+
+function handleBeforeRequest(event) {
+  if (!state.initialized) {
+    return;
+  }
+  const trigger = event.detail && event.detail.elt;
+  if (!trigger) {
+    return;
+  }
+
+  if (trigger.matches('[data-js="abrir-palpite-inline"]')) {
+    if (!trigger.disabled) {
+      trigger.dataset.wasDisabled = 'false';
+      trigger.disabled = true;
+      trigger.setAttribute('aria-busy', 'true');
+    } else {
+      trigger.dataset.wasDisabled = 'true';
+    }
+    openInlineRow(trigger);
+  } else if (trigger.matches('[data-js="abrir-palpite-panel"]')) {
+    if (!trigger.disabled) {
+      trigger.dataset.wasDisabled = 'false';
+      trigger.disabled = true;
+      trigger.setAttribute('aria-busy', 'true');
+    } else {
+      trigger.dataset.wasDisabled = 'true';
+    }
+    openPanel(trigger);
+  }
+}
+
+function focusFirstInteractive(target) {
+  const focusable = target.querySelector('input, select, textarea, button, [tabindex]:not([tabindex="-1"])');
+  if (focusable && typeof focusable.focus === 'function') {
+    focusable.focus({ preventScroll: true });
+  }
+}
+
+function handleAfterSwap(event) {
+  if (!state.initialized) {
+    return;
+  }
+  const { target } = event;
+  if (!(target instanceof HTMLElement)) {
+    return;
+  }
+
+  if (target.classList.contains('match-expand')) {
+    target.hidden = false;
+    const parentId = target.dataset.parent;
+    if (parentId) {
+      state.expandedMatchId = parentId;
+      syncMatchRowFromExpand(target);
+    }
+    if (target.querySelector('.palpite-inline__feedback--success')) {
+      if (isMeusPalpitesOpen()) {
+        carregarMeusPalpites(true);
       }
+      debugInfo('Palpite salvo; painel "meus palpites" atualizado.');
+    }
+    focusFirstInteractive(target);
+  } else if (target.id === 'palpite-panel') {
+    target.removeAttribute('hidden');
+    target.setAttribute('aria-hidden', 'false');
+    focusFirstInteractive(target);
+  }
+}
+
+function handleAfterRequest(event) {
+  if (!state.initialized) {
+    return;
+  }
+  const trigger = event.detail && event.detail.elt;
+  if (!trigger) {
+    return;
+  }
+  if (trigger.dataset && trigger.dataset.wasDisabled === 'false') {
+    trigger.disabled = false;
+    trigger.removeAttribute('aria-busy');
+  }
+  if (trigger.dataset) {
+    delete trigger.dataset.wasDisabled;
+  }
+  if (!event.detail.successful && trigger.matches('[data-js="abrir-palpite-inline"]')) {
+    debugWarn('Falha ao carregar formulário de palpite.', { status: event.detail.xhr && event.detail.xhr.status });
+  }
+}
+
+function handleGlobalClick(event) {
+  const cancelButton = event.target.closest('[data-js="cancelar-palpite-inline"]');
+  if (cancelButton) {
+    event.preventDefault();
+    const expandRow = cancelButton.closest('.match-expand');
+    const parentId = expandRow && expandRow.dataset.parent;
+    if (parentId) {
+      closeInlineRow(parentId);
+    }
+    return;
+  }
+
+  const closePanelButton = event.target.closest('[data-js="fechar-palpite-panel"]');
+  if (closePanelButton) {
+    event.preventDefault();
+    closePanel();
+    return;
+  }
+
+  if (event.target.id === 'palpite-panel-backdrop') {
+    event.preventDefault();
+    closePanel();
+  }
+}
+
+function handleDocumentKeydown(event) {
+  if (event.key !== 'Escape') {
+    return;
+  }
+  if (isPanelOpen()) {
+    event.preventDefault();
+    closePanel();
+    return;
+  }
+  if (state.expandedMatchId) {
+    event.preventDefault();
+    closeInlineRow(state.expandedMatchId);
+  }
+}
+
+function initCollapsePortlets() {
+  document.querySelectorAll('[data-js="collapse-container"]').forEach((icon) => {
+    icon.addEventListener('click', () => {
+      const targetId = icon.getAttribute('data-target');
+      toggleCollapse(targetId, icon);
     });
   });
 }
 
-function bindCloseIcons() {
-  const closeIcons = document.querySelectorAll('[data-js="fechar-balao"]');
-  closeIcons.forEach((icon) => {
-    icon.addEventListener('click', () => fecharBalao());
-    icon.addEventListener('mouseover', () => fecharIconeMouseOver(icon));
-    icon.addEventListener('mouseout', () => fecharIconeMouseOut(icon));
-    icon.setAttribute('tabindex', '0');
-    icon.setAttribute('role', 'button');
-    icon.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        fecharBalao();
-      }
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        fecharBalao();
-      }
-    });
-  });
-}
-
-function bindTipsPanelControls() {
+function initMeusPalpites() {
   const mostrarLink = document.getElementById('mostrarMeusPalpitesLink');
   if (mostrarLink) {
     mostrarLink.addEventListener('click', (event) => {
@@ -341,69 +491,60 @@ function bindTipsPanelControls() {
       mostrarMeusPalpites();
     });
   }
-
-  const closeButton = document.querySelector('[data-js="fechar-meus-palpites"]');
-  if (closeButton) {
-    closeButton.addEventListener('click', () => fecharMeusPalpites());
+  const fecharButton = document.querySelector('[data-js="fechar-meus-palpites"]');
+  if (fecharButton) {
+    fecharButton.addEventListener('click', () => fecharMeusPalpites());
   }
-
-  const refreshButton = document.querySelector('[data-js="recarregar-meus-palpites"]');
-  if (refreshButton) {
-    refreshButton.addEventListener('click', () => carregarMeusPalpites(true));
+  const recarregarButton = document.querySelector('[data-js="recarregar-meus-palpites"]');
+  if (recarregarButton) {
+    recarregarButton.addEventListener('click', () => carregarMeusPalpites(true));
   }
 }
 
-function handleGlobalKeyDown(event) {
-  if (event.key !== 'Escape') {
-    return;
-  }
-  const palpiteDiv = document.getElementById('balao_palpite');
-  const palpitesDiv = document.getElementById('balao_palpites');
-  const palpiteVisivel = palpiteDiv && palpiteDiv.classList.contains('balao-visible');
-  const palpitesVisivel = palpitesDiv && palpitesDiv.classList.contains('balao-visible');
-  if (palpiteVisivel || palpitesVisivel) {
-    event.preventDefault();
-    fecharBalao();
-  }
+function initResultadosAdmin() {
+  document.body.addEventListener('change', (event) => {
+    const input = event.target;
+    if (!(input instanceof HTMLInputElement)) {
+      return;
+    }
+    if (input.dataset.js === 'resultado-input') {
+      atualizarResultado(input);
+    }
+  });
+}
+
+function initPalpiteInline() {
+  storeInlineInitialState();
+  document.body.addEventListener('htmx:beforeRequest', handleBeforeRequest);
+  document.body.addEventListener('htmx:afterSwap', handleAfterSwap);
+  document.body.addEventListener('htmx:afterRequest', handleAfterRequest);
+  document.body.addEventListener('click', handleGlobalClick);
+}
+
+function initGlobalKeyListener() {
+  document.addEventListener('keydown', handleDocumentKeydown);
 }
 
 export function initJogosPage() {
-  const jogosWrapper = document.getElementById('jogos-page-wrapper');
-  if (!jogosWrapper) {
+  const wrapper = document.getElementById('jogos-page-wrapper');
+  if (!wrapper) {
+    debugInfo('Wrapper de jogos não encontrado; initJogosPage ignorado.');
     return;
   }
-
-  bindRowEvents();
-  bindCloseIcons();
-  bindTipsPanelControls();
-
-  const collapseIcons = document.querySelectorAll('[data-js="collapse-container"]');
-  collapseIcons.forEach((icon) => {
-    const targetId = icon.getAttribute('data-target');
-    icon.addEventListener('click', () => collapseContainer(targetId, icon));
-  });
-
-  const atualizarPalpiteButton = document.getElementById('confirmar_palpite_button');
-  if (atualizarPalpiteButton) {
-    atualizarPalpiteButton.addEventListener('click', () => atualizarPalpite());
+  if (state.initialized) {
+    debugInfo('initJogosPage já executado; ignorando chamada subsequente.');
+    return;
   }
+  state.initialized = true;
 
-  const resultadoInputs = document.querySelectorAll('[data-js="resultado-input"]');
-  resultadoInputs.forEach((input) => {
-    input.addEventListener('change', () => atualizarResultado(input));
-  });
+  window.__bolaoJogosDebug = window.__bolaoJogosDebug || {};
+  window.__bolaoJogosDebug.moduleLoadedAt = new Date().toISOString();
 
-  // Expose legacy functions for inline handlers que ainda não foram removidos.
-  window.collapseContainer = collapseContainer;
-  window.destacarLinha = destacarLinha;
-  window.mostrarPopupPalpite = mostrarPopupPalpite;
-  window.atualizarPalpite = atualizarPalpite;
-  window.atualizarResultado = atualizarResultado;
-  window.fecharBalao = fecharBalao;
-  window.fecharIconeMouseOver = fecharIconeMouseOver;
-  window.fecharIconeMouseOut = fecharIconeMouseOut;
-  window.mostrarMeusPalpites = mostrarMeusPalpites;
-  window.fecharMeusPalpites = fecharMeusPalpites;
+  initCollapsePortlets();
+  initPalpiteInline();
+  initMeusPalpites();
+  initResultadosAdmin();
+  initGlobalKeyListener();
 
-  document.addEventListener('keydown', handleGlobalKeyDown);
+  debugInfo('initJogosPage concluído.');
 }
