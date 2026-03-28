@@ -31,6 +31,10 @@ public class PalpiteServiceImpl implements PalpiteService {
 		if (participante == null) {
 			throw new IllegalArgumentException("Usuário não encontrado: " + login);
 		}
+		
+		if (participante.isAdministrador()) {
+			throw new IllegalStateException("Perfis administrativos nao participam dos palpites.");
+		}
 
 		// Busca palpite existente para atualização ou cria um novo se não existir
 		Palpite palpite = getPalpiteDao().buscarPorParticipanteEJogo(login, idJogo);

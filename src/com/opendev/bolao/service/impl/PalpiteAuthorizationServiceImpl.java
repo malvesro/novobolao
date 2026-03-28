@@ -36,7 +36,12 @@ public class PalpiteAuthorizationServiceImpl implements PalpiteAuthorizationServ
 
     @Override
     public PalpiteAuthorization avaliar(Authentication authentication, Jogo jogo, Palpite palpiteSelecionado) {
-        boolean possuiPerfil = possuiAlgumPapel(authentication, "ROLE_USER", "USER", "ROLE_ADMIN", "ADMIN");
+        boolean ehAdmin = possuiAlgumPapel(authentication, "ROLE_ADMIN", "ADMIN");
+        if (ehAdmin) {
+            return PalpiteAuthorization.negado(PalpiteAuthorization.Status.LOCKED, PalpiteAuthorization.RejectionReason.ADMIN_RESTRICTED);
+        }
+
+        boolean possuiPerfil = possuiAlgumPapel(authentication, "ROLE_USER", "USER");
         boolean janelaAberta = jogo != null && estaDentroDaJanela(jogo);
         boolean permitido = possuiPerfil && janelaAberta;
 

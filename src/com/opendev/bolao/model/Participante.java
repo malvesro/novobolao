@@ -157,6 +157,26 @@ public class Participante implements Serializable, Comparable {
         }
         return papel;
     }
+
+	/**
+	 * Verifica se o participante possui o perfil de administrador (ROLE_ADMIN).
+	 * @return true se for administrador, false caso contrário.
+	 */
+	public boolean isAdministrador() {
+		Set s = getPrivilegios();
+		if (s == null || s.isEmpty()) {
+			return false;
+		}
+		for (Object o : s) {
+			if (o instanceof Privilegio) {
+				Privilegio p = (Privilegio) o;
+				if ("ROLE_ADMIN".equalsIgnoreCase(p.getPapel())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 	
 	public static void expirarCacheDeClassificacao() {
 		CACHE_DADOS_CLASSIFICACAO.setExpirado(true);
