@@ -28,13 +28,23 @@ public class PalpiteServiceImpl implements PalpiteService {
 			throw new IllegalStateException("O horário limite para confirmação foi ultrapassado!");
 		}
 		Participante participante = getParticipanteDao().buscarPorLogin(login);
-		Palpite palpite = new Palpite();
-		palpite.setIdJogo(idJogo);
-		palpite.setIdParticipante(participante.getId());
+		if (participante == null) {
+			throw new IllegalArgumentException("Usuário não encontrado: " + login);
+		}
+
+		// Busca palpite existente para atualização ou cria um novo se não existir
+		Palpite palpite = getPalpiteDao().buscarPorParticipanteEJogo(login, idJogo);
+		if (palpite == null) {
+			palpite = new Palpite();
+			palpite.setIdJogo(idJogo);
+			palpite.setIdParticipante(participante.getId());
+		}
+
 		palpite.setGolsEquipe1(golsEquipe1);
 		palpite.setGolsEquipe2(golsEquipe2);
 		palpite.setIp(ip);
 		palpite.setDataHoraAtualizacao(new Timestamp(System.currentTimeMillis()));
+		
 		getPalpiteDao().salvar(palpite);
 //        Email email = new Email("auditoriaPalpiteAlterado.html", "[Importante] Confirmação de palpite");
 //        Equipe equipe1 = palpite.getJogo().getEquipe1();

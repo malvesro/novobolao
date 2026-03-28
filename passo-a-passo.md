@@ -320,6 +320,61 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * README atualizado com justificativa do uso de npm/Vite e orientações de ambiente. (Skill: N/A)
     * Preparar commit/PR conforme governança após registro desta sessão. (Skill: N/A)
 
+28. **[Em Progresso] Redesign UX do fluxo de palpites – abordagem "Direct Inline" (27/03/2026):** Simplificar radicalmente o fluxo de palpites, substituindo a expansão de linha com múltiplos cliques por inputs diretamente visíveis na célula da tabela. Plano de referência: `implementation_plan.md` (brain da sessão 1cfeee87). Skills: `modernization-java-migration v1.0.0`, `architecture-guardian v1.0.0`.
+    > **Contexto:** A infraestrutura HTMX inline já estava funcional (skipTemplate, PalpiteAuthorizationService, timezone BRT), mas o fluxo ainda exigia 3+ interações. O redesign reduz para: **ver → digitar → confirmar/blur**. Substitui a subtarefa "Em Progresso" de remodelagem de palpites do item 22.
+
+    * **[Concluído (27/03/2026)] Iteração 1 – CSS e estrutura de colunas:** Reestruturar cabeçalho e células da tabela de jogos.
+        * Removidas colunas separadas "Meu Palpite", "Status" e "Ações" da tabela.
+        * Criada coluna única `.match-table__palpite-cell` com badge integrado.
+        * Botão compacto "👥" ao final da linha; filtro inicia colapsado ≥ 768px via `sessionStorage`.
+        * CSS adicionado em `webapp/css/estilo.css`; `.match-table__actions` removido.
+        * `mvn -Dfrontend.skip=true test` verde ✔.
+        * (Skill: `modernization-java-migration v1.0.0`)
+    * **[Concluído (27/03/2026)] Iteração 2 – Inputs inline funcionais por HTMX:** Campos editáveis diretamente na célula da tabela.
+        * Inputs `type="number"` side-by-side renderizados pelo JSP quando `palpitePermitido=true` (zero cliques extras).
+        * Botão "✓" dispara `hx-post` para `atualizarPalpitePartial`; `hx-swap="outerHTML"` no `#palpite-cell_N`.
+        * Criados: `palpite-cell-response.jspf` + `palpite-cell-response.jsp`; `struts.xml` atualizado.
+        * Janela fechada: placar salvo + badge + motivo de bloqueio (🔒 Prazo encerrado).
+   * **[Concluído (27/03/2026)] Iteração 3 – Feedback inline na célula:** Resposta visual imediata ao salvar.
+        * "Salvando…" enquanto requisção pende (`htmx:beforeRequest`).
+        * "✓ Salvo HH:MM" com `aria-live="polite"` na própria célula.
+        * "⚠ Erro" preservando valores digitados (não limpar form).
+        * Controle de botão `aria-busy` durante request em andamento.
+        * `mvn -Dfrontend.skip=true test` verde.
+        * (Skill: `modernization-java-migration v1.0.0`)
+    * **[Concluído (27/03/2026)] Iteração 4 – Auto-save (blur + debounce 800ms):** Salvar ao sair do campo.
+        * Opção A (HTMX): `hx-trigger="change delay:800ms"` nos inputs.
+        * Opção B (JS): debounce controlado em `jogos.js` com `htmx.trigger()`.
+        * Estado `dirty` por jogo: bloquear submit concorrente; não disparar se valores iguais ao último salvo.
+        * Botão "✓" permanece disponível para confirmação explícita.
+        * `mvn -Dfrontend.skip=true test` verde.
+        * (Skill: `modernization-java-migration v1.0.0`)
+    * **[Concluído (27/03/2026)] Iteração 5 – Portlet "Meus Palpites" colapsável:** Substituir aside lateral.
+        * Substituir `<aside id="palpite-panel">` e backdrop por portlet colapsável no topo da página e migrar Meus Palpites.
+        * Carregar conteúdo via HTMX apenas ao expandir (lazy load) com `hx-trigger="toggle once"` no `<details>`.
+        * Código JS legado removido de `jogos.js`.
+        * `mvn -Dfrontend.skip=true test` verde.
+        * (Skill: `modernization-java-migration v1.0.0`)
+    * **[Concluído (27/03/2026)] Iteração 6 – Painel "Ver Grupo" via `<details>` inline:** Ver palpites do grupo sem modal.
+        * Botão compacto "👥" abre `<details>` colapsável na própria célula.
+        * Conteúdo carregado via HTMX na primeira abertura do `<details>`.
+        * Sem backdrop, sem `<aside>` — popover css absolute posicionado corretamente abaixo da linha.
+        * `mvn -Dfrontend.skip=true test` verde.
+        * (Skill: `modernization-java-migration v1.0.0`)
+    * **[Em Progresso] Iteração 7 – Build completo, pipeline e documentação:** Encerrar e documentar.
+        * Instruir execução do `npm run build` (bundle Vite com hash).
+        * Instruir execução do `mvn clean package -Dfrontend.skip=false`.
+        * O usuário fará as verificações manuais das regras de negócio e UX:
+          * Smoke ROLE_USER: editar palpite → confirmar → badge atualiza → "Salvo HH:MM".
+          * SmokeROLE_ADMIN: coluna mostra placar oficial editável, sem inputs de palpite.
+          * Smoke jogo encerrado: inputs desabilitados, motivo com badge/tooltip adequado.
+        * Mobile (320px): coluna confronto + palpite legível; filtro colapsado por padrão.
+        * Navegação por teclado: Tab entre inputs e botão "✓"; Enter submete.
+        * Criar log de sessão em `.ia/logs/session-20260327-redesign-palpites-ux.md`.
+        * Atualizar versão no `pom.xml` (ex.: `0.3.0-SNAPSHOT`) e item 28 → Concluído.
+        * Sugerir commit com mensagem profissional.
+        * (Skill: `modernization-java-migration v1.0.0`)
+
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
 1. **[Concluído] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.
@@ -600,3 +655,6 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 * 2026-02-20: **[Em Progresso]** Planejamento do bundler frontend (Fase 2.5 - Tarefa 2, subtarefa 6). Documento `.ia/planos/plano-bundler-frontend.md` detalha adoção do Vite/ESBuild, integração com WAR e próximos passos; registrado log `.ia/logs/session-20260220-plano-bundler-frontend.md`. Estrutura inicial criada e fallback `webapp/assets/js/app-bundle.js` anotados em `.ia/logs/session-20260220-bundler-setup-parcial.md`.
   Auto-Analise: [Risco: Médio] | [Compatibilidade: Atenção] | [Veredito: Revisar]
   Skill: N/A (nenhuma skill aplicável)
+* 2026-03-28: **[Pendente]** Correção da Gravação de Palpites (Fase 2.5 - Iteração 8). Implementar busca prévia no `PalpiteServiceImpl`, adicionar telemetria de parâmetros na `ParticipanteAction` e refinar feedback de erro no `jogos.js`.
+  Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Planejado]
+  Referência Plano: `implementation_plan.md` (aprovado)

@@ -34,8 +34,8 @@
 	<meta name="_csrf_header" content="${_csrf.headerName}" />
 	<meta name="_csrf_parameter" content="${_csrf.parameterName}" />
 </c:if>
-<script type="text/javascript" src="${base}/js/htmx.min.js"></script>
-<script type="text/javascript">
+<script type="text/javascript" src="${base}/js/htmx.min.js" nonce="${cspNonce}"></script>
+<script type="text/javascript" nonce="${cspNonce}">
 	(function () {
 		'use strict';
 
@@ -227,11 +227,45 @@
 		}
 	}());
 </script>
-<script type="text/javascript">
+<script type="text/javascript" nonce="${cspNonce}">
 	window.APP_BASE_URL = '<c:out value="${base}" />';
 </script>
-<script type="module">
+<script type="module" nonce="${cspNonce}">
+	const DEBUG_LABEL = '[bolao:bundle-loader]';
 	const BASE_URL = window.APP_BASE_URL || '';
+
+	function debugInfo(message, detail) {
+		if (!window.console || !console.info) {
+			return;
+		}
+		if (detail !== undefined) {
+			console.info(DEBUG_LABEL + ' ' + message, detail);
+			return;
+		}
+		console.info(DEBUG_LABEL + ' ' + message);
+	}
+
+	function debugWarn(message, detail) {
+		if (!window.console || !console.warn) {
+			return;
+		}
+		if (detail !== undefined) {
+			console.warn(DEBUG_LABEL + ' ' + message, detail);
+			return;
+		}
+		console.warn(DEBUG_LABEL + ' ' + message);
+	}
+
+	function debugError(message, detail) {
+		if (!window.console || !console.error) {
+			return;
+		}
+		if (detail !== undefined) {
+			console.error(DEBUG_LABEL + ' ' + message, detail);
+			return;
+		}
+		console.error(DEBUG_LABEL + ' ' + message);
+	}
 
 	function buildAssetUrl(path) {
 		if (!path) {
@@ -244,15 +278,15 @@
 			return path;
 		}
 		if (path.startsWith('/')) {
-			return `${BASE_URL}${path}`;
+			return (BASE_URL || '') + path;
 		}
 		if (path.startsWith('assets/')) {
-			return `${BASE_URL}/${path}`;
+			return (BASE_URL || '') + '/' + path;
 		}
-		return `${BASE_URL}/assets/${path}`;
+		return (BASE_URL || '') + '/assets/' + path;
 	}
 
-	const manifestUrl = buildAssetUrl('assets/manifest.json');
+	const manifestUrl = buildAssetUrl('assets/.vite/manifest.json');
 	const fallbackModule = buildAssetUrl('assets/js/app-bundle.js');
 	const possibleEntries = [
 		'src/frontend/main.js',
@@ -263,32 +297,56 @@
 		'main.jsx'
 	];
 
+	async function importModule(moduleUrl, label) {
+		if (!moduleUrl) {
+			debugError(label + ' sem URL válido, import cancelado.');
+			return false;
+		}
+		try {
+			debugInfo('Importando ' + label, moduleUrl);
+			await import(moduleUrl);
+			return true;
+		} catch (error) {
+			debugError('Falha ao importar ' + label, error);
+			return false;
+		}
+	}
+
 	async function loadBundle() {
+		if (!manifestUrl) {
+			debugWarn('manifestUrl inválido, pulando fetch e usando fallback.');
+			return importModule(fallbackModule, 'bundle fallback');
+		}
+
+		debugInfo('Resolvendo manifest', manifestUrl);
+
 		try {
 			const response = await fetch(manifestUrl, { cache: 'no-store' });
+			debugInfo('Status do manifest', response.status);
 			if (response.ok) {
 				const manifest = await response.json();
-				const entry = possibleEntries
-					.map((key) => manifest[key])
-					.find((value) => value && value.file);
+				const entryKey = possibleEntries.find((key) => manifest[key] && manifest[key].file);
+				const entry = entryKey ? manifest[entryKey] : null;
+
+				debugInfo('Entrada selecionada', { entryKey, entry });
 
 				if (entry && entry.file) {
 					const entryUrl = buildAssetUrl(entry.file);
-					if (entryUrl) {
-						await import(entryUrl);
-						return;
+					const loaded = await importModule(entryUrl, 'bundle Vite');
+					if (loaded) {
+						return true;
 					}
+				} else {
+					debugWarn('Nenhum entrypoint válido encontrado no manifest.');
 				}
+			} else {
+				debugWarn('Manifest retornou status não OK, usando fallback.', response.status);
 			}
 		} catch (error) {
-			console.warn('Manifest indisponível, usando bundle fallback.', error);
+			debugWarn('Manifest indisponível, usando bundle fallback.', error);
 		}
 
-		if (fallbackModule) {
-			await import(fallbackModule);
-		} else {
-			console.error('Fallback do bundle não encontrado.');
-		}
+		return importModule(fallbackModule, 'bundle fallback');
 	}
 
 	loadBundle();

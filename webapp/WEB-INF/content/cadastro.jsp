@@ -18,7 +18,7 @@
     </div>
 </c:when>
 <c:otherwise>
-<script type="text/javascript">
+<script type="text/javascript" nonce="${cspNonce}">
     (function() {
         window.atualizarSugestao = function(mensagem) {
             var alvo = document.getElementById("field_info");

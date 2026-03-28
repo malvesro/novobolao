@@ -1,0 +1,8079 @@
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html PUBLIC
+	"-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+	
+		
+		
+			
+		
+	
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="pragma" content="no-cache" />
+<title>...::: Bolão de Placa :::...</title>
+
+	<meta name="_csrf" content="0lBHt1eqv-fu6igxMSDDz27T9WAK03LMKANfQza-WEx-7Nb25TJ-j2KfiN_D3BpUAg33qQu12Fgyt0bhSTdodFLcby5I3ebE" />
+	<meta name="_csrf_header" content="X-XSRF-TOKEN" />
+	<meta name="_csrf_parameter" content="_csrf" />
+
+<script type="text/javascript" src="/js/htmx.min.js"></script>
+<script type="text/javascript">
+	(function () {
+		'use strict';
+
+		function getMetaContent(name) {
+			var element = document.querySelector('meta[name="' + name + '"]');
+			return element ? element.getAttribute('content') : null;
+		}
+
+		function syncMeta(meta, value) {
+			if (!meta || meta.getAttribute('content') === value) {
+				return;
+			}
+			meta.setAttribute('content', value);
+		}
+
+		function ensureGlobalField() {
+			var field = document.getElementById('csrfTokenField');
+			if (!field) {
+				field = document.createElement('input');
+				field.type = 'hidden';
+				field.id = 'csrfTokenField';
+				field.setAttribute('aria-hidden', 'true');
+				field.setAttribute('data-csrf-field', 'include');
+				field.setAttribute('hidden', 'hidden');
+				document.body.appendChild(field);
+			}
+			field.name = parameterName;
+			field.value = token;
+			return field;
+		}
+
+		function syncGlobalField() {
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', syncGlobalField, { once: true });
+				return;
+			}
+			if (!document.body) {
+				return;
+			}
+			ensureGlobalField();
+		}
+
+		function ensureFormToken(form) {
+			if (!form || !(form instanceof HTMLFormElement)) {
+				return;
+			}
+			if ((form.method || 'get').toLowerCase() !== 'post') {
+				return;
+			}
+			var existing = form.querySelector('input[data-csrf-field="include"]');
+			if (!existing) {
+				existing = form.querySelector('input[name="' + parameterName + '"]');
+			}
+			if (!existing) {
+				existing = document.createElement('input');
+				existing.type = 'hidden';
+				existing.setAttribute('data-csrf-field', 'include');
+				form.appendChild(existing);
+			}
+			existing.name = parameterName;
+			existing.value = token;
+		}
+
+		function updateForms() {
+			var forms = document.querySelectorAll('form');
+			for (var i = 0; i < forms.length; i += 1) {
+				ensureFormToken(forms[i]);
+			}
+		}
+
+		function applyToken(nextToken, nextHeaderName, nextParameterName) {
+			var tokenChanged = nextToken && nextToken !== token;
+			var headerChanged = nextHeaderName && nextHeaderName !== headerName;
+			var parameterChanged = nextParameterName && nextParameterName !== parameterName;
+			if (!tokenChanged && !headerChanged && !parameterChanged) {
+				return;
+			}
+			if (tokenChanged) {
+				token = nextToken;
+				syncMeta(csrfMeta, token);
+			}
+			if (headerChanged) {
+				headerName = nextHeaderName;
+				syncMeta(csrfHeaderMeta, headerName);
+			}
+			if (parameterChanged) {
+				parameterName = nextParameterName;
+				syncMeta(csrfParameterMeta, parameterName);
+			}
+			syncGlobalField();
+			updateForms();
+		}
+
+		function extractTokenFromXhr(xhr) {
+			if (!xhr || !xhr.getResponseHeader) {
+				return;
+			}
+			var newHeaderName = xhr.getResponseHeader('X-CSRF-HEADER');
+			var newParameterName = xhr.getResponseHeader('X-CSRF-PARAM');
+			var newToken = xhr.getResponseHeader(headerName) ||
+				xhr.getResponseHeader('X-CSRF-TOKEN') ||
+				xhr.getResponseHeader('X-XSRF-TOKEN');
+			applyToken(newToken, newHeaderName, newParameterName);
+		}
+
+		function extractTokenFromResponse(response) {
+			if (!response || !response.headers || typeof response.headers.get !== 'function') {
+				return;
+			}
+			var newHeaderName = response.headers.get('X-CSRF-HEADER');
+			var newParameterName = response.headers.get('X-CSRF-PARAM');
+			var newToken = response.headers.get(headerName) ||
+				response.headers.get('X-CSRF-TOKEN') ||
+				response.headers.get('X-XSRF-TOKEN');
+			applyToken(newToken, newHeaderName, newParameterName);
+		}
+
+		var csrfMeta = document.querySelector('meta[name="_csrf"]');
+		var csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+		var csrfParameterMeta = document.querySelector('meta[name="_csrf_parameter"]');
+
+		var token = getMetaContent('_csrf');
+		var headerName = getMetaContent('_csrf_header') || 'X-CSRF-TOKEN';
+		var parameterName = getMetaContent('_csrf_parameter') || '_csrf';
+
+		if (!token) {
+			return;
+		}
+
+		syncMeta(csrfMeta, token);
+		syncGlobalField();
+		updateForms();
+
+		document.addEventListener('submit', function (event) {
+			ensureFormToken(event.target);
+		}, true);
+
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', updateForms);
+		}
+
+		if (window.fetch) {
+			var originalFetch = window.fetch.bind(window);
+			window.fetch = function (input, init) {
+				var requestInit = init ? Object.assign({}, init) : {};
+				var headers;
+
+				if (typeof Request !== 'undefined' && input instanceof Request) {
+					headers = new Headers(input.headers);
+					if (!headers.has(headerName)) {
+						headers.set(headerName, token);
+					}
+					if (headerName !== 'X-CSRF-TOKEN' && !headers.has('X-CSRF-TOKEN')) {
+						headers.set('X-CSRF-TOKEN', token);
+					}
+					requestInit.headers = headers;
+					return originalFetch(new Request(input, requestInit)).then(function (response) {
+						extractTokenFromResponse(response);
+						return response;
+					});
+				}
+
+				headers = new Headers(requestInit.headers || undefined);
+				if (!headers.has(headerName)) {
+					headers.set(headerName, token);
+				}
+				if (headerName !== 'X-CSRF-TOKEN' && !headers.has('X-CSRF-TOKEN')) {
+					headers.set('X-CSRF-TOKEN', token);
+				}
+				requestInit.headers = headers;
+				return originalFetch(input, requestInit).then(function (response) {
+					extractTokenFromResponse(response);
+					return response;
+				});
+			};
+		}
+
+		if (window.htmx && window.htmx.on) {
+			window.htmx.on('htmx:configRequest', function (event) {
+				event.detail.headers[headerName] = token;
+				if (headerName !== 'X-CSRF-TOKEN') {
+					event.detail.headers['X-CSRF-TOKEN'] = token;
+				}
+			});
+			window.htmx.on('htmx:afterSwap', updateForms);
+			window.htmx.on('htmx:afterRequest', function (event) {
+				extractTokenFromXhr(event && event.detail && event.detail.xhr);
+			});
+		}
+	}());
+</script>
+<script type="text/javascript">
+	window.APP_BASE_URL = '';
+</script>
+<script type="module">
+	const BASE_URL = window.APP_BASE_URL || '';
+
+	function buildAssetUrl(path) {
+		if (!path) {
+			return null;
+		}
+		if (path.startsWith('http://') || path.startsWith('https://')) {
+			return path;
+		}
+		if (path.startsWith(BASE_URL + '/')) {
+			return path;
+		}
+		if (path.startsWith('/')) {
+			return ``;
+		}
+		if (path.startsWith('assets/')) {
+			return `/`;
+		}
+		return `/assets/`;
+	}
+
+	const manifestUrl = buildAssetUrl('assets/manifest.json');
+	const fallbackModule = buildAssetUrl('assets/js/app-bundle.js');
+	const possibleEntries = [
+		'src/frontend/main.js',
+		'src/frontend/main.ts',
+		'src/frontend/main.jsx',
+		'main.js',
+		'main.ts',
+		'main.jsx'
+	];
+
+	async function loadBundle() {
+		try {
+			const response = await fetch(manifestUrl, { cache: 'no-store' });
+			if (response.ok) {
+				const manifest = await response.json();
+				const entry = possibleEntries
+					.map((key) => manifest[key])
+					.find((value) => value && value.file);
+
+				if (entry && entry.file) {
+					const entryUrl = buildAssetUrl(entry.file);
+					if (entryUrl) {
+						await import(entryUrl);
+						return;
+					}
+				}
+			}
+		} catch (error) {
+			console.warn('Manifest indisponível, usando bundle fallback.', error);
+		}
+
+		if (fallbackModule) {
+			await import(fallbackModule);
+		} else {
+			console.error('Fallback do bundle não encontrado.');
+		}
+	}
+
+	loadBundle();
+</script>
+
+
+<style type="text/css">
+	@IMPORT url("/css/estilo.css");
+</style>
+</head>
+<body>
+	<a class="skip-link" href="#content">Ir para o conteúdo principal</a>
+	<div id="wrapper">
+	<div id="header" role="banner">
+	</div>
+	<main id="content" role="main" tabindex="-1">
+
+
+
+
+<script type="text/javascript">
+function esconderOuMostrarMenu(menuHeader) {
+	var headerId = menuHeader.id;
+	var underscoreIndex = headerId.indexOf("_");
+	var childId = headerId.substring(0, underscoreIndex);
+	childId = "#" + childId + "_itens";
+	$j(childId).slideToggle();
+}
+</script>
+
+<p id="logout_func" class="logout-banner">
+	
+	Bem vindo <strong>marcio.rosner</strong>!
+	<form id="logoutForm" class="logout-form" action="/j_logout" method="post">
+		<button type="submit" class="link-button">
+			Sair
+		</button>
+		
+			<input type="hidden" name="_csrf" value="0lBHt1eqv-fu6igxMSDDz27T9WAK03LMKANfQza-WEx-7Nb25TJ-j2KfiN_D3BpUAg33qQu12Fgyt0bhSTdodFLcby5I3ebE" />
+		
+	</form>
+</p>
+<p class="text-right">
+    5 participante(s) online neste momento
+</p>
+<div class="spacer-sm"></div>
+<div id="menu">
+  <div id="geral_header" class="menu_header" onclick="esconderOuMostrarMenu(this);">
+    <span>Geral</span>
+  </div>
+  <div id="geral_itens" class="menu_item">
+    <span>
+    
+    
+    <a href="/index.action">
+      <span>Página Principal</span>
+    </a>
+    <a href="/regras.action">
+      <span>Regras</span>
+    </a>
+    
+    </span>
+  </div>
+  
+	<div id="bolao_header" class="menu_header" onclick="esconderOuMostrarMenu(this);">
+		<span>Bolão</span>
+	</div>
+	<div id="bolao_itens" class="menu_item">
+		<span>
+        
+		<a href="/seguro/ranking.action">
+			<span>Classificação geral</span>
+		</a>
+        
+        
+		<a href="/seguro/graficoDesempenho.action">
+			<span>Gráfico de desempenho</span>
+		</a>
+        
+        
+		
+		<a href="/seguro/palpites.action">
+			<span>Palpites e Resultados</span>
+		</a>
+        
+		</span>
+	</div>
+
+	
+</div>
+
+
+
+
+
+
+
+
+
+<div id="jogos-page-wrapper" class="dashboard-section">
+<form action="#" method="POST">
+
+
+
+
+
+<!--
+<embed src="/fx/popup.wav" id="popup_show_sound" autoplay="false" autostart="false" loop="false" hidden="true"></embed>
+-->
+<div id="balao_palpite" class="dialog" role="dialog" aria-modal="true" aria-labelledby="palpite-dialog-title" aria-describedby="palpite-dialog-description" aria-hidden="true">
+	<div class="balao_top">
+		<p>
+			<span id="loading_span" class="loading-inline" role="status" aria-live="polite">
+				<img alt="" src="/img/loading.gif" class="icon-inline-top" aria-hidden="true" /> Aguarde...
+			</span>
+			<img alt="Fechar" src="/img/fechar.gif" class="icon-inline-top icon-button" data-js="fechar-balao" />
+		</p>
+	</div>
+	<div class="balao_middle balao-middle--compact">
+		<h2 id="palpite-dialog-title" class="sr-only">Meu palpite é</h2>
+		<p id="palpite-dialog-description" class="sr-only">Informe seus palpites de gols para cada equipe e confirme.</p>
+		<div id="palpite-status" class="balao-message" role="status" aria-live="assertive"></div>
+		<div class="text-center">
+			<label for="palpite_gols_eq_1">Meu palpite é</label>
+			<input type="text" name="palpiteGolsEq1" id="palpite_gols_eq_1" class="text score-input input-centered" size="2" maxlength="2" />
+			<span>X</span>
+			<input type="text" name="palpiteGolsEq2" id="palpite_gols_eq_2" class="text score-input input-centered" size="2" maxlength="2" />
+			
+			<input type="button" class="button" name="confirmarPalpite" id="confirmar_palpite_button" value="OK" />
+		</div>
+	</div>
+	<div class="balao_bottom"></div>
+</div>
+
+<div id="balao_palpites" class="dialog" role="dialog" aria-modal="true" aria-labelledby="palpites-dialog-title" aria-hidden="true">
+	<div class="balao_top">
+		<p>
+			<span id="loading_span_palpites" class="loading-inline" role="status" aria-live="polite">
+				<img alt="" src="/img/loading.gif" class="icon-inline-top" aria-hidden="true" /> Aguarde...
+			</span>
+			<img alt="Fechar" src="/img/fechar.gif" class="icon-inline-top icon-button" data-js="fechar-balao" />
+		</p>
+	</div>
+		<div class="balao_middle balao-middle--scroll">
+			<div class="balao-scroll">
+			<h2 id="palpites-dialog-title" class="sr-only">Palpites dos participantes</h2>
+			<table class="table tips-panel__table" aria-describedby="palpites-dialog-title">
+				<thead>
+					<tr>
+						<th scope="col">Participante</th>
+						<th scope="col">Palpite</th>
+						<th scope="col">Pontos</th>
+					</tr>
+			</thead>
+			<tbody id="balao_table_palpites">
+			</tbody>
+		</table>
+		</div>
+	</div>
+	<div class="balao_bottom"></div>
+</div>
+
+
+
+
+	<!-- Portlet generated by opendev:portlet tag. ID = filtro_jogos -->
+<div id="filtro_jogos" class="portlet">
+
+	<div class="title">
+		<span><img alt="Filtro de Busca" src="/img/view.png" style="vertical-align: middle;" /></span>
+		<span>Filtro de Busca</span>
+	</div>
+	<div class="content" id="filtro_jogos_content">
+		
+		<form action="/seguro/palpites.action" method="get">
+        <input type="hidden" name="usarFiltro" value="true" />
+		<div class="match-filter">
+		<table class="match-filter__table" role="presentation">
+			<tr>
+				<td class="label"><label for="data_inicial_select">Jogos entre</label></td>
+				<td class="widget match-filter__row">
+					<select name="dataInicial" id="data_inicial_select">
+						<option value="">Escolha uma...</option>
+					
+						
+							
+							
+								<option value="11/06/2026">11/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="12/06/2026">12/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="13/06/2026">13/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="14/06/2026">14/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="15/06/2026">15/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="
+			16/06/2026">
+			16/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="17/06/2026">17/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="18/06/2026">18/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="19/06/2026">19/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="20/06/2026">20/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="
+			21/06/2026">
+			21/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="22/06/2026">22/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="23/06/2026">23/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="24/06/2026">24/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="25/06/2026">25/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="
+			26/06/2026">
+			26/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="27/06/2026">27/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="28/06/2026">28/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="29/06/2026">29/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="30/06/2026">30/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="
+			01/07/2026">
+			01/07/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="02/07/2026">02/07/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="03/07/2026">03/07/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="19/07/2026">19/07/2026</option>
+							
+						
+					
+					</select>
+					e
+					<select name="dataFinal" id="data_final_select">
+						<option value="">Escolha uma...</option>
+					
+						
+							
+							
+								<option value="11/06/2026">11/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="12/06/2026">12/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="13/06/2026">13/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="14/06/2026">14/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="15/06/2026">15/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="
+			16/06/2026">
+			16/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="17/06/2026">17/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="18/06/2026">18/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="19/06/2026">19/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="20/06/2026">20/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="
+			21/06/2026">
+			21/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="22/06/2026">22/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="23/06/2026">23/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="24/06/2026">24/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="25/06/2026">25/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="
+			26/06/2026">
+			26/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="27/06/2026">27/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="28/06/2026">28/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="29/06/2026">29/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="30/06/2026">30/06/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="
+			01/07/2026">
+			01/07/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="02/07/2026">02/07/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="03/07/2026">03/07/2026</option>
+							
+						
+					
+						
+							
+							
+								<option value="19/07/2026">19/07/2026</option>
+							
+						
+					
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td class="label"><label for="filtro_equipe">Uma das equipes tem de ser</label></td>
+				<td class="widget">
+					<select name="filtroEquipe" id="filtro_equipe">
+						<option value="">Escolha uma...</option>
+					
+						
+						
+							<optgroup label="Grupo A">
+						
+							
+								
+								
+									<option value="100">Coreia do Sul</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="101">México</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="102">África do Sul</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="141">Repescagem Europeia D</option>
+								
+							
+						
+					
+						
+							</optgroup>
+						
+						
+							<optgroup label="Grupo B">
+						
+							
+								
+								
+									<option value="103">Canadá</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="104">Catar</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="105">Suíça</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="142">Repescagem Europeia A</option>
+								
+							
+						
+					
+						
+							</optgroup>
+						
+						
+							<optgroup label="Grupo C">
+						
+							
+								
+								
+									<option value="106">Brasil</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="107">Escócia</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="108">Haiti</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="109">Marrocos</option>
+								
+							
+						
+					
+						
+							</optgroup>
+						
+						
+							<optgroup label="Grupo D">
+						
+							
+								
+								
+									<option value="110">Austrália</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="111">Estados Unidos</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="112">Paraguai</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="143">Repescagem Europeia C</option>
+								
+							
+						
+					
+						
+							</optgroup>
+						
+						
+							<optgroup label="Grupo E">
+						
+							
+								
+								
+									<option value="113">Alemanha</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="114">Costa do Marfim</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="115">Curaçao</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="116">Equador</option>
+								
+							
+						
+					
+						
+							</optgroup>
+						
+						
+							<optgroup label="Grupo F">
+						
+							
+								
+								
+									<option value="117">Holanda</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="118">Japão</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="119">Tunísia</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="144">Repescagem Europeia B</option>
+								
+							
+						
+					
+						
+							</optgroup>
+						
+						
+							<optgroup label="Grupo G">
+						
+							
+								
+								
+									<option value="120">Bélgica</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="121">Egito</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="122">Irã</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="123">Nova Zelândia</option>
+								
+							
+						
+					
+						
+							</optgroup>
+						
+						
+							<optgroup label="Grupo H">
+						
+							
+								
+								
+									<option value="124">Arábia Saudita</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="125">Espanha</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="126">Uruguai</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="145">Cabo Verde</option>
+								
+							
+						
+					
+						
+							</optgroup>
+						
+						
+							<optgroup label="Grupo I">
+						
+							
+								
+								
+									<option value="127">França</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="128">Noruega</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="129">Senegal</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="146">Repescagem Intercontinental</option>
+								
+							
+						
+					
+						
+							</optgroup>
+						
+						
+							<optgroup label="Grupo J">
+						
+							
+								
+								
+									<option value="130">Argentina</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="131">Argélia</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="132">Jordânia</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="133">Áustria</option>
+								
+							
+						
+					
+						
+							</optgroup>
+						
+						
+							<optgroup label="Grupo K">
+						
+							
+								
+								
+									<option value="134">Colômbia</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="135">Portugal</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="136">Uzbequistão</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="147">Repescagem Intercontinental 2</option>
+								
+							
+						
+					
+						
+							</optgroup>
+						
+						
+							<optgroup label="Grupo L">
+						
+							
+								
+								
+									<option value="137">Croácia</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="138">Gana</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="139">Inglaterra</option>
+								
+							
+						
+					
+						
+						
+							
+								
+								
+									<option value="140">Panamá</option>
+								
+							
+						
+					
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td class="label"><label for="filtro_grupo">Somente jogos do Grupo</label></td>
+				<td class="widget">
+					<select name="filtroGrupo" id="filtro_grupo">
+						<option value="">Escolha um...</option>
+						
+						
+							
+								
+								
+									
+									
+										<option value="A">A</option>
+									
+								
+							
+						
+							
+						
+							
+						
+							
+						
+							
+								
+								
+									
+									
+										<option value="B">B</option>
+									
+								
+							
+						
+							
+						
+							
+						
+							
+						
+							
+								
+								
+									
+									
+										<option value="C">C</option>
+									
+								
+							
+						
+							
+						
+							
+						
+							
+						
+							
+								
+								
+									
+									
+										<option value="D">D</option>
+									
+								
+							
+						
+							
+						
+							
+						
+							
+						
+							
+								
+								
+									
+									
+										<option value="E">E</option>
+									
+								
+							
+						
+							
+						
+							
+						
+							
+						
+							
+								
+								
+									
+									
+										<option value="F">F</option>
+									
+								
+							
+						
+							
+						
+							
+						
+							
+						
+							
+								
+								
+									
+									
+										<option value="G">G</option>
+									
+								
+							
+						
+							
+						
+							
+						
+							
+						
+							
+								
+								
+									
+									
+										<option value="H">H</option>
+									
+								
+							
+						
+							
+						
+							
+						
+							
+						
+							
+								
+								
+									
+									
+										<option value="I">I</option>
+									
+								
+							
+						
+							
+						
+							
+						
+							
+						
+							
+								
+								
+									
+									
+										<option value="J">J</option>
+									
+								
+							
+						
+							
+						
+							
+						
+							
+						
+							
+								
+								
+									
+									
+										<option value="K">K</option>
+									
+								
+							
+						
+							
+						
+							
+						
+							
+						
+							
+								
+								
+									
+									
+										<option value="L">L</option>
+									
+								
+							
+						
+							
+						
+							
+						
+							
+						
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td class="label"><label for="filtro_fase">Somente jogos da(s)</td>
+				<td class="widget">
+					<select name="filtroFase" id="filtro_fase">
+						<option value="">Escolha uma...</option>
+						
+							
+								
+								
+									<option value="11">Primeira Fase (Primeira Rodada)</option>
+								
+														
+						
+							
+								
+								
+									<option value="12">Primeira Fase (Segunda Rodada)</option>
+								
+														
+						
+							
+								
+								
+									<option value="13">Primeira Fase (Terceira Rodada)</option>
+								
+														
+						
+							
+								
+								
+									<option value="16">32-avos de final</option>
+								
+														
+						
+							
+								
+								
+									<option value="8">Oitavas-de-final</option>
+								
+														
+						
+							
+								
+								
+									<option value="4">Quartas-de-final</option>
+								
+														
+						
+							
+								
+								
+									<option value="2">Semifinais</option>
+								
+														
+						
+							
+								
+								
+									<option value="3">Disputa Terceiro Lugar</option>
+								
+														
+						
+							
+								
+								
+									<option value="1">Finais</option>
+								
+														
+						
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td><br /></td>
+				<td class="widget match-filter__row">
+                    
+                        
+                        
+                            <input type="checkbox" id="filtro_sem_palpite_cb" name="filtroSemPalpite" value="true" />
+                        
+                    
+					<label for="filtro_sem_palpite_cb">Somente jogos sem palpites confirmados</label>
+				</td>
+			</tr>
+			<tr>
+				<td><br /></td>
+				<td class="widget match-filter__row">
+                    
+                    
+                    
+                        <input type="checkbox" id="filtro_jogos_ocorreram_cb" name="filtroJogosNaoOcorreram" value="true" />
+                    
+                    
+					<label for="filtro_jogos_ocorreram_cb">Somente jogos que ainda não ocorreram</label>
+				</td>
+			</tr>
+			
+		</table>
+		</div>
+		<div class="match-filter__actions">
+			
+			<input type="submit" name="submit" class="button" value="Filtrar" />
+		</div>
+		</form>
+	
+	</div>
+</div>
+	<span class="spacer spacer-sm"></span>
+    <div class="tips-trigger">
+    	<img alt="" src="/img/triang_yellow.png" class="icon-inline" />
+    	<a href="#" id="mostrarMeusPalpitesLink">Ver meus palpites</a>
+    </div>
+    <div id="todos_palpites_div" class="tips-panel">
+    	<div class="tips-panel__body">
+    		<div id="todos_palpites_loading" class="tips-panel__header">
+    			<button type="button" class="link-button" data-js="fechar-meus-palpites">[X] Fechar</button>
+    		</div>
+    		<div class="tips-panel__footer">
+    			<p>Meus palpites confirmados até agora são:</p>
+    			<img alt="" src="/img/refresh.png" class="icon-inline icon-button" data-js="recarregar-meus-palpites" />
+    		</div>
+    		<div class="tips-panel__scroll">
+    		<table class="table tips-panel__table">
+    			<thead>
+	    				<tr>
+	    					<th scope="col">Data do jogo</th>
+	    					<th scope="col">Hora do jogo</th>
+	    					<th scope="col">Equipes</th>
+	    					<th scope="col">Palpite</th>
+	    				</tr>
+    			</thead>
+    			<tbody id="todos_palpites_table">
+    			</tbody>
+    		</table>
+    		</div>
+    		<span class="spacer spacer-sm"></span>
+    	</div>
+    </div>
+    <span class="spacer spacer-sm"></span>
+    <div id="palpites_info" class="legenda tips-info">
+		<p><img alt="" src="/img/information.gif" class="icon-inline" aria-hidden="true" />
+            Ajuda: clique na linha do jogo para gerenciar seus palpites.
+        </p>
+    </div>
+    <span class="spacer spacer-sm"></span>
+
+
+
+	
+	
+		
+	
+		
+		<div id="jogos_11/06/2026_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="Alternar exibição do filtro" src="/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_11/06/2026_portlet" />
+				Jogos do dia 11/06/2026
+			</div>
+				<div class="content collapsible-portlet__content" id="jogos_11/06/2026_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th scope="col">Hora</th>
+								<th scope="col">Local</th>
+								<th scope="col">Grupo</th>
+								<th scope="colgroup" colspan="3">Equipes</th>
+						</tr>
+					</thead>
+						<tbody>
+			
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1000" data-jogo-id="1000" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">16:00</td>
+						<td class="match-table__location">Cidade do México</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo A</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>México</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/mx.png" alt="Bandeira de México" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/za.png" alt="Bandeira de África do Sul" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>África do Sul</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1001" data-jogo-id="1001" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">23:00</td>
+						<td class="match-table__location">Guadalajara</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo A</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Coreia do Sul</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/kr.png" alt="Bandeira de Coreia do Sul" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								<span>Repescagem Europeia D</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+			
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+			<span class="spacer spacer-sm"></span>
+		
+	
+		
+		<div id="jogos_12/06/2026_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="Alternar exibição do filtro" src="/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_12/06/2026_portlet" />
+				Jogos do dia 12/06/2026
+			</div>
+				<div class="content collapsible-portlet__content" id="jogos_12/06/2026_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th scope="col">Hora</th>
+								<th scope="col">Local</th>
+								<th scope="col">Grupo</th>
+								<th scope="colgroup" colspan="3">Equipes</th>
+						</tr>
+					</thead>
+						<tbody>
+			
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1002" data-jogo-id="1002" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">16:00</td>
+						<td class="match-table__location">Toronto</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo B</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Canadá</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ca.png" alt="Bandeira de Canadá" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								<span>Repescagem Europeia A</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1003" data-jogo-id="1003" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">22:00</td>
+						<td class="match-table__location">Los Angeles</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo D</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Estados Unidos</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/us.png" alt="Bandeira de Estados Unidos" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/py.png" alt="Bandeira de Paraguai" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Paraguai</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+			
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+			<span class="spacer spacer-sm"></span>
+		
+	
+		
+		<div id="jogos_13/06/2026_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="Alternar exibição do filtro" src="/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_13/06/2026_portlet" />
+				Jogos do dia 13/06/2026
+			</div>
+				<div class="content collapsible-portlet__content" id="jogos_13/06/2026_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th scope="col">Hora</th>
+								<th scope="col">Local</th>
+								<th scope="col">Grupo</th>
+								<th scope="colgroup" colspan="3">Equipes</th>
+						</tr>
+					</thead>
+						<tbody>
+			
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1004" data-jogo-id="1004" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">01:00</td>
+						<td class="match-table__location">Vancouver</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo D</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Austrália</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/au.png" alt="Bandeira de Austrália" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								<span>Repescagem Europeia C</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1005" data-jogo-id="1005" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">16:00</td>
+						<td class="match-table__location">Santa Clara</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo B</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Catar</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/qa.png" alt="Bandeira de Catar" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ch.png" alt="Bandeira de Suíça" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Suíça</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+					
+			
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="brasil" id="jogoTr_1006" data-jogo-id="1006" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">19:00</td>
+						<td class="match-table__location">Nova York/Nova Jersey</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo C</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Brasil</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/br.png" alt="Bandeira de Brasil" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ma.png" alt="Bandeira de Marrocos" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Marrocos</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1007" data-jogo-id="1007" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">22:00</td>
+						<td class="match-table__location">Boston</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo C</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Haiti</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ht.png" alt="Bandeira de Haiti" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/gb-sct.png" alt="Bandeira de Escócia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Escócia</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+			
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+			<span class="spacer spacer-sm"></span>
+		
+	
+		
+		<div id="jogos_14/06/2026_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="Alternar exibição do filtro" src="/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_14/06/2026_portlet" />
+				Jogos do dia 14/06/2026
+			</div>
+				<div class="content collapsible-portlet__content" id="jogos_14/06/2026_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th scope="col">Hora</th>
+								<th scope="col">Local</th>
+								<th scope="col">Grupo</th>
+								<th scope="colgroup" colspan="3">Equipes</th>
+						</tr>
+					</thead>
+						<tbody>
+			
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1008" data-jogo-id="1008" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">14:00</td>
+						<td class="match-table__location">Houston</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo E</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Alemanha</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/de.png" alt="Bandeira de Alemanha" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/cw.png" alt="Bandeira de Curaçao" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Curaçao</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1009" data-jogo-id="1009" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">17:00</td>
+						<td class="match-table__location">Dallas</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo F</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Holanda</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/nl.png" alt="Bandeira de Holanda" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/jp.png" alt="Bandeira de Japão" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Japão</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1010" data-jogo-id="1010" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">20:00</td>
+						<td class="match-table__location">Filadélfia</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo E</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Costa do Marfim</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ci.png" alt="Bandeira de Costa do Marfim" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ec.png" alt="Bandeira de Equador" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Equador</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1011" data-jogo-id="1011" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">22:00</td>
+						<td class="match-table__location">Monterrey</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo F</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Repescagem Europeia B</span>
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/tn.png" alt="Bandeira de Tunísia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Tunísia</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+			
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+			<span class="spacer spacer-sm"></span>
+		
+	
+		
+		<div id="jogos_15/06/2026_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="Alternar exibição do filtro" src="/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_15/06/2026_portlet" />
+				Jogos do dia 15/06/2026
+			</div>
+				<div class="content collapsible-portlet__content" id="jogos_15/06/2026_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th scope="col">Hora</th>
+								<th scope="col">Local</th>
+								<th scope="col">Grupo</th>
+								<th scope="colgroup" colspan="3">Equipes</th>
+						</tr>
+					</thead>
+						<tbody>
+			
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1012" data-jogo-id="1012" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">13:00</td>
+						<td class="match-table__location">Atlanta</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo H</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Espanha</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/es.png" alt="Bandeira de Espanha" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/cv.png" alt="Bandeira de Cabo Verde" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Cabo Verde</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1013" data-jogo-id="1013" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">16:00</td>
+						<td class="match-table__location">Seattle</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo G</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Bélgica</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/be.png" alt="Bandeira de Bélgica" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/eg.png" alt="Bandeira de Egito" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Egito</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1014" data-jogo-id="1014" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">19:00</td>
+						<td class="match-table__location">Miami</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo H</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Arábia Saudita</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/sa.png" alt="Bandeira de Arábia Saudita" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/uy.png" alt="Bandeira de Uruguai" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Uruguai</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1015" data-jogo-id="1015" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">22:00</td>
+						<td class="match-table__location">Los Angeles</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo G</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Irã</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ir.png" alt="Bandeira de Irã" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/nz.png" alt="Bandeira de Nova Zelândia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Nova Zelândia</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+			
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+			<span class="spacer spacer-sm"></span>
+		
+	
+		
+		<div id="jogos_16/06/2026_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="Alternar exibição do filtro" src="/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_16/06/2026_portlet" />
+				Jogos do dia 16/06/2026
+			</div>
+				<div class="content collapsible-portlet__content" id="jogos_16/06/2026_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th scope="col">Hora</th>
+								<th scope="col">Local</th>
+								<th scope="col">Grupo</th>
+								<th scope="colgroup" colspan="3">Equipes</th>
+						</tr>
+					</thead>
+						<tbody>
+			
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1016" data-jogo-id="1016" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">16:00</td>
+						<td class="match-table__location">Nova York/Nova Jersey</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo I</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>França</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/fr.png" alt="Bandeira de França" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/sn.png" alt="Bandeira de Senegal" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Senegal</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1017" data-jogo-id="1017" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">19:00</td>
+						<td class="match-table__location">Boston</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo I</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Repescagem Intercontinental</span>
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/no.png" alt="Bandeira de Noruega" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Noruega</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1018" data-jogo-id="1018" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">22:00</td>
+						<td class="match-table__location">Kansas City</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo J</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Argentina</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ar.png" alt="Bandeira de Argentina" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/dz.png" alt="Bandeira de Argélia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Argélia</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+			
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+			<span class="spacer spacer-sm"></span>
+		
+	
+		
+		<div id="jogos_17/06/2026_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="Alternar exibição do filtro" src="/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_17/06/2026_portlet" />
+				Jogos do dia 17/06/2026
+			</div>
+				<div class="content collapsible-portlet__content" id="jogos_17/06/2026_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th scope="col">Hora</th>
+								<th scope="col">Local</th>
+								<th scope="col">Grupo</th>
+								<th scope="colgroup" colspan="3">Equipes</th>
+						</tr>
+					</thead>
+						<tbody>
+			
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1019" data-jogo-id="1019" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">01:00</td>
+						<td class="match-table__location">Santa Clara</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo J</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Áustria</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/at.png" alt="Bandeira de Áustria" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/jo.png" alt="Bandeira de Jordânia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Jordânia</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1020" data-jogo-id="1020" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">14:00</td>
+						<td class="match-table__location">Houston</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo K</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Portugal</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/pt.png" alt="Bandeira de Portugal" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								<span>Repescagem Intercontinental 2</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1021" data-jogo-id="1021" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">17:00</td>
+						<td class="match-table__location">Dallas</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo L</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Inglaterra</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/gb-eng.png" alt="Bandeira de Inglaterra" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/hr.png" alt="Bandeira de Croácia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Croácia</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1022" data-jogo-id="1022" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">20:00</td>
+						<td class="match-table__location">Toronto</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo L</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Gana</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/gh.png" alt="Bandeira de Gana" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/pa.png" alt="Bandeira de Panamá" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Panamá</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1023" data-jogo-id="1023" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">21:00</td>
+						<td class="match-table__location">Cidade do México</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo K</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Uzbequistão</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/uz.png" alt="Bandeira de Uzbequistão" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/co.png" alt="Bandeira de Colômbia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Colômbia</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+			
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+			<span class="spacer spacer-sm"></span>
+		
+	
+		
+		<div id="jogos_18/06/2026_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="Alternar exibição do filtro" src="/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_18/06/2026_portlet" />
+				Jogos do dia 18/06/2026
+			</div>
+				<div class="content collapsible-portlet__content" id="jogos_18/06/2026_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th scope="col">Hora</th>
+								<th scope="col">Local</th>
+								<th scope="col">Grupo</th>
+								<th scope="colgroup" colspan="3">Equipes</th>
+						</tr>
+					</thead>
+						<tbody>
+			
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1024" data-jogo-id="1024" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">13:00</td>
+						<td class="match-table__location">Atlanta</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo A</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Repescagem Europeia D</span>
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/za.png" alt="Bandeira de África do Sul" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>África do Sul</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1025" data-jogo-id="1025" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">16:00</td>
+						<td class="match-table__location">Los Angeles</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo B</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Suíça</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ch.png" alt="Bandeira de Suíça" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								<span>Repescagem Europeia A</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1026" data-jogo-id="1026" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">19:00</td>
+						<td class="match-table__location">Vancouver</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo B</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Canadá</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ca.png" alt="Bandeira de Canadá" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/qa.png" alt="Bandeira de Catar" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Catar</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1027" data-jogo-id="1027" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">22:00</td>
+						<td class="match-table__location">Guadalajara</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo A</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>México</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/mx.png" alt="Bandeira de México" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/kr.png" alt="Bandeira de Coreia do Sul" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Coreia do Sul</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+			
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+			<span class="spacer spacer-sm"></span>
+		
+	
+		
+		<div id="jogos_19/06/2026_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="Alternar exibição do filtro" src="/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_19/06/2026_portlet" />
+				Jogos do dia 19/06/2026
+			</div>
+				<div class="content collapsible-portlet__content" id="jogos_19/06/2026_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th scope="col">Hora</th>
+								<th scope="col">Local</th>
+								<th scope="col">Grupo</th>
+								<th scope="colgroup" colspan="3">Equipes</th>
+						</tr>
+					</thead>
+						<tbody>
+			
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1028" data-jogo-id="1028" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">01:00</td>
+						<td class="match-table__location">Santa Clara</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo D</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Repescagem Europeia C</span>
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/py.png" alt="Bandeira de Paraguai" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Paraguai</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1029" data-jogo-id="1029" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">16:00</td>
+						<td class="match-table__location">Seattle</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo D</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Estados Unidos</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/us.png" alt="Bandeira de Estados Unidos" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/au.png" alt="Bandeira de Austrália" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Austrália</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1030" data-jogo-id="1030" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">19:00</td>
+						<td class="match-table__location">Boston</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo C</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Escócia</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/gb-sct.png" alt="Bandeira de Escócia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ma.png" alt="Bandeira de Marrocos" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Marrocos</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+					
+			
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="brasil" id="jogoTr_1031" data-jogo-id="1031" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">22:00</td>
+						<td class="match-table__location">Filadélfia</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo C</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Brasil</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/br.png" alt="Bandeira de Brasil" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ht.png" alt="Bandeira de Haiti" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Haiti</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+			
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+			<span class="spacer spacer-sm"></span>
+		
+	
+		
+		<div id="jogos_20/06/2026_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="Alternar exibição do filtro" src="/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_20/06/2026_portlet" />
+				Jogos do dia 20/06/2026
+			</div>
+				<div class="content collapsible-portlet__content" id="jogos_20/06/2026_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th scope="col">Hora</th>
+								<th scope="col">Local</th>
+								<th scope="col">Grupo</th>
+								<th scope="colgroup" colspan="3">Equipes</th>
+						</tr>
+					</thead>
+						<tbody>
+			
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1032" data-jogo-id="1032" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">14:00</td>
+						<td class="match-table__location">Houston</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo F</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Holanda</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/nl.png" alt="Bandeira de Holanda" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								<span>Repescagem Europeia B</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1033" data-jogo-id="1033" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">17:00</td>
+						<td class="match-table__location">Toronto</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo E</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Alemanha</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/de.png" alt="Bandeira de Alemanha" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ci.png" alt="Bandeira de Costa do Marfim" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Costa do Marfim</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1034" data-jogo-id="1034" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">21:00</td>
+						<td class="match-table__location">Kansas City</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo E</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Equador</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ec.png" alt="Bandeira de Equador" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/cw.png" alt="Bandeira de Curaçao" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Curaçao</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1035" data-jogo-id="1035" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">23:00</td>
+						<td class="match-table__location">Monterrey</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo F</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Tunísia</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/tn.png" alt="Bandeira de Tunísia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/jp.png" alt="Bandeira de Japão" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Japão</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+			
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+			<span class="spacer spacer-sm"></span>
+		
+	
+		
+		<div id="jogos_21/06/2026_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="Alternar exibição do filtro" src="/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_21/06/2026_portlet" />
+				Jogos do dia 21/06/2026
+			</div>
+				<div class="content collapsible-portlet__content" id="jogos_21/06/2026_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th scope="col">Hora</th>
+								<th scope="col">Local</th>
+								<th scope="col">Grupo</th>
+								<th scope="colgroup" colspan="3">Equipes</th>
+						</tr>
+					</thead>
+						<tbody>
+			
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1036" data-jogo-id="1036" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">13:00</td>
+						<td class="match-table__location">Atlanta</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo H</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Espanha</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/es.png" alt="Bandeira de Espanha" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/sa.png" alt="Bandeira de Arábia Saudita" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Arábia Saudita</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1037" data-jogo-id="1037" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">16:00</td>
+						<td class="match-table__location">Los Angeles</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo G</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Bélgica</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/be.png" alt="Bandeira de Bélgica" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ir.png" alt="Bandeira de Irã" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Irã</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1038" data-jogo-id="1038" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">19:00</td>
+						<td class="match-table__location">Miami</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo H</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Uruguai</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/uy.png" alt="Bandeira de Uruguai" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/cv.png" alt="Bandeira de Cabo Verde" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Cabo Verde</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1039" data-jogo-id="1039" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">22:00</td>
+						<td class="match-table__location">Vancouver</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo G</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Nova Zelândia</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/nz.png" alt="Bandeira de Nova Zelândia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/eg.png" alt="Bandeira de Egito" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Egito</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+			
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+			<span class="spacer spacer-sm"></span>
+		
+	
+		
+		<div id="jogos_22/06/2026_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="Alternar exibição do filtro" src="/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_22/06/2026_portlet" />
+				Jogos do dia 22/06/2026
+			</div>
+				<div class="content collapsible-portlet__content" id="jogos_22/06/2026_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th scope="col">Hora</th>
+								<th scope="col">Local</th>
+								<th scope="col">Grupo</th>
+								<th scope="colgroup" colspan="3">Equipes</th>
+						</tr>
+					</thead>
+						<tbody>
+			
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1040" data-jogo-id="1040" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">14:00</td>
+						<td class="match-table__location">Dallas</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo J</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Argentina</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ar.png" alt="Bandeira de Argentina" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/at.png" alt="Bandeira de Áustria" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Áustria</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1041" data-jogo-id="1041" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">18:00</td>
+						<td class="match-table__location">Filadélfia</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo I</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>França</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/fr.png" alt="Bandeira de França" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								<span>Repescagem Intercontinental</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1042" data-jogo-id="1042" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">21:00</td>
+						<td class="match-table__location">Nova York/Nova Jersey</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo I</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Noruega</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/no.png" alt="Bandeira de Noruega" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/sn.png" alt="Bandeira de Senegal" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Senegal</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+			
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+			<span class="spacer spacer-sm"></span>
+		
+	
+		
+		<div id="jogos_23/06/2026_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="Alternar exibição do filtro" src="/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_23/06/2026_portlet" />
+				Jogos do dia 23/06/2026
+			</div>
+				<div class="content collapsible-portlet__content" id="jogos_23/06/2026_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th scope="col">Hora</th>
+								<th scope="col">Local</th>
+								<th scope="col">Grupo</th>
+								<th scope="colgroup" colspan="3">Equipes</th>
+						</tr>
+					</thead>
+						<tbody>
+			
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1043" data-jogo-id="1043" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">00:00</td>
+						<td class="match-table__location">Santa Clara</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo J</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Jordânia</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/jo.png" alt="Bandeira de Jordânia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/dz.png" alt="Bandeira de Argélia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Argélia</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1044" data-jogo-id="1044" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">14:00</td>
+						<td class="match-table__location">Houston</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo K</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Portugal</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/pt.png" alt="Bandeira de Portugal" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/uz.png" alt="Bandeira de Uzbequistão" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Uzbequistão</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1045" data-jogo-id="1045" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">17:00</td>
+						<td class="match-table__location">Boston</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo L</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Inglaterra</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/gb-eng.png" alt="Bandeira de Inglaterra" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/gh.png" alt="Bandeira de Gana" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Gana</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1046" data-jogo-id="1046" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">20:00</td>
+						<td class="match-table__location">Toronto</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo L</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Panamá</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/pa.png" alt="Bandeira de Panamá" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/hr.png" alt="Bandeira de Croácia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Croácia</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1047" data-jogo-id="1047" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">23:00</td>
+						<td class="match-table__location">Guadalajara</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo K</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Colômbia</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/co.png" alt="Bandeira de Colômbia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								<span>Repescagem Intercontinental 2</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+			
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+			<span class="spacer spacer-sm"></span>
+		
+	
+		
+		<div id="jogos_24/06/2026_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="Alternar exibição do filtro" src="/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_24/06/2026_portlet" />
+				Jogos do dia 24/06/2026
+			</div>
+				<div class="content collapsible-portlet__content" id="jogos_24/06/2026_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th scope="col">Hora</th>
+								<th scope="col">Local</th>
+								<th scope="col">Grupo</th>
+								<th scope="colgroup" colspan="3">Equipes</th>
+						</tr>
+					</thead>
+						<tbody>
+			
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1048" data-jogo-id="1048" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">16:00</td>
+						<td class="match-table__location">Vancouver</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo B</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Suíça</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ch.png" alt="Bandeira de Suíça" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ca.png" alt="Bandeira de Canadá" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Canadá</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1049" data-jogo-id="1049" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">16:00</td>
+						<td class="match-table__location">Seattle</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo B</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Repescagem Europeia A</span>
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/qa.png" alt="Bandeira de Catar" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Catar</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+					
+			
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="brasil" id="jogoTr_1050" data-jogo-id="1050" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">19:00</td>
+						<td class="match-table__location">Miami</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo C</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Escócia</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/gb-sct.png" alt="Bandeira de Escócia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/br.png" alt="Bandeira de Brasil" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Brasil</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1051" data-jogo-id="1051" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">19:00</td>
+						<td class="match-table__location">Atlanta</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo C</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Marrocos</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ma.png" alt="Bandeira de Marrocos" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ht.png" alt="Bandeira de Haiti" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Haiti</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1052" data-jogo-id="1052" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">20:00</td>
+						<td class="match-table__location">Cidade do México</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo A</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Repescagem Europeia D</span>
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/mx.png" alt="Bandeira de México" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>México</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1053" data-jogo-id="1053" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">22:00</td>
+						<td class="match-table__location">Monterrey</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo A</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>África do Sul</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/za.png" alt="Bandeira de África do Sul" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/kr.png" alt="Bandeira de Coreia do Sul" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Coreia do Sul</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+			
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+			<span class="spacer spacer-sm"></span>
+		
+	
+		
+		<div id="jogos_25/06/2026_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="Alternar exibição do filtro" src="/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_25/06/2026_portlet" />
+				Jogos do dia 25/06/2026
+			</div>
+				<div class="content collapsible-portlet__content" id="jogos_25/06/2026_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th scope="col">Hora</th>
+								<th scope="col">Local</th>
+								<th scope="col">Grupo</th>
+								<th scope="colgroup" colspan="3">Equipes</th>
+						</tr>
+					</thead>
+						<tbody>
+			
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1054" data-jogo-id="1054" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">17:00</td>
+						<td class="match-table__location">Nova York/Nova Jersey</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo E</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Equador</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ec.png" alt="Bandeira de Equador" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/de.png" alt="Bandeira de Alemanha" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Alemanha</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1055" data-jogo-id="1055" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">17:00</td>
+						<td class="match-table__location">Filadélfia</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo E</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Curaçao</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/cw.png" alt="Bandeira de Curaçao" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ci.png" alt="Bandeira de Costa do Marfim" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Costa do Marfim</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1056" data-jogo-id="1056" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">20:00</td>
+						<td class="match-table__location">Dallas</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo F</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Japão</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/jp.png" alt="Bandeira de Japão" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								<span>Repescagem Europeia B</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1057" data-jogo-id="1057" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">20:00</td>
+						<td class="match-table__location">Kansas City</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo F</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Tunísia</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/tn.png" alt="Bandeira de Tunísia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/nl.png" alt="Bandeira de Holanda" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Holanda</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1058" data-jogo-id="1058" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">23:00</td>
+						<td class="match-table__location">Los Angeles</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo D</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Repescagem Europeia C</span>
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/us.png" alt="Bandeira de Estados Unidos" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Estados Unidos</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1059" data-jogo-id="1059" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">23:00</td>
+						<td class="match-table__location">Santa Clara</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo D</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Paraguai</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/py.png" alt="Bandeira de Paraguai" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/au.png" alt="Bandeira de Austrália" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Austrália</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+			
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+			<span class="spacer spacer-sm"></span>
+		
+	
+		
+		<div id="jogos_26/06/2026_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="Alternar exibição do filtro" src="/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_26/06/2026_portlet" />
+				Jogos do dia 26/06/2026
+			</div>
+				<div class="content collapsible-portlet__content" id="jogos_26/06/2026_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th scope="col">Hora</th>
+								<th scope="col">Local</th>
+								<th scope="col">Grupo</th>
+								<th scope="colgroup" colspan="3">Equipes</th>
+						</tr>
+					</thead>
+						<tbody>
+			
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1060" data-jogo-id="1060" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">00:00</td>
+						<td class="match-table__location">Seattle</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo G</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Egito</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/eg.png" alt="Bandeira de Egito" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ir.png" alt="Bandeira de Irã" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Irã</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1061" data-jogo-id="1061" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">00:00</td>
+						<td class="match-table__location">Vancouver</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo G</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Nova Zelândia</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/nz.png" alt="Bandeira de Nova Zelândia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/be.png" alt="Bandeira de Bélgica" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Bélgica</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1063" data-jogo-id="1063" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">16:00</td>
+						<td class="match-table__location">Toronto</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo I</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Senegal</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/sn.png" alt="Bandeira de Senegal" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								<span>Repescagem Intercontinental</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1062" data-jogo-id="1062" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">16:00</td>
+						<td class="match-table__location">Boston</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo I</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Noruega</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/no.png" alt="Bandeira de Noruega" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/fr.png" alt="Bandeira de França" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>França</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1064" data-jogo-id="1064" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">21:00</td>
+						<td class="match-table__location">Houston</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo H</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Cabo Verde</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/cv.png" alt="Bandeira de Cabo Verde" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/sa.png" alt="Bandeira de Arábia Saudita" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Arábia Saudita</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1065" data-jogo-id="1065" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">21:00</td>
+						<td class="match-table__location">Guadalajara</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo H</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Uruguai</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/uy.png" alt="Bandeira de Uruguai" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/es.png" alt="Bandeira de Espanha" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Espanha</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+			
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+			<span class="spacer spacer-sm"></span>
+		
+	
+		
+		<div id="jogos_27/06/2026_portlet" class="portlet collapsible-portlet">
+			<div class="title collapsible-portlet__header">
+				<img alt="Alternar exibição do filtro" src="/img/arrow_down.png" class="collapse-toggle icon-inline-top icon-button"
+					data-js="collapse-container" data-target="jogos_27/06/2026_portlet" />
+				Jogos do dia 27/06/2026
+			</div>
+				<div class="content collapsible-portlet__content" id="jogos_27/06/2026_portlet_content">
+					<div class="table-responsive">
+					<table class="table conteudo">
+						<thead>
+							<tr>
+								<th scope="col">Hora</th>
+								<th scope="col">Local</th>
+								<th scope="col">Grupo</th>
+								<th scope="colgroup" colspan="3">Equipes</th>
+						</tr>
+					</thead>
+						<tbody>
+			
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1066" data-jogo-id="1066" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">18:00</td>
+						<td class="match-table__location">Nova York/Nova Jersey</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo L</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Panamá</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/pa.png" alt="Bandeira de Panamá" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/gb-eng.png" alt="Bandeira de Inglaterra" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Inglaterra</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1067" data-jogo-id="1067" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">18:00</td>
+						<td class="match-table__location">Filadélfia</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo L</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Croácia</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/hr.png" alt="Bandeira de Croácia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/gh.png" alt="Bandeira de Gana" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Gana</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1068" data-jogo-id="1068" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">20:30</td>
+						<td class="match-table__location">Miami</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo K</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Colômbia</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/co.png" alt="Bandeira de Colômbia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/pt.png" alt="Bandeira de Portugal" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Portugal</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1069" data-jogo-id="1069" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">20:30</td>
+						<td class="match-table__location">Atlanta</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo K</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Repescagem Intercontinental 2</span>
+								
+									
+									
+									
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											RE
+										</span>
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/uz.png" alt="Bandeira de Uzbequistão" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Uzbequistão</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+				
+			
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="impar" id="jogoTr_1070" data-jogo-id="1070" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">23:00</td>
+						<td class="match-table__location">Kansas City</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo J</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Argélia</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/dz.png" alt="Bandeira de Argélia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/at.png" alt="Bandeira de Áustria" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Áustria</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+	
+
+	
+	
+		
+	
+			
+				
+			
+			
+				
+			
+		
+			
+				
+					
+					
+					
+					
+					
+					
+					<tr class="par" id="jogoTr_1071" data-jogo-id="1071" data-palpite-allowed="true" data-palpite-gols1="" data-palpite-gols2="">
+				
+				
+			
+						<td class="match-table__time">23:00</td>
+						<td class="match-table__location">Dallas</td>
+						<td class="match-table__group">
+							
+								
+									
+										
+											
+											<span>Grupo J</span>
+										
+										
+									
+								
+								
+							
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span>Jordânia</span>
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/jo.png" alt="Bandeira de Jordânia" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								
+									
+									
+										<span class="score-value"></span>
+									
+								
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								
+								
+								
+									<span class="score-value"></span>
+								
+								
+								
+									
+										<img class="flag-icon icon-inline" src="/img/bandeiras/ar.png" alt="Bandeira de Argentina" width="24" height="18" loading="lazy" />
+									
+									
+									
+								
+								<span>Argentina</span>
+							</div>
+						</td>
+					</tr>
+	
+		
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		
+	
+
+</form>
+<span class="spacer spacer-sm"></span>
+</div>
+
+	</main>
+	</div>
+	<div id="footer" role="contentinfo">
+		<div>
+			
+			
+				
+					<p class="system-version">
+						Versão 0.2.7-SNAPSHOT - compilado em 26/02/2026 18:15
+					</p>
+				
+				
+			
+		</div>
+	</div>
+</body>
+</html>
+

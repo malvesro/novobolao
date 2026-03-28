@@ -47,6 +47,13 @@ public class JogoServiceImpl implements JogoService {
 		jogo.setGolsEquipe2(golsEquipe2);
 		Participante.expirarCacheDeClassificacao();
 	}
+
+    public Jogo buscarPorId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        return getJogoDao().buscarPorId(id);
+    }
 	
 	public List buscarUsandoFiltro(FiltroBuscaJogos filtro) {
 		return getJogoDao().buscarUsandoFiltro(filtro);

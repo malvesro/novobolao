@@ -14,65 +14,15 @@
 <c:set var="rowIndex" value="0" />
 
 <c:if test="${telaPalpites}">
-<!--
-<embed src="${base}/fx/popup.wav" id="popup_show_sound" autoplay="false" autostart="false" loop="false" hidden="true"></embed>
--->
-<div id="balao_palpite" class="dialog" role="dialog" aria-modal="true" aria-labelledby="palpite-dialog-title" aria-describedby="palpite-dialog-description" aria-hidden="true">
-	<div class="balao_top">
-		<p>
-			<span id="loading_span" class="loading-inline" role="status" aria-live="polite">
-				<img alt="" src="${base}/img/loading.gif" class="icon-inline-top" aria-hidden="true" /> <fmt:message key="general.loading" />
-			</span>
-			<img alt="Fechar" src="${base}/img/fechar.gif" class="icon-inline-top icon-button" data-js="fechar-balao" />
-		</p>
-	</div>
-	<div class="balao_middle balao-middle--compact">
-		<h2 id="palpite-dialog-title" class="sr-only"><fmt:message key="match.tip.self" /></h2>
-		<p id="palpite-dialog-description" class="sr-only">Informe seus palpites de gols para cada equipe e confirme.</p>
-		<div id="palpite-status" class="balao-message" role="status" aria-live="assertive"></div>
-		<div class="text-center">
-			<label for="palpite_gols_eq_1"><fmt:message key="match.tip.self" /></label>
-			<input type="text" name="palpiteGolsEq1" id="palpite_gols_eq_1" class="text score-input input-centered" size="2" maxlength="2" />
-			<span>X</span>
-			<input type="text" name="palpiteGolsEq2" id="palpite_gols_eq_2" class="text score-input input-centered" size="2" maxlength="2" />
-			<fmt:message var="palpiteSubmitLabel" key="match.tip.confirm" />
-			<input type="button" class="button" name="confirmarPalpite" id="confirmar_palpite_button" value="${palpiteSubmitLabel}" />
-		</div>
-	</div>
-	<div class="balao_bottom"></div>
-</div>
-
-<div id="balao_palpites" class="dialog" role="dialog" aria-modal="true" aria-labelledby="palpites-dialog-title" aria-hidden="true">
-	<div class="balao_top">
-		<p>
-			<span id="loading_span_palpites" class="loading-inline" role="status" aria-live="polite">
-				<img alt="" src="${base}/img/loading.gif" class="icon-inline-top" aria-hidden="true" /> <fmt:message key="general.loading" />
-			</span>
-			<img alt="Fechar" src="${base}/img/fechar.gif" class="icon-inline-top icon-button" data-js="fechar-balao" />
-		</p>
-	</div>
-		<div class="balao_middle balao-middle--scroll">
-			<div class="balao-scroll">
-			<h2 id="palpites-dialog-title" class="sr-only">Palpites dos participantes</h2>
-			<table class="table tips-panel__table" aria-describedby="palpites-dialog-title">
-				<thead>
-					<tr>
-						<th scope="col"><fmt:message key="member" /></th>
-						<th scope="col"><fmt:message key="match.tip" /></th>
-						<th scope="col"><fmt:message key="match.tip.points" /></th>
-					</tr>
-			</thead>
-			<tbody id="balao_table_palpites">
-			</tbody>
-		</table>
-		</div>
-	</div>
-	<div class="balao_bottom"></div>
-</div>
-
+<fmt:message key="match.tip.group.title" var="palpitePanelTitle" />
+<fmt:message key="match.tip.group.close" var="palpitePanelClose" />
+<fmt:message key="match.tip.group.placeholder" var="palpitePanelPlaceholder" />
+<fmt:message key="general.loading" var="loadingMessage" />
+<%-- O obsoleto <aside id="palpite-panel"> foi removido na Iteração 5. O novo painel de grupo será implementado na linha via hx-get (Iteração 6) --%>
 </c:if>
 
 <c:if test="${telaPalpites}">
+	<div class="match-filter-portlet">
 	<opendev:portlet id="filtro_jogos" title="Filtro de Busca" icon="/img/view.png">
 		<c:url var="aplicarFiltroJogosActionURL" value="/seguro/palpites.action" />
 		<form action="${aplicarFiltroJogosActionURL}" method="get">
@@ -221,37 +171,47 @@
 		</div>
 		</form>
 	</opendev:portlet>
+	</div>
 	<span class="spacer spacer-sm"></span>
-    <div class="tips-trigger">
-    	<img alt="" src="${base}/img/triang_yellow.png" class="icon-inline" />
-    	<a href="#" id="mostrarMeusPalpitesLink">Ver meus palpites</a>
-    </div>
-    <div id="todos_palpites_div" class="tips-panel">
-    	<div class="tips-panel__body">
-    		<div id="todos_palpites_loading" class="tips-panel__header">
-    			<button type="button" class="link-button" data-js="fechar-meus-palpites"><fmt:message key="match.tip.close" /></button>
-    		</div>
-    		<div class="tips-panel__footer">
-    			<p><fmt:message key="match.tip.now" /></p>
-    			<img alt="" src="${base}/img/refresh.png" class="icon-inline icon-button" data-js="recarregar-meus-palpites" />
-    		</div>
-    		<div class="tips-panel__scroll">
-    		<table class="table tips-panel__table">
-    			<thead>
-	    				<tr>
-	    					<th scope="col"><fmt:message key="match.tip.date" /></th>
-	    					<th scope="col"><fmt:message key="match.tip.hour" /></th>
-	    					<th scope="col"><fmt:message key="match.tip.teams" /></th>
-	    					<th scope="col"><fmt:message key="match.tip.mine" /></th>
-	    				</tr>
-    			</thead>
-    			<tbody id="todos_palpites_table">
-    			</tbody>
-    		</table>
-    		</div>
-    		<span class="spacer spacer-sm"></span>
-    	</div>
-    </div>
+	<%-- Portlet Meus Palpites – Redesign UX Iteração 5 (Lazy Load via HTMX toggle) --%>
+	<details class="portlet collapsible-portlet"
+			hx-get="${meusPalpitesUrl}"
+			hx-trigger="toggle once"
+			hx-target="#todos_palpites_table"
+			hx-swap="innerHTML">
+		<summary class="collapsible-portlet__header" style="cursor: pointer; font-weight: bold; padding: 0.6rem; border-bottom: 1px solid var(--color-border); list-style: none;">
+			<img alt="" src="${base}/img/triang_yellow.png" class="icon-inline" /> Ver meus palpites
+		</summary>
+		<div class="portlet-content tips-panel__body" style="padding: 1rem;">
+			<div class="tips-panel__footer" style="padding-bottom: 0.5rem;">
+				<p style="margin: 0; font-weight: bold;"><fmt:message key="match.tip.now" /></p>
+				<button type="button"
+						class="icon-button button-ghost"
+						hx-get="${meusPalpitesUrl}"
+						hx-target="#todos_palpites_table"
+						hx-swap="innerHTML"
+						title="Recarregar meus palpites">
+					<img alt="Recarregar" src="${base}/img/refresh.png" class="icon-inline" />
+				</button>
+			</div>
+			<div class="tips-panel__scroll" style="overflow-x: auto;">
+				<table class="table tips-panel__table">
+					<thead>
+						<tr>
+							<th scope="col"><fmt:message key="match.tip.date" /></th>
+							<th scope="col"><fmt:message key="match.tip.hour" /></th>
+							<th scope="col"><fmt:message key="match.tip.teams" /></th>
+							<th scope="col" style="text-align: center;"><fmt:message key="match.tip.mine" /></th>
+						</tr>
+					</thead>
+					<tbody id="todos_palpites_table">
+						<tr><td colspan="4" class="text-center" style="padding: 1rem;"><fmt:message key="general.loading" /></td></tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</details>
+	<span class="spacer spacer-sm"></span>
     <span class="spacer spacer-sm"></span>
     <div id="palpites_info" class="legenda tips-info">
 		<p><img alt="" src="${base}/img/information.gif" class="icon-inline" aria-hidden="true" />
@@ -285,13 +245,17 @@
 			</div>
 				<div class="content collapsible-portlet__content" id="jogos_${dataJogoFormatada}_portlet_content">
 					<div class="table-responsive">
-					<table class="table conteudo">
+					<table class="table conteudo match-table">
 						<thead>
 							<tr>
 								<th scope="col"><fmt:message key="match.hour" /></th>
 								<th scope="col"><fmt:message key="match.where" /></th>
 								<th scope="col"><fmt:message key="match.group" /></th>
 								<th scope="colgroup" colspan="3"><fmt:message key="match.teams" /></th>
+								<c:if test="${telaPalpites}">
+									<th scope="col"><fmt:message key="match.tip.mine" /></th>
+									<th scope="col"></th>
+								</c:if>
 						</tr>
 					</thead>
 						<tbody>
@@ -316,17 +280,49 @@
 						<c:set var="palpiteGols1Attr" value="${palpiteUsuario.golsEquipe1}" />
 						<c:set var="palpiteGols2Attr" value="${palpiteUsuario.golsEquipe2}" />
 					</c:if>
-					<authz:authorize ifAllGranted="geral">
-					<tr class="${rowStyleClass}" id="jogoTr_${jogo.id}" data-jogo-id="${jogo.id}" data-palpite-allowed="${jogo.podeDarPalpite}" data-palpite-gols1="${palpiteGols1Attr}" data-palpite-gols2="${palpiteGols2Attr}">
-					</authz:authorize>
-					<authz:authorize ifAllGranted="restrito">
-					<tr class="${rowStyleClass}" id="jogoTr_${jogo.id}">
-					</authz:authorize>
-				</c:when>
-				<c:otherwise>
-					<tr class="${rowStyleClass}" id="jogoTr_${jogo.id}">
-				</c:otherwise>
-			</c:choose>
+					<sec:authorize access="hasAnyRole('USER', 'ADMIN')" var="podeRegistrarPalpite" />
+					<c:set var="palpitePermitido" value="${podeRegistrarPalpite and jogo.podeDarPalpite}" />
+					<c:set var="palpiteStatus" value="locked" />
+					<c:if test="${not empty palpiteUsuario}">
+						<c:set var="palpiteStatus" value="registered" />
+					</c:if>
+					<c:if test="${empty palpiteUsuario and palpitePermitido}">
+						<c:set var="palpiteStatus" value="pending" />
+					</c:if>
+					<c:set var="palpiteBloqueioMotivo" value="" />
+					<c:choose>
+						<c:when test="${palpitePermitido}">
+							<c:set var="palpiteBloqueioMotivo" value="" />
+						</c:when>
+						<c:when test="${not podeRegistrarPalpite}">
+							<c:set var="palpiteBloqueioMotivo" value="roleMissing" />
+						</c:when>
+						<c:when test="${not jogo.podeDarPalpite}">
+							<c:set var="palpiteBloqueioMotivo" value="timeWindow" />
+						</c:when>
+						<c:otherwise>
+							<c:set var="palpiteBloqueioMotivo" value="unknown" />
+						</c:otherwise>
+					</c:choose>
+					<c:set var="palpiteStatusKey">match.tip.status.${palpiteStatus}</c:set>
+					<fmt:message key="${palpiteStatusKey}" var="palpiteStatusLabel" />
+					<fmt:message key="match.tip.none" var="palpiteSemRegistro" />
+					<c:url var="palpiteFormUrl" value="/seguro/palpiteFormPartial.action">
+						<c:param name="jogoId" value="${jogo.id}" />
+					</c:url>
+					<c:url var="palpiteGrupoUrl" value="/seguro/palpitesDoJogoPartial.action">
+						<c:param name="jogoId" value="${jogo.id}" />
+					</c:url>
+					<tr class="match-row ${rowStyleClass}"
+						id="jogoTr_${jogo.id}"
+						data-jogo-id="${jogo.id}"
+						data-palpite-allowed="${palpitePermitido}"
+						data-palpite-gols1="${palpiteGols1Attr}"
+						data-palpite-gols2="${palpiteGols2Attr}"
+						data-palpite-status="${palpiteStatus}"
+						data-palpite-status-label="${palpiteStatusLabel}"
+						data-palpite-placeholder="${palpiteSemRegistro}"
+						data-palpite-locked-reason="${palpiteBloqueioMotivo}">
 						<td class="match-table__time">${horaJogoFormatada}</td>
 						<td class="match-table__location">${jogo.local}</td>
 						<td class="match-table__group">
@@ -365,31 +361,181 @@
 										</span>
 									</c:otherwise>
 								</c:choose>
-								<c:choose>
-									<c:when test="${not telaPalpites}">
-										<authz:authorize ifAllGranted="admin">
-											<input type="text" name="golsEquipe1" id="golsEquipe1_tf_${jogo.id}" class="text score-input input-centered" maxlength="2" size="2" value="${jogo.golsEquipe1}" data-js="resultado-input" />
-										</authz:authorize>
-									</c:when>
-									<c:otherwise>
-										<span class="score-value"><c:out value="${jogo.golsEquipe1}" /></span>
-									</c:otherwise>
-								</c:choose>
+								<span class="score-value"><c:out value="${jogo.golsEquipe1}" /></span>
 							</div>
 						</td>
 						<td class="match-table__separator">X</td>
 						<td class="match-table__team match-table__team--away">
 							<div class="team-cell text-left">
+								<span class="score-value"><c:out value="${jogo.golsEquipe2}" /></span>
 								<c:choose>
-								<c:when test="${not telaPalpites}">
-									<authz:authorize ifAllGranted="admin">
-										<input type="text" name="golsEquipe2" id="golsEquipe2_tf_${jogo.id}" class="text score-input input-centered" maxlength="2" size="2" value="${jogo.golsEquipe2}" onblur="atualizarResultado(this);" data-js="resultado-input" />
-									</authz:authorize>
+									<c:when test="${not empty jogo.equipe2.bandeiraUrl}">
+										<img class="flag-icon icon-inline" src="${pageContext.request.contextPath}${jogo.equipe2.bandeiraUrl}" alt="Bandeira de ${jogo.equipe2.nomePais}" width="24" height="18" loading="lazy" />
+									</c:when>
+									<c:when test="${not empty jogo.equipe2.emojiBandeira}">
+										<span class="flag-icon icon-inline" role="img" aria-label="${jogo.equipe2.nomePais}">
+											<c:out value="${jogo.equipe2.emojiBandeira}" />
+										</span>
+									</c:when>
+									<c:otherwise>
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											<c:out value="${jogo.equipe2.siglaPais}" />
+										</span>
+									</c:otherwise>
+								</c:choose>
+								<span><c:out value="${jogo.equipe2.nomePais}" /></span>
+							</div>
+						</td>
+						<%-- Célula unificada de palpite – Redesign UX Iteração 2 (inputs diretos) --%>
+				<td class="match-table__palpite-cell" id="palpite-cell_${jogo.id}">
+					<c:choose>
+						<%-- Janela aberta: exibir inputs side-by-side --%>
+						<c:when test="${palpitePermitido}">
+							<c:url var="atualizarPalpiteUrl" value="/seguro/atualizarPalpitePartial.action" />
+							<form class="palpite-inputs"
+								  hx-post="${atualizarPalpiteUrl}"
+								  hx-target="#palpite-cell_${jogo.id}"
+								  hx-swap="outerHTML"
+								  aria-label="Palpite para ${jogo.equipe1.nomePais} x ${jogo.equipe2.nomePais}">
+								<input type="hidden" name="jogoId" value="${jogo.id}" />
+								<c:if test="${not empty _csrf}">
+									<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+								</c:if>
+								<input class="palpite-inputs__score"
+									   id="p1_${jogo.id}"
+									   name="palpiteGolsEquipe1"
+									   type="number" min="0" max="99"
+									   inputmode="numeric"
+									   value="${palpiteGols1Attr}"
+									   aria-label="Gols ${jogo.equipe1.nomePais}"
+									   required />
+								<span class="palpite-inputs__sep">x</span>
+								<input class="palpite-inputs__score"
+									   id="p2_${jogo.id}"
+									   name="palpiteGolsEquipe2"
+									   type="number" min="0" max="99"
+									   inputmode="numeric"
+									   value="${palpiteGols2Attr}"
+									   aria-label="Gols ${jogo.equipe2.nomePais}"
+									   required />
+								<button type="submit"
+										class="btn-palpite-confirm"
+										data-js="confirmar-palpite"
+										data-jogo-id="${jogo.id}"
+										aria-label="Confirmar palpite">✓</button>
+							</form>
+							<span class="palpite-cell-feedback" id="palpite-feedback_${jogo.id}" aria-live="polite"></span>
+						</c:when>
+						<%-- Janela fechada: exibir placar salvo ou placeholder + motivo --%>
+						<c:otherwise>
+							<c:choose>
+								<c:when test="${not empty palpiteUsuario}">
+									<span class="palpite-saved-score" aria-label="Meu palpite">
+										<c:out value="${palpiteUsuario.golsEquipe1}" /> x <c:out value="${palpiteUsuario.golsEquipe2}" />
+									</span>
 								</c:when>
 								<c:otherwise>
-									<span class="score-value"><c:out value="${jogo.golsEquipe2}" /></span>
+									<span class="palpite-placeholder">${palpiteSemRegistro}</span>
 								</c:otherwise>
+							</c:choose>
+							<span class="badge badge--${palpiteStatus} badge--cell">${palpiteStatusLabel}</span>
+							<c:if test="${palpiteBloqueioMotivo eq 'timeWindow'}">
+								<span class="palpite-locked-msg" aria-label="Prazo encerrado">🔒 Prazo encerrado</span>
+							</c:if>
+						</c:otherwise>
+					</c:choose>
+				</td>
+
+						<%-- Painel Ver Grupo Inline via <details> --%>
+						<td class="match-table__group-action">
+							<details class="match-group-details" aria-label="Ver palpites do grupo para este jogo">
+								<summary class="btn-grupo-icon"
+										 hx-get="${palpiteGrupoUrl}"
+										 hx-target="#grupo-content_${jogo.id}"
+										 hx-trigger="toggle once"
+										 title="Ver palpites do grupo">
+									👥
+								</summary>
+								<div class="match-group-popover" aria-live="polite">
+									<h3>Palpites do Grupo</h3>
+									<table class="table table-striped table-group-tips" style="width: 100%; font-size: 13px; margin: 0;">
+										<thead>
+											<tr>
+												<th>Participante</th>
+												<th class="text-center">Palpite</th>
+												<th class="text-center">Pontos</th>
+											</tr>
+										</thead>
+										<tbody id="grupo-content_${jogo.id}">
+											<tr>
+												<td colspan="3" class="text-center" style="padding: 1.5rem; color: var(--color-muted);">
+													<span class="loading-spinner"></span> Carregando...
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</details>
+						</td>
+					</tr>
+				</c:when>
+				<c:otherwise>
+					<tr class="${rowStyleClass}" id="jogoTr_${jogo.id}" data-jogo-id="${jogo.id}" data-palpite-allowed="false">
+						<td class="match-table__time">${horaJogoFormatada}</td>
+						<td class="match-table__location">${jogo.local}</td>
+						<td class="match-table__group">
+							<c:choose>
+								<c:when test="${jogo.faseDeGrupos}">
+									<c:choose>
+										<c:when test="${not empty jogo.equipe1.grupo}">
+											<fmt:message key="match.group" var="grupoLabelAdmin" />
+											<span>${grupoLabelAdmin} ${jogo.equipe1.grupo}</span>
+										</c:when>
+										<c:otherwise>
+											<span>${jogo.descricaoFase}</span>
+										</c:otherwise>
+									</c:choose>
+								</c:when>
+								<c:otherwise>
+									<span>${jogo.descricaoFase}</span>
+								</c:otherwise>
+							</c:choose>
+						</td>
+						<td class="match-table__team match-table__team--home">
+							<div class="team-cell text-right">
+								<span><c:out value="${jogo.equipe1.nomePais}" /></span>
+								<c:choose>
+									<c:when test="${not empty jogo.equipe1.bandeiraUrl}">
+										<img class="flag-icon icon-inline" src="${pageContext.request.contextPath}${jogo.equipe1.bandeiraUrl}" alt="Bandeira de ${jogo.equipe1.nomePais}" width="24" height="18" loading="lazy" />
+									</c:when>
+									<c:when test="${not empty jogo.equipe1.emojiBandeira}">
+										<span class="flag-icon icon-inline" role="img" aria-label="${jogo.equipe1.nomePais}">
+											<c:out value="${jogo.equipe1.emojiBandeira}" />
+										</span>
+									</c:when>
+									<c:otherwise>
+										<span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+											<c:out value="${jogo.equipe1.siglaPais}" />
+										</span>
+									</c:otherwise>
 								</c:choose>
+								<sec:authorize access="hasRole('ADMIN')">
+									<input type="text" name="golsEquipe1" id="golsEquipe1_tf_${jogo.id}" class="text score-input input-centered" maxlength="2" size="2" value="${jogo.golsEquipe1}" data-js="resultado-input" />
+								</sec:authorize>
+								<sec:authorize access="!hasRole('ADMIN')">
+									<span class="score-value"><c:out value="${jogo.golsEquipe1}" /></span>
+								</sec:authorize>
+							</div>
+						</td>
+						<td class="match-table__separator">X</td>
+						<td class="match-table__team match-table__team--away">
+							<div class="team-cell text-left">
+								<sec:authorize access="hasRole('ADMIN')">
+									<input type="text" name="golsEquipe2" id="golsEquipe2_tf_${jogo.id}" class="text score-input input-centered" maxlength="2" size="2" value="${jogo.golsEquipe2}" onblur="atualizarResultado(this);" data-js="resultado-input" />
+								</sec:authorize>
+								<sec:authorize access="!hasRole('ADMIN')">
+									<span class="score-value"><c:out value="${jogo.golsEquipe2}" /></span>
+								</sec:authorize>
 								<c:choose>
 									<c:when test="${not empty jogo.equipe2.bandeiraUrl}">
 										<img class="flag-icon icon-inline" src="${pageContext.request.contextPath}${jogo.equipe2.bandeiraUrl}" alt="Bandeira de ${jogo.equipe2.nomePais}" width="24" height="18" loading="lazy" />
@@ -409,6 +555,8 @@
 							</div>
 						</td>
 					</tr>
+				</c:otherwise>
+			</c:choose>
 	<c:set var="dataJogo" value="${jogo.data}" />
 		<c:if test="${loop.count eq fn:length(jogos)}">
 						</tbody>
