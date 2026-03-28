@@ -256,3 +256,18 @@ Consulte: **[docker/README.md](docker/README.md)**
 ---
 
 Este README serve como base para tomada de decisão técnica e execução incremental, preservando o comportamento atual e reduzindo risco de regressão.
+
+## 15. Manutenção de Dados (Copa 2026)
+
+O sistema utiliza um dataset normalizado para a carga inicial de equipes e jogos. Para atualizar os dados da Copa 2026 (seleções qualificadas, resultados, sedes ou partidas do mata-mata):
+
+1. **Editar Dataset**: Modifique o arquivo `data/copa2026_tabela_brt_normalizado.csv`.
+2. **Gerar SQL**: Execute o script helper para regerar o script de carga do banco.
+
+```bash
+# Execução via bash (Ubuntu/WSL)
+bash scripts/gerar_sql_copa2026.sh
+```
+
+O script gerará o arquivo `data/sql/03-copa-2026-data.sql` que é utilizado no processo de deploy/banco.
+

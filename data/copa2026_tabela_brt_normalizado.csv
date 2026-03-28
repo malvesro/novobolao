@@ -71,3 +71,37 @@ Grupos,11,1,K,3,27/06/2026,2026-06-27,20:30,Colômbia,,Portugal,,Hard Rock Stadi
 Grupos,11,1,K,3,27/06/2026,2026-06-27,20:30,Repescagem Intercontinental 2,Repescagem Intercontinental 2,Uzbequistão,,Mercedes-Benz Stadium,Atlanta,EUA,BRT
 Grupos,11,1,J,3,27/06/2026,2026-06-27,23:00,Argélia,,Áustria,,Arrowhead Stadium,Kansas City,EUA,BRT
 Grupos,11,1,J,3,27/06/2026,2026-06-27,23:00,Jordânia,,Argentina,,AT&T Stadium,Dallas,EUA,BRT
+32-avos,16,2,,0,28/06/2026,2026-06-28,16:00,2A,2A,2B,2B,Los Angeles Stadium,Los Angeles,EUA,BRT
+32-avos,16,2,,0,29/06/2026,2026-06-29,17:30,1E,1E,3º A/B/C/D/F,3º A/B/C/D/F,Boston Stadium,Boston,EUA,BRT
+32-avos,16,2,,0,29/06/2026,2026-06-29,21:00,1A,1A,3º C/D/F,3º C/D/F,Monterrey Stadium,Monterrey,México,BRT
+32-avos,16,2,,0,29/06/2026,2026-06-29,23:59,1B,1B,3º A/C/D,3º A/C/D,Houston Stadium,Houston,EUA,BRT
+32-avos,16,2,,0,30/06/2026,2026-06-30,18:00,1I,1I,3º C/D/E/G/H,3º C/D/E/G/H,San Francisco Bay Area Stadium,Santa Clara,EUA,BRT
+32-avos,16,2,,0,30/06/2026,2026-06-30,22:00,1C,1C,2F,2F,Boston Stadium,Boston,EUA,BRT
+32-avos,16,2,,0,30/06/2026,2026-06-30,23:59,1F,1F,2C,2C,Dallas Stadium,Arlington,EUA,BRT
+32-avos,16,2,,0,01/07/2026,2026-07-01,19:00,2E,2E,2H,2H,Mexico City Stadium,Mexico City,México,BRT
+32-avos,16,2,,0,01/07/2026,2026-07-01,22:00,1H,1H,2J,2J,Seattle Stadium,Seattle,EUA,BRT
+32-avos,16,2,,0,01/07/2026,2026-07-01,23:59,1G,1G,3º A/B/C/E/F,3º A/B/C/E/F,Los Angeles Stadium,Los Angeles,EUA,BRT
+32-avos,16,2,,0,02/07/2026,2026-07-02,16:00,2K,2K,2L,2L,Toronto Stadium,Toronto,Canadá,BRT
+32-avos,16,2,,0,02/07/2026,2026-07-02,18:00,1K,1K,3º D/E/F/G/I,3º D/E/F/G/I,Los Angeles Stadium,Los Angeles,EUA,BRT
+32-avos,16,2,,0,02/07/2026,2026-07-02,21:00,1J,1J,2I,2I,Vancouver Stadium,Vancouver,Canadá,BRT
+32-avos,16,2,,0,03/07/2026,2026-07-03,18:00,1L,1L,3º E/H/I/J/K,3º E/H/I/J/K,Miami Stadium,Miami,EUA,BRT
+32-avos,16,2,,0,03/07/2026,2026-07-03,22:00,1D,1D,3º B/E/F/H/I,3º B/E/F/H/I,Atlanta Stadium,Atlanta,EUA,BRT
+32-avos,16,2,,0,03/07/2026,2026-07-03,23:59,2G,2G,2H,2H,Kansas City Stadium,Kansas City,EUA,BRT
+16-avos,12,3,,0,04/07/2026,2026-07-04,18:00,V74,V74,V77,V77,Philadelphia Stadium,Philadelphia,EUA,BRT
+16-avos,12,3,,0,04/07/2026,2026-07-04,21:30,V73,V73,V75,V75,Houston Stadium,Houston,EUA,BRT
+16-avos,12,3,,0,05/07/2026,2026-07-05,14:00,V76,V76,V78,V78,New York New Jersey Stadium,East Rutherford,EUA,BRT
+16-avos,12,3,,0,05/07/2026,2026-07-05,19:00,V79,V79,V80,V80,Mexico City Stadium,Mexico City,México,BRT
+16-avos,12,3,,0,06/07/2026,2026-07-06,18:00,V83,V83,V84,V84,Dallas Stadium,Arlington,EUA,BRT
+16-avos,12,3,,0,06/07/2026,2026-07-06,22:00,V81,V81,V82,V82,Seattle Stadium,Seattle,EUA,BRT
+16-avos,12,3,,0,07/07/2026,2026-07-07,14:00,V86,V86,V88,V88,Atlanta Stadium,Atlanta,EUA,BRT
+16-avos,12,3,,0,07/07/2026,2026-07-07,18:00,V85,V85,V87,V87,Vancouver Stadium,Vancouver,Canadá,BRT
+Quartas,13,4,,0,09/07/2026,2026-07-09,17:00,V89,V89,V90,V90,Boston Stadium,Boston,EUA,BRT
+Quartas,13,4,,0,10/07/2026,2026-07-10,22:00,V93,V93,V94,V94,Los Angeles Stadium,Los Angeles,EUA,BRT
+Quartas,13,4,,0,11/07/2026,2026-07-11,17:00,V91,V91,V92,V92,Miami Stadium,Miami,EUA,BRT
+Quartas,13,4,,0,11/07/2026,2026-07-11,21:00,V95,V95,V96,V96,Kansas City Stadium,Kansas City,EUA,BRT
+Semis,14,5,,0,14/07/2026,2026-07-14,21:00,V97,V97,V98,V98,Dallas Stadium,Arlington,EUA,BRT
+Semis,14,5,,0,15/07/2026,2026-07-15,21:00,Winner 99,V99,Winner 100,V100,Atlanta Stadium,Atlanta,EUA,BRT
+Final,15,6,,0,18/07/2026,2026-07-18,21:00,P101,P101,P102,P102,Miami Stadium,Miami,EUA,BRT
+Final,15,6,,0,19/07/2026,2026-07-19,17:00,V101,V101,V102,V102,New York New Jersey Stadium,East Rutherford,EUA,BRT
+
+

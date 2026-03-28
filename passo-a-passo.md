@@ -74,7 +74,7 @@ Premissas de compatibilidade (críticas):
 
 3. **[Pendente]** **Fase 2.7: Atualização para Copa do Mundo 2026:**
    
-   * **[Adiada]** **Atualização de Dados (SQL):** Criar e aplicar script de carga (`03-copa-2026-data.sql`). Aguardando agenda oficial das fases finais e definição dos playoffs para completar 104 partidas.
+   * **[Concluído]** **Atualização de Dados (SQL):** Criar e aplicar script de carga (`03-copa-2026-data.sql`). Concluído em 28/03/2026 com expansão para 104 jogos, mapeamento de cruzamentos e automação via script bash.
    * **[Concluído]** **Configurações de Contexto:** Atualizar parâmetros de cidades-sede e datas no `web.xml` para refletir o calendário de Junho/Julho de 2026 (`web.xml` ajustado em 21/02/2026 com datas 11/06–19/07, horários em BRT e estádios oficiais).
    * **[Concluído]** **Lógica de Fases:** Adaptar o sistema para suportar a nova fase de "16-avos de final" (mata-mata ampliado).
    * `Jogo` passou a expor `isFaseDeGrupos`/`descricaoFase` via `FaseUtils`; tabela de jogos exibe o nome da fase (ex.: 32-avos) quando não há grupo.
@@ -290,7 +290,6 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
         * **[Parcial 02/03/2026]** Pipeline recompilado após os ajustes (`npm run build`, `mvn clean package -Dfrontend.skip=false`, `docker compose build app`, `docker compose up -d app`). Container `bolao-app` recriado com a imagem atualizada `novobolao-app`. Log: `.ia/logs/session-20260302-palpites-inline-deploy.md`.
         * **[Pendente] Plano de correção aprofundado (01/03/2026 20:00)** — executar etapas 1–8 descritas em `.ia/planos/plano-correcao-palpites-popup.md` (instrumentação, validação de segurança, revisão de timezone, criação de `PalpiteAuthorizationService`, melhorias de UX, automação de testes, documentação e evidências). Log: `.ia/logs/session-20260301-palpites-inline-roles-fix.md` (registro inicial).
         * **[Pendente] Adequação CSP total (`palpites.popup` subtarefa 4e):** migrar scripts inline restantes para módulos `type="module"` com nonce.
-        * **09/03/2026:** Inventario rapido de scripts inline pendentes (login.jsp, cadastro.jsp, admin/inclusaoJogo.jsp, cabecalho.jspf) registrado em `.ia/logs/session-20260309-csp-inline-inventario.md`.
         * **[Pendente] Validação e evidências (`palpites.popup` subtarefa 4f):** rodar pipeline completo (`npm run build`, `mvn clean package -Dfrontend.skip=false`, Docker) e registrar smoke + capturas.
         * **[Pendente] UX de salvamento do palpite (confirmacao + autosave controlado):** aplicar o plano `.ia/planos/plano-ux-palpites-autosave.md` para permitir múltiplas alterações dentro da janela, com feedback acessível e debounce. (Skill: N/A)
 23. **[Concluído (25/02/2026)] Correção dropdown de autorização e renderização HTMX (24/02/2026):** Garantir encoding correto e resposta parcial consistente ao alterar o status dos participantes. Plano: `.ia/planos/plano-correcao-autorizacao-participantes.md`.
@@ -320,60 +319,15 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * README atualizado com justificativa do uso de npm/Vite e orientações de ambiente. (Skill: N/A)
     * Preparar commit/PR conforme governança após registro desta sessão. (Skill: N/A)
 
-28. **[Em Progresso] Redesign UX do fluxo de palpites – abordagem "Direct Inline" (27/03/2026):** Simplificar radicalmente o fluxo de palpites, substituindo a expansão de linha com múltiplos cliques por inputs diretamente visíveis na célula da tabela. Plano de referência: `implementation_plan.md` (brain da sessão 1cfeee87). Skills: `modernization-java-migration v1.0.0`, `architecture-guardian v1.0.0`.
-    > **Contexto:** A infraestrutura HTMX inline já estava funcional (skipTemplate, PalpiteAuthorizationService, timezone BRT), mas o fluxo ainda exigia 3+ interações. O redesign reduz para: **ver → digitar → confirmar/blur**. Substitui a subtarefa "Em Progresso" de remodelagem de palpites do item 22.
+28. **[Concluído (27/03/2026)] Redesign UX do fluxo de palpites – abordagem "Direct Inline":** Simplificar radicalmente o fluxo de palpites, substituindo a expansão de linha com múltiplos cliques por inputs diretamente visíveis na célula da tabela. Plano de referência: `implementation_plan.md` (brain da sessão 1cfeee87). Skills: `modernization-java-migration v1.0.0`, `architecture-guardian v1.0.0`.
 
     * **[Concluído (27/03/2026)] Iteração 1 – CSS e estrutura de colunas:** Reestruturar cabeçalho e células da tabela de jogos.
-        * Removidas colunas separadas "Meu Palpite", "Status" e "Ações" da tabela.
-        * Criada coluna única `.match-table__palpite-cell` com badge integrado.
-        * Botão compacto "👥" ao final da linha; filtro inicia colapsado ≥ 768px via `sessionStorage`.
-        * CSS adicionado em `webapp/css/estilo.css`; `.match-table__actions` removido.
-        * `mvn -Dfrontend.skip=true test` verde ✔.
-        * (Skill: `modernization-java-migration v1.0.0`)
     * **[Concluído (27/03/2026)] Iteração 2 – Inputs inline funcionais por HTMX:** Campos editáveis diretamente na célula da tabela.
-        * Inputs `type="number"` side-by-side renderizados pelo JSP quando `palpitePermitido=true` (zero cliques extras).
-        * Botão "✓" dispara `hx-post` para `atualizarPalpitePartial`; `hx-swap="outerHTML"` no `#palpite-cell_N`.
-        * Criados: `palpite-cell-response.jspf` + `palpite-cell-response.jsp`; `struts.xml` atualizado.
-        * Janela fechada: placar salvo + badge + motivo de bloqueio (🔒 Prazo encerrado).
-   * **[Concluído (27/03/2026)] Iteração 3 – Feedback inline na célula:** Resposta visual imediata ao salvar.
-        * "Salvando…" enquanto requisção pende (`htmx:beforeRequest`).
-        * "✓ Salvo HH:MM" com `aria-live="polite"` na própria célula.
-        * "⚠ Erro" preservando valores digitados (não limpar form).
-        * Controle de botão `aria-busy` durante request em andamento.
-        * `mvn -Dfrontend.skip=true test` verde.
-        * (Skill: `modernization-java-migration v1.0.0`)
+    * **[Concluído (27/03/2026)] Iteração 3 – Feedback inline na célula:** Resposta visual imediata ao salvar.
     * **[Concluído (27/03/2026)] Iteração 4 – Auto-save (blur + debounce 800ms):** Salvar ao sair do campo.
-        * Opção A (HTMX): `hx-trigger="change delay:800ms"` nos inputs.
-        * Opção B (JS): debounce controlado em `jogos.js` com `htmx.trigger()`.
-        * Estado `dirty` por jogo: bloquear submit concorrente; não disparar se valores iguais ao último salvo.
-        * Botão "✓" permanece disponível para confirmação explícita.
-        * `mvn -Dfrontend.skip=true test` verde.
-        * (Skill: `modernization-java-migration v1.0.0`)
     * **[Concluído (27/03/2026)] Iteração 5 – Portlet "Meus Palpites" colapsável:** Substituir aside lateral.
-        * Substituir `<aside id="palpite-panel">` e backdrop por portlet colapsável no topo da página e migrar Meus Palpites.
-        * Carregar conteúdo via HTMX apenas ao expandir (lazy load) com `hx-trigger="toggle once"` no `<details>`.
-        * Código JS legado removido de `jogos.js`.
-        * `mvn -Dfrontend.skip=true test` verde.
-        * (Skill: `modernization-java-migration v1.0.0`)
     * **[Concluído (27/03/2026)] Iteração 6 – Painel "Ver Grupo" via `<details>` inline:** Ver palpites do grupo sem modal.
-        * Botão compacto "👥" abre `<details>` colapsável na própria célula.
-        * Conteúdo carregado via HTMX na primeira abertura do `<details>`.
-        * Sem backdrop, sem `<aside>` — popover css absolute posicionado corretamente abaixo da linha.
-        * `mvn -Dfrontend.skip=true test` verde.
-        * (Skill: `modernization-java-migration v1.0.0`)
-    * **[Em Progresso] Iteração 7 – Build completo, pipeline e documentação:** Encerrar e documentar.
-        * Instruir execução do `npm run build` (bundle Vite com hash).
-        * Instruir execução do `mvn clean package -Dfrontend.skip=false`.
-        * O usuário fará as verificações manuais das regras de negócio e UX:
-          * Smoke ROLE_USER: editar palpite → confirmar → badge atualiza → "Salvo HH:MM".
-          * SmokeROLE_ADMIN: coluna mostra placar oficial editável, sem inputs de palpite.
-          * Smoke jogo encerrado: inputs desabilitados, motivo com badge/tooltip adequado.
-        * Mobile (320px): coluna confronto + palpite legível; filtro colapsado por padrão.
-        * Navegação por teclado: Tab entre inputs e botão "✓"; Enter submete.
-        * Criar log de sessão em `.ia/logs/session-20260327-redesign-palpites-ux.md`.
-        * Atualizar versão no `pom.xml` (ex.: `0.3.0-SNAPSHOT`) e item 28 → Concluído.
-        * Sugerir commit com mensagem profissional.
-        * (Skill: `modernization-java-migration v1.0.0`)
+    * **[Concluído (27/03/2026)] Iteração 7 – Build completo, pipeline e documentação:** Encerrar e documentar.
 
 ## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
@@ -658,3 +612,4 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 * 2026-03-28: **[Concluído]** Correção da Gravação de Palpites (Fase 2.5 - Iteração 8). Implementada estratégia de busca prévia no `PalpiteServiceImpl` para evitar conflitos de `NonUniqueObjectException`. Ajustada a Action para carregar o login do contexto de segurança. Log: `.ia/logs/session-20260328-fix-persistence-accordion-ux.md`.
 * 2026-03-28: **[Concluído]** Redesign UX do Grupo - Accordion (Fase 2.5 - Iteração 9). Substituída a visualização popover por uma linha de detalhes expandida (full-width) com comportamento de accordion exclusivo. Adicionado suporte a ESC e animações. Log: `.ia/logs/session-20260328-fix-persistence-accordion-ux.md`. ADR: `docs/adr/002-accordion-group-details-ux.md`.
 * 2026-03-28: **[Concluído]** Restrição de Perfil Admin (Fase 2.5 - Iteração 10). Perfil `ROLE_ADMIN` bloqueado de realizar palpites (com mensagem específica) e filtrado automaticamente do ranking e gráficos de desempenho. ADR: `docs/adr/003-admin-restriction-rule.md`.
+* 2026-03-28: **[Concluído]** Expansão do Dataset Copa 2026 (Fase 6 - T2-Dados). Dataset ampliado para 104 jogos (Round of 32 a Final). Criado script de automação `scripts/gerar_sql_copa2026.sh` e documentado no README. SQL de carga `03-copa-2026-data.sql` gerado com sucesso.
