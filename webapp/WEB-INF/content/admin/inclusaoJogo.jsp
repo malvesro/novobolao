@@ -2,7 +2,7 @@
 <%@taglib prefix="s" uri="/struts-tags" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-<script type="text/javascript">
+<script type="text/javascript" nonce="${cspNonce}">
 	const baseUrl = "${base}";
 	const defaultErrorMessage = "<fmt:message key='match.submit.error' />";
 

@@ -16,7 +16,7 @@
 			<fmt:message key="login.error" />
 		</span>
 	</span>
-	<script type="text/javascript">
+	<script type="text/javascript" nonce="${cspNonce}">
 		document.addEventListener('DOMContentLoaded', function () {
 			var error = document.getElementById('login_error');
 			if (!error) {

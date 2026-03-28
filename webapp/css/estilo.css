@@ -11,6 +11,30 @@
 	--radius-sm: 4px;
 }
 
+@media (max-width: 720px) {
+	.button-inline,
+	.button-secondary {
+		width: 100%;
+		text-align: center;
+	}
+
+	.palpite-panel {
+		width: 100vw;
+	}
+
+	/* Célula de palpite: empilha inputs em mobile */
+	.palpite-inputs {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	/* Ocultar colunas secundárias em mobile para ganhar espaço */
+	.match-table__location,
+	.match-table__group {
+		display: none;
+	}
+}
+
 body {
 	font-family: verdana, sans-serif;
 	font-size: 11px;
@@ -180,7 +204,8 @@ textarea {
 	background-color: #F7F7F7;
 }
 
-input.button {
+input.button,
+button.button {
 	font-family: verdana, sans-serif;
 	font-size: 11px;
 	font-weight: bold;
@@ -194,7 +219,8 @@ input.button {
 	transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 	
-input.button:hover {
+input.button:hover,
+button.button:hover {
 	transform: translateY(-1px);
 	box-shadow: 0 6px 16px rgba(40, 63, 8, 0.2);
 }
@@ -334,6 +360,11 @@ div.menu_header {
 	text-align: center;
 }
 
+div.menu_header:focus-visible {
+	outline: 2px solid #F2C94C;
+	outline-offset: 2px;
+}
+
 div.menu_header span {
 	vertical-align: middle;
 	margin-left: 4px;
@@ -341,6 +372,10 @@ div.menu_header span {
 
 div.menu_item {
 	font-weight: normal;
+}
+
+div.menu_item[hidden] {
+	display: none;
 }
 
 div.menu_item a {
@@ -505,22 +540,20 @@ div.participanteBatePapo:hover {
 }
 
 /* Estilo do popup (balloon) */
-#balao_palpite {
-	position: absolute;
-	visibility: hidden;
-	top: 0;
-	left: 0;
-	width: 278px;
-	height: 150px;
-}
-
+#balao_palpite,
 #balao_palpites {
-	position: absolute;
-	visibility: hidden;
-	top: 0;
-	left: 0;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 	width: 278px;
-	height: 200px;
+	max-width: calc(90vw - 32px);
+	max-height: calc(90vh - 32px);
+	visibility: hidden;
+	opacity: 0;
+	transition: opacity 0.2s ease;
+	z-index: 1050;
+	pointer-events: none;
 }
 
 div.balao_top {
@@ -670,7 +703,8 @@ div.legenda span.abrev {
 		font-size: 11px;
 	}
 
-	input.button {
+	input.button,
+	button.button {
 		width: 100%;
 	}
 }
@@ -720,6 +754,368 @@ div.legenda span.abrev {
 
 .team-cell.text-right {
 	justify-content: flex-end;
+}
+
+.match-row {
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+
+.match-row:hover {
+	background-color: rgba(40, 63, 8, 0.06);
+}
+
+.match-row--expanded {
+	background-color: rgba(40, 63, 8, 0.08);
+}
+
+.match-table__palpite {
+	min-width: 120px;
+}
+
+.palpite-score {
+	font-weight: 600;
+}
+
+.palpite-placeholder {
+	color: var(--color-muted);
+}
+
+.match-table__status {
+	min-width: 120px;
+}
+
+/* REMOVIDO: .match-table__actions — substituída por .match-table__palpite-cell na Iteração 1 do redesign UX */
+
+.button-inline {
+	padding: 0.35rem 0.85rem;
+	font-size: 10px;
+	text-transform: uppercase;
+}
+
+.button-secondary {
+	background: linear-gradient(90deg, #5D7388 0%, #6f8498 100%);
+}
+
+.button-secondary:hover {
+	box-shadow: 0 6px 16px rgba(93, 115, 136, 0.25);
+}
+
+/* ===========================================================
+   Célula unificada de palpite — Redesign UX Iteração 1
+   =========================================================== */
+
+.match-table__palpite-cell {
+	min-width: 140px;
+	text-align: center;
+	vertical-align: middle;
+}
+
+/* Inputs side-by-side para o placar do palpite */
+.palpite-inputs {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	justify-content: center;
+}
+
+.palpite-inputs__score {
+	width: 2.8rem;
+	padding: 0.25rem 0.35rem;
+	border: 1px solid rgba(40, 63, 8, 0.35);
+	border-radius: var(--radius-sm);
+	font: inherit;
+	font-size: 11px;
+	text-align: center;
+	background: #fff;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.palpite-inputs__score:focus {
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 2px rgba(40, 63, 8, 0.15);
+	outline: none;
+}
+
+.palpite-inputs__sep {
+	font-weight: 600;
+	color: var(--color-muted);
+	padding: 0 0.1rem;
+}
+
+/* Botão confirmar (✓) compacto */
+.btn-palpite-confirm {
+	padding: 0.25rem 0.6rem;
+	font-size: 12px;
+	font-weight: bold;
+	background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-accent) 100%);
+	color: #fff;
+	border: none;
+	border-radius: var(--radius-sm);
+	cursor: pointer;
+	transition: transform 0.15s ease, opacity 0.15s ease;
+	min-width: 1.8rem;
+	min-height: 1.8rem;
+	line-height: 1;
+}
+
+.btn-palpite-confirm:hover {
+	transform: translateY(-1px);
+}
+
+.btn-palpite-confirm:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+	transform: none;
+}
+
+/* Botão compacto Ver Grupo (apenas ícone) */
+.btn-grupo-icon {
+	background: none;
+	border: 1px solid rgba(93, 115, 136, 0.4);
+	border-radius: var(--radius-sm);
+	cursor: pointer;
+	padding: 0.2rem 0.45rem;
+	font-size: 13px;
+	line-height: 1;
+	color: #5D7388;
+	transition: background-color 0.15s ease, border-color 0.15s ease;
+	vertical-align: middle;
+}
+
+.btn-grupo-icon:hover {
+	background-color: rgba(93, 115, 136, 0.1);
+	border-color: rgba(93, 115, 136, 0.7);
+}
+
+/* Estados de feedback inline na célula */
+.palpite-cell-feedback {
+	display: block;
+	font-size: 10px;
+	margin-top: 0.25rem;
+	min-height: 1.2em;
+	color: var(--color-muted);
+}
+
+.palpite-cell-feedback--saving {
+	color: var(--color-muted);
+	animation: pulse 1s ease-in-out infinite;
+}
+
+.palpite-cell-feedback--saved {
+	color: var(--color-success, #1b7f5f);
+	font-weight: 600;
+}
+
+.palpite-cell-feedback--error {
+	color: var(--color-danger, #b22727);
+	font-weight: 600;
+}
+
+@keyframes pulse {
+	0%, 100% { opacity: 1; }
+	50%       { opacity: 0.45; }
+}
+
+/* Placar do palpite salvo (somente leitura) */
+.palpite-saved-score {
+	font-weight: 600;
+	font-size: 12px;
+	color: var(--color-primary);
+}
+
+/* Badge integrado à célula (remove coluna Status separada) */
+.badge--cell {
+	display: block;
+	margin: 0.25rem auto 0;
+	width: fit-content;
+}
+
+/* Tooltip de motivo de bloqueio exibido inline */
+.palpite-locked-msg {
+	font-size: 10px;
+	color: rgba(0,0,0,0.5);
+	margin-top: 0.2rem;
+	display: block;
+}
+
+/* Linha de grupo expandida via <details> (Iteração 6) */
+.match-group-expand td {
+	background-color: rgba(93, 115, 136, 0.05);
+	padding: 0.75rem 1rem;
+}
+
+/* Filtro colapsável — inicia fechado via JS a partir de 768px */
+.match-filter-portlet.filter-collapsed .collapsible-portlet__content {
+	display: none;
+}
+
+.button-ghost {
+	background: transparent;
+	color: inherit;
+	padding: 0.2rem 0.4rem;
+	border: none;
+	box-shadow: none;
+}
+
+.button-ghost:hover {
+	transform: none;
+	box-shadow: none;
+	background-color: rgba(0, 0, 0, 0.05);
+}
+
+.badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.2rem 0.6rem;
+	border-radius: 999px;
+	font-size: 10px;
+	text-transform: uppercase;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+}
+
+.badge--registered {
+	background-color: rgba(40, 63, 8, 0.15);
+	color: #24370a;
+}
+
+.badge--pending {
+	background-color: rgba(248, 116, 22, 0.15);
+	color: #a3470a;
+}
+
+.badge--locked {
+	background-color: rgba(0, 0, 0, 0.1);
+	color: rgba(0, 0, 0, 0.6);
+}
+
+.match-expand[hidden] {
+	display: none;
+}
+
+.match-expand td {
+	background-color: rgba(40, 63, 8, 0.04);
+	padding: 1rem;
+}
+
+.palpite-inline {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	background: #f7f9f6;
+	border: 1px solid rgba(40, 63, 8, 0.15);
+	border-radius: var(--radius-base);
+	padding: 1.25rem;
+}
+
+.palpite-inline__meta {
+	display: none;
+}
+
+.team-score {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
+
+.team-score input {
+	padding: 0.35rem 0.5rem;
+	border: 1px solid rgba(40, 63, 8, 0.3);
+	border-radius: var(--radius-sm);
+	font: inherit;
+	max-width: 6rem;
+}
+
+.palpite-inline__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+.palpite-inline__message,
+.palpite-inline__feedback {
+	margin: 0;
+}
+
+.palpite-inline__feedback--success {
+	color: var(--color-success, #1b7f5f);
+	font-weight: 600;
+}
+
+.palpite-inline__feedback--error {
+	color: var(--color-danger, #b22727);
+	font-weight: 600;
+}
+
+.palpite-inline__message {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	color: var(--color-primary);
+}
+
+.palpite-inline__summary {
+	margin: 0;
+	font-weight: 600;
+}
+
+.palpite-inline__placeholder {
+	margin: 0;
+	color: var(--color-muted);
+}
+
+.palpite-panel {
+	position: fixed;
+	top: 0;
+	right: 0;
+	height: 100vh;
+	width: min(28rem, 90vw);
+	background: var(--color-surface);
+	box-shadow: -8px 0 24px rgba(0, 0, 0, 0.16);
+	display: flex;
+	flex-direction: column;
+	z-index: 1100;
+}
+
+.palpite-panel[hidden] {
+	display: none;
+}
+
+.palpite-panel__backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.45);
+	z-index: 1095;
+}
+
+.palpite-panel__backdrop[hidden] {
+	display: none;
+}
+
+.palpite-panel__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1rem 1.25rem;
+	border-bottom: 1px solid rgba(40, 63, 8, 0.1);
+}
+
+.palpite-panel__header h2 {
+	margin: 0;
+	font-size: 1rem;
+}
+
+.palpite-panel__content {
+	flex: 1;
+	overflow-y: auto;
+	padding: 1.25rem;
+}
+
+.palpite-panel__placeholder {
+	color: var(--color-muted);
+	margin: 0;
 }
 
 .ranking-highlight {
@@ -1235,15 +1631,10 @@ div.legenda span.abrev {
 	flex-direction: column;
 	gap: 1.5rem;
 }
-#balao_palpite,
-#balao_palpites {
-	opacity: 0;
-	transition: opacity 0.3s ease;
-}
-
 .balao-visible {
 	visibility: visible !important;
-	opacity: 0.95;
+	opacity: 1;
+	pointer-events: auto;
 }
 
 .collapsible-portlet__content--hidden {
@@ -1264,6 +1655,27 @@ div.legenda span.abrev {
 	margin-top: 0.5rem;
 }
 
+.dialog-backdrop {
+	position: fixed;
+	z-index: 1040;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.35);
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.2s ease;
+	pointer-events: none;
+}
+
+.dialog-backdrop--visible {
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+}
+
+.dialog-open {
+	overflow: hidden;
+}
+
 @keyframes rowHighlightSuccess {
 	0% {
 		background-color: #e6ffed;
@@ -1280,4 +1692,35 @@ div.legenda span.abrev {
 	100% {
 		background-color: inherit;
 	}
+}
+
+/* ===========================================================
+   Painel "Ver Grupo" via <details> inline (Iteração 6)
+   =========================================================== */
+
+.match-table__group-action {
+	position: relative;
+	vertical-align: middle;
+}
+
+.match-group-details > summary {
+	list-style: none;
+}
+.match-group-details > summary::-webkit-details-marker {
+	display: none;
+}
+
+.match-group-popover {
+	position: absolute;
+	right: 0;
+	top: 100%;
+	z-index: 1040;
+	background: #fff;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+	min-width: 320px;
+	padding: 1rem;
+	text-align: left;
+	margin-top: 5px;
 }

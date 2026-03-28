@@ -9,6 +9,7 @@
     	class="com.opendev.bolao.action.ParticipanteAction"
     	scope="prototype">
     	<property name="palpiteService" ref="palpiteService" />
+    	<property name="palpiteAuthorizationService" ref="palpiteAuthorizationService" />
     	<property name="participanteService" ref="participanteService" />
     	<property name="jogoService" ref="jogoService" />
     	<property name="equipeService" ref="equipeService" />

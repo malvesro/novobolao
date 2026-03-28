@@ -1,0 +1,102 @@
+<%--
+  Fragmento HTMX: resposta do atualizarPalpitePartial para o redesign "Direct Inline".
+  Retorna o <td id="palpite-cell_N"> completo para hx-swap="outerHTML".
+  Variáveis esperadas do Action: jogoSelecionado, palpiteSelecionado, palpitePermitido,
+    palpiteStatus, palpiteStatusLabel, palpiteAtualizado, palpiteErro, palpiteBloqueioMotivo, _csrf.
+--%>
+<c:set var="matchId" value="${jogoSelecionado.id}" />
+<c:set var="palpiteGols1" value="${palpiteSelecionado != null ? palpiteSelecionado.golsEquipe1 : ''}" />
+<c:set var="palpiteGols2" value="${palpiteSelecionado != null ? palpiteSelecionado.golsEquipe2 : ''}" />
+<c:url var="atualizarUrl" value="/seguro/atualizarPalpitePartial.action" />
+<c:set var="palpiteStatusKey">match.tip.status.${palpiteStatus}</c:set>
+<fmt:message key="${palpiteStatusKey}" var="palpiteStatusLabel" />
+<fmt:message key="match.tip.none" var="palpiteNoneLabel" />
+
+<td class="match-table__palpite-cell" id="palpite-cell_${matchId}">
+
+    <%-- Meta-dados para sincronização via JS (sincMatchRowFromCell) --%>
+    <span class="sr-only"
+          data-palpite-meta="true"
+          data-palpite-status="${palpiteStatus}"
+          data-palpite-allowed="${palpitePermitido}"
+          data-palpite-gols1="${palpiteGols1}"
+          data-palpite-gols2="${palpiteGols2}"
+          data-palpite-status-label="${palpiteStatusLabel}"
+          data-palpite-placeholder="${palpiteNoneLabel}"
+          data-palpite-locked-reason="${palpiteBloqueioMotivo}"
+          aria-hidden="true"></span>
+
+    <c:choose>
+        <%-- Janela ainda aberta: exibir inputs + feedback de resultado --%>
+        <c:when test="${palpitePermitido}">
+
+            <%-- Feedback de sucesso —  "✓ Salvo HH:MM" --%>
+            <c:if test="${palpiteAtualizado}">
+                <jsp:useBean id="agora" class="java.util.Date" />
+                <fmt:formatDate value="${agora}" pattern="HH:mm" var="horaSalvo" />
+                <span class="palpite-cell-feedback palpite-cell-feedback--saved" aria-live="polite">
+                    ✓ Salvo às ${horaSalvo}
+                </span>
+            </c:if>
+
+            <%-- Feedback de erro HTTP (ex.: validação backend) --%>
+            <c:if test="${not palpiteAtualizado and not empty palpiteErro}">
+                <span class="palpite-cell-feedback palpite-cell-feedback--error" aria-live="polite">
+                    ⚠ <c:out value="${palpiteErro}" />
+                </span>
+            </c:if>
+
+            <%-- Inputs re-renderizados (mantém valores digitados em caso de erro) --%>
+            <form class="palpite-inputs"
+                  hx-post="${atualizarUrl}"
+                  hx-target="#palpite-cell_${matchId}"
+                  hx-swap="outerHTML"
+                  aria-label="Palpite para ${jogoSelecionado.equipe1.nomePais} x ${jogoSelecionado.equipe2.nomePais}">
+                <input type="hidden" name="jogoId" value="${matchId}" />
+                <c:if test="${not empty _csrf}">
+                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                </c:if>
+                <input class="palpite-inputs__score"
+                       id="p1_${matchId}"
+                       name="palpiteGolsEquipe1"
+                       type="number" min="0" max="99"
+                       inputmode="numeric"
+                       value="${palpiteGols1}"
+                       aria-label="Gols ${jogoSelecionado.equipe1.nomePais}"
+                       required />
+                <span class="palpite-inputs__sep">x</span>
+                <input class="palpite-inputs__score"
+                       id="p2_${matchId}"
+                       name="palpiteGolsEquipe2"
+                       type="number" min="0" max="99"
+                       inputmode="numeric"
+                       value="${palpiteGols2}"
+                       aria-label="Gols ${jogoSelecionado.equipe2.nomePais}"
+                       required />
+                <button type="submit"
+                        class="btn-palpite-confirm"
+                        data-js="confirmar-palpite"
+                        data-jogo-id="${matchId}"
+                        aria-label="Confirmar palpite">✓</button>
+            </form>
+        </c:when>
+
+        <%-- Janela fechada: exibir placar + badge --%>
+        <c:otherwise>
+            <c:choose>
+                <c:when test="${palpiteSelecionado != null}">
+                    <span class="palpite-saved-score" aria-label="Meu palpite">
+                        <c:out value="${palpiteGols1}" /> x <c:out value="${palpiteGols2}" />
+                    </span>
+                </c:when>
+                <c:otherwise>
+                    <span class="palpite-placeholder">${palpiteNoneLabel}</span>
+                </c:otherwise>
+            </c:choose>
+            <span class="badge badge--${palpiteStatus} badge--cell">${palpiteStatusLabel}</span>
+            <c:if test="${palpiteBloqueioMotivo eq 'timeWindow'}">
+                <span class="palpite-locked-msg" aria-label="Prazo encerrado">🔒 Prazo encerrado</span>
+            </c:if>
+        </c:otherwise>
+    </c:choose>
+</td>

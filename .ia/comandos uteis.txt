@@ -1,8 +1,260 @@
-Leia as diretivas no AGENTS.md, consulte os logs de sessão recentes, o passo-a-passo.md e verifique a tarefa em execução. Retome a Tarefa 14 (“README de Migração Consolidado”).
+Registre o andamento até aqui e um ponto de parada para continuar o trabalho depois. Atualize o passo-a-
+  passo.md, log de sessão, etc com detalhes para que após a leitura do AGENTS.md. log se sessão recente, planos recentes e passo-a-passo.md, o agente prossiga o trabalho naturalmente de onde parou.
+
+Leia as diretivas no AGENTS.md, o passo-a-passo.md, planos recentes, logs de sessão recentes e verifique a tarefa em progresso e prossiga a tarefa em progresso.
+
+
+Atualizei webapp/WEB-INF/content/seguro/jogos.jsp e webapp/WEB-INF/content/seguro/partials/palpite-inline-
+  form.jspf para compor a chave das mensagens via <c:set>, removendo o EL que derrubava /seguro/palpites.action.
+  Rodei npm run build, mvn clean package -Dfrontend.skip=false e repliquei o WAR no Tomcat (docker compose cp …
+  && docker compose restart app). Registrei a sessão em .ia/logs/session-20260227-palpites-inline-validacao.md
+  (incluindo ponto de parada) e documentei o andamento no passo-a-passo.md.
+
+  Situação atual: a página de palpites carrega sem erro, mas os endpoints HTMX (palpiteFormPartial /
+  atualizarPalpitePartial) ainda devolvem text/plain com o JSP bruto, bloqueando a renderização inline. Próximo
+  passo sugerido é revisar a configuração Struts/result para que os fragments sejam processados como HTML antes
+  de refazer a validação manual.
+
+
+
+
+
+ Registros concluídos: tanto o log .ia/logs/session-20260227-palpites-inline-scripts.md quanto o passo-a-
+  passo.md estão atualizados com o ponto de parada e o próximo passo (validação manual do fluxo inline). Pronto
+  para retomar depois.
+
+ Resumo
+
+  - Removi os balões de palpites e introduzi o fluxo inline: webapp/WEB-INF/content/seguro/jogos.jsp agora gera
+    linhas expansíveis match-expand, botões HTMX (“Editar palpite”, “Ver palpites do grupo”) e o painel lateral
+    aside#palpite-panel.
+  - Acrescentei estilos dedicados em webapp/css/estilo.css (badges de status, variações de botão, painel
+    lateral, placeholders) e ajustei o seletor .button para funcionar com elementos <button>.
+  - Ampliei o vocabulário i18n em src/main/resources/messages.properties e src/messages.properties (status,
+  - Documentei o protótipo em .ia/documentacao/prototipo-palpites-inline.md e registrei a execução nas
+    sessões .ia/logs/session-20260227-palpites-prototipo.md e .ia/logs/session-20260227-palpites-markup-
+    refatoracao.md.
+
+  Testes
+
+     lateral e atualizar estados/badges sem import() dinâmico.
+  2. Prosseguir com a subtarefa 4e migrando os scripts inline restantes para módulos type="module" com nonce,
+     preparando a CSP rígida.
+  3. Planejar e executar a validação final (subtarefa 4f): npm run build, pipeline Maven completo, smoke
+
+
+Verifique se o plano, log de sessão e atividades foram ajustadas para as Recomendações (UX + Arquitetura):
+
+  1. Remover o balão flutuante e adotar um padrão inline ou em painel lateral:
+      - Expandir a própria linha (<tr> → <tr> extra com colspan) quando o usuário clicar, carregando o
+        formulário via HTMX (hx-get/hx-target).
+      - Alternativa: painel lateral fixo (slide-over) dentro do #jogos-page-wrapper, acionado por hx-
+        target="#palpite-panel" para manter a hierarquia, com overlay nativo <dialog> ou <aside> sem cálculo de
+        coordenadas.
+  2. Centralizar a experiência no fluxo da tabela:
+      - Botões explícitos “Editar palpite” e “Ver palpites do grupo” com texto e ícone, evitando a dependência
+        de hover.
+      - Indicar estado (palpite registrado / pendente) via badges ou ícones na própria célula, reforçando o
+        feedback visual.
+      - Aproveitar tooltips acessíveis (já temos infraestrutura) apenas para microinformações, não para ações
+        críticas.
+  3. Aproveitar <dialog> nativo quando modal for indispensável:
+      - <dialog> com showModal() elimina a necessidade de script custom para foco/overlay.
+      - O JavaScript passa a ser mínimo (abrir/fechar/fetch via HTMX), reduzindo a superfície afetada por CSP.
+  4. Simplificar os scripts sob a CSP:
+      - Consolidar o código HTMX/CSRF em módulos ES exportados e importados direto na tag com nonce, sem loader
+      - Mover o form helper de cadastro, mensagens de login e outros comportamentos hoje inline para arquivos
+        dedicados em src/frontend/modules/, garantindo que todos os <script> sejam modulares e referenciados via
+        type="module" com nonce.
+  5. Pensar no mobile-first:
+      - Aproveitar componentes já documentados na diretriz frontend (.tips-panel, .dashboard-section) para
+        manter consistência.
+
+  Próximos passos sugeridos
+
+  1. Definir com o time a experiência desejada (expansão inline versus painel lateral) e registrar ADR/estória
+     correspondente.
+  2. Criar plano técnico para:
+      - (a) migrar popup → expansão inline ou <dialog>;
+      - (b) modularizar scripts restantes (sem inline) para facilitar CSP enforcement.
+  3. Ajustar o loader do bundle removendo import() dinâmico: referenciar diretamente type="module" src com nonce
+     e fallback herdado; isso elimina as violações reportadas.
+  4. Solicitado design/UX: validar protótipo em figma ou mock HTML leve antes de codificar, garantindo passagens
+     de teclado, leitores de tela e comportamento em telas pequenas.
+
+
+--------------------
+
+
+ Registro atualizado em .ia/logs/session-20260227-csp-nonce-ajuste.md com os achados atuais, console output e o
+  ponto de parada: menu ainda contém script inline, CSP continua em report-only registrando violação para main-
+  DNF89Gpv.js, e próxima ação será tratar a subtarefa 3b (remover $j/scripts inline) e revisar fragmentos HTMX
+  antes de reforçar a política. 
+
+
+ - .ia/logs/session-20260227-csp-nonce-ajuste.md atualizado com o bloqueio ocorrido (CSP ainda em report-only,
+    scripts inline remanescentes) e o ponto de parada para a próxima sessão.
+  - passo-a-passo.md ajustado na tarefa “Diagnosticar popups de palpite ausentes”: subtarefa 3a continua
+    concluída; subtarefas 3b e 3c marcadas como Em Progresso com detalhes do que falta; criada nova subtarefa
+    3c-1 para mapear scripts inline em fragmentos HTMX; subtarefa 3d permanece pendente aguardando validação
+    após as correções.
+
+
+
+
+
+Acabei de ajustar e republicar:
+    registra no console qual bundle foi importado (Carregando bundle Vite … ou, se necessário, o fallback).
+  - Pipeline completo reaplicado (npm run build → mvn clean package -Dfrontend.skip=false → docker compose build
+    app → docker compose up -d app), validando os assets via curl com a sessão do usuário marcio.rosner.
+
+  Peço que faça um hard refresh (Ctrl+F5) no Edge para limpar o cache e, em seguida, observe o console: deve
+  aparecer pelo menos um Carregando bundle Vite /assets/js/main-… indicando que o módulo foi realmente
+  importado. Caso surjam novas mensagens de erro, me envie a captura (com esse log e eventuais falhas); com isso
+  conseguimos avançar para a próxima rodada de diagnóstico.
+
+
+› O problema permanece, ao clicar na linha do jogo, nem a linha é selecionada, nem o popup de palpite é
+  mostrado. Aprofunde mais a análise e planeje estratégias de correção.
+
+
+
+Ao entrar na tela Palpites e Resultados, na data do primeiro jogo em 11/06/2026, clicando na primeira linha
+  do jogo México x África do Sul, ainda não aparece campos para preencher com valores numéricos para indicar o
+  palpite (quantidade de gols de cada time). Tem alguma regra que impessa dar o palpite com muita
+  antecedência ? Analise cuidadosamente no código da aplicação. Se não houver regra, há um bug que não permite
+  inserir o palpite.
+
+
+ Encontrei o motivo: não havia bloqueio por antecedência (a regra em Jogo#getPodeDarPalpite() só barra quando
+  falta menos de 1 hora), mas sim um erro na checagem de permissão que impedia a construção do balão de
+  palpites.
+
+  - Na refatoração anterior, usei hasAnyRole('ROLE_USER','ROLE_ADMIN')/hasRole('ROLE_ADMIN') em webapp/WEB-INF/
+    content/seguro/jogos.jsp. O Spring Security já prefixa automaticamente “ROLE_”, então essa expressão
+    procurava ROLE_ROLE_USER, deixando podeRegistrarPalpite sempre falso e removendo data-palpite-allowed das
+    linhas.
+  - Ajustei o arquivo para usar hasAnyRole('USER','ADMIN') e hasRole('ADMIN'). Assim, o dataset volta a receber
+    data-palpite-allowed="true" e o popup com os inputs (palpite_gols_eq_1/palpite_gols_eq_2) reaparece ao
+    clicar no jogo México x África do Sul em 11/06/2026.
+
+
+
+Outro bug para analisar e planejamento da correção passo a passo: Na tela de Palpites e Resultados: O usuário logado vê os jogos agendados (11/06/2026, ...) mas não consegue inserir os palpites de resultado para os jogos, creio que na migração de tecnologia os campos para inserir valores numéricos (inteiros positivos a partir do número zero) foi removido, ou há alguma regra específica na aplicação que só permita registrar palpites com uma antecedência pré-definida antes da data dos jogos ?
+
+Crie um plano para correções de bugs na aplicação, crie tarefas e subtarefas passo a passo. São os bugs:
+1) Ao final da tela de cadastro aparece um link para retornar a página inicial que não funciona, o link deve estar errado
+2) Ao cadastrar duas vezes com os mesmos dados, a aplicação, ao invés de informar que já foi feito o cadastro com esses dados, gera o erro a seguir (exemplo):
+
+HTTP Status 500 – Internal Server Error
+Type Exception Report
+
+Message could not execute statement [Duplicate entry 'marcio.rosner' for key 'PAR_PARTICIPANTE.PAR_LOGIN'] [insert into PAR_PARTICIPANTE (PAR_DH_CADASTRO,PAR_EMAIL,PAR_HABILITADO,PAR_IP,PAR_LOGIN,PAR_NOME,PAR_SENHA,PAR_ID) values (?,?,?,?,?,?,?,?)]; SQL [insert into PAR_PARTICIPANTE (PAR_DH_CADASTRO,PAR_EMAIL,PAR_HABILITADO,PAR_IP,PAR_LOGIN,PAR_NOME,PAR_SENHA,PAR_ID) values (?,?,?,?,?,?,?,?)]; constraint [PAR_PARTICIPANTE.PAR_LOGIN]
+
+Description The server encountered an unexpected condition that prevented it from fulfilling the request.
+
+Exception
+
+org.springframework.dao.DataIntegrityViolationException: could not execute statement [Duplicate entry 'marcio.rosner' for key 'PAR_PARTICIPANTE.PAR_LOGIN'] [insert into PAR_PARTICIPANTE (PAR_DH_CADASTRO,PAR_EMAIL,PAR_HABILITADO,PAR_IP,PAR_LOGIN,PAR_NOME,PAR_SENHA,PAR_ID) values (?,?,?,?,?,?,?,?)]; SQL [insert into PAR_PARTICIPANTE (PAR_DH_CADASTRO,PAR_EMAIL,PAR_HABILITADO,PAR_IP,PAR_LOGIN,PAR_NOME,PAR_SENHA,PAR_ID) values (?,?,?,?,?,?,?,?)]; constraint [PAR_PARTICIPANTE.PAR_LOGIN]
+	org.springframework.orm.hibernate5.SessionFactoryUtils.convertHibernateAccessException(SessionFactoryUtils.java:206)
+	org.springframework.orm.hibernate5.HibernateTransactionManager.convertHibernateAccessException(HibernateTransactionManager.java:793)
+	org.springframework.orm.hibernate5.HibernateTransactionManager.doCommit(HibernateTransactionManager.java:659)
+	org.springframework.transaction.support.AbstractPlatformTransactionManager.processCommit(AbstractPlatformTransactionManager.java:795)
+	org.springframework.transaction.support.AbstractPlatformTransactionManager.commit(AbstractPlatformTransactionManager.java:758)
+	org.springframework.transaction.interceptor.TransactionAspectSupport.commitTransactionAfterReturning(TransactionAspectSupport.java:663)
+	org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:413)
+	org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119)
+	org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:223)
+	jdk.proxy3/jdk.proxy3.$Proxy66.criarNovo(Unknown Source)
+	com.opendev.bolao.action.ParticipanteAction.cadastrar(ParticipanteAction.java:344)
+	java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	ognl.OgnlRuntime.invokeMethodInsideSandbox(OgnlRuntime.java:1245)
+	ognl.OgnlRuntime.invokeMethod(OgnlRuntime.java:1230)
+	ognl.OgnlRuntime.callAppropriateMethod(OgnlRuntime.java:1958)
+	ognl.ObjectMethodAccessor.callMethod(ObjectMethodAccessor.java:68)
+	org.apache.struts2.ognl.accessor.XWorkMethodAccessor.callMethodWithDebugInfo(XWorkMethodAccessor.java:101)
+	org.apache.struts2.ognl.accessor.XWorkMethodAccessor.callMethod(XWorkMethodAccessor.java:93)
+	ognl.OgnlRuntime.callMethod(OgnlRuntime.java:2034)
+	ognl.ASTMethod.getValueBody(ASTMethod.java:97)
+	ognl.SimpleNode.evaluateGetValueBody(SimpleNode.java:212)
+	ognl.SimpleNode.getValue(SimpleNode.java:258)
+	ognl.Ognl.getValue(Ognl.java:586)
+
+Leia as diretivas no AGENTS.md, consulte os logs de sessão recentes, o passo-a-passo.md, planos recentes e verifique a tarefa em execução. Verifique também os arquivos alterados (sem commit). Prossiga a tarefa em progresso.
+
+
+Agora vamos retornar ao problema da tela de gerenciar participantes que continua com erro:Ao selecionar o autorizado para Não no combo para usuário user, a tela de gerenciar participantes é atualizado, mas não mostra mais na tela os dados dos participantes, só aparece o cabeçalho da tabela. Pesquise e pense profundamente em caminhos e estratégias para correções.
+
+Investigue, pesquise boas práticas frontend para essa integração struts htmx e proponha uma correção.
+
+Retome a partir do ponto de parada:
+
+ - Log: .ia/logs/session-20260224-autorizacao-dropdown-analise.md agora inclui o diagnóstico completo, as boas
+    práticas HTMX + Struts e a proposta de solução com próximos passos.
+  - Plano mestre: a tarefa 23 em passo-a-passo.md já está marcada como [Em Progresso]; permanece nessa condição
+    aguardando execução dos passos listados.
+  - Plano dedicado: .ia/planos/plano-correcao-autorizacao-participantes.md continua sendo a referência para
+    retomar a correção.
+
+  Sobre o resultado atual:
+
+  - O arquivo telas/view-source_https___localhost_8443_admin_participantes.action.html mostra que a resposta
+    HTMX ainda devolveu o HTML completo (incluindo <html>), portanto as linhas da tabela continuam sumindo após
+    o swap.
+  - O rebuild e a publicação mais recente já foram feitos (mvn clean package -Dfrontend.skip=false, docker
+    compose build app, docker compose up -d app), mas a anomalia persiste até aplicar a abordagem descrita no
+    log.
+
+  Próximo passo é implementar o endpoint fragmentado (Struts + HTMX) conforme documentado e repetir o ciclo de
+  build/publicação antes de novo smoke.
+
+
+ Achados principais
+
+  - A captura (telas/tela-gerenciar-participantes.html) mostra as diretivas <%@taglib ...%> e blocos <c:forEach>
+    escapados dentro do portlet, confirmando que o fragmento participantes-rows.jspf ainda é incluído já com
+    diretivas quando o menu é carregado antes das taglibs.
+  - Como o include é estático, essas diretivas chegam depois de conteúdo HTML e o contêiner JSP as trata como
+    texto literal, quebrando também os fragmentos HTMX.
+
+  Plano de verificação e correção
+
+  1. Higienizar webapp/WEB-INF/content/admin/partials/participantes-rows.jspf, removendo as diretivas
+     <%@taglib ...%> e deixando apenas o corpo das linhas; garantir que os hosts (admin/participantes.jsp e
+     admin/partials/participantes-table.jsp) declarem c/fmt antes do include.
+  2. Validar o fluxo completo: acesso via menu, ações HTMX (atualizarPapelParticipante,
+     atualizarStatusParticipante, remoção) e renderização pós-deploy, registrando novas evidências se
+     necessário.
+  3. Reexecutar o pipeline (mvn clean package -Dfrontend.skip=false, docker compose build app, docker compose up
+     -d app) após aplicar a correção.
+
+  Rastreabilidade atualizada
+
+  - passo-a-passo.md:21 agora inclui as subtarefas pendentes para higienizar o .jspf e validar a tela pós-
+    deploy.
+  - .ia/logs/session-20260224-participantes-taglibs.md atualizado com os novos achados, referência às evidências
+    (telas/Erro-tela-gerenciar-participantes.png, telas/tela-gerenciar-participantes.html) e próximos passos.
+
+
+
+
+Em seguida, tratar a Tarefa 18 reforçando a sanitização dos campos de cadastro.
+
+
+Retome a Tarefa 14 (“README de Migração Consolidado”).
 
 Veja os arquivos modificados também. O container foi reconstruído com ajustes para continuar os testes.
 
+Executar a Tarefa 17 implementando a nova regra de senhas (backend + mensagens, testes). Em seguida, tratar a Tarefa 18 reforçando a sanitização dos campos de cadastro.
 
+Iniciar Tarefa 17: ajustar validações de senha, atualizar mensagens e validar autenticação/cadastro com
+     caracteres especiais.
+  2. Em seguida executar Tarefa 18: aplicar sanitização em login/nome/e-mail e testar fluxos de cadastro para
+     garantir defesa contra HTML/SQL.
 
 
 Leia as diretivas no AGENTS.md, consulte os logs de sessão recentes, o passo-a-passo.md e verifique a tarefa em execução. Veja os arquivos modificados também. 
