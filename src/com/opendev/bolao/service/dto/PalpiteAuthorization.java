@@ -24,6 +24,7 @@ public final class PalpiteAuthorization {
         NONE(null),
         TIME_WINDOW("timeWindow"),
         ROLE_MISSING("roleMissing"),
+        ADMIN_RESTRICTED("adminRestricted"),
         UNKNOWN("unknown");
 
         private final String key;

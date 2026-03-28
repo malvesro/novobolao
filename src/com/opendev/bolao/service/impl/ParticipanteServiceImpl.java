@@ -43,7 +43,16 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 	private PasswordEncoder passwordEncoder;
 
 	public synchronized List buscarClassificacao() {
-		List participantes = new ArrayList(getParticipanteDao().buscarTodosDoBolaoGeral());
+		List participantesAll = new ArrayList(getParticipanteDao().buscarTodosDoBolaoGeral());
+		List participantes = new ArrayList();
+		
+		for (Object p : participantesAll) {
+			Participante part = (Participante) p;
+			if (!part.isAdministrador()) {
+				participantes.add(part);
+			}
+		}
+
 		Participante participante = null;
 			long totalDeJogos = getJogoDao().buscarQuantidadeDeJogosOcorridos();
 			int qtdeDeJogos = Math.toIntExact(totalDeJogos);
