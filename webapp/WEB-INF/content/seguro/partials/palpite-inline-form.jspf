@@ -1,0 +1,139 @@
+<c:choose>
+    <c:when test="${empty jogoSelecionado}">
+        <div class="palpite-inline">
+            <p class="palpite-inline__feedback palpite-inline__feedback--error">
+                <fmt:message key="match.tip.error.unavailable" />
+            </p>
+            <button type="button"
+                    class="button button-ghost"
+                    data-js="cancelar-palpite-inline">
+                <fmt:message key="general.close" />
+            </button>
+        </div>
+    </c:when>
+    <c:otherwise>
+        <c:set var="matchId" value="${jogoSelecionado.id}" />
+        <c:set var="formAction"><c:url value="/seguro/atualizarPalpitePartial.action" /></c:set>
+        <c:set var="hxTarget">match-expand_${matchId}</c:set>
+        <c:set var="palpiteGols1" value="${palpiteSelecionado != null ? palpiteSelecionado.golsEquipe1 : ''}" />
+        <c:set var="palpiteGols2" value="${palpiteSelecionado != null ? palpiteSelecionado.golsEquipe2 : ''}" />
+        <c:set var="palpiteStatusKey">match.tip.status.${palpiteStatus}</c:set>
+        <fmt:message key="${palpiteStatusKey}" var="palpiteStatusLabel" />
+        <fmt:message key="match.tip.none" var="palpiteNoneLabel" />
+        <div class="palpite-inline">
+            <div class="palpite-inline__meta"
+                 data-palpite-meta="true"
+                 data-palpite-status="${palpiteStatus}"
+                 data-palpite-allowed="${palpitePermitido}"
+                 data-palpite-gols1="${palpiteGols1}"
+                 data-palpite-gols2="${palpiteGols2}"
+                 data-palpite-status-label="${palpiteStatusLabel}"
+                 data-palpite-placeholder="${palpiteNoneLabel}"
+                 data-palpite-locked-reason="${palpiteBloqueioMotivo}">
+            </div>
+            <c:if test="${palpiteAtualizado}">
+                <p class="palpite-inline__feedback palpite-inline__feedback--success">
+                    <fmt:message key="match.tip.status.ok" />
+                </p>
+            </c:if>
+            <c:if test="${not palpiteAtualizado and not empty palpiteErro}">
+                <p class="palpite-inline__feedback palpite-inline__feedback--error">
+                    <fmt:message key="match.tip.status.error" />
+                    <span class="palpite-inline__summary">
+                        <c:out value="${palpiteErro}" />
+                    </span>
+                </p>
+            </c:if>
+            <c:choose>
+                <c:when test="${palpitePermitido}">
+                    <form class="palpite-inline__form"
+                          hx-post="${formAction}"
+                          hx-target="#${hxTarget}"
+                          hx-swap="outerHTML">
+                        <input type="hidden" name="jogoId" value="${matchId}" />
+                        <c:if test="${not empty _csrf}">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                        </c:if>
+                        <div class="palpite-grid">
+                            <div class="team-score">
+                                <label for="palpite-equipe1-${matchId}">
+                                    <c:out value="${jogoSelecionado.equipe1.nomePais}" />
+                                </label>
+                                <input id="palpite-equipe1-${matchId}"
+                                       name="palpiteGolsEquipe1"
+                                       type="number"
+                                       min="0"
+                                       inputmode="numeric"
+                                       value="${palpiteGols1}"
+                                       required />
+                            </div>
+                            <div class="team-score">
+                                <label for="palpite-equipe2-${matchId}">
+                                    <c:out value="${jogoSelecionado.equipe2.nomePais}" />
+                                </label>
+                                <input id="palpite-equipe2-${matchId}"
+                                       name="palpiteGolsEquipe2"
+                                       type="number"
+                                       min="0"
+                                       inputmode="numeric"
+                                       value="${palpiteGols2}"
+                                       required />
+                            </div>
+                        </div>
+                        <div class="palpite-inline__actions">
+                            <button type="submit" class="button button-inline">
+                                <fmt:message key="match.tip.confirm" />
+                            </button>
+                            <button type="button"
+                                    class="button button-ghost"
+                                    data-js="cancelar-palpite-inline">
+                                <fmt:message key="general.cancel" />
+                            </button>
+                        </div>
+                    </form>
+                </c:when>
+                <c:otherwise>
+                    <c:set var="lockedMessageKey" value="match.tip.locked" />
+                    <c:choose>
+                        <c:when test="${palpiteBloqueioMotivo eq 'roleMissing'}">
+                            <c:set var="lockedMessageKey" value="match.tip.locked.roleMissing" />
+                        </c:when>
+                        <c:when test="${palpiteBloqueioMotivo eq 'timeWindow'}">
+                            <c:set var="lockedMessageKey" value="match.tip.locked.timeWindow" />
+                        </c:when>
+                        <c:when test="${palpiteBloqueioMotivo eq 'unknown'}">
+                            <c:set var="lockedMessageKey" value="match.tip.locked.generic" />
+                        </c:when>
+                    </c:choose>
+                    <div class="palpite-inline__message">
+                        <c:choose>
+                            <c:when test="${palpiteStatus eq 'registered'}">
+                                <p>
+                                    <fmt:message key="match.tip.readonly" />
+                                </p>
+                            </c:when>
+                            <c:otherwise>
+                                <p>
+                                    <fmt:message key="${lockedMessageKey}" />
+                                </p>
+                            </c:otherwise>
+                        </c:choose>
+                        <c:if test="${palpiteSelecionado != null}">
+                            <p class="palpite-inline__summary">
+                                <fmt:message key="match.tip.mine" />:
+                                <strong>
+                                    <c:out value="${palpiteSelecionado.golsEquipe1}" /> x <c:out value="${palpiteSelecionado.golsEquipe2}" />
+                                </strong>
+                            </p>
+                        </c:if>
+                        <button type="button"
+                                class="button button-ghost"
+                                data-js="cancelar-palpite-inline">
+                            <fmt:message key="general.close" />
+                        </button>
+                    </div>
+                </c:otherwise>
+            </c:choose>
+        </div>
+    </c:otherwise>
+</c:choose>

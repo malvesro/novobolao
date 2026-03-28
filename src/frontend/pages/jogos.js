@@ -6,7 +6,33 @@ const state = {
   lastPanelTrigger: null,
   meusPalpitesLoaded: false,
   initialized: false,
+  autoSaveTimers: {},
 };
+
+const FILTER_STORAGE_KEY = 'bolao:filtro:collapsed';
+
+function initFiltroColapsavel() {
+  const portlet = document.querySelector('.match-filter-portlet');
+  if (!portlet) return;
+  // Em mobile (<768px) mantém aberto por padrão
+  if (window.innerWidth < 768) return;
+
+  const isCollapsed = sessionStorage.getItem(FILTER_STORAGE_KEY) !== 'false';
+  const content = portlet.querySelector('.collapsible-portlet__content');
+  const toggle = portlet.querySelector('[data-js="collapse-container"]');
+
+  if (isCollapsed && content) {
+    portlet.classList.add('filter-collapsed');
+    if (toggle) toggle.src = toggle.src.replace('arrow_down', 'arrow_right');
+  }
+
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      const collapsed = portlet.classList.toggle('filter-collapsed');
+      sessionStorage.setItem(FILTER_STORAGE_KEY, collapsed ? 'true' : 'false');
+    });
+  }
+}
 
 function debugInfo(message, detail) {
   if (!window.console || !console.info) {
@@ -71,44 +97,19 @@ function atualizarResultado(input) {
   });
 }
 
-function carregarMeusPalpites(force = false) {
-  if (!window.htmx) {
-    debugWarn('HTMX não disponível para carregar palpites.');
-    return;
+function carregarMeusPalpites() {
+  if (window.htmx) {
+    debugInfo('Recarregando Meus Palpites via HTMX em background.');
+    window.htmx.ajax('GET', `${getBaseUrl()}/seguro/meusPalpitesPartial.action`, {
+      target: '#todos_palpites_table',
+      swap: 'innerHTML'
+    });
   }
-  if (!force && state.meusPalpitesLoaded) {
-    return;
-  }
-  debugInfo('Carregando meus palpites.', { force });
-  const request = window.htmx.ajax('GET', `${getBaseUrl()}/seguro/meusPalpitesPartial.action`, {
-    target: '#todos_palpites_table',
-    swap: 'innerHTML',
-  });
-  request.addEventListener('loadend', () => {
-    state.meusPalpitesLoaded = request.status >= 200 && request.status < 300;
-  });
-}
-
-function mostrarMeusPalpites() {
-  const painel = document.getElementById('todos_palpites_div');
-  if (!painel) {
-    return;
-  }
-  painel.classList.add('tips-panel--visible');
-  carregarMeusPalpites(false);
-}
-
-function fecharMeusPalpites() {
-  const painel = document.getElementById('todos_palpites_div');
-  if (!painel) {
-    return;
-  }
-  painel.classList.remove('tips-panel--visible');
 }
 
 function isMeusPalpitesOpen() {
-  const painel = document.getElementById('todos_palpites_div');
-  return painel ? painel.classList.contains('tips-panel--visible') : false;
+  const details = document.querySelector('details[hx-target="#todos_palpites_table"]');
+  return details ? details.open : false;
 }
 
 function storeInlineInitialState() {
@@ -215,30 +216,36 @@ function syncMatchRowFromExpand(expandRow) {
     palpitePlaceholder,
     palpiteLockedReason,
   } = meta.dataset;
-  if (palpiteStatus !== undefined) {
-    matchRow.dataset.palpiteStatus = palpiteStatus;
-  }
-  if (palpiteAllowed !== undefined) {
-    matchRow.dataset.palpiteAllowed = palpiteAllowed;
-  }
-  if (palpiteGols1 !== undefined) {
-    matchRow.dataset.palpiteGols1 = palpiteGols1;
-  }
-  if (palpiteGols2 !== undefined) {
-    matchRow.dataset.palpiteGols2 = palpiteGols2;
-  }
-  if (palpiteStatusLabel !== undefined) {
-    matchRow.dataset.palpiteStatusLabel = palpiteStatusLabel;
-  }
-  if (palpitePlaceholder !== undefined) {
-    matchRow.dataset.palpitePlaceholder = palpitePlaceholder;
-  }
+  if (palpiteStatus !== undefined) { matchRow.dataset.palpiteStatus = palpiteStatus; }
+  if (palpiteAllowed !== undefined) { matchRow.dataset.palpiteAllowed = palpiteAllowed; }
+  if (palpiteGols1 !== undefined) { matchRow.dataset.palpiteGols1 = palpiteGols1; }
+  if (palpiteGols2 !== undefined) { matchRow.dataset.palpiteGols2 = palpiteGols2; }
+  if (palpiteStatusLabel !== undefined) { matchRow.dataset.palpiteStatusLabel = palpiteStatusLabel; }
+  if (palpitePlaceholder !== undefined) { matchRow.dataset.palpitePlaceholder = palpitePlaceholder; }
   if (palpiteLockedReason !== undefined) {
     matchRow.dataset.palpiteLockedReason = palpiteLockedReason;
   } else {
     delete matchRow.dataset.palpiteLockedReason;
   }
   updateMatchRowUI(matchRow);
+}
+
+// Sincroniza data-attributes da linha pai a partir de um meta-elemento dentro da célula direta
+function syncMatchRowFromCell(matchRow, meta) {
+  if (!matchRow || !meta) { return; }
+  const { palpiteStatus, palpiteAllowed, palpiteGols1, palpiteGols2,
+          palpiteStatusLabel, palpitePlaceholder, palpiteLockedReason } = meta.dataset;
+  if (palpiteStatus !== undefined) { matchRow.dataset.palpiteStatus = palpiteStatus; }
+  if (palpiteAllowed !== undefined) { matchRow.dataset.palpiteAllowed = palpiteAllowed; }
+  if (palpiteGols1 !== undefined) { matchRow.dataset.palpiteGols1 = palpiteGols1; }
+  if (palpiteGols2 !== undefined) { matchRow.dataset.palpiteGols2 = palpiteGols2; }
+  if (palpiteStatusLabel !== undefined) { matchRow.dataset.palpiteStatusLabel = palpiteStatusLabel; }
+  if (palpitePlaceholder !== undefined) { matchRow.dataset.palpitePlaceholder = palpitePlaceholder; }
+  if (palpiteLockedReason !== undefined) {
+    matchRow.dataset.palpiteLockedReason = palpiteLockedReason;
+  } else {
+    delete matchRow.dataset.palpiteLockedReason;
+  }
 }
 
 function openInlineRow(trigger) {
@@ -282,17 +289,19 @@ function closeInlineRow(matchId, options = {}) {
   const { returnFocus = true, resetContent = true } = options;
   const matchRow = document.querySelector(`.match-row[data-jogo-id="${matchId}"]`);
   const expandRow = document.getElementById(`match-expand_${matchId}`);
-  if (!matchRow || !expandRow) {
-    return;
+  
+  if (expandRow) {
+    if (resetContent) {
+      restoreInlinePlaceholder(expandRow);
+    }
+    expandRow.hidden = true;
+  }
+  
+  if (matchRow) {
+    matchRow.classList.remove('match-row--expanded');
   }
 
-  expandRow.hidden = true;
-  if (resetContent) {
-    restoreInlinePlaceholder(expandRow);
-  }
-  matchRow.classList.remove('match-row--expanded');
-
-  const trigger = matchRow.querySelector('[data-js="abrir-palpite-inline"]');
+  const trigger = document.querySelector(`[data-js="abrir-palpite-inline"][data-jogo-id="${matchId}"]`);
   if (trigger) {
     trigger.setAttribute('aria-expanded', 'false');
     trigger.dataset.inlineOpen = 'false';
@@ -303,48 +312,22 @@ function closeInlineRow(matchId, options = {}) {
 
   if (state.expandedMatchId === matchId) {
     state.expandedMatchId = null;
-  }
-  if (returnFocus) {
-    state.lastInlineTrigger = trigger || null;
+    state.lastInlineTrigger = null;
   }
 }
 
-function isPanelOpen() {
-  const panel = document.getElementById('palpite-panel');
-  return panel ? !panel.hasAttribute('hidden') : false;
+function showCellFeedback(jogoId, msg, modifier) {
+  const el = document.getElementById(`palpite-feedback_${jogoId}`);
+  if (!el) return;
+  el.textContent = msg;
+  el.className = `palpite-cell-feedback${modifier ? ` palpite-cell-feedback--${modifier}` : ''}`;
 }
 
-function openPanel(trigger) {
-  const panel = document.getElementById('palpite-panel');
-  const backdrop = document.getElementById('palpite-panel-backdrop');
-  if (!panel || !backdrop) {
-    debugWarn('Painel de palpites não encontrado.');
-    return;
-  }
-  panel.removeAttribute('hidden');
-  panel.setAttribute('aria-hidden', 'false');
-  backdrop.removeAttribute('hidden');
-  backdrop.setAttribute('aria-hidden', 'false');
-  document.documentElement.classList.add('dialog-open');
-  state.lastPanelTrigger = trigger;
-}
-
-function closePanel(options = {}) {
-  const { returnFocus = true } = options;
-  const panel = document.getElementById('palpite-panel');
-  const backdrop = document.getElementById('palpite-panel-backdrop');
-  if (!panel || !backdrop) {
-    return;
-  }
-  panel.setAttribute('hidden', 'hidden');
-  panel.setAttribute('aria-hidden', 'true');
-  backdrop.setAttribute('hidden', 'hidden');
-  backdrop.setAttribute('aria-hidden', 'true');
-  document.documentElement.classList.remove('dialog-open');
-  if (returnFocus && state.lastPanelTrigger) {
-    state.lastPanelTrigger.focus();
-  }
-  state.lastPanelTrigger = null;
+function clearCellFeedback(jogoId) {
+  const el = document.getElementById(`palpite-feedback_${jogoId}`);
+  if (!el) return;
+  el.textContent = '';
+  el.className = 'palpite-cell-feedback';
 }
 
 function handleBeforeRequest(event) {
@@ -356,6 +339,16 @@ function handleBeforeRequest(event) {
     return;
   }
 
+  // Botão ✓ (confirmar palpite)
+  if (trigger.matches('[data-js="confirmar-palpite"]')) {
+    const jogoId = trigger.dataset.jogoId;
+    trigger.disabled = true;
+    trigger.setAttribute('aria-busy', 'true');
+    showCellFeedback(jogoId, 'Salvando…', 'saving');
+    return;
+  }
+
+  // Botão legado (abrir-palpite-inline)
   if (trigger.matches('[data-js="abrir-palpite-inline"]')) {
     if (!trigger.disabled) {
       trigger.dataset.wasDisabled = 'false';
@@ -365,15 +358,6 @@ function handleBeforeRequest(event) {
       trigger.dataset.wasDisabled = 'true';
     }
     openInlineRow(trigger);
-  } else if (trigger.matches('[data-js="abrir-palpite-panel"]')) {
-    if (!trigger.disabled) {
-      trigger.dataset.wasDisabled = 'false';
-      trigger.disabled = true;
-      trigger.setAttribute('aria-busy', 'true');
-    } else {
-      trigger.dataset.wasDisabled = 'true';
-    }
-    openPanel(trigger);
   }
 }
 
@@ -393,6 +377,23 @@ function handleAfterSwap(event) {
     return;
   }
 
+  // Novo padrão: célula de palpite direto (#palpite-cell_N — outerHTML swap)
+  if (target.id && target.id.startsWith('palpite-cell_')) {
+    const jogoId = target.id.replace('palpite-cell_', '');
+    const matchRow = findMatchRow(jogoId);
+    const meta = target.querySelector('[data-palpite-meta="true"]');
+    if (meta && matchRow) {
+      syncMatchRowFromCell(matchRow, meta);
+    }
+    // Se salvou com sucesso, recarregar "meus palpites" se painel estiver aberto
+    if (target.querySelector('.palpite-cell-feedback--saved')) {
+      debugInfo('Palpite salvo (direct-inline).', { jogoId });
+    }
+    // Não forçamos focus na nova célula para não roubar o foco do usuário durante um auto-save em background
+    return;
+  }
+
+  // Padrão legado: linha de expansão (.match-expand)
   if (target.classList.contains('match-expand')) {
     target.hidden = false;
     const parentId = target.dataset.parent;
@@ -401,15 +402,9 @@ function handleAfterSwap(event) {
       syncMatchRowFromExpand(target);
     }
     if (target.querySelector('.palpite-inline__feedback--success')) {
-      if (isMeusPalpitesOpen()) {
-        carregarMeusPalpites(true);
-      }
       debugInfo('Palpite salvo; painel "meus palpites" atualizado.');
     }
-    focusFirstInteractive(target);
-  } else if (target.id === 'palpite-panel') {
-    target.removeAttribute('hidden');
-    target.setAttribute('aria-hidden', 'false');
+    // Focar o primeiro input para manter flow de digitação
     focusFirstInteractive(target);
   }
 }
@@ -422,6 +417,20 @@ function handleAfterRequest(event) {
   if (!trigger) {
     return;
   }
+
+  // Botão ✓ — restaurar após request (sucesso ou falha)
+  if (trigger.matches('[data-js="confirmar-palpite"]')) {
+    trigger.disabled = false;
+    trigger.removeAttribute('aria-busy');
+    if (!event.detail.successful) {
+      const jogoId = trigger.dataset.jogoId;
+      showCellFeedback(jogoId, '⚠ Erro ao salvar. Tente novamente.', 'error');
+      debugWarn('Falha ao salvar palpite (rede).', { jogoId });
+    }
+    return;
+  }
+
+  // Botões legados (abrir-palpite-inline)
   if (trigger.dataset && trigger.dataset.wasDisabled === 'false') {
     trigger.disabled = false;
     trigger.removeAttribute('aria-busy');
@@ -446,26 +455,15 @@ function handleGlobalClick(event) {
     return;
   }
 
-  const closePanelButton = event.target.closest('[data-js="fechar-palpite-panel"]');
-  if (closePanelButton) {
-    event.preventDefault();
-    closePanel();
-    return;
-  }
-
-  if (event.target.id === 'palpite-panel-backdrop') {
-    event.preventDefault();
-    closePanel();
+  if (event.target.closest('[data-js="fechar-palpite-inline"]')) {
+    if (state.expandedMatchId) {
+      closeInlineRow(state.expandedMatchId);
+    }
   }
 }
 
 function handleDocumentKeydown(event) {
   if (event.key !== 'Escape') {
-    return;
-  }
-  if (isPanelOpen()) {
-    event.preventDefault();
-    closePanel();
     return;
   }
   if (state.expandedMatchId) {
@@ -483,24 +481,6 @@ function initCollapsePortlets() {
   });
 }
 
-function initMeusPalpites() {
-  const mostrarLink = document.getElementById('mostrarMeusPalpitesLink');
-  if (mostrarLink) {
-    mostrarLink.addEventListener('click', (event) => {
-      event.preventDefault();
-      mostrarMeusPalpites();
-    });
-  }
-  const fecharButton = document.querySelector('[data-js="fechar-meus-palpites"]');
-  if (fecharButton) {
-    fecharButton.addEventListener('click', () => fecharMeusPalpites());
-  }
-  const recarregarButton = document.querySelector('[data-js="recarregar-meus-palpites"]');
-  if (recarregarButton) {
-    recarregarButton.addEventListener('click', () => carregarMeusPalpites(true));
-  }
-}
-
 function initResultadosAdmin() {
   document.body.addEventListener('change', (event) => {
     const input = event.target;
@@ -513,12 +493,64 @@ function initResultadosAdmin() {
   });
 }
 
+function handleAutoSaveInput(event) {
+  if (!state.initialized) {
+    return;
+  }
+  const target = event.target;
+  if (!target.classList.contains('palpite-inputs__score')) {
+    return;
+  }
+  
+  const form = target.closest('form.palpite-inputs');
+  if (!form) {
+    return;
+  }
+  
+  const jogoIdInput = form.querySelector('input[name="jogoId"]');
+  const jogoId = jogoIdInput ? jogoIdInput.value : null;
+  if (!jogoId) {
+    return;
+  }
+
+  if (state.autoSaveTimers[jogoId]) {
+    clearTimeout(state.autoSaveTimers[jogoId]);
+  }
+
+  state.autoSaveTimers[jogoId] = setTimeout(() => {
+    delete state.autoSaveTimers[jogoId];
+    if (form.checkValidity() && document.body.contains(form)) {
+      const btn = form.querySelector('.btn-palpite-confirm');
+      // Submete via HTMX se o botão não estiver bloqueado (request já em andamento)
+      // e os valores do input não estiverem vazios
+      if (btn && !btn.disabled) {
+        debugInfo('Auto-save acionado após debounce.', { jogoId });
+        if (window.htmx) {
+          htmx.trigger(form, 'submit');
+        }
+      }
+    }
+  }, 800);
+}
+
 function initPalpiteInline() {
   storeInlineInitialState();
   document.body.addEventListener('htmx:beforeRequest', handleBeforeRequest);
   document.body.addEventListener('htmx:afterSwap', handleAfterSwap);
   document.body.addEventListener('htmx:afterRequest', handleAfterRequest);
+  document.body.addEventListener('htmx:responseError', (event) => {
+    const xhr = event.detail.xhr;
+    const target = event.detail.target;
+    const matchId = target.id.replace('palpite-cell_', '');
+    const feedback = document.getElementById(`palpite-feedback_${matchId}`);
+    if (feedback) {
+      feedback.className = 'palpite-cell-feedback palpite-cell-feedback--error';
+      feedback.textContent = `Erro (${xhr.status}): Falha ao salvar palpite.`;
+    }
+  });
   document.body.addEventListener('click', handleGlobalClick);
+  document.body.addEventListener('input', handleAutoSaveInput);
+  document.addEventListener('keydown', handleDocumentKeydown);
 }
 
 function initGlobalKeyListener() {
@@ -541,8 +573,8 @@ export function initJogosPage() {
   window.__bolaoJogosDebug.moduleLoadedAt = new Date().toISOString();
 
   initCollapsePortlets();
+  initFiltroColapsavel();
   initPalpiteInline();
-  initMeusPalpites();
   initResultadosAdmin();
   initGlobalKeyListener();
 

@@ -36,6 +36,7 @@
         <security:intercept-url pattern="/seguro/**" access="hasAnyRole('ADMIN', 'USER')" />
         
         <!-- Public Resources -->
+        <security:intercept-url pattern="/assets/**" access="permitAll" />
         <security:intercept-url pattern="/css/**" access="permitAll" />
         <security:intercept-url pattern="/js/**" access="permitAll" />
         <security:intercept-url pattern="/img/**" access="permitAll" />
@@ -75,10 +76,11 @@
         <!-- Security Headers -->
         <security:headers>
             <security:hsts include-subdomains="true" max-age-seconds="31536000" />
-            <security:content-security-policy policy-directives="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; form-action 'self'; frame-ancestors 'self'; base-uri 'self'" />
             <security:referrer-policy policy="strict-origin-when-cross-origin" />
             <security:frame-options policy="SAMEORIGIN" />
         </security:headers>
+
+        <security:custom-filter after="HEADERS_FILTER" ref="cspNonceFilter" />
 
     </security:http>
 
@@ -113,5 +115,7 @@
         <property name="cookieHttpOnly" value="false" />
         <property name="cookiePath" value="/" />
     </bean>
+
+    <bean id="cspNonceFilter" class="com.opendev.bolao.security.CspNonceFilter" />
 
 </beans>

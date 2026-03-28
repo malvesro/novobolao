@@ -12,6 +12,8 @@ public interface JogoService {
 	public List buscarTodos();
 
 	public void atualizarResultado(Long idJogo, Integer golsEquipe1, Integer golsEquipe2);
+
+    public Jogo buscarPorId(Long id);
     
     public void avisarSobreProximoJogo();
     

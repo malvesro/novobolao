@@ -129,7 +129,10 @@ public class ParticipanteAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
-public String prepararInfoPalpites() {
+	public String prepararInfoPalpites() {
+        if (this.login == null) {
+            this.login = RequestUtils.getLoginParticipanteAutenticado();
+        }
         FiltroBuscaJogos filtro = obterFiltro();
         if (filtro == null) {
             setJogos(getJogoService().buscarTodos());
@@ -143,10 +146,18 @@ public String prepararInfoPalpites() {
         return SUCCESS;
     }
 
-    private void prepararMapaPalpitesUsuario() {        if (login == null) {
+    private void prepararMapaPalpitesUsuario() {
+        String loginLocal = this.login;
+        if (loginLocal == null) {
+            loginLocal = RequestUtils.getLoginParticipanteAutenticado();
+        }
+        
+        if (loginLocal == null) {
+            LOGGER.warn("prepararMapaPalpitesUsuario: login nao identificado, mapa ficara vazio.");
             return;
         }
-        List palpitesDoUsuario = getPalpiteService().buscarPalpitesDoParticipante(login);
+
+        List palpitesDoUsuario = getPalpiteService().buscarPalpitesDoParticipante(loginLocal);
         if (palpitesDoUsuario == null) {
             return;
         }
@@ -346,33 +357,22 @@ public String prepararInfoPalpites() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         HttpServletRequest request = RequestUtils.getRequest();
         String ip = RequestUtils.getIpDaRequisicao();
-        this.palpiteErro = null;
-        registrarCabecalhosHtmx(request, LOG_PREFIX_UPDATE);
+        StringBuilder paramLog = new StringBuilder();
+        paramLog.append(" [PARAMS] jogoId=").append(this.jogoId);
+        paramLog.append(", gols1=").append(this.palpiteGolsEquipe1);
+        paramLog.append(", gols2=").append(this.palpiteGolsEquipe2);
+        
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("{} inicio login={}, jogoId={}, gols1={}, gols2={}, ip={}, autenticado={}",
-                    LOG_PREFIX_UPDATE,
-                    login,
-                    this.jogoId,
-                    this.palpiteGolsEquipe1,
-                    this.palpiteGolsEquipe2,
-                    ip,
-                    authentication != null && authentication.isAuthenticated());
+            LOGGER.info("{} inicio login={}{}", LOG_PREFIX_UPDATE, login, paramLog);
         }
-        LOGGER.debug("atualizarPalpiteHtmx: login={}, jogoId={}, gols1={}, gols2={}, authClass={}, principal={}, sessionId={}",
-                login,
-                this.jogoId,
-                this.palpiteGolsEquipe1,
-                this.palpiteGolsEquipe2,
-                authentication == null ? "null" : authentication.getClass().getName(),
-                authentication == null ? "null" : authentication.getPrincipal(),
-                request == null ? "null" : request.getRequestedSessionId());
+        
         if (request != null && request.getCookies() != null) {
             StringBuilder cookiesBuilder = new StringBuilder();
             for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
                 if (cookiesBuilder.length() > 0) {
                     cookiesBuilder.append("; ");
                 }
-                cookiesBuilder.append(cookie.getName()).append('=') .append(cookie.getValue());
+                cookiesBuilder.append(cookie.getName()).append('=').append(cookie.getValue());
             }
             LOGGER.debug("atualizarPalpiteHtmx: cookies={}", cookiesBuilder);
         }
@@ -450,7 +450,10 @@ public String prepararInfoPalpites() {
         this.jogoSelecionado = jogo;
 
         String login = RequestUtils.getLoginParticipanteAutenticado();
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();        registrarCabecalhosHtmx(request, LOG_PREFIX_PREPARE);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        HttpServletRequest request = RequestUtils.getRequest();
+        
+        registrarCabecalhosHtmx(request, LOG_PREFIX_PREPARE);
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("{} jogoId={} data={} hora={} podeDarPalpite={}",
                     LOG_PREFIX_PREPARE,
