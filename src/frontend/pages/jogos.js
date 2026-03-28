@@ -444,7 +444,10 @@ function handleAfterRequest(event) {
 }
 
 function handleGlobalClick(event) {
-  const cancelButton = event.target.closest('[data-js="cancelar-palpite-inline"]');
+  const target = event.target;
+  
+  // Botão Cancelar Palpite Inline
+  const cancelButton = target.closest('[data-js="cancelar-palpite-inline"]');
   if (cancelButton) {
     event.preventDefault();
     const expandRow = cancelButton.closest('.match-expand');
@@ -455,9 +458,57 @@ function handleGlobalClick(event) {
     return;
   }
 
-  if (event.target.closest('[data-js="fechar-palpite-inline"]')) {
+  // Botão Fechar Palpite (Geral)
+  if (target.closest('[data-js="fechar-palpite-inline"]')) {
     if (state.expandedMatchId) {
       closeInlineRow(state.expandedMatchId);
+    }
+    return;
+  }
+
+  // BOTÃO TOGGLE GRUPO (ACCORDION)
+  const groupToggle = target.closest('[data-js="toggle-group-details"]');
+  if (groupToggle) {
+    event.preventDefault();
+    const targetId = groupToggle.getAttribute('data-target');
+    const targetRow = document.querySelector(targetId);
+    
+    if (targetRow) {
+      const isOpening = targetRow.classList.contains('hidden');
+      
+      // MODO ACCORDION: Fecha todos os outros antes de abrir o novo
+      document.querySelectorAll('.match-group-details-row').forEach(row => {
+        if (row !== targetRow) {
+          row.classList.add('hidden');
+        }
+      });
+      document.querySelectorAll('.btn-grupo-toggle').forEach(btn => {
+        if (btn !== groupToggle) {
+          btn.classList.remove('active');
+        }
+      });
+
+      // Toggle do alvo
+      targetRow.classList.toggle('hidden');
+      groupToggle.classList.toggle('active');
+      
+      if (isOpening) {
+        debugInfo('Expandindo detalhes do grupo (Accordion).', { targetId });
+      }
+    }
+    return;
+  }
+
+  // BOTÃO CLOSE DETALHES DO GRUPO
+  const closeDetails = target.closest('[data-js="close-details"]');
+  if (closeDetails) {
+    event.preventDefault();
+    const targetId = closeDetails.getAttribute('data-target');
+    const targetRow = document.querySelector(targetId);
+    if (targetRow) {
+      targetRow.classList.add('hidden');
+      const toggleBtn = document.querySelector(`.btn-grupo-toggle[data-target="${targetId}"]`);
+      if (toggleBtn) toggleBtn.classList.remove('active');
     }
   }
 }
@@ -469,6 +520,16 @@ function handleDocumentKeydown(event) {
   if (state.expandedMatchId) {
     event.preventDefault();
     closeInlineRow(state.expandedMatchId);
+    return;
+  }
+  
+  // Fecha detalhes do grupo abertos se houver
+  const activeDetailRow = document.querySelector('.match-group-details-row:not(.hidden)');
+  if (activeDetailRow) {
+    event.preventDefault();
+    activeDetailRow.classList.add('hidden');
+    const activeBtn = document.querySelector('.btn-grupo-toggle.active');
+    if (activeBtn) activeBtn.classList.remove('active');
   }
 }
 

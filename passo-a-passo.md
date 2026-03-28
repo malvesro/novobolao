@@ -655,6 +655,5 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 * 2026-02-20: **[Em Progresso]** Planejamento do bundler frontend (Fase 2.5 - Tarefa 2, subtarefa 6). Documento `.ia/planos/plano-bundler-frontend.md` detalha adoção do Vite/ESBuild, integração com WAR e próximos passos; registrado log `.ia/logs/session-20260220-plano-bundler-frontend.md`. Estrutura inicial criada e fallback `webapp/assets/js/app-bundle.js` anotados em `.ia/logs/session-20260220-bundler-setup-parcial.md`.
   Auto-Analise: [Risco: Médio] | [Compatibilidade: Atenção] | [Veredito: Revisar]
   Skill: N/A (nenhuma skill aplicável)
-* 2026-03-28: **[Pendente]** Correção da Gravação de Palpites (Fase 2.5 - Iteração 8). Implementar busca prévia no `PalpiteServiceImpl`, adicionar telemetria de parâmetros na `ParticipanteAction` e refinar feedback de erro no `jogos.js`.
-  Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Planejado]
-  Referência Plano: `implementation_plan.md` (aprovado)
+* 2026-03-28: **[Concluído]** Correção da Gravação de Palpites (Fase 2.5 - Iteração 8). Implementada estratégia de busca prévia no `PalpiteServiceImpl` para evitar conflitos de `NonUniqueObjectException`. Ajustada a Action para carregar o login do contexto de segurança. Log: `.ia/logs/session-20260328-fix-persistence-accordion-ux.md`.
+* 2026-03-28: **[Concluído]** Redesign UX do Grupo - Accordion (Fase 2.5 - Iteração 9). Substituída a visualização popover por uma linha de detalhes expandida (full-width) com comportamento de accordion exclusivo. Adicionado suporte a ESC e animações. Log: `.ia/logs/session-20260328-fix-persistence-accordion-ux.md`. ADR: `docs/adr/002-accordion-group-details-ux.md`.

@@ -448,34 +448,42 @@
 
 						<%-- Painel Ver Grupo Inline via <details> --%>
 						<td class="match-table__group-action">
-							<details class="match-group-details" aria-label="Ver palpites do grupo para este jogo">
-								<summary class="btn-grupo-icon"
-										 hx-get="${palpiteGrupoUrl}"
-										 hx-target="#grupo-content_${jogo.id}"
-										 hx-trigger="toggle once"
-										 title="Ver palpites do grupo">
-									👥
-								</summary>
-								<div class="match-group-popover" aria-live="polite">
-									<h3>Palpites do Grupo</h3>
-									<table class="table table-striped table-group-tips" style="width: 100%; font-size: 13px; margin: 0;">
-										<thead>
-											<tr>
-												<th>Participante</th>
-												<th class="text-center">Palpite</th>
-												<th class="text-center">Pontos</th>
-											</tr>
-										</thead>
-										<tbody id="grupo-content_${jogo.id}">
-											<tr>
-												<td colspan="3" class="text-center" style="padding: 1.5rem; color: var(--color-muted);">
-													<span class="loading-spinner"></span> Carregando...
-												</td>
-											</tr>
-										</tbody>
-									</table>
+							<button type="button" 
+									class="btn-grupo-toggle" 
+									data-js="toggle-group-details"
+									data-target="#group-row_${jogo.id}"
+									hx-get="${palpiteGrupoUrl}"
+									hx-target="#group-content_${jogo.id}"
+									hx-trigger="click once"
+									title="Ver palpites do grupo">
+								👥
+							</button>
+						</td>
+					</tr>
+					<tr id="group-row_${jogo.id}" class="match-group-details-row hidden">
+						<td colspan="7">
+							<div class="group-details-container" aria-live="polite">
+								<div class="group-details-header">
+									<h4>Palpites do Grupo - ${jogo.equipe1.nomePais} x ${jogo.equipe2.nomePais}</h4>
+									<button type="button" class="btn-close-details" data-js="close-details" data-target="#group-row_${jogo.id}">×</button>
 								</div>
-							</details>
+								<table class="table table-group-tips">
+									<thead>
+										<tr>
+											<th>Participante</th>
+											<th class="text-center">Palpite</th>
+											<th class="text-center">Pontos</th>
+										</tr>
+									</thead>
+									<tbody id="group-content_${jogo.id}">
+										<tr>
+											<td colspan="3" class="text-center p-md">
+												<span class="loading-spinner"></span> Carregando...
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
 						</td>
 					</tr>
 				</c:when>
