@@ -271,3 +271,25 @@ bash scripts/gerar_sql_copa2026.sh
 
 O script gerará o arquivo `data/sql/03-copa-2026-data.sql` que é utilizado no processo de deploy/banco.
 
+## 12. Arquitetura Frontend (Modernização 2026)
+
+A partir da **Fase 7**, o projeto adotou uma estratégia de modernização de UI baseada em **HTMX**, substituindo tecnologias legadas (DWR e Prototype).
+
+### Princípios de Design
+- **Mapeamento Natural (Split Inputs)**: Inputs de placar posicionados adjacentes ao nome de cada time para intuitividade imediata.
+- **Feedback Visual Atômico**: Uso de animações CSS ("Saved Flash") em toda a linha de dados para confirmação de salvamento.
+- **Design System**: Tipografia baseada em **Inter** e **Outfit**, com paleta moderna e efeitos de **Glassmorphism**.
+
+### Estratégia Técnica (HTMX)
+Para garantir a estabilidade em tabelas complexas com linhas de detalhe expansíveis, utilizamos os seguintes padrões:
+
+1.  **Padrão Multi-Tbody**: Cada partida na listagem de jogos é encapsulada em seu próprio elemento `<tbody>`. Isso permite que o HTMX atualize o container da partida de forma isolada e atômica.
+2.  **Fragmentos JSP (`.jspf`)**: A lógica de renderização da linha de jogo está centralizada em `match-row.jspf`. Este fragmento é incluído:
+    - Na renderização inicial da página (`jogos.jsp`).
+    - Na resposta parcial de ações HTMX (`palpite-cell-response.jsp`).
+3.  **Swap Containers**: As atualizações de palpite utilizam `hx-target="closest tbody"` e `hx-swap="innerHTML"`. Isso substitui o conteúdo interno do `<tbody>` do jogo, garantindo integridade do DOM e evitando duplicidade de IDs.
+4.  **UX Helper JS**: O arquivo `ux-helper.js` gerencia comportamentos complementares como navegação automática de foco (Auto-Advance) e barra de progresso em tempo real.
+
+Consulte os registros de decisão para detalhes profundos:
+- **[ADR 001](docs/adr/001-htmx-direct-inline-palpites.md)**: Introdução do HTMX.
+- **[ADR 004](docs/adr/004-split-inputs-row-level-htmx.md)**: Mapeamento Natural e Multi-Tbody.
