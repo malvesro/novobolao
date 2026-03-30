@@ -612,4 +612,28 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 * 2026-03-28: **[Concluído]** Correção da Gravação de Palpites (Fase 2.5 - Iteração 8). Implementada estratégia de busca prévia no `PalpiteServiceImpl` para evitar conflitos de `NonUniqueObjectException`. Ajustada a Action para carregar o login do contexto de segurança. Log: `.ia/logs/session-20260328-fix-persistence-accordion-ux.md`.
 * 2026-03-28: **[Concluído]** Redesign UX do Grupo - Accordion (Fase 2.5 - Iteração 9). Substituída a visualização popover por uma linha de detalhes expandida (full-width) com comportamento de accordion exclusivo. Adicionado suporte a ESC e animações. Log: `.ia/logs/session-20260328-fix-persistence-accordion-ux.md`. ADR: `docs/adr/002-accordion-group-details-ux.md`.
 * 2026-03-28: **[Concluído]** Restrição de Perfil Admin (Fase 2.5 - Iteração 10). Perfil `ROLE_ADMIN` bloqueado de realizar palpites (com mensagem específica) e filtrado automaticamente do ranking e gráficos de desempenho. ADR: `docs/adr/003-admin-restriction-rule.md`.
-* 2026-03-28: **[Concluído]** Expansão do Dataset Copa 2026 (Fase 6 - T2-Dados). Dataset ampliado para 104 jogos (Round of 32 a Final). Criado script de automação `scripts/gerar_sql_copa2026.sh` e documentado no README. SQL de carga `03-copa-2026-data.sql` gerado com sucesso.
+* 2026-03-28: **[Concluído]** Registro e Automação Copa 2026 (Fase 6 - T2-Dados/Dominio). Validado suporte técnico para 32-avos e fases finais. Carga SQL `03-copa-2026-data.sql` gerada via `scripts/gerar_sql_copa2026.sh` e documentada.
+* 2026-03-28: **[Concluído]** UX: Autosave e Debounce de Palpites (Fase 2.5 - Iteração 4). Implementado salvamento automático ao sair do campo (`blur`) com debounce de 800ms via HTMX, reduzindo drasticamente a carga cognitiva e cliques necessários.
+
+## Fase 7: Modernização UX - Betting Console 2026 (Split Inputs)
+
+* 2026-03-30: **[Concluído]** Modernização UX: Betting Console 2026. Implementação completa do conceito **Split Inputs** (Mapeamento Natural) e atualização por linha inteira via HTMX.
+    * **Iteração 1 (Estrutural)**: Migração para `match-row.jspf` e configuração de `hx-target="closest tr"`. ADR: `docs/adr/004-split-inputs-row-level-htmx.md`.
+    * **Iteração 2 (Design System)**: Adoção das fontes **Inter** e **Outfit**, paleta **Slate/Emerald** e efeitos de **Glassmorphism**.
+    * **Iteração 3 (Feedback)**: Animação **Saved Flash** (glow verde esmeralda) em toda a linha do jogo para confirmação instantânea.
+    * **Iteração 4 (Inteligência)**: Implementação de navegação de foco automática (Auto-Advance) e barra de progresso fixa (Sticky) no topo da tela via `ux-helper.js`.
+    * Logs: `.ia/logs/Sessao-2026-03-30-UX-Split-Inputs-I1.md`.
+
+### Fase 7.1: Correção de Bugs e Estabilidade UX
+* 2026-03-30: **[Concluído]** Correção de Layout e Renderização.
+    * Resolvida sobreposição do `sticky-header` no menu lateral via `z-index` (Task 1).
+    * Eliminada redundância de `<tr>` e IDs duplicados entre `jogos.jsp` e `match-row.jspf` (Task 2).
+    * Adicionado `settle:1.5s` no swap HTMX para suavizar transições de salvamento (Task 3).
+
+    * Ajustado `ux-helper.js` para suportar o novo alvo de atualização.
+
+### Fase 7.3: Correção de Contexto e Sincronização (Foco/Data Maintenance)
+* 2026-03-30: **[Concluído]** Estabilização de Contexto e Concorrência.
+    * Adicionado `jogoId` e `_csrf` via campos ocultos em cada `<tr>` para garantir integridade do POST.
+    * Implementado `hx-sync="this:replace"` para evitar conflitos entre `blur` e `change`.
+    * Validada estabilidade de renderização: os nomes dos times e bandeiras agora permanecem íntegros após cada atualização.
