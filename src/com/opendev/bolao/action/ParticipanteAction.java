@@ -389,16 +389,30 @@ public class ParticipanteAction extends ActionSupport {
             }
             return ERROR;
         }
-        if (this.jogoId == null || this.palpiteGolsEquipe1 == null || this.palpiteGolsEquipe2 == null) {
-            LOGGER.warn("atualizarPalpiteHtmx: parametros invalidos jogoId={}, gols1={}, gols2={}", this.jogoId, this.palpiteGolsEquipe1, this.palpiteGolsEquipe2);
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("{} resultado=ERROR motivo=parametrosInvalidos jogoId={} gols1={} gols2={}",
-                        LOG_PREFIX_UPDATE, this.jogoId, this.palpiteGolsEquipe1, this.palpiteGolsEquipe2);
-            }
+        // Validação básica: precisamos ao menos do jogoId
+        if (this.jogoId == null) {
+            LOGGER.warn("{} jogoId ausente", LOG_PREFIX_UPDATE);
             this.palpiteAtualizado = false;
             this.palpiteErro = getText("match.tip.error.unavailable");
-            prepararConteudoPalpite();
             return ERROR;
+        }
+
+        // Criar palpite temporário para preservar o que o usuário digitou, mesmo que não salvemos ainda
+        Palpite palpiteTemp = new Palpite();
+        palpiteTemp.setIdJogo(this.jogoId);
+        palpiteTemp.setGolsEquipe1(this.palpiteGolsEquipe1);
+        palpiteTemp.setGolsEquipe2(this.palpiteGolsEquipe2);
+        this.palpiteSelecionado = palpiteTemp;
+
+        // Só tentamos salvar se ambos os gols estiverem presentes
+        if (this.palpiteGolsEquipe1 == null || this.palpiteGolsEquipe2 == null) {
+            LOGGER.debug("{} salvamento postergado: aguardando preenchimento de ambos os campos (gols1={}, gols2={})", 
+                    LOG_PREFIX_UPDATE, this.palpiteGolsEquipe1, this.palpiteGolsEquipe2);
+            this.palpiteAtualizado = false;
+            prepararConteudoPalpite();
+            // Sobrescrevemos o palpite carregado do banco pelo temporário para manter o valor no input
+            this.palpiteSelecionado = palpiteTemp;
+            return SUCCESS;
         }
         String resultado;
         try {
