@@ -345,7 +345,13 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído (27/03/2026)] Iteração 6 – Painel "Ver Grupo" via `<details>` inline:** Ver palpites do grupo sem modal.
     * **[Concluído (27/03/2026)] Iteração 7 – Build completo, pipeline e documentação:** Encerrar e documentar.
 
-## Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
+### Fase 2.8: Refinanciamento de Débito Técnico e Arquitetura (PLANEJADO)
+
+1. **[Pendente]** **Migração para java.util.Optional:** Substituir o uso frequente de retornos `null` em buscas de entidade única nos Services e DAOs por `Optional<T>`, reduzindo o risco de NullPointerExceptions e tornando o código mais expressivo.
+2. **[Pendente]** **Adoção de Spring Data JPA:** Substituir as implementações manuais de DAO (`ParticipanteDaoImpl`, `JogoDaoImpl`, etc.) por interfaces `Repository` do Spring Data JPA, eliminando código boilerplate e aproveitando recursos modernos de paginação e consulta.
+3. **[Pendente]** **Modernização de Validação:** Migrar os métodos `validar()` manuais dos modelos para anotações do Jakarta Bean Validation (`@NotBlank`, `@Email`, etc.).
+
+### Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
 
 1. **[Concluído] Containerização com Docker:** Criar `Dockerfile` multi-stage utilizando princípios distroless para a aplicação.
 2. **[Concluído] Orquestração com Docker Compose:** Criar `docker-compose.yml` integrando a aplicação (Tomcat 10) e o banco de dados (MySQL 8).
