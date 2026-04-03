@@ -1,12 +1,9 @@
 -- Gerado por atualizar_copa2026_dataset.py em 2026-03-28T17:09:54
 -- Atualizado em 2026-04-03: placeholders substituídos, horários BRT e sedes normalizadas
 SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE `PAI_PALPITE_INDIVIDUAL`;
-TRUNCATE TABLE `BOI_BOLAO_INDIVIDUAL`;
-TRUNCATE TABLE `PAL_PALPITE`;
-TRUNCATE TABLE `JOG_JOGO`;
-TRUNCATE TABLE `EQP_EQUIPE`;
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- Carga inicial da Copa 2026 (IDs 100-147 para equipes, 1000-1103 para jogos)
 
 INSERT INTO `EQP_EQUIPE` (`EQP_ID`, `EQP_PAIS`, `EQP_GRUPO`) VALUES
   (100, 'Coreia do Sul', 'A'),

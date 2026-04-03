@@ -27,7 +27,7 @@ services:
     container_name: bolao-app
     restart: always
     ports:
-      - "8081:8080"
+      - "8080:8080"
       - "8443:8443"
     environment:
       DB_HOST: db

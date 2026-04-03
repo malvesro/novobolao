@@ -218,7 +218,8 @@ A aplicação modernizada pode ser executada facilmente usando Docker Compose. C
 ### Quick Start
 
 ```bash
-# Build e start dos containers
+# Setup de ambiente e build
+wsl bash -c "cp .env.example .env"
 wsl bash -c "docker-compose up --build -d"
 
 # Verificar logs
