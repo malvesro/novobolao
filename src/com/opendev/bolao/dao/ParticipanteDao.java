@@ -1,19 +1,20 @@
 package com.opendev.bolao.dao;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.opendev.bolao.model.Participante;
 
 public interface ParticipanteDao {
 
-	public Participante buscarPorLogin(String login);
-	public Participante buscarPorEmail(String email);
+	public Optional<Participante> buscarPorLogin(String login);
+	public Optional<Participante> buscarPorEmail(String email);
 
 	public List buscarTodosDoBolaoGeral();
 
     public List buscarTodos();
 
-    public Participante buscarPorId(Long id);
+    public Optional<Participante> buscarPorId(Long id);
 
     public void salvar(Participante participante);
 
