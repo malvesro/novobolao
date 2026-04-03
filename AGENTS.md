@@ -63,6 +63,7 @@ Tarefa única - Status: Executado em 17/02/2026: Na primeira vez que ler esse do
 2. **Consciencia de Contexto**
    
    - Antes de gerar codigo, leia `.ia/diretrizes/arquitetura.md`, `.ia/diretrizes/frontend.md`, `.ia/diretrizes/seguranca.md`,  o `README.md`, os logs de sessão mais recentes e o passo-a-passo.md, se existirem.
+   - **Obrigatório:** Consulte o diretório `.agents/skills/` para identificar e carregar habilidades especializadas (HTMX, Docker, Modernização Java, etc.) antes de iniciar qualquer tarefa técnica.
    - Em especial, aplique a diretriz de frontend (24/02/2026): fragmentos JSP (`*.jspf`) não devem declarar `<%@taglib%>` ou outras diretivas; assegure que as páginas host incluam as taglibs necessárias antes de `@ include` para evitar vazamento de diretivas nas respostas HTMX.
 
 3. **Rastreabilidade**
@@ -151,7 +152,7 @@ Antes de qualquer entrega, produza uma avaliacao tecnica objetiva, justifique o 
 
 ### 2. Selecao Autonoma de Skills (Intention Mapping)
 
-1. Antes de fazer qualquer proposta, consulta as SKILLs.
+1. Antes de fazer qualquer proposta, consulta as SKILLs em `.agents/skills/`.
 
 ### 3. Protocolo de Parada (Bloqueio de Incerteza)
 
