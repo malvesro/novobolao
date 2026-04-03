@@ -3,6 +3,7 @@ package com.opendev.bolao.dao.hibernate;
 import java.sql.Time;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -28,8 +29,8 @@ public class JogoDaoImpl implements JogoDao {
 		return query.list();
 	}
 
-	public Jogo buscarPorId(Long id) {
-		return (Jogo) sessionFactory.getCurrentSession().load(Jogo.class, id);
+	public Optional<Jogo> buscarPorId(Long id) {
+		return Optional.ofNullable((Jogo) sessionFactory.getCurrentSession().get(Jogo.class, id));
 	}
 
 	public long buscarQuantidadeDeJogosOcorridos() {

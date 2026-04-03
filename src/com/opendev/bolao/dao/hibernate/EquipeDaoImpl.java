@@ -1,6 +1,7 @@
 package com.opendev.bolao.dao.hibernate;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -21,8 +22,8 @@ public class EquipeDaoImpl implements EquipeDao {
 		return query.list();
 	}
 
-	public Equipe buscarPorId(Long id) {
-		return (Equipe) sessionFactory.getCurrentSession().load(Equipe.class, id);
+	public Optional<Equipe> buscarPorId(Long id) {
+		return Optional.ofNullable((Equipe) sessionFactory.getCurrentSession().get(Equipe.class, id));
 	}
 
 }

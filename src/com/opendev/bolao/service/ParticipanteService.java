@@ -1,6 +1,7 @@
 package com.opendev.bolao.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.opendev.bolao.exception.ValidacaoException;
 import com.opendev.bolao.grafico.GraficoBarraLideres;
@@ -14,9 +15,9 @@ public interface ParticipanteService {
 	
 	public List buscarClassificacao();
 
-	public Participante buscarPorLogin(String login);
+	public Optional<Participante> buscarPorLogin(String login);
 
-	public Participante buscarPorEmail(String email);
+	public Optional<Participante> buscarPorEmail(String email);
 
     public List buscarTodos();
     

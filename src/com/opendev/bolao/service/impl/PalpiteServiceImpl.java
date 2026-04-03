@@ -27,10 +27,8 @@ public class PalpiteServiceImpl implements PalpiteService {
 		if (!podeAtualizar(idJogo)) {
 			throw new IllegalStateException("O horário limite para confirmação foi ultrapassado!");
 		}
-		Participante participante = getParticipanteDao().buscarPorLogin(login);
-		if (participante == null) {
-			throw new IllegalArgumentException("Usuário não encontrado: " + login);
-		}
+		Participante participante = getParticipanteDao().buscarPorLogin(login)
+				.orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado: " + login));
 		
 		if (participante.isAdministrador()) {
 			throw new IllegalStateException("Perfis administrativos nao participam dos palpites.");
@@ -74,8 +72,9 @@ public class PalpiteServiceImpl implements PalpiteService {
     }
 	
 	private boolean podeAtualizar(Long idJogo) {
-		Jogo jogo = getJogoDao().buscarPorId(idJogo);
-		return jogo.getPodeDarPalpite();
+		return getJogoDao().buscarPorId(idJogo)
+				.map(Jogo::getPodeDarPalpite)
+				.orElse(false);
 	}
 	
 	public List buscarPalpitesDoParticipante(String login) {

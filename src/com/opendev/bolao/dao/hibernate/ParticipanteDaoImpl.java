@@ -1,6 +1,7 @@
 package com.opendev.bolao.dao.hibernate;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -16,16 +17,16 @@ public class ParticipanteDaoImpl implements ParticipanteDao {
         this.sessionFactory = sessionFactory;
     }
 
-	public Participante buscarPorLogin(String login) {
+	public Optional<Participante> buscarPorLogin(String login) {
 		Query query = sessionFactory.getCurrentSession().createQuery("from Participante as p where p.login = :login");
 		query.setParameter("login", login);
-		return (Participante) query.uniqueResult();
+		return Optional.ofNullable((Participante) query.uniqueResult());
 	}
 
-	public Participante buscarPorEmail(String email) {
+	public Optional<Participante> buscarPorEmail(String email) {
 		Query query = sessionFactory.getCurrentSession().createQuery("from Participante as p where p.email = :email");
 		query.setParameter("email", email);
-		return (Participante) query.uniqueResult();
+		return Optional.ofNullable((Participante) query.uniqueResult());
 	}
 
 	public List buscarTodosDoBolaoGeral() {
@@ -39,8 +40,8 @@ public class ParticipanteDaoImpl implements ParticipanteDao {
         return query.list();
     }
 
-    public Participante buscarPorId(Long id) {
-        return (Participante) sessionFactory.getCurrentSession().load(Participante.class, id);
+    public Optional<Participante> buscarPorId(Long id) {
+        return Optional.ofNullable((Participante) sessionFactory.getCurrentSession().get(Participante.class, id));
     }
 
     public void salvar(Participante participante) {
@@ -48,7 +49,7 @@ public class ParticipanteDaoImpl implements ParticipanteDao {
     }
 
     public void apagar(Long id) {
-        sessionFactory.getCurrentSession().delete(buscarPorId(id));
+        buscarPorId(id).ifPresent(p -> sessionFactory.getCurrentSession().delete(p));
     }
 
 }

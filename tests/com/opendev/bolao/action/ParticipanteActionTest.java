@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.junit.jupiter.api.AfterEach;
@@ -63,7 +64,7 @@ class ParticipanteActionTest {
     void deveBloquearCadastroComLoginDuplicado() throws Exception {
         ParticipanteService participanteService = Mockito.mock(ParticipanteService.class);
         when(participanteService.buscarPorLogin("usuario"))
-                .thenReturn(new Participante());
+                .thenReturn(Optional.of(new Participante()));
 
         ParticipanteAction action = new ParticipanteAction();
         action.setParticipanteService(participanteService);
@@ -87,9 +88,9 @@ class ParticipanteActionTest {
     void deveBloquearCadastroComEmailDuplicado() throws Exception {
         ParticipanteService participanteService = Mockito.mock(ParticipanteService.class);
         when(participanteService.buscarPorLogin("usuario"))
-                .thenReturn(null);
+                .thenReturn(Optional.empty());
         when(participanteService.buscarPorEmail("mail@example.com"))
-                .thenReturn(new Participante());
+                .thenReturn(Optional.of(new Participante()));
 
         ParticipanteAction action = new ParticipanteAction();
         action.setParticipanteService(participanteService);

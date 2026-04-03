@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,8 +30,10 @@ public class JogoServiceImpl implements JogoService {
     private ParticipanteDao participanteDao;
 
 	public Long criarNovoJogo(Jogo jogo, Long equipe1Id, Long equipe2Id) {
-		Equipe equipe1 = getEquipeDao().buscarPorId(equipe1Id);
-		Equipe equipe2 = getEquipeDao().buscarPorId(equipe2Id);
+		Equipe equipe1 = getEquipeDao().buscarPorId(equipe1Id)
+				.orElseThrow(() -> new IllegalArgumentException("Equipe 1 não encontrada: " + equipe1Id));
+		Equipe equipe2 = getEquipeDao().buscarPorId(equipe2Id)
+				.orElseThrow(() -> new IllegalArgumentException("Equipe 2 não encontrada: " + equipe2Id));
 		jogo.setEquipe1(equipe1);
 		jogo.setEquipe2(equipe2);
 		getJogoDao().salvar(jogo);
@@ -42,15 +45,16 @@ public class JogoServiceImpl implements JogoService {
 	}
 	
 	public void atualizarResultado(Long idJogo, Integer golsEquipe1, Integer golsEquipe2) {
-		Jogo jogo = getJogoDao().buscarPorId(idJogo);
-		jogo.setGolsEquipe1(golsEquipe1);
-		jogo.setGolsEquipe2(golsEquipe2);
-		Participante.expirarCacheDeClassificacao();
+		getJogoDao().buscarPorId(idJogo).ifPresent(jogo -> {
+			jogo.setGolsEquipe1(golsEquipe1);
+			jogo.setGolsEquipe2(golsEquipe2);
+			Participante.expirarCacheDeClassificacao();
+		});
 	}
 
-    public Jogo buscarPorId(Long id) {
+    public Optional<Jogo> buscarPorId(Long id) {
         if (id == null) {
-            return null;
+            return Optional.empty();
         }
         return getJogoDao().buscarPorId(id);
     }

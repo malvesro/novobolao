@@ -1,6 +1,7 @@
 package com.opendev.bolao.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.util.FiltroBuscaJogos;
@@ -13,7 +14,7 @@ public interface JogoService {
 
 	public void atualizarResultado(Long idJogo, Integer golsEquipe1, Integer golsEquipe2);
 
-    public Jogo buscarPorId(Long id);
+    public Optional<Jogo> buscarPorId(Long id);
     
     public void avisarSobreProximoJogo();
     

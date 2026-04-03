@@ -173,7 +173,7 @@ public class ParticipanteAction extends ActionSupport {
 	
     public String gerarGraficoDesempenho() {
         String login = RequestUtils.getLoginParticipanteAutenticado();
-        Participante participante = getParticipanteService().buscarPorLogin(login);
+        Participante participante = getParticipanteService().buscarPorLogin(login).orElse(null);
         setParticipanteLogado(participante);
         List participantes = getParticipanteService().buscarClassificacao();
         participantes.remove(participante);
@@ -184,7 +184,7 @@ public class ParticipanteAction extends ActionSupport {
 
     public String gerarGraficoDesempenhoImagem() {
         String login = RequestUtils.getLoginParticipanteAutenticado();
-        Participante participante = getParticipanteService().buscarPorLogin(login);
+        Participante participante = getParticipanteService().buscarPorLogin(login).orElse(null);
         Long idRival = obterIdRival();
         GraficoComparativoDesempenho grafico = getParticipanteService().construirGraficoDesempenho(participante, idRival);
         JFreeChart chart = grafico.criarChart();
@@ -456,7 +456,7 @@ public class ParticipanteAction extends ActionSupport {
             return;
         }
 
-        Jogo jogo = getJogoService().buscarPorId(this.jogoId);
+        Jogo jogo = getJogoService().buscarPorId(this.jogoId).orElse(null);
         if (jogo == null) {
             LOGGER.warn("prepararConteudoPalpite: jogo nao encontrado jogoId={}", this.jogoId);
             return;
@@ -634,11 +634,7 @@ public class ParticipanteAction extends ActionSupport {
     }
 	
 	public boolean existeLogin(String login) {
-		Participante participante = getParticipanteService().buscarPorLogin(login);
-		if (participante == null) {
-			return false;
-		}
-		return true;
+		return getParticipanteService().buscarPorLogin(login).isPresent();
 	}
 	
 	public void atualizarPalpite(Long idJogo, Integer golsEquipe1, Integer golsEquipe2) {
@@ -807,8 +803,7 @@ public class ParticipanteAction extends ActionSupport {
         List<MensagemErro> duplicidades = new ArrayList<>();
         String loginNormalizado = participante.getLogin() == null ? null : participante.getLogin().trim().toLowerCase();
         if (loginNormalizado != null && !loginNormalizado.isBlank()) {
-            Participante existente = getParticipanteService().buscarPorLogin(loginNormalizado);
-            if (existente != null) {
+            if (getParticipanteService().buscarPorLogin(loginNormalizado).isPresent()) {
                 duplicidades.add(new MensagemErro(
                         texto("signin.login", "Login"),
                         texto("cadastro.login.duplicado", "Ja existe um cadastro ativo com este login."),
@@ -817,8 +812,7 @@ public class ParticipanteAction extends ActionSupport {
         }
         String emailNormalizado = participante.getEmail() == null ? null : participante.getEmail().trim();
         if (emailNormalizado != null && !emailNormalizado.isBlank()) {
-            Participante existenteEmail = getParticipanteService().buscarPorEmail(emailNormalizado);
-            if (existenteEmail != null) {
+            if (getParticipanteService().buscarPorEmail(emailNormalizado).isPresent()) {
                 duplicidades.add(new MensagemErro(
                         texto("signin.email", "E-mail"),
                         texto("cadastro.email.duplicado", "Este e-mail ja esta associado a outro cadastro."),
