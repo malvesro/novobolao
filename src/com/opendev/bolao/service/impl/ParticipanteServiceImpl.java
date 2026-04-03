@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 
 import org.jfree.data.category.DefaultCategoryDataset;
@@ -77,7 +78,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 			if (idRivail != null) {
 				participantes = new ArrayList(2);
 				participantes.add(participante);
-                participantes.add(getParticipanteDao().buscarPorId(idRivail));
+                getParticipanteDao().buscarPorId(idRivail).ifPresent(participantes::add);
 			} else {
 				participantes = new ArrayList(1);
 				participantes.add(participante);
@@ -107,11 +108,11 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         return new GraficoComparativoDesempenho(seriesCollection);
 	}
 
-    public Participante buscarPorLogin(String login) {
+    public Optional<Participante> buscarPorLogin(String login) {
         return getParticipanteDao().buscarPorLogin(login);
     }
 
-    public Participante buscarPorEmail(String email) {
+    public Optional<Participante> buscarPorEmail(String email) {
         return getParticipanteDao().buscarPorEmail(email);
     }
 
@@ -120,43 +121,45 @@ public class ParticipanteServiceImpl implements ParticipanteService {
     }
 
     public void atualizarAutorizacao(Long id, boolean autorizado) {
-        Participante participante = getParticipanteDao().buscarPorId(id);
-        participante.setHabilitado(autorizado);
-        Set privilegios = participante.getPrivilegios();
-        if (autorizado == true && (privilegios != null && !privilegios.isEmpty())) {
-            Email email = new Email("notificacaoCadastroAprovado.html", "Confirmaï¿½ï¿½o de cadastro");
-            email.setPropriedade("nome", participante.getNome());
-            email.adicionarEnderecoDestino(participante.getEmail());
-            try {
-                email.enviar();
-            } catch (Exception e) {
-                e.printStackTrace();
-                // TODO logar erro ao enviar;
+        getParticipanteDao().buscarPorId(id).ifPresent(participante -> {
+            participante.setHabilitado(autorizado);
+            Set privilegios = participante.getPrivilegios();
+            if (autorizado == true && (privilegios != null && !privilegios.isEmpty())) {
+                Email email = new Email("notificacaoCadastroAprovado.html", "Confirmaï¿½ï¿½o de cadastro");
+                email.setPropriedade("nome", participante.getNome());
+                email.adicionarEnderecoDestino(participante.getEmail());
+                try {
+                    email.enviar();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // TODO logar erro ao enviar;
+                }
             }
-        }
+        });
     }
 
     public void atualizarPapel(Long id, String papel) {
-        Participante participante = getParticipanteDao().buscarPorId(id);
-        Set privilegios = participante.getPrivilegios();
-        if (privilegios == null) {
-            privilegios = new HashSet();
-        } else {
-            for (Iterator iter = privilegios.iterator(); iter.hasNext();) {
-				Privilegio p = (Privilegio) iter.next();
-				iter.remove();
-				getPrivilegioDao().apagar(p);
-			}
-        }
-        String papelNormalizado = normalizarPapel(papel);
-        participante.setPrivilegios(privilegios);
-        if (papelNormalizado == null) {
-            return;
-        }
-        Privilegio privilegio = new Privilegio();
-        privilegio.setIdParticipante(participante.getId());
-        privilegio.setPapel(papelNormalizado);
-        privilegios.add(privilegio);
+        getParticipanteDao().buscarPorId(id).ifPresent(participante -> {
+            Set privilegios = participante.getPrivilegios();
+            if (privilegios == null) {
+                privilegios = new HashSet();
+            } else {
+                for (Iterator iter = privilegios.iterator(); iter.hasNext();) {
+                    Privilegio p = (Privilegio) iter.next();
+                    iter.remove();
+                    getPrivilegioDao().apagar(p);
+                }
+            }
+            String papelNormalizado = normalizarPapel(papel);
+            participante.setPrivilegios(privilegios);
+            if (papelNormalizado == null) {
+                return;
+            }
+            Privilegio privilegio = new Privilegio();
+            privilegio.setIdParticipante(participante.getId());
+            privilegio.setPapel(papelNormalizado);
+            privilegios.add(privilegio);
+        });
     }
 
     private String normalizarPapel(String papel) {
