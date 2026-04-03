@@ -80,6 +80,22 @@ Premissas de compatibilidade (críticas):
    * `Jogo` passou a expor `isFaseDeGrupos`/`descricaoFase` via `FaseUtils`; tabela de jogos exibe o nome da fase (ex.: 32-avos) quando não há grupo.
    * **[Pendente]** **Auditoria Visual de Escala:** Garantir que as telas de palpites e classificação suportem o aumento de volume de dados (48 seleções vs 32 anteriores).
      Referência FIFA: `https://www.fifa.com/pt/tournaments/mens/worldcup/canadamexicousa2026/articles/copa-mundo-2026-tabela-jogos`
+   * **[Pendente]** **Atualização dos Nomes das Equipes de Repescagem (Pós-Playoffs Março/2026):** Os 6 lugares de repescagem estão confirmados após os playoffs de março/2026. O SQL atual ainda usa placeholders. Atualizar `data/sql/03-copa-2026-data.sql`, recarregar o banco e validar as telas.
+      Análise realizada em 03/04/2026. IDs a atualizar:
+      - ID 141: `Repescagem Europeia D` → `República Tcheca` (Grupo A)
+      - ID 142: `Repescagem Europeia A` → `Bósnia e Herzegovina` (Grupo B)
+      - ID 143: `Repescagem Europeia C` → `Turquia` (Grupo D)
+      - ID 144: `Repescagem Europeia B` → `Suécia` (Grupo F)
+      - ID 146: `Repescagem Intercontinental` → `Iraque` (Grupo I)
+      - ID 147: `Repescagem Intercontinental 2` → `RD Congo` (Grupo K)
+      Verificar também padronização dos nomes de cidades nas fases eliminatórias (ex: `Mexico City` → `Cidade do México`).
+      Subtarefas:
+      * **[Concluído]** Atualizar os 6 registros `EQP_PAIS` no `data/sql/03-copa-2026-data.sql` (03/04/2026)
+      * **[Concluído]** Padronizar nomes de cidades/estádios nas fases eliminatórias (03/04/2026)
+      * **[Concluído]** Recarregar banco e validar (`docker exec -i bolao-db mysql ... < 03-copa-2026-data.sql`)
+      * **[Pendente]** Validar telas `/seguro/jogos.action` e área administrativa
+      * **[Pendente]** Executar `mvn -Dfrontend.skip=true test`
+      * **[Concluído]** Criar log de sessão em `.ia/logs/` (session-20260403-auditoria-tabela-fifa2026.md)
 
 4. **[Concluído] Atualização do ORM:** Planejar e executar a migração do Hibernate 3.2.6.ga para Hibernate 6+.
 

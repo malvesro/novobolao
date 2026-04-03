@@ -393,6 +393,7 @@ A tabela resume variáveis críticas e suas origens. Sempre utilizar secrets ext
 - Python 3.10+ (scripts de dados).  
 - Docker/Docker Compose opcionais para testes integrados.  
 - Acesso ao repositório Maven corporativo (`nx-mvn.tse.jus.br`) configurado em `~/.m2/settings.xml`.
+- **Configuração de Ambiente:** Arquivo `.env` na raiz (baseado no `.env.example`).
 
 ### 5.2 Setup Rápido
 ```bash
