@@ -170,7 +170,9 @@ Se faltar contexto, dependencias forem desconhecidas ou regras forem contraditor
 
 > NOTE: Atualize este arquivo com as particularidades do seu time e projeto.
 
-### 6. Realização de commits frequentes
+### 6. Realização de commits frequentes
+
+**Proibição de Commits Automáticos:** Nunca realize commits automáticos sem o conhecimento do usuário. Sempre faça uma proposta detalhada (arquivos e mensagem) e aguarde a aprovação explícita antes de executar o comando `git commit`.
 
 Sugira a criação de commits frequentes para não perder conteúdo relevante, onde cada commit:
 
