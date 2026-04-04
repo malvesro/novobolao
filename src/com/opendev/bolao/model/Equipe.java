@@ -2,17 +2,33 @@ package com.opendev.bolao.model;
 
 import java.io.Serializable;
 import java.util.List;
+import jakarta.persistence.*;
 
 import com.opendev.bolao.util.FlagUtils;
 
+/**
+ * Representa uma equipe (país) participante da Copa.
+ * Mapeado para a tabela EQP_EQUIPE via Spring Data JPA.
+ */
+@Entity
+@Table(name = "EQP_EQUIPE")
 public class Equipe implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "EQP_ID")
 	private Long id;
+
+	@Column(name = "EQP_PAIS", nullable = false, length = 100)
 	private String nomePais;
+
+	@Column(name = "EQP_GRUPO", nullable = false)
 	private Character grupo;
-    private List jogos;
+
+    @OneToMany(mappedBy = "equipe1", fetch = FetchType.LAZY)
+    private List<Jogo> jogos;
 
 	public Character getGrupo() {
 		return grupo;
@@ -38,11 +54,11 @@ public class Equipe implements Serializable {
 		this.nomePais = nomePais;
 	}
     
-    public List getJogos() {
+    public List<Jogo> getJogos() {
         return this.jogos;
     }
     
-    public void setJogos(List jogos) {
+    public void setJogos(List<Jogo> jogos) {
         this.jogos = jogos;
     }
 

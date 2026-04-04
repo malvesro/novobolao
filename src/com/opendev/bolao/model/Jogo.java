@@ -14,6 +14,14 @@ import com.opendev.bolao.util.BolaoTime;
 import com.opendev.bolao.util.FaseUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
 
+import jakarta.persistence.*;
+
+/**
+ * Representa um jogo da Copa do Mundo.
+ * Mapeado para a tabela JOG_JOGO via Spring Data JPA.
+ */
+@Entity
+@Table(name = "JOG_JOGO")
 public class Jogo implements Serializable, Comparable<Jogo> {
 
 	private static final long serialVersionUID = 1L;
@@ -30,14 +38,36 @@ public class Jogo implements Serializable, Comparable<Jogo> {
 	public static final int FASE_GRUPO_RODADA_2 = 12;
 	public static final int FASE_GRUPO_RODADA_3 = 13;
 	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "JOG_ID")
 	private Long id;
+
+	@Temporal(TemporalType.DATE)
+	@Column(name = "JOG_DATA", nullable = false)
 	private Date data;
+
+	@Column(name = "JOG_HORA", nullable = false)
 	private Time hora;
+
+	@Column(name = "JOG_LOCAL", nullable = false, length = 100)
 	private String local;
+
+	@Column(name = "JOG_EQP1_GOLS")
 	private Integer golsEquipe1;
+
+	@Column(name = "JOG_EQP2_GOLS")
 	private Integer golsEquipe2;
+
+	@Column(name = "JOG_FASE", nullable = false)
 	private int fase;
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "JOG_EQP1_ID")
 	private Equipe equipe1;
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "JOG_EQP2_ID")
 	private Equipe equipe2;
 	
 	private transient ZonedDateTime dataHora;
@@ -137,15 +167,15 @@ public class Jogo implements Serializable, Comparable<Jogo> {
 	}
 	
 	public boolean foiEmpate() {
-		return jaOcorreu() && this.golsEquipe1.compareTo(this.golsEquipe2) == 0;
+		return jaOcorreu() && jaFoiAtualizado() && this.golsEquipe1.compareTo(this.golsEquipe2) == 0;
 	}
 	
 	public boolean foiEquipe1Vencedora() {
-		return jaOcorreu() && this.golsEquipe1.compareTo(this.golsEquipe2) > 0;
+		return jaOcorreu() && jaFoiAtualizado() && this.golsEquipe1.compareTo(this.golsEquipe2) > 0;
 	}
 	
 	public boolean foiEquipe2Vencedora() {
-		return jaOcorreu() && this.golsEquipe1.compareTo(this.golsEquipe2) < 0;
+		return jaOcorreu() && jaFoiAtualizado() && this.golsEquipe1.compareTo(this.golsEquipe2) < 0;
 	}
     
     public boolean getPodeDarPalpite() {

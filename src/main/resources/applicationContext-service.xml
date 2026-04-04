@@ -9,8 +9,8 @@
 
 	<bean id="transactionProxyTemplate"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
-		abstract="true" scope="singleton" depends-on="sessionFactory">
-		<property name="transactionManager" ref="txManager" />
+		abstract="true" scope="singleton" depends-on="entityManagerFactory">
+		<property name="transactionManager" ref="transactionManager" />
 		<property name="frozen" value="false" />
 		<property name="transactionAttributes">
 			<props>
@@ -24,7 +24,7 @@
 
 	<bean id="equipeServiceImpl"
 		class="com.opendev.bolao.service.impl.EquipeServiceImpl">
-		<property name="equipeDao" ref="equipeDao" />
+		<property name="equipeRepository" ref="equipeRepository" />
 	</bean>
 	<bean id="equipeService" parent="transactionProxyTemplate">
 		<property name="proxyInterfaces">
@@ -37,9 +37,9 @@
 
 	<bean id="jogoServiceImpl"
 		class="com.opendev.bolao.service.impl.JogoServiceImpl">
-		<property name="jogoDao" ref="jogoDao" />
-		<property name="equipeDao" ref="equipeDao" />
-		<property name="participanteDao" ref="participanteDao" />
+		<property name="jogoRepository" ref="jogoRepository" />
+		<property name="equipeRepository" ref="equipeRepository" />
+		<property name="participanteRepository" ref="participanteRepository" />
 	</bean>
 	<bean id="jogoService" parent="transactionProxyTemplate">
 		<property name="proxyInterfaces">
@@ -52,9 +52,9 @@
 	
 	<bean id="palpiteServiceImpl"
 		class="com.opendev.bolao.service.impl.PalpiteServiceImpl">
-		<property name="jogoDao" ref="jogoDao" />
-		<property name="participanteDao" ref="participanteDao" />
-		<property name="palpiteDao" ref="palpiteDao" />
+		<property name="jogoRepository" ref="jogoRepository" />
+		<property name="participanteRepository" ref="participanteRepository" />
+		<property name="palpiteRepository" ref="palpiteRepository" />
 	</bean>
 	<bean id="palpiteService" parent="transactionProxyTemplate">
 		<property name="proxyInterfaces">
@@ -71,10 +71,10 @@
 
 	<bean id="participanteServiceImpl"
 		class="com.opendev.bolao.service.impl.ParticipanteServiceImpl">
-		<property name="participanteDao" ref="participanteDao" />
-		<property name="jogoDao" ref="jogoDao" />
-		<property name="privilegioDao" ref="privilegioDao" />
-		<property name="palpiteDao" ref="palpiteDao" />
+		<property name="participanteRepository" ref="participanteRepository" />
+		<property name="jogoRepository" ref="jogoRepository" />
+		<property name="privilegioRepository" ref="privilegioRepository" />
+		<property name="palpiteRepository" ref="palpiteRepository" />
 		<property name="passwordEncoder" ref="passwordEncoder" />
 	</bean>
 	<bean id="participanteService" parent="transactionProxyTemplate">

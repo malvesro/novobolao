@@ -2,22 +2,51 @@ package com.opendev.bolao.model;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import jakarta.persistence.*;
 
 import com.opendev.bolao.util.ConversaoUtils;
 import com.opendev.bolao.util.DadosClassificacao;
 
+/**
+ * Representa um palpite feito por um participante em um jogo.
+ * Mapeado para a tabela PAL_PALPITE com chave composta (Participante, Jogo).
+ */
+@Entity
+@Table(name = "PAL_PALPITE")
+@IdClass(PalpiteId.class)
 public class Palpite implements Serializable, Comparable {
 
 	private static final long serialVersionUID = 1L;
 	
+	@Id
+	@Column(name = "PAL_PAR_ID")
 	private Long idParticipante;
+
+	@Id
+	@Column(name = "PAL_JOG_ID")
 	private Long idJogo;
+
+	@Column(name = "PAL_EQP1_GOLS", nullable = false)
 	private Integer golsEquipe1;
+
+	@Column(name = "PAL_EQP2_GOLS", nullable = false)
 	private Integer golsEquipe2;
+
+	@Column(name = "PAL_IP", nullable = false, length = 45)
 	private String ip;
+
+	@Column(name = "PAL_DH_ATUALIZACAO", nullable = false)
 	private Timestamp dataHoraAtualizacao;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "PAL_PAR_ID", insertable = false, updatable = false)
 	private Participante participante;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "PAL_JOG_ID", insertable = false, updatable = false)
 	private Jogo jogo;
+
+	@Transient
 	private DadosClassificacao dadosClassificacao;
 
 	public Integer getGolsEquipe1() {
