@@ -2,20 +2,48 @@ package com.opendev.bolao.model;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import jakarta.persistence.*;
 
-
+/**
+ * Representa um palpite em um bolão individual.
+ * Mapeado para a tabela PAI_PALPITE_INDIVIDUAL com chave composta.
+ */
+@Entity
+@Table(name = "PAI_PALPITE_INDIVIDUAL")
+@IdClass(PalpiteBolaoIndividualId.class)
 public class PalpiteBolaoIndividual implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	@Id
+	@Column(name = "PAI_BOI_ID")
 	private Long bolaoIndividualId;
+
+	@Id
+	@Column(name = "PAI_PAR_ID")
     private Long participanteId;
+
+	@Column(name = "PAI_PAR_PAGO", nullable = false)
     private boolean pago;
+
+	@Column(name = "PAI_EQP1_GOLS", nullable = false)
     private Integer golsEquipe1;
+
+	@Column(name = "PAI_EQP2_GOLS", nullable = false)
     private Integer golsEquipe2;
+
+	@Column(name = "PAL_IP", nullable = false, length = 45)
     private String ip;
+
+	@Column(name = "PAI_DH_PAGTO", nullable = false)
     private Timestamp dataHoraPagamento;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "PAI_BOI_ID", insertable = false, updatable = false)
     private BolaoIndividual bolaoIndividual;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "PAI_PAR_ID", insertable = false, updatable = false)
     private Participante participante;
     
     public BolaoIndividual getBolaoIndividual() {
