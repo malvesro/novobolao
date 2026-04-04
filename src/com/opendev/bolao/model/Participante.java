@@ -13,29 +13,64 @@ import com.opendev.bolao.exception.ValidacaoException;
 import com.opendev.bolao.util.Cache;
 import com.opendev.bolao.util.DadosClassificacao;
 import com.opendev.bolao.util.MensagemErro;
+import com.opendev.bolao.util.SanitizationUtils;
 import com.opendev.bolao.util.StringUtils;
 import com.opendev.bolao.util.ValidacaoUtils;
-import com.opendev.bolao.util.SanitizationUtils;
 
+import com.opendev.bolao.util.jpa.BooleanCharConverter;
+
+import jakarta.persistence.*;
+
+/**
+ * Representa um participante do bolão.
+ * Mapeado para a tabela PAR_PARTICIPANTE via Spring Data JPA.
+ */
+@Entity
+@Table(name = "PAR_PARTICIPANTE")
 public class Participante implements Serializable, Comparable {
 
 	private static final long serialVersionUID = 1L;
 	private static final Cache CACHE_DADOS_CLASSIFICACAO = new Cache();
     public static final Comparator COMPARADOR_NOME = new Participante.ComparadorNome();
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "PAR_ID")
 	private Long id;
+
+	@Column(name = "PAR_NOME", nullable = false, length = 80)
 	private String nome;
+
+	@Column(name = "PAR_LOGIN", nullable = false, unique = true, length = 32)
 	private String login;
+
+	@Column(name = "PAR_SENHA", nullable = false)
 	private String senha;
+
+	@Column(name = "PAR_EMAIL", nullable = false, length = 254)
 	private String email;
+
     private transient boolean loginPossuiMarkup;
     private transient boolean nomePossuiMarkup;
     private transient boolean emailPossuiMarkup;
+
+	@Convert(converter = BooleanCharConverter.class)
+	@Column(name = "PAR_HABILITADO", nullable = false, columnDefinition = "char(1)", length = 1)
 	private boolean habilitado;
+
+	@Column(name = "PAR_IP", nullable = false, length = 45)
     private String ip;
+
+	@Column(name = "PAR_DH_CADASTRO", nullable = false)
     private Timestamp dataHoraCadastro;
-	private Set palpites;
-	private Set privilegios;
+
+	@OneToMany(mappedBy = "participante", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+	private Set<Palpite> palpites;
+
+	@OneToMany(mappedBy = "idParticipante", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<Privilegio> privilegios;
+
+	@Transient
 	private DadosClassificacao pontuacaoTotal;
 
 	public String getEmail() {
@@ -139,6 +174,7 @@ public class Participante implements Serializable, Comparable {
 		}
 		Privilegio privilegio = new Privilegio();
 		privilegio.setPapel(papel);
+		privilegio.setIdParticipante(this.id);
 		this.privilegios.add(privilegio);
 	}
     
@@ -243,9 +279,13 @@ public class Participante implements Serializable, Comparable {
 
 	public int compareTo(Object o) {
         Participante outro = (Participante) o;
-        int comparacaoPontuacao = outro.getPontuacaoTotal().getPontuacao() - this.getPontuacaoTotal().getPontuacao();
-        int comparacaoNomes = this.getNomeFormatado().compareToIgnoreCase(outro.getNomeFormatado());
-        return (comparacaoPontuacao * 100) + comparacaoNomes;
+        DadosClassificacao minhaPontuacao = this.getPontuacaoTotal();
+        DadosClassificacao outraPontuacao = outro.getPontuacaoTotal();
+        int comparacaoPontuacao = outraPontuacao.getPontuacao() - minhaPontuacao.getPontuacao();
+        if (comparacaoPontuacao != 0) {
+            return comparacaoPontuacao;
+        }
+        return this.getNomeFormatado().compareToIgnoreCase(outro.getNomeFormatado());
     }
     
     public String getNomeFormatado() {

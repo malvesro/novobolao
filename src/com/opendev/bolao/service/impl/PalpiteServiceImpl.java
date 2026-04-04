@@ -4,30 +4,34 @@ import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 
-import com.opendev.bolao.dao.JogoDao;
-import com.opendev.bolao.dao.PalpiteDao;
-import com.opendev.bolao.dao.ParticipanteDao;
+import com.opendev.bolao.repository.JogoRepository;
+import com.opendev.bolao.repository.PalpiteRepository;
+import com.opendev.bolao.repository.ParticipanteRepository;
 import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.model.Palpite;
 import com.opendev.bolao.model.Participante;
 import com.opendev.bolao.service.PalpiteService;
 
+/**
+ * Implementação do serviço de Palpite.
+ * Refatorado para utilizar Spring Data JPA Repositories.
+ */
 public class PalpiteServiceImpl implements PalpiteService {
 	
-	private JogoDao jogoDao;
-	private ParticipanteDao participanteDao;
-	private PalpiteDao palpiteDao;
+	private JogoRepository jogoRepository;
+	private ParticipanteRepository participanteRepository;
+	private PalpiteRepository palpiteRepository;
 
 	
 	public Palpite buscarPalpiteDoJogo(String login, Long idJogo) {
-		return getPalpiteDao().buscarPorParticipanteEJogo(login, idJogo);
+		return getPalpiteRepository().findByParticipanteLoginAndIdJogo(login, idJogo);
 	}
 	
 	public void atualizarPalpite(String login, Long idJogo, Integer golsEquipe1, Integer golsEquipe2, String ip) {
 		if (!podeAtualizar(idJogo)) {
 			throw new IllegalStateException("O horário limite para confirmação foi ultrapassado!");
 		}
-		Participante participante = getParticipanteDao().buscarPorLogin(login)
+		Participante participante = getParticipanteRepository().findByLogin(login)
 				.orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado: " + login));
 		
 		if (participante.isAdministrador()) {
@@ -35,7 +39,7 @@ public class PalpiteServiceImpl implements PalpiteService {
 		}
 
 		// Busca palpite existente para atualização ou cria um novo se não existir
-		Palpite palpite = getPalpiteDao().buscarPorParticipanteEJogo(login, idJogo);
+		Palpite palpite = getPalpiteRepository().findByParticipanteLoginAndIdJogo(login, idJogo);
 		if (palpite == null) {
 			palpite = new Palpite();
 			palpite.setIdJogo(idJogo);
@@ -47,62 +51,47 @@ public class PalpiteServiceImpl implements PalpiteService {
 		palpite.setIp(ip);
 		palpite.setDataHoraAtualizacao(new Timestamp(System.currentTimeMillis()));
 		
-		getPalpiteDao().salvar(palpite);
-//        Email email = new Email("auditoriaPalpiteAlterado.html", "[Importante] Confirmação de palpite");
-//        Equipe equipe1 = palpite.getJogo().getEquipe1();
-//        Equipe equipe2 = palpite.getJogo().getEquipe2();
-//        String representacaoPalpite = equipe1.getNomePais() + " " + palpite.getGolsEquipe1() + " X " + palpite.getGolsEquipe2() + " " + equipe2.getNomePais();
-//        email.setPropriedade("palpite", representacaoPalpite);
-//        email.setPropriedade("ip", palpite.getIp());
-//        DateFormat df = new SimpleDateFormat("dd/MM/yyyy - HH:mm:SS");
-//        email.setPropriedade("dh", df.format(palpite.getDataHoraAtualizacao()));
-//        email.adicionarEnderecoDestino(participante.getEmail());
-//        try {
-//            email.enviar();
-//        } catch (Exception e) {
-//            // TODO logar erro
-//            e.printStackTrace();
-//        }
+		getPalpiteRepository().save(palpite);
 	}
     
-    public List buscarPalpitesDoJogo(Long idJogo) {
-    	List palpites = getPalpiteDao().buscarPorJogo(idJogo);
+    public List<Palpite> buscarPalpitesDoJogo(Long idJogo) {
+    	List<Palpite> palpites = getPalpiteRepository().findByIdJogo(idJogo);
     	Collections.sort(palpites);
         return palpites;
     }
 	
 	private boolean podeAtualizar(Long idJogo) {
-		return getJogoDao().buscarPorId(idJogo)
+		return getJogoRepository().findById(idJogo)
 				.map(Jogo::getPodeDarPalpite)
 				.orElse(false);
 	}
 	
-	public List buscarPalpitesDoParticipante(String login) {
-		return getPalpiteDao().buscarPorParticipante(login);
+	public List<Palpite> buscarPalpitesDoParticipante(String login) {
+		return getPalpiteRepository().findByParticipanteLogin(login);
 	}
 	
-	public ParticipanteDao getParticipanteDao() {
-		return participanteDao;
+	public ParticipanteRepository getParticipanteRepository() {
+		return participanteRepository;
 	}
 
-	public void setParticipanteDao(ParticipanteDao participanteDao) {
-		this.participanteDao = participanteDao;
+	public void setParticipanteRepository(ParticipanteRepository participanteRepository) {
+		this.participanteRepository = participanteRepository;
 	}
 
-	public PalpiteDao getPalpiteDao() {
-		return palpiteDao;
+	public PalpiteRepository getPalpiteRepository() {
+		return palpiteRepository;
 	}
 
-	public void setPalpiteDao(PalpiteDao palpiteDao) {
-		this.palpiteDao = palpiteDao;
+	public void setPalpiteRepository(PalpiteRepository palpiteRepository) {
+		this.palpiteRepository = palpiteRepository;
 	}
 
-	public JogoDao getJogoDao() {
-		return jogoDao;
+	public JogoRepository getJogoRepository() {
+		return jogoRepository;
 	}
 
-	public void setJogoDao(JogoDao jogoDao) {
-		this.jogoDao = jogoDao;
+	public void setJogoRepository(JogoRepository jogoRepository) {
+		this.jogoRepository = jogoRepository;
 	}
 
 }

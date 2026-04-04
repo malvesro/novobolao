@@ -1,74 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
        xsi:schemaLocation="
-           http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans.xsd">
+           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+           http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
 
 	<!-- Support for Environment Variables / System Properties -->
-	<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"/>
+	<context:property-placeholder />
+	
+	<!-- Component Scan for infrastructure (including JpaRepositoriesConfig) -->
+	<context:component-scan base-package="com.opendev.bolao.infrastructure" />
 
-	<bean id="sessionFactory"
-		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean"
-		lazy-init="false" >
+	<!-- JPA EntityManagerFactory (Hibernate 6) -->
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
 		<property name="dataSource" ref="defaultDataSource" />
-		<property name="hibernateProperties">
+		<property name="packagesToScan" value="com.opendev.bolao.model" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+				<property name="databasePlatform" value="org.hibernate.dialect.MySQLDialect" />
+				<property name="showSql" value="false" />
+				<property name="generateDdl" value="false" />
+			</bean>
+		</property>
+		<property name="jpaProperties">
 			<props>
-				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
-				<prop key="hibernate.show_sql">false</prop>
 				<prop key="hibernate.format_sql">false</prop>
 				<prop key="hibernate.order_updates">true</prop>
 				<prop key="hibernate.hbm2ddl.auto">validate</prop>
 			</props>
 		</property>
-		<property name="mappingResources">
-			<list>
-				<value>/com/opendev/bolao/model/Participante.hbm.xml</value>
-				<value>/com/opendev/bolao/model/Equipe.hbm.xml</value>
-				<value>/com/opendev/bolao/model/Jogo.hbm.xml</value>
-				<value>/com/opendev/bolao/model/Palpite.hbm.xml</value>
-				<value>/com/opendev/bolao/model/Privilegio.hbm.xml</value>
-				<value>/com/opendev/bolao/model/BolaoIndividual.hbm.xml</value>
-				<value>/com/opendev/bolao/model/PalpiteBolaoIndividual.hbm.xml</value>
-			</list>
-		</property>
 	</bean>
 	
-	<bean id="txManager"
-		class="org.springframework.orm.hibernate5.HibernateTransactionManager"
-		depends-on="sessionFactory">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
+	<!-- JPA Transaction Manager -->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
 	</bean>
 	
+	<!-- Enable Annotation-based Transactions -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
 
-	<!-- DAOs definitions -->
-	
-	<bean id="equipeDao" class="com.opendev.bolao.dao.hibernate.EquipeDaoImpl" depends-on="sessionFactory">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="jogoDao" class="com.opendev.bolao.dao.hibernate.JogoDaoImpl" depends-on="sessionFactory">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="palpiteDao" class="com.opendev.bolao.dao.hibernate.PalpiteDaoImpl" depends-on="sessionFactory">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="participanteDao" class="com.opendev.bolao.dao.hibernate.ParticipanteDaoImpl" depends-on="sessionFactory">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
-	<bean id="privilegioDao" class="com.opendev.bolao.dao.hibernate.PrivilegioDaoImpl" depends-on="sessionFactory">
-		<property name="sessionFactory">
-			<ref bean="sessionFactory" />
-		</property>
-	</bean>
+	<!-- Spring Data JPA Repositories Scan -->
+	<!-- Spring Data JPA Repositories Scan movido para JpaRepositoriesConfig.java -->
 
 </beans>

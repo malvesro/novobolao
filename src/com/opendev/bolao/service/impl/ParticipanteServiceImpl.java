@@ -16,10 +16,10 @@ import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
-import com.opendev.bolao.dao.JogoDao;
-import com.opendev.bolao.dao.PalpiteDao;
-import com.opendev.bolao.dao.ParticipanteDao;
-import com.opendev.bolao.dao.PriviledioDao;
+import com.opendev.bolao.repository.JogoRepository;
+import com.opendev.bolao.repository.PalpiteRepository;
+import com.opendev.bolao.repository.ParticipanteRepository;
+import com.opendev.bolao.repository.PrivilegioRepository;
 import com.opendev.bolao.email.Email;
 import com.opendev.bolao.exception.ValidacaoException;
 import com.opendev.bolao.grafico.GraficoBarraLideres;
@@ -28,6 +28,7 @@ import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.model.Palpite;
 import com.opendev.bolao.model.Participante;
 import com.opendev.bolao.model.Privilegio;
+import com.opendev.bolao.model.PrivilegioId;
 import com.opendev.bolao.service.ParticipanteService;
 import com.opendev.bolao.util.DadosClassificacao;
 import com.opendev.bolao.util.SanitizationUtils;
@@ -35,56 +36,56 @@ import com.opendev.bolao.util.MensagemErro;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
+/**
+ * Implementação do serviço de Participante.
+ * Refatorado para utilizar Spring Data JPA Repositories.
+ */
 public class ParticipanteServiceImpl implements ParticipanteService {
 	
-	private ParticipanteDao participanteDao;
-	private JogoDao jogoDao;
-	private PriviledioDao privilegioDao;
-	private PalpiteDao palpiteDao;
+	private ParticipanteRepository participanteRepository;
+	private JogoRepository jogoRepository;
+	private PrivilegioRepository privilegioRepository;
+	private PalpiteRepository palpiteRepository;
 	private PasswordEncoder passwordEncoder;
 
 	public synchronized List buscarClassificacao() {
-		List participantesAll = new ArrayList(getParticipanteDao().buscarTodosDoBolaoGeral());
-		List participantes = new ArrayList();
+		List<Participante> participantesAll = getParticipanteRepository().findAll();
+		List<Participante> participantes = new ArrayList<>();
 		
-		for (Object p : participantesAll) {
-			Participante part = (Participante) p;
+		for (Participante part : participantesAll) {
 			if (!part.isAdministrador()) {
 				participantes.add(part);
 			}
 		}
 
-		Participante participante = null;
-			long totalDeJogos = getJogoDao().buscarQuantidadeDeJogosOcorridos();
-			int qtdeDeJogos = Math.toIntExact(totalDeJogos);
-		DadosClassificacao totais = null;
-		for (Iterator iter = participantes.iterator(); iter.hasNext();) {
-			participante = (Participante) iter.next();
-			totais = participante.getPontuacaoTotal();
+		long totalDeJogos = getJogoRepository().countJogosFinalizados();
+		int qtdeDeJogos = Math.toIntExact(totalDeJogos);
+		for (Participante participante : participantes) {
+			DadosClassificacao totais = participante.getPontuacaoTotal();
 			totais.setTotalDeJogos(qtdeDeJogos);
 		}
 		Participante.notificarCacheAtualizado();
 		return participantes;
 	}
-    // ... other methods ...
+
 	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
 		this.passwordEncoder = passwordEncoder;
 	}
 	
 	public GraficoComparativoDesempenho construirGraficoDesempenho(Participante participante, Long idRivail) {
 		TimeSeriesCollection seriesCollection = null;
-		List participantes = null;
+		List<Participante> participantes = null;
 		if (participante != null) {
 			if (idRivail != null) {
-				participantes = new ArrayList(2);
+				participantes = new ArrayList<>(2);
 				participantes.add(participante);
-                getParticipanteDao().buscarPorId(idRivail).ifPresent(participantes::add);
+                getParticipanteRepository().findById(idRivail).ifPresent(participantes::add);
 			} else {
-				participantes = new ArrayList(1);
+				participantes = new ArrayList<>(1);
 				participantes.add(participante);
 			}
 			TimeSeries series = null;
-			List jogos = getJogoDao().buscarJogosOcorridos();
+			List<Jogo> jogos = getJogoRepository().findJogosFinalizados();
 			Palpite palpiteDoJogo = null;
 			Participante umParticipante = null;
 			Jogo jogo = null;
@@ -95,7 +96,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 				series = new TimeSeries(umParticipante.getNomeFormatado());
 				for (int i = 0; i < jogos.size(); i++) {
 					jogo = (Jogo) jogos.get(i);
-					palpiteDoJogo = getPalpiteDao().buscarPorParticipanteEJogo(umParticipante, jogo);
+					palpiteDoJogo = getPalpiteRepository().findByParticipanteAndJogo(umParticipante, jogo);
 					if (palpiteDoJogo != null) {
 						pontos += palpiteDoJogo.getPontuacao().getPontuacao();
 					}
@@ -109,56 +110,64 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 	}
 
     public Optional<Participante> buscarPorLogin(String login) {
-        return getParticipanteDao().buscarPorLogin(login);
+        return getParticipanteRepository().findByLogin(login);
     }
 
     public Optional<Participante> buscarPorEmail(String email) {
-        return getParticipanteDao().buscarPorEmail(email);
+        return getParticipanteRepository().findByEmail(email);
     }
 
     public List buscarTodos() {
-        return getParticipanteDao().buscarTodos();
+        return getParticipanteRepository().findAll();
     }
 
     public void atualizarAutorizacao(Long id, boolean autorizado) {
-        getParticipanteDao().buscarPorId(id).ifPresent(participante -> {
+        getParticipanteRepository().findById(id).ifPresent(participante -> {
             participante.setHabilitado(autorizado);
+            getParticipanteRepository().save(participante);
             Set privilegios = participante.getPrivilegios();
             if (autorizado == true && (privilegios != null && !privilegios.isEmpty())) {
-                Email email = new Email("notificacaoCadastroAprovado.html", "Confirmaï¿½ï¿½o de cadastro");
+                Email email = new Email("notificacaoCadastroAprovado.html", "Confirmação de cadastro");
                 email.setPropriedade("nome", participante.getNome());
                 email.adicionarEnderecoDestino(participante.getEmail());
                 try {
                     email.enviar();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    // TODO logar erro ao enviar;
                 }
             }
         });
     }
 
+    /**
+     * Atualiza os papéis (privilégios) de um participante.
+     * @param id ID do participante.
+     * @param papel Papel a ser atribuído.
+     */
     public void atualizarPapel(Long id, String papel) {
-        getParticipanteDao().buscarPorId(id).ifPresent(participante -> {
-            Set privilegios = participante.getPrivilegios();
+        getParticipanteRepository().findById(id).ifPresent(participante -> {
+            Set<Privilegio> privilegios = participante.getPrivilegios();
             if (privilegios == null) {
-                privilegios = new HashSet();
+                privilegios = new HashSet<>();
             } else {
-                for (Iterator iter = privilegios.iterator(); iter.hasNext();) {
-                    Privilegio p = (Privilegio) iter.next();
+                for (Iterator<Privilegio> iter = privilegios.iterator(); iter.hasNext();) {
+                    Privilegio p = iter.next();
                     iter.remove();
-                    getPrivilegioDao().apagar(p);
+                    getPrivilegioRepository().delete(p);
                 }
             }
             String papelNormalizado = normalizarPapel(papel);
-            participante.setPrivilegios(privilegios);
             if (papelNormalizado == null) {
+                participante.setPrivilegios(privilegios);
+                getParticipanteRepository().save(participante);
                 return;
             }
             Privilegio privilegio = new Privilegio();
             privilegio.setIdParticipante(participante.getId());
             privilegio.setPapel(papelNormalizado);
             privilegios.add(privilegio);
+            participante.setPrivilegios(privilegios);
+            getParticipanteRepository().save(participante);
         });
     }
 
@@ -181,7 +190,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
             return;
         }
 
-        List erros = new ArrayList();
+        List<MensagemErro> erros = new ArrayList<>();
         String loginOriginal = participante.getLogin();
         String nomeOriginal = participante.getNome();
         String emailOriginal = participante.getEmail();
@@ -209,6 +218,12 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         }
     }
     
+    /**
+     * Cria um novo participante no sistema.
+     * @param participante Participante a ser criado.
+     * @return O participante criado.
+     * @throws ValidacaoException Caso haja erro de validação.
+     */
     public Participante criarNovo(Participante participante) throws ValidacaoException {
         aplicarSanitizacaoCadastro(participante);
         participante.validar();
@@ -216,7 +231,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         participante.setDataHoraCadastro(new Timestamp(System.currentTimeMillis()));
         participante.setLogin(participante.getLogin() == null ? null : participante.getLogin().trim().toLowerCase());
         participante.setEmail(participante.getEmail() == null ? null : participante.getEmail().trim());
-        getParticipanteDao().salvar(participante);
+        getParticipanteRepository().save(participante);
         Email email = criarEmail("novoCadastro.html", "Novo pedido de cadastro pendente");
         email.adicionarEnderecoDestino("deinf.rochett@bc");
         email.adicionarEnderecoDestino("rosner.suporte.deinf@bcb.gov.br");
@@ -224,7 +239,6 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         try {
             email.enviar();
         } catch (Exception e) {
-            // TODO logar esception
             e.printStackTrace();
         }
         return participante;
@@ -236,14 +250,14 @@ public class ParticipanteServiceImpl implements ParticipanteService {
     
     public GraficoBarraLideres construirGraficoDeBarrasDosLideres() {
         DefaultCategoryDataset dataSet = new DefaultCategoryDataset();
-        List participantes = buscarClassificacao();
+        List<Participante> participantes = buscarClassificacao();
         Collections.sort(participantes);
         Participante participante = null;
         long pontuacaoAnterior = -1L;
         long pontuacao = -1L;
         int posicoesDiferentes = 0;
         for (int i = 0; i < participantes.size(); i++) {
-            participante = (Participante) participantes.get(i);
+            participante = participantes.get(i);
             pontuacao = participante.getPontuacaoTotal().getPontuacao();
             if (pontuacaoAnterior != pontuacao) {
                 posicoesDiferentes++;
@@ -257,43 +271,43 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         return new GraficoBarraLideres(dataSet);
     }
     
-    public ParticipanteDao getParticipanteDao() {
-        return participanteDao;
+    public ParticipanteRepository getParticipanteRepository() {
+        return participanteRepository;
     }
 
-    public void setParticipanteDao(ParticipanteDao participanteDao) {
-        this.participanteDao = participanteDao;
+    public void setParticipanteRepository(ParticipanteRepository participanteRepository) {
+        this.participanteRepository = participanteRepository;
     }
 
-	public JogoDao getJogoDao() {
-		return jogoDao;
-	}
+    public JogoRepository getJogoRepository() {
+        return jogoRepository;
+    }
 
-	public void setJogoDao(JogoDao jogoDao) {
-		this.jogoDao = jogoDao;
-	}
+    public void setJogoRepository(JogoRepository jogoRepository) {
+        this.jogoRepository = jogoRepository;
+    }
 
+    /**
+     * Apaga um participante pelo seu ID.
+     * @param id ID do participante.
+     */
     public void apagar(Long id) {
-        getParticipanteDao().apagar(id);
+        getParticipanteRepository().deleteById(id);
     }
 
-	public PriviledioDao getPrivilegioDao() {
-		return privilegioDao;
-	}
+    public PrivilegioRepository getPrivilegioRepository() {
+        return privilegioRepository;
+    }
 
-	public void setPrivilegioDao(PriviledioDao privilegioDao) {
-		this.privilegioDao = privilegioDao;
-	}
+    public void setPrivilegioRepository(PrivilegioRepository privilegioRepository) {
+        this.privilegioRepository = privilegioRepository;
+    }
 
-	public PalpiteDao getPalpiteDao() {
-		return palpiteDao;
-	}
+    public PalpiteRepository getPalpiteRepository() {
+        return palpiteRepository;
+    }
 
-	public void setPalpiteDao(PalpiteDao palpiteDao) {
-		this.palpiteDao = palpiteDao;
-	}
-
-
-
-	
+    public void setPalpiteRepository(PalpiteRepository palpiteRepository) {
+        this.palpiteRepository = palpiteRepository;
+    }
 }
