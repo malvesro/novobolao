@@ -345,10 +345,10 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído (27/03/2026)] Iteração 6 – Painel "Ver Grupo" via `<details>` inline:** Ver palpites do grupo sem modal.
     * **[Concluído (27/03/2026)] Iteração 7 – Build completo, pipeline e documentação:** Encerrar e documentar.
 
-### Fase 2.8: Refinanciamento de Débito Técnico e Arquitetura (PLANEJADO)
+### Fase 2.8: Refinanciamento de Débito Técnico e Arquitetura (CONCLUÍDO)
 
-1. **[Pendente]** **Migração para java.util.Optional:** Substituir o uso frequente de retornos `null` em buscas de entidade única nos Services e DAOs por `Optional<T>`, reduzindo o risco de NullPointerExceptions e tornando o código mais expressivo.
-2. **[Pendente]** **Adoção de Spring Data JPA:** Substituir as implementações manuais de DAO (`ParticipanteDaoImpl`, `JogoDaoImpl`, etc.) por interfaces `Repository` do Spring Data JPA, eliminando código boilerplate e aproveitando recursos modernos de paginação e consulta.
+1. **[Concluído]** **Migração para java.util.Optional:** Substituído o uso de retornos `null` por `Optional<T>` nos repositórios e serviços migrados.
+2. **[Concluído]** **Adoção de Spring Data JPA:** Removidas as implementações manuais de DAO e substituídas por `JpaRepository`. Configuração movida para `JpaRepositoriesConfig.java`. (Fase 2.8.1, 2.8.2, 2.8.3)
 3. **[Pendente]** **Modernização de Validação:** Migrar os métodos `validar()` manuais dos modelos para anotações do Jakarta Bean Validation (`@NotBlank`, `@Email`, etc.).
 
 ### Fase 3: Infraestrutura e Containerização (MODERNIZAÇÃO DE AMBIENTE)
