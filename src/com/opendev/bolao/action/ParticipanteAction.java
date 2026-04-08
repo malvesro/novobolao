@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import com.opendev.bolao.exception.ValidacaoException;
@@ -36,6 +37,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.apache.struts2.ActionSupport;
+import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.interceptor.parameter.StrutsParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +64,9 @@ public class ParticipanteAction extends ActionSupport {
     private List equipes;
     private FiltroBuscaJogos filtro;
     private Participante participanteLogado;
+    private long progressoPalpitesTotal;
+    private long progressoPalpitesPreenchidos;
+    private int progressoPalpitesPercentual;
     private Map<Long, Palpite> palpitesUsuario;
     private Long jogoId;
     private Integer palpiteGolsEquipe1;
@@ -130,21 +135,22 @@ public class ParticipanteAction extends ActionSupport {
 	}
 	
 	public String prepararInfoPalpites() {
-        if (this.login == null) {
-            this.login = RequestUtils.getLoginParticipanteAutenticado();
-        }
-        FiltroBuscaJogos filtro = obterFiltro();
-        if (filtro == null) {
-            setJogos(getJogoService().buscarTodos());
-        } else {
-            setJogos(getJogoService().buscarUsandoFiltro(filtro));
-            setFiltro(filtro);
-        }
-        setEquipes(getEquipeService().buscarTodasEquipes());
-        setTelaPalpites(true);
-        prepararMapaPalpitesUsuario();
-        return SUCCESS;
-    }
+	       if (this.login == null) {
+	           this.login = RequestUtils.getLoginParticipanteAutenticado();
+	       }
+	       FiltroBuscaJogos filtro = obterFiltro();
+	       if (filtro == null) {
+	           setJogos(getJogoService().buscarTodos());
+	       } else {
+	           setJogos(getJogoService().buscarUsandoFiltro(filtro));
+	           setFiltro(filtro);
+	       }
+	       setEquipes(getEquipeService().buscarTodasEquipes());
+	       setTelaPalpites(true);
+	       prepararMapaPalpitesUsuario();
+	       atualizarProgressoPalpites(filtro);
+	       return SUCCESS;
+	   }
 
     private void prepararMapaPalpitesUsuario() {
         String loginLocal = this.login;
@@ -387,6 +393,7 @@ public class ParticipanteAction extends ActionSupport {
             if (this.jogoId != null) {
                 prepararConteudoPalpite();
             }
+            atualizarProgressoPalpites(obterFiltro());
             return ERROR;
         }
         // Validação básica: precisamos ao menos do jogoId
@@ -394,6 +401,7 @@ public class ParticipanteAction extends ActionSupport {
             LOGGER.warn("{} jogoId ausente", LOG_PREFIX_UPDATE);
             this.palpiteAtualizado = false;
             this.palpiteErro = getText("match.tip.error.unavailable");
+            atualizarProgressoPalpites(obterFiltro());
             return ERROR;
         }
 
@@ -406,12 +414,13 @@ public class ParticipanteAction extends ActionSupport {
 
         // Só tentamos salvar se ambos os gols estiverem presentes
         if (this.palpiteGolsEquipe1 == null || this.palpiteGolsEquipe2 == null) {
-            LOGGER.debug("{} salvamento postergado: aguardando preenchimento de ambos os campos (gols1={}, gols2={})", 
+            LOGGER.debug("{} salvamento postergado: aguardando preenchimento de ambos os campos (gols1={}, gols2={})",
                     LOG_PREFIX_UPDATE, this.palpiteGolsEquipe1, this.palpiteGolsEquipe2);
             this.palpiteAtualizado = false;
             prepararConteudoPalpite();
             // Sobrescrevemos o palpite carregado do banco pelo temporário para manter o valor no input
             this.palpiteSelecionado = palpiteTemp;
+            atualizarProgressoPalpites(obterFiltro());
             return SUCCESS;
         }
         String resultado;
@@ -431,6 +440,14 @@ public class ParticipanteAction extends ActionSupport {
             }
             prepararConteudoPalpite();
             resultado = ERROR;
+        }
+        atualizarProgressoPalpites(obterFiltro());
+        if (SUCCESS.equals(resultado) && this.palpiteAtualizado && request != null
+                && "true".equalsIgnoreCase(request.getHeader("HX-Request"))) {
+            HttpServletResponse response = ServletActionContext.getResponse();
+            if (response != null) {
+                response.setHeader("HX-Trigger", "{\"palpiteProgressRefresh\":true}");
+            }
         }
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("{} resultado={} palpiteAtualizado={} palpiteStatus={} palpitePermitido={} palpiteErro={}",
@@ -585,6 +602,35 @@ public class ParticipanteAction extends ActionSupport {
         if (request != null) {
             request.setAttribute("skipTemplate", Boolean.TRUE);
         }
+    }
+
+    private void atualizarProgressoPalpites(FiltroBuscaJogos filtro) {
+        if (this.palpitesUsuario == null) {
+            prepararMapaPalpitesUsuario();
+        }
+        long totalJogos = getJogoService().contarJogosUsandoFiltro(filtro);
+        this.progressoPalpitesTotal = Math.max(0, totalJogos);
+        if (this.palpitesUsuario == null || this.palpitesUsuario.isEmpty() || totalJogos == 0) {
+            this.progressoPalpitesPreenchidos = 0;
+            this.progressoPalpitesPercentual = 0;
+            return;
+        }
+        long preenchidos = 0;
+        List jogosFiltrados = filtro == null ? getJogoService().buscarTodos() : getJogoService().buscarUsandoFiltro(filtro);
+        if (jogosFiltrados != null) {
+            for (Object item : jogosFiltrados) {
+                Jogo jogo = (Jogo) item;
+                if (jogo == null || jogo.getId() == null) {
+                    continue;
+                }
+                Palpite palpite = this.palpitesUsuario.get(jogo.getId());
+                if (palpite != null && palpite.getGolsEquipe1() != null && palpite.getGolsEquipe2() != null) {
+                    preenchidos++;
+                }
+            }
+        }
+        this.progressoPalpitesPreenchidos = preenchidos;
+        this.progressoPalpitesPercentual = (int) Math.min(100, Math.round((double) preenchidos * 100.0 / (double) totalJogos));
     }
 
     private void registrarCabecalhosHtmx(HttpServletRequest request, String prefixoLog) {
@@ -881,10 +927,34 @@ public class ParticipanteAction extends ActionSupport {
 	public FiltroBuscaJogos getFiltro() {
 		return filtro;
 	}
-
+	
 	public void setFiltro(FiltroBuscaJogos filtro) {
 		this.filtro = filtro;
 	}
+
+	   public long getProgressoPalpitesTotal() {
+	       return progressoPalpitesTotal;
+	   }
+
+	   public void setProgressoPalpitesTotal(long progressoPalpitesTotal) {
+	       this.progressoPalpitesTotal = progressoPalpitesTotal;
+	   }
+
+	   public long getProgressoPalpitesPreenchidos() {
+	       return progressoPalpitesPreenchidos;
+	   }
+
+	   public void setProgressoPalpitesPreenchidos(long progressoPalpitesPreenchidos) {
+	       this.progressoPalpitesPreenchidos = progressoPalpitesPreenchidos;
+	   }
+
+	   public int getProgressoPalpitesPercentual() {
+	       return progressoPalpitesPercentual;
+	   }
+
+	   public void setProgressoPalpitesPercentual(int progressoPalpitesPercentual) {
+	       this.progressoPalpitesPercentual = progressoPalpitesPercentual;
+	   }
 
     
     public Participante getParticipanteLogado() {

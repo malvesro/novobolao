@@ -1,0 +1,68 @@
+<%-- Fragmento de barra de progresso de palpites (HTMX-ready). --%>
+<c:set var="totalPalpites" value="${progressoPalpitesTotal}" />
+<c:set var="preenchidosPalpites" value="${progressoPalpitesPreenchidos}" />
+<c:set var="percentualPalpites" value="${progressoPalpitesPercentual}" />
+<c:choose>
+    <c:when test="${totalPalpites gt 0 and preenchidosPalpites eq totalPalpites}">
+        <c:set var="progressBadgeClass" value="badge--registered" />
+        <c:set var="progressBadgeLabel" value="Completo" />
+    </c:when>
+    <c:otherwise>
+        <c:set var="progressBadgeClass" value="badge--pending" />
+        <c:set var="progressBadgeLabel" value="Incompleto" />
+    </c:otherwise>
+</c:choose>
+<c:choose>
+    <c:when test="${progressOobRow}">
+        <tr class="htmx-oob-row" style="display: none;">
+            <td colspan="7">
+                <div class="sticky-header" id="palpiteProgressContainer" hx-swap-oob="outerHTML">
+                    <div class="container container--flex">
+                        <div class="progress-info">
+                            <span class="progress-info__label">Seu Progresso:</span>
+                            <span class="progress-info__value" id="progressText">${preenchidosPalpites} / ${totalPalpites}</span>
+                        </div>
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-fill" id="progressBarFill" style="width: ${percentualPalpites}%;"></div>
+                        </div>
+                        <div class="progress-status">
+                            <span class="badge ${progressBadgeClass}" id="progressBadge">${progressBadgeLabel}</span>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </c:when>
+    <c:when test="${progressOob}">
+        <div class="sticky-header" id="palpiteProgressContainer" hx-swap-oob="outerHTML">
+            <div class="container container--flex">
+                <div class="progress-info">
+                    <span class="progress-info__label">Seu Progresso:</span>
+                    <span class="progress-info__value" id="progressText">${preenchidosPalpites} / ${totalPalpites}</span>
+                </div>
+                <div class="progress-bar-wrapper">
+                    <div class="progress-bar-fill" id="progressBarFill" style="width: ${percentualPalpites}%;"></div>
+                </div>
+                <div class="progress-status">
+                    <span class="badge ${progressBadgeClass}" id="progressBadge">${progressBadgeLabel}</span>
+                </div>
+            </div>
+        </div>
+    </c:when>
+    <c:otherwise>
+        <div class="sticky-header" id="palpiteProgressContainer">
+            <div class="container container--flex">
+                <div class="progress-info">
+                    <span class="progress-info__label">Seu Progresso:</span>
+                    <span class="progress-info__value" id="progressText">${preenchidosPalpites} / ${totalPalpites}</span>
+                </div>
+                <div class="progress-bar-wrapper">
+                    <div class="progress-bar-fill" id="progressBarFill" style="width: ${percentualPalpites}%;"></div>
+                </div>
+                <div class="progress-status">
+                    <span class="badge ${progressBadgeClass}" id="progressBadge">${progressBadgeLabel}</span>
+                </div>
+            </div>
+        </div>
+    </c:otherwise>
+</c:choose>

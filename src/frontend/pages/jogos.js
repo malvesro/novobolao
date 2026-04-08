@@ -418,6 +418,8 @@ function handleAfterRequest(event) {
     return;
   }
 
+  // progress refresh moved to HX-Trigger listener (server-confirmed)
+
   // Botão ✓ — restaurar após request (sucesso ou falha)
   if (trigger.matches('[data-js="confirmar-palpite"]')) {
     trigger.disabled = false;
@@ -599,6 +601,15 @@ function initPalpiteInline() {
   document.body.addEventListener('htmx:beforeRequest', handleBeforeRequest);
   document.body.addEventListener('htmx:afterSwap', handleAfterSwap);
   document.body.addEventListener('htmx:afterRequest', handleAfterRequest);
+  document.body.addEventListener('palpiteProgressRefresh', (event) => {
+    if (!state.initialized || !window.htmx) {
+      return;
+    }
+    window.htmx.ajax('GET', `${getBaseUrl()}/seguro/palpiteProgressPartial.action`, {
+      target: '#palpiteProgressContainer',
+      swap: 'outerHTML'
+    });
+  });
   document.body.addEventListener('htmx:responseError', (event) => {
     const xhr = event.detail.xhr;
     const target = event.detail.target;
