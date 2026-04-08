@@ -80,6 +80,8 @@ Premissas de compatibilidade (críticas):
    * `Jogo` passou a expor `isFaseDeGrupos`/`descricaoFase` via `FaseUtils`; tabela de jogos exibe o nome da fase (ex.: 32-avos) quando não há grupo.
    * **[Pendente]** **Auditoria Visual de Escala:** Garantir que as telas de palpites e classificação suportem o aumento de volume de dados (48 seleções vs 32 anteriores).
      Referência FIFA: `https://www.fifa.com/pt/tournaments/mens/worldcup/canadamexicousa2026/articles/copa-mundo-2026-tabela-jogos`
+     Subtarefa:
+     * **[Pendente]** **Barra de progresso dos palpites (DB-based + HTMX):** ajustar a barra para refletir palpites preenchidos / total de jogos exibidos pelo filtro atual e atualizar após cada salvamento HTMX; incluir fragmento dedicado e/ou swap OOB, garantindo consistência com o recorte em tela.
    * **[Pendente]** **Atualização dos Nomes das Equipes de Repescagem (Pós-Playoffs Março/2026):** Os 6 lugares de repescagem estão confirmados após os playoffs de março/2026. O SQL atual ainda usa placeholders. Atualizar `data/sql/03-copa-2026-data.sql`, recarregar o banco e validar as telas.
       Análise realizada em 03/04/2026. IDs a atualizar:
       - ID 141: `Repescagem Europeia D` → `República Tcheca` (Grupo A)
@@ -628,6 +630,18 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
   Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
   Referência Log: `.ia/logs/session-20260226-htmx-iteration3-template.md`, `.ia/logs/session-20260226-analise-htmx-participantes.md`
   Skill: `modernization-java-migration v1.0.0`
+* 2026-04-06: **[Concluído]** Barra de progresso dos palpites (Fase 2.7). Cálculo por recorte do filtro atual (preenchidos/total) com atualização HTMX via swap OOB; fragmento dedicado JSPF integrado à tela e resposta parcial. Versão 0.3.1 publicada. Pipeline executado: `npm run build`, `mvn test`, `mvn package`, `docker compose up --build -d`.
+  Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+  Referência Log: `.ia/logs/session-20260406-barra-progresso-palpites.md`
+  Skill: `htmx v1.0.0`, `docker-expert v1.0.0`
+* 2026-04-07: **[Concluído]** Hotfix barra de progresso HTMX (evento server-confirmed). Disparo via `HX-Trigger` no sucesso do salvamento do palpite, listener dedicado para recarregar `/seguro/palpiteProgressPartial.action`, e validação manual confirmada. Pipeline executado: `npm run build`, `mvn package -DskipTests`, `docker compose up --build -d`.
+  Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+  Referência Log: `.ia/logs/session-20260406-hotfix-barra-progresso-htmx.md`
+  Skill: `htmx v1.0.0`, `docker-expert v1.0.0`
+* 2026-04-06: **[Concluído]** Recarga de dados do banco via Docker Compose (reset de volume). Stack reiniciada com `docker compose down --volumes` e rebuild completo para reaplicar scripts de inicialização em `docker/mysql/init`.
+  Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+  Referência Log: `.ia/logs/session-20260406-reload-dados-docker.md`
+  Skill: `docker-expert v1.0.0`
 * 2026-02-20: **[Em Progresso]** Planejamento do bundler frontend (Fase 2.5 - Tarefa 2, subtarefa 6). Documento `.ia/planos/plano-bundler-frontend.md` detalha adoção do Vite/ESBuild, integração com WAR e próximos passos; registrado log `.ia/logs/session-20260220-plano-bundler-frontend.md`. Estrutura inicial criada e fallback `webapp/assets/js/app-bundle.js` anotados em `.ia/logs/session-20260220-bundler-setup-parcial.md`.
   Auto-Analise: [Risco: Médio] | [Compatibilidade: Atenção] | [Veredito: Revisar]
   Skill: N/A (nenhuma skill aplicável)
