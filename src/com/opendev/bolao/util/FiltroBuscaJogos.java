@@ -2,7 +2,7 @@ package com.opendev.bolao.util;
 
 import java.util.Date;
 
-import org.hibernate.query.Query;
+import jakarta.persistence.Query;
 
 public class FiltroBuscaJogos implements FiltroBusca {
 	

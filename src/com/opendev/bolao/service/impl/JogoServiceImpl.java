@@ -7,6 +7,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -31,7 +35,10 @@ public class JogoServiceImpl implements JogoService {
 	
 	private JogoRepository jogoRepository;
 	private EquipeRepository equipeRepository;
-    private ParticipanteRepository participanteRepository;
+	   private ParticipanteRepository participanteRepository;
+
+	   @PersistenceContext
+	   private EntityManager entityManager;
 
 	public Long criarNovoJogo(Jogo jogo, Long equipe1Id, Long equipe2Id) {
 		Equipe equipe1 = getEquipeRepository().findById(equipe1Id)
@@ -63,12 +70,29 @@ public class JogoServiceImpl implements JogoService {
         }
         return getJogoRepository().findById(id);
     }
-	
-	public List buscarUsandoFiltro(FiltroBuscaJogos filtro) {
-        // TODO: Implementar usando Criteria ou Specification se necessário.
-        // Por ora, mantendo compatibilidade retornando todos se filtro vazio.
-		return getJogoRepository().findAll();
-	}
+ 
+ public List buscarUsandoFiltro(FiltroBuscaJogos filtro) {
+        if (filtro == null) {
+            return getJogoRepository().findAll();
+        }
+        Query query = entityManager.createQuery(filtro.getHqlQuery());
+        filtro.popularParametrosDaHql(query);
+        return query.getResultList();
+ }
+
+    public long contarJogosUsandoFiltro(FiltroBuscaJogos filtro) {
+        if (filtro == null) {
+            return getJogoRepository().count();
+        }
+        String countQuery = "select count(j) " + filtro.getHqlQuery();
+        Query query = entityManager.createQuery(countQuery);
+        filtro.popularParametrosDaHql(query);
+        Object result = query.getSingleResult();
+        if (result instanceof Number number) {
+            return number.longValue();
+        }
+        return 0L;
+    }
     
     public void avisarSobreProximoJogo() {
         Calendar calendar = Calendar.getInstance();
