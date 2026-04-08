@@ -11,3 +11,6 @@
 <fmt:message key="match.tip.none" var="palpiteSemRegistro" />
 
 <%@include file="/WEB-INF/content/seguro/partials/match-row.jspf" %>
+
+<c:set var="progressOobRow" value="true" />
+<%@include file="/WEB-INF/content/seguro/partials/palpite-progress-bar.jspf" %>

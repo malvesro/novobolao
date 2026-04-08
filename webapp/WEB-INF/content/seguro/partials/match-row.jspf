@@ -68,7 +68,7 @@
                            hx-trigger="change delay:800ms, blur"
                            hx-target="closest tbody"
                            hx-swap="innerHTML settle:1.5s"
-                           hx-sync="this:replace"
+                           hx-sync="closest tbody:replace"
                            hx-include="closest tbody"
                            aria-label="Gols ${jogo.equipe1.nomePais}"
                            required />
@@ -103,7 +103,7 @@
                            hx-trigger="change delay:800ms, blur"
                            hx-target="closest tbody"
                            hx-swap="innerHTML settle:1.5s"
-                           hx-sync="this:replace"
+                           hx-sync="closest tbody:replace"
                            hx-include="closest tbody"
                            aria-label="Gols ${jogo.equipe2.nomePais}"
                            required />

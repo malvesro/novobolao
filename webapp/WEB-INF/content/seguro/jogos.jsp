@@ -9,20 +9,7 @@
 
 <c:if test="${telaPalpites}">
     <%-- Barra de Progresso Sticky (Modernização UX 2026) --%>
-    <div class="sticky-header" id="palpiteProgressContainer">
-        <div class="container container--flex">
-            <div class="progress-info">
-                <span class="progress-info__label">Seu Progresso:</span>
-                <span class="progress-info__value" id="progressText">0 / 0</span>
-            </div>
-            <div class="progress-bar-wrapper">
-                <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
-            </div>
-            <div class="progress-status">
-                <span class="badge badge--pending" id="progressBadge">Incompleto</span>
-            </div>
-        </div>
-    </div>
+    <%@include file="/WEB-INF/content/seguro/partials/palpite-progress-bar.jspf" %>
 </c:if>
 
 <div id="jogos-page-wrapper" class="dashboard-section">
