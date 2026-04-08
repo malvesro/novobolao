@@ -19,6 +19,8 @@ public interface JogoService {
     public void avisarSobreProximoJogo();
     
     public List buscarUsandoFiltro(FiltroBuscaJogos filtro);
+
+    public long contarJogosUsandoFiltro(FiltroBuscaJogos filtro);
     
     public List buscarJogosDeHoje();
 
