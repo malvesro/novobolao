@@ -52,6 +52,14 @@ INSERT INTO `PAR_PARTICIPANTE` (
   'T', 
   '127.0.0.1', 
   CURRENT_TIMESTAMP
+);
+
+-- ============================================================================
+-- Notícia de Boas-vindas
+-- ============================================================================
+INSERT INTO `NOT_NOTICIA` (
+  `NOT_ID`, `NOT_TITULO`, `NOT_CONTEUDO`, `NOT_DATA`, `NOT_AUTOR`
+) VALUES (
   1,
   'Bem-vindo ao Sistema Bolão!',
   'O sistema foi inicializado com sucesso. Use as credenciais padrão para fazer login:\n\nAdmin: admin / admin123\nUsuário: user / user123\n\nIMPORTANTE: Troque as senhas padrão após o primeiro acesso!',

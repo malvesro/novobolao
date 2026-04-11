@@ -2,6 +2,8 @@
 FROM maven:3.8-openjdk-17-slim AS build
 WORKDIR /app
 COPY pom.xml .
+COPY package.json package-lock.json ./
+COPY vite.config.js ./
 # Baixar dependências para cache
 RUN mvn dependency:go-offline -B
 COPY src ./src
