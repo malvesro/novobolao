@@ -44,6 +44,25 @@
 			<result name="success">/WEB-INF/content/login.jsp</result>
 		</action>
 
+		<action name="recuperarSenhaForm" class="recuperacaoSenhaAction" method="recuperarSenhaForm">
+			<result name="success">/WEB-INF/content/recuperacao/recuperar-senha.jsp</result>
+		</action>
+
+		<action name="enviarOtpRecuperacao" class="recuperacaoSenhaAction" method="enviarOtpRecuperacao">
+			<result name="success">/WEB-INF/content/recuperacao/recuperar-senha.jsp</result>
+			<result name="input">/WEB-INF/content/recuperacao/recuperar-senha.jsp</result>
+		</action>
+
+		<action name="validarOtpRecuperacao" class="recuperacaoSenhaAction" method="validarOtpRecuperacao">
+			<result name="success">/WEB-INF/content/recuperacao/redefinir-senha.jsp</result>
+			<result name="input">/WEB-INF/content/recuperacao/recuperar-senha.jsp</result>
+		</action>
+
+		<action name="redefinirSenha" class="recuperacaoSenhaAction" method="redefinirSenha">
+			<result name="success">/WEB-INF/content/recuperacao/redefinir-senha.jsp</result>
+			<result name="input">/WEB-INF/content/recuperacao/redefinir-senha.jsp</result>
+		</action>
+
 		<action name="logout" class="participanteAction" method="logout">
 			<result name="success">/WEB-INF/content/login.jsp</result>
 		</action>

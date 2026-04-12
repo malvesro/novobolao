@@ -347,6 +347,20 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído (27/03/2026)] Iteração 6 – Painel "Ver Grupo" via `<details>` inline:** Ver palpites do grupo sem modal.
     * **[Concluído (27/03/2026)] Iteração 7 – Build completo, pipeline e documentação:** Encerrar e documentar.
 
+29. **[Em Progresso] Ajustes UX da tela de login + recuperação de senha (08/04/2026):** Corrigir legibilidade do link "Cadastre-se agora!" e definir/implementar o fluxo de "Esqueci minha senha" com foco em acessibilidade, segurança e experiência. (Skill: `ui-ux-pro-max v1.0.0`)
+    * **[Concluído] Diagnóstico UX/UI da tela de login:** mapear causa do texto oculto (contraste/cores/estados) no link de cadastro, validar comportamento em hover/focus/teclado e registrar evidência visual.
+    * **[Concluído] Correção de legibilidade e foco do link de cadastro:** ajustar estilos específicos do bloco de login (contraste AA, underline/hover, foco visível, espaçamento e hierarquia do call-to-action secundário).
+    * **[Concluído] Auditoria de conteúdo e i18n:** revisar `messages.properties` (ex.: `login.signin`) e padronizar o texto para clareza, mantendo consistência com o restante do site.
+    * **[Concluído] Inventário de funcionalidade existente de senha:** validar se já existe fluxo de troca/recuperação e sua cobertura (action `trocaSenha` está em `/seguro` e não há JSP pública), registrando o gap técnico.
+    * **[Concluído] Definir fluxo "Esqueci minha senha" (público):** desenhar jornada (solicitar e-mail → confirmar envio → OTP → redefinir senha), critérios de UX (feedback, estados vazios) e requisitos de segurança (uso único, expiração 30 minutos, mensagem neutra anti-enumeração, rate limit, antifraude).
+    * **[Concluído] Arquitetura e contrato técnico (OTP em memória):** especificar endpoints/actions Struts, serviços, modelo de OTP (hash + expiração + tentativas), armazenamento **em memória**, e registro apenas de **data da última troca de senha** no participante; alinhar com ADR `.ia/historico/ADR-20260408-recuperacao-senha-token-db.md`.
+    * **[Concluído] Ajuste de banco (autorizado):** adicionar a coluna `PAR_DH_ULTIMA_TROCA_SENHA` em `PAR_PARTICIPANTE` e remover a tabela `RST_RESET_TOKEN` do schema `docker/mysql/init/01-schema.sql`.
+    * **[Pendente] Implementação do fluxo de recuperação (OTP):** criar/finalizar telas JSP públicas, actions Struts, serviço de geração/validação do OTP, envio de e-mail e atualização da senha com `PasswordEncoder`.
+    * **[Pendente] Corrigir bloqueio de segurança no fluxo (Bug Fix):** Mapear as rotas de recuperação de senha (`/recuperarSenhaForm.action*`, `/enviarOtpRecuperacao.action*`, `/validarOtpRecuperacao.action*`, `/redefinirSenha.action*`) no `applicationContext-security.xml` com `permitAll`. (Sem esse ajuste, o Spring Security bloqueia o acesso e o usuário clica no link "Esqueci minha senha" e é silenciosamente redirecionado à tela de login).
+    * **[Pendente] Observabilidade e segurança:** logs de auditoria, bloqueio de enumeração de usuários (mensagens neutras), limites de tentativa e alinhamento com OWASP.
+    * **[Pendente] Testes e QA:** testes unitários do serviço de recuperação, cenários de expiração/reuso de OTP, validação de UX em desktop/mobile e `mvn -Dfrontend.skip=true test`.
+    * **[Pendente] Atualização de documentação e evidências:** registrar log de sessão, atualizar `passo-a-passo.md` com status e atualizar ADR da decisão arquitetural do fluxo de recuperação.
+
 ### Fase 2.8: Refinanciamento de Débito Técnico e Arquitetura (CONCLUÍDO)
 
 1. **[Concluído]** **Migração para java.util.Optional:** Substituído o uso de retornos `null` por `Optional<T>` nos repositórios e serviços migrados.

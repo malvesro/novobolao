@@ -57,8 +57,13 @@
 					</div>
 					<div class="form-links">
 						<c:url var="cadastroFormURL" value="/cadastroForm.action" />
+						<c:url var="recuperarSenhaURL" value="/recuperarSenhaForm.action" />
 						<a href="${cadastroFormURL}">
 							<fmt:message key="login.signin" />
+						</a>
+						<span class="form-links-separator">|</span>
+						<a href="${recuperarSenhaURL}" class="link-secondary">
+							<fmt:message key="login.forgot" />
 						</a>
 					</div>
 				</div>
