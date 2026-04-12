@@ -181,6 +181,16 @@
 			<result name="success">/WEB-INF/content/admin/partials/participantes-table.jsp</result>
 			<result name="fragment">/WEB-INF/content/admin/partials/participantes-table.jsp</result>
 		</action>
+
+		<action name="prepararEdicaoEstrutural" class="adminAction" method="prepararEdicaoEstruturalHtmx">
+			<result name="success">/WEB-INF/content/admin/partials/admin-match-edit-row.jsp</result>
+		</action>
+
+		<action name="salvarEdicaoEstrutural" class="adminAction" method="salvarEdicaoEstruturalHtmx" />
+
+		<action name="carregarLinhaJogoAdmin" class="adminAction" method="carregarLinhaJogoHtmx">
+			<result name="success">/WEB-INF/content/admin/partials/admin-match-row.jsp</result>
+		</action>
 	
 	</package>
 

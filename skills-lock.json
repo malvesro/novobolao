@@ -11,6 +11,11 @@
       "sourceType": "github",
       "computedHash": "6e1f97a1af33384fe4e9ea60078770bacdacfb48d26a601c2bf17c61447c8532"
     },
+    "modern-css": {
+      "source": "paulirish/dotfiles",
+      "sourceType": "github",
+      "computedHash": "04b1fd69e3c088949827e7c2af748402b2b7f798fc8742e9a7315ed506b161cc"
+    },
     "modern-javascript-patterns": {
       "source": "wshobson/agents",
       "sourceType": "github",

@@ -2,6 +2,8 @@ package com.opendev.bolao.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Date;
+import java.sql.Time;
 
 import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.util.FiltroBuscaJogos;
@@ -23,5 +25,7 @@ public interface JogoService {
     public long contarJogosUsandoFiltro(FiltroBuscaJogos filtro);
     
     public List buscarJogosDeHoje();
+    
+    public void atualizarDadosEstruturaisJogo(Long idJogo, Date data, Time hora, String local, int fase, Long idEquipe1, Long idEquipe2);
 
 }
