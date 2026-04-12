@@ -64,6 +64,25 @@ public class JogoServiceImpl implements JogoService {
 		});
 	}
 
+	public void atualizarDadosEstruturaisJogo(Long idJogo, Date data, Time hora, String local, int fase, Long idEquipe1, Long idEquipe2) {
+		getJogoRepository().findById(idJogo).ifPresent(jogo -> {
+			Equipe equipe1 = getEquipeRepository().findById(idEquipe1)
+					.orElseThrow(() -> new IllegalArgumentException("Equipe 1 não encontrada: " + idEquipe1));
+			Equipe equipe2 = getEquipeRepository().findById(idEquipe2)
+					.orElseThrow(() -> new IllegalArgumentException("Equipe 2 não encontrada: " + idEquipe2));
+			
+			jogo.setData(data);
+			jogo.setHora(hora);
+			jogo.setLocal(local);
+			jogo.setFase(fase);
+			jogo.setEquipe1(equipe1);
+			jogo.setEquipe2(equipe2);
+			
+			getJogoRepository().save(jogo);
+			Participante.expirarCacheDeClassificacao();
+		});
+	}
+
     public Optional<Jogo> buscarPorId(Long id) {
         if (id == null) {
             return Optional.empty();
