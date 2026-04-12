@@ -2,7 +2,7 @@
 -- Sistema Bolão - Database Schema
 -- MySQL 8.0+
 -- Gerado a partir dos mapeamentos Hibernate (.hbm.xml)
--- Data: 2026-02-17
+-- Data: 2026-04-11 (atualizado: coluna PAR_DH_ULTIMA_TROCA_SENHA, EQP_PAIS length corrigido)
 -- ============================================================================
 
 -- Configurações iniciais
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `PRI_PRIVILEGIO` (
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS `EQP_EQUIPE` (
   `EQP_ID` BIGINT NOT NULL AUTO_INCREMENT,
-  `EQP_PAIS` VARCHAR(50) NOT NULL COMMENT 'Nome do país/seleção',
+  `EQP_PAIS` VARCHAR(100) NOT NULL COMMENT 'Nome do país/seleção',
   `EQP_GRUPO` CHAR(1) NOT NULL COMMENT 'Grupo da Copa (A, B, C, etc)',
   PRIMARY KEY (`EQP_ID`),
   INDEX `idx_eqp_grupo` (`EQP_GRUPO`)
