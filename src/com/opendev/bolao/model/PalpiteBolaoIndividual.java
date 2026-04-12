@@ -35,7 +35,7 @@ public class PalpiteBolaoIndividual implements Serializable {
 	@Column(name = "PAL_IP", nullable = false, length = 45)
     private String ip;
 
-	@Column(name = "PAI_DH_PAGTO", nullable = false)
+	@Column(name = "PAI_DH_PAGTO")
     private Timestamp dataHoraPagamento;
 
 	@ManyToOne(fetch = FetchType.LAZY)
