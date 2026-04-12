@@ -62,7 +62,10 @@ public class Participante implements Serializable, Comparable {
     private String ip;
 
 	@Column(name = "PAR_DH_CADASTRO", nullable = false)
-    private Timestamp dataHoraCadastro;
+	   private Timestamp dataHoraCadastro;
+
+	@Column(name = "PAR_DH_ULTIMA_TROCA_SENHA")
+	private Timestamp dataHoraUltimaTrocaSenha;
 
 	@OneToMany(mappedBy = "participante", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
 	private Set<Palpite> palpites;
@@ -158,6 +161,14 @@ public class Participante implements Serializable, Comparable {
     
     public void setDataHoraCadastro(Timestamp dataHoraCadastro) {
         this.dataHoraCadastro = dataHoraCadastro;
+    }
+
+    public Timestamp getDataHoraUltimaTrocaSenha() {
+        return dataHoraUltimaTrocaSenha;
+    }
+
+    public void setDataHoraUltimaTrocaSenha(Timestamp dataHoraUltimaTrocaSenha) {
+        this.dataHoraUltimaTrocaSenha = dataHoraUltimaTrocaSenha;
     }
     
     public String getIp() {
