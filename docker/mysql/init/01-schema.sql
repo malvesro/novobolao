@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS `PAR_PARTICIPANTE` (
   `PAR_HABILITADO` CHAR(1) NOT NULL DEFAULT 'F' COMMENT 'T=habilitado, F=desabilitado',
   `PAR_IP` VARCHAR(45) NOT NULL COMMENT 'IP do cadastro (suporta IPv6)',
   `PAR_DH_CADASTRO` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Data/hora do cadastro',
+  `PAR_DH_ULTIMA_TROCA_SENHA` TIMESTAMP NULL COMMENT 'Data/hora da última troca de senha',
   PRIMARY KEY (`PAR_ID`),
   INDEX `idx_par_login` (`PAR_LOGIN`),
   INDEX `idx_par_email` (`PAR_EMAIL`)

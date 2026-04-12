@@ -86,6 +86,20 @@
 		</property>
 	</bean>
 
+	<bean id="recuperacaoSenhaServiceImpl"
+		class="com.opendev.bolao.service.impl.RecuperacaoSenhaServiceImpl">
+		<property name="participanteRepository" ref="participanteRepository" />
+		<property name="passwordEncoder" ref="passwordEncoder" />
+	</bean>
+	<bean id="recuperacaoSenhaService" parent="transactionProxyTemplate">
+		<property name="proxyInterfaces">
+			<list><value>com.opendev.bolao.service.RecuperacaoSenhaService</value></list>
+		</property>
+		<property name="target">
+			<ref bean="recuperacaoSenhaServiceImpl" />
+		</property>
+	</bean>
+
 	<!-- Servicos do Bate-Papo -->
 	<bean id="formatadorMensagem" class="com.opendev.bolao.chat.FormatadorMensagem" scope="singleton" lazy-init="true" />
 	<bean id="batePapo" class="com.opendev.bolao.chat.BatePapo" scope="singleton" lazy-init="true">
