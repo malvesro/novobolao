@@ -110,6 +110,49 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 		return NONE;
 	}
 	
+	public String prepararEdicaoEstruturalHtmx() {
+		this.jogos = List.of(getJogoService().buscarPorId(this.id).orElseThrow());
+		this.equipes = getEquipeService().buscarTodasEquipes();
+		markSkipTemplate();
+		return SUCCESS;
+	}
+
+	public String salvarEdicaoEstruturalHtmx() {
+		HttpServletResponse response = getHttpResponse();
+		if (response == null) {
+			return NONE;
+		}
+		int statusCode = HttpServletResponse.SC_NO_CONTENT;
+		try {
+			if (this.id == null || this.data == null || this.hora == null || this.equipe1Id == null 
+					|| this.equipe2Id == null || this.local == null || this.fase == null) {
+				throw new IllegalArgumentException();
+			}
+			getJogoService().atualizarDadosEstruturaisJogo(
+					this.id, 
+					ConversaoUtils.converterParaData(this.data), 
+					ConversaoUtils.converterParaTempo(this.hora), 
+					this.local, 
+					this.fase, 
+					this.equipe1Id, 
+					this.equipe2Id
+			);
+		} catch (IllegalArgumentException ex) {
+			statusCode = HttpServletResponse.SC_BAD_REQUEST;
+		} catch (Exception ex) {
+			LOGGER.error("Erro ao salvar edição estrutural do jogo", ex);
+			statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+		}
+		response.setStatus(statusCode);
+		return NONE;
+	}
+
+	public String carregarLinhaJogoHtmx() {
+		this.jogos = List.of(getJogoService().buscarPorId(this.id).orElseThrow());
+		markSkipTemplate();
+		return SUCCESS;
+	}
+	
 	public String carregarJogos() {
 		this.jogos = getJogoService().buscarTodos();
 		return SUCCESS;

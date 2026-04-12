@@ -687,3 +687,75 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     * Adicionado `jogoId` e `_csrf` via campos ocultos em cada `<tr>` para garantir integridade do POST.
     * Implementado `hx-sync="this:replace"` para evitar conflitos entre `blur` e `change`.
     * Validada estabilidade de renderização: os nomes dos times e bandeiras agora permanecem íntegros após cada atualização.
+
+## Fase 8: Edição de Times dos Jogos pelo Administrador
+
+> **Objetivo:** Permitir que o ADMIN edite, diretamente na tela `/admin/jogos.action`, os times (Equipe 1 e Equipe 2) de qualquer jogo — incluindo jogos do mata-mata (32-avos, oitavas, quartas, etc.) onde os times são definidos apenas após a fase anterior. Cada iteração é pequena, independente e terminable.
+
+### Iteração 1 — Endpoint de busca de equipes para selects (Backend)
+
+* **\[Pendente\]** Verificar se já existe método `equipeService.buscarTodasEquipes()` exposto via action acessível por AJAX (provavelmente sim em `carregarInfoEquipes()`).
+* **\[Pendente\]** Criar action `buscarEquipesJsonHtmx()` no `AdminAction` que retorna um fragmento HTML com opções `<option>` de todas as equipes, ordenadas por nome. Expor via Struts em `/admin/buscarEquipesJson.action`.
+  * Adicionar `@StrutsParameter` nos setters necessários.
+  * Liberação no `applicationContext-security.xml` em `/admin/**` (já deve estar coberta).
+* **\[Pendente\]** Criar testes unitários para o novo método na action.
+
+### Iteração 2 — Endpoint de edição de times do jogo (Backend)
+
+* **\[Pendente\]** Adicionar método `editarTimesDoJogo(Long idJogo, Long equipe1Id, Long equipe2Id)` no `JogoService` / `JogoServiceImpl`.
+  * Deve: buscar o `Jogo` pelo ID, associar as duas novas equipes (usando `EquipeRepository`) e salvar.
+  * Validar entradas: todos os parâmetros obrigatórios, equipe1 ≠ equipe2.
+* **\[Pendente\]** Expor via `AdminAction.editarTimesDoJogoHtmx()`:
+  * Receber `id`, `equipe1Id`, `equipe2Id` como `@StrutsParameter`.
+  * Retornar HTTP 204 (sucesso) ou 400/500 (erro), sem body, seguindo padrão de `atualizarResultadoDoJogoHtmx()`.
+* **\[Pendente\]** Adicionar entrada no `struts.xml` em namespace `/admin`.
+* **\[Pendente\]** Testes unitários cobrindo: sucesso, equipes iguais (erro), jogo não encontrado.
+
+### Iteração 3 — Fragmento JSP do formulário de edição de times (Frontend)
+
+* **\[Pendente\]** Criar `webapp/WEB-INF/content/admin/partials/editar-times-form.jspf`:
+  * Dois `<select>` (equipe1, equipe2) populados com a lista completa de equipes.
+  * Atributo `selected` marcado no time atual do jogo.
+  * Botão "Salvar Times" e link "Cancelar" (fecha o formulário inline).
+  * Usar classes CSS existentes do design system (`form-grid`, `form-field-group`, `btn`, etc.).
+
+### Iteração 4 — Botão e Trigger de edição inline na tabela de jogos (Frontend)
+
+* **\[Pendente\]** Na JSP `webapp/WEB-INF/content/admin/jogos.jsp`, adicionar um botão "✏️ Times" visível apenas para `ROLE_ADMIN` (via `<sec:authorize>`).
+  * O botão deve usar `hx-get` para carregar o fragmento JSP da Iteração 3 via HTMX.
+  * O fragmento deve substituir a célula de times do jogo (swap inline na linha da tabela).
+  * Usar `hx-target="closest tr"` ou célula específica para isolar o efeito.
+
+### Iteração 5 — Submit HTMX do formulário de edição de times (Frontend)
+
+* **\[Pendente\]** Configurar o formulário do fragmento (Iteração 3) com `hx-post` para `/admin/editarTimesDoJogoHtmx.action`.
+  * Incluir `id`, `equipe1Id`, `equipe2Id` e `_csrf` no body do POST.
+  * No sucesso (HTTP 204): fechar o formulário inline e recarregar a linha do jogo com os novos times via `hx-trigger` ou `hx-swap`.
+  * No erro: exibir mensagem de erro inline sem recarregar a página.
+* **\[Pendente\]** Fragmento de resposta parcial para recarregar a linha do jogo após edição (opcional: reutilizar `match-row.jspf` com os dados atualizados).
+
+### Iteração 6 — Fragmento de linha do jogo atualizada (Backend + Frontend)
+
+* **[Pendente]** Criar action `carregarLinhaJogoHtmx()` no `AdminAction` que:
+  * Recebe o `id` do jogo.
+  * Busca o jogo completo (com equipes).
+  * Retorna o fragmento JSP de uma linha `<tr>` da tabela de admin com os dados atualizados.
+* **[Pendente]** Criar fragmento `admin/partials/jogo-row.jspf` reutilizável com a linha da tabela de jogos (times, data, hora, fase, botões de ação).
+* **[Pendente]** Integrar ao flow do submit da Iteração 5: após 204, fazer `hx-get` para `carregarLinhaJogoHtmx.action?id=X` e substituir o `<tr>` correto.
+
+### Iteração 7 — Implementação e Refatoração (Edição Integrada)
+
+* **[Concluído]** Criar `JogoService.atualizarDadosEstruturaisJogo`.
+* **[Concluído]** Criar `AdminAction.prepararEdicaoEstruturalHtmx` e `salvarEdicaoEstruturalHtmx`.
+* **[Concluído]** Refatorar `jogos.jsp` extraindo fragmentos JSP.
+* **[Concluído]** Adicionar i18n em `messages.properties`.
+* **[Concluído]** Executar `mvn -Dfrontend.skip=true test` e garantir suite verde.
+* **[Concluído]** Revisar a OGNL allowlist em `struts.xml`: **Validado**.
+
+### Iteração 8 — Deploy, validação manual e documentação
+
+* **[Pendente]** Executar pipeline completo: `mvn clean package` → `docker compose up -d`.
+* **[Concluído]** Incrementar versão no `pom.xml` para **0.3.3**.
+* **[Concluído]** Registrar log de sessão em `.ia/logs/`.
+* **[Concluído]** Atualizar `passo-a-passo.md` marcando iterações concluídas.
+* **[Concluído]** Limpeza técnica de comentários e variáveis obsoletas em `jogos.jsp`.
