@@ -109,4 +109,53 @@ document.addEventListener('DOMContentLoaded', () => {
             updateProgress();
         }
     });
+
+    // Gerenciamento do Side Drawer Administrativo (ESC to close)
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.body.classList.contains('drawer-open')) {
+            closeDrawer();
+        }
+    });
+
+    // Orquestração Automática via HTMX
+    document.body.addEventListener('htmx:afterOnLoad', (e) => {
+        // Se o conteúdo foi carregado no drawer, abre o painel
+        if (e.detail.target.id === 'admin-drawer-content') {
+            openDrawer();
+            
+            // Highlight da linha correspondente na tabela
+            const gameId = e.detail.xhr.responseURL.split('id=')[1];
+            if (gameId) {
+                document.querySelectorAll('.match-row--admin').forEach(r => r.classList.remove('match-row--selected'));
+                const row = document.getElementById('jogoTr_' + gameId);
+                if (row) row.classList.add('match-row--selected');
+            }
+        }
+    });
+
+    function openDrawer() {
+        document.body.classList.add('drawer-open');
+    }
+
+    function closeDrawer() {
+        document.body.classList.remove('drawer-open');
+        document.querySelectorAll('.match-row--admin').forEach(r => r.classList.remove('match-row--selected'));
+    }
+
+    // Feedback de Auto-Save para Administração
+    document.body.addEventListener('htmx:afterRequest', (e) => {
+        const target = e.detail.elt;
+        if (target.classList.contains('form-control-inline') || target.classList.contains('score-input')) {
+            if (e.detail.successful) {
+                target.classList.add('save-flash');
+                setTimeout(() => target.classList.remove('save-flash'), 1000);
+            } else {
+                target.classList.add('save-error');
+                setTimeout(() => target.classList.remove('save-error'), 1000);
+            }
+        }
+    });
+
+    // Expor globalmente para botões inline (onclick)
+    window.closeDrawer = closeDrawer;
 });
