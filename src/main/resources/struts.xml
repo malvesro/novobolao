@@ -183,10 +183,12 @@
 		</action>
 
 		<action name="prepararEdicaoEstrutural" class="adminAction" method="prepararEdicaoEstruturalHtmx">
-			<result name="success">/WEB-INF/content/admin/partials/admin-match-edit-row.jsp</result>
+			<result name="success">/WEB-INF/content/admin/partials/admin-match-edit-panel.jsp</result>
 		</action>
 
-		<action name="salvarEdicaoEstrutural" class="adminAction" method="salvarEdicaoEstruturalHtmx" />
+		<action name="salvarEdicaoEstrutural" class="adminAction" method="salvarEdicaoEstruturalHtmx">
+			<result name="success">/WEB-INF/content/admin/partials/admin-match-row.jsp</result>
+		</action>
 
 		<action name="carregarLinhaJogoAdmin" class="adminAction" method="carregarLinhaJogoHtmx">
 			<result name="success">/WEB-INF/content/admin/partials/admin-match-row.jsp</result>

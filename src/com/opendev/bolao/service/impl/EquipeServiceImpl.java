@@ -1,6 +1,7 @@
 package com.opendev.bolao.service.impl;
 
 import java.util.List;
+import org.springframework.data.domain.Sort;
 
 import com.opendev.bolao.model.Equipe;
 import com.opendev.bolao.repository.EquipeRepository;
@@ -15,7 +16,7 @@ public class EquipeServiceImpl implements EquipeService {
 	private EquipeRepository equipeRepository;	
 
 	public List<Equipe> buscarTodasEquipes() {
-		return getEquipeRepository().findAll();
+		return getEquipeRepository().findAll(Sort.by("nomePais"));
 	}
 
 	public EquipeRepository getEquipeRepository() {

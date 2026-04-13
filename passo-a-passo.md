@@ -759,3 +759,104 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 * **[Concluído]** Registrar log de sessão em `.ia/logs/`.
 * **[Concluído]** Atualizar `passo-a-passo.md` marcando iterações concluídas.
 * **[Concluído]** Limpeza técnica de comentários e variáveis obsoletas em `jogos.jsp`.
+
+### Fase 8.2: Estabilização e Melhoria da Edição de Jogos (UX/UI Admin)
+*Referência:* `.ia/planos/edicao-jogos-estabilizacao.md`
+
+*   **[Concluído] Subtarefa 8.2.1: Diagnóstico e Reforço do Backend (AdminAction/JogoService).**
+    *   Auditar o tratamento de erro em `AdminAction.java` para respostas HTMX estruturais.
+    *   Garantir logs de trace claros para operações de edição administrativa.
+*   **[Concluído] Subtarefa 8.2.2: Estabilização do Markup de Visualização (admin-match-row.jsp).**
+    *   Remover scripts de debug e simplificar o acionamento HTMX no botão de edição.
+    *   Garantir IDs únicos e estáveis para as linhas da tabela.
+*   **[Concluído] Subtarefa 8.2.3: Refatoração do Fragmento de Edição Inline (admin-match-edit-row.jsp).**
+    *   Ajustar formulário para submissão resiliente e cancelamento preciso.
+    *   Garantir propagação correta de tokens CSRF e indicadores de progresso.
+*   **[Concluído] Subtarefa 8.2.4: Estilo de Feedback e Destaque Visual (UX Admin).**
+    *   Adicionar classes CSS para destacar a linha em edição e transições de "salvando".
+*   **[Concluído] Subtarefa 8.2.5: Validação Final e Registro de Log.**
+    *   Realizar testes de fumaça e registrar em `.ia/logs/`.
+*   **[Concluído]** Incrementar versão no `pom.xml` para **0.3.4**.
+*   **[Concluído]** Executar deploy completo via `deploy.sh`.
+
+### Fase 8.3: Modernização UX - Edição por Interação Direta (Zero-Button)
+*Referência:* Princípios UX Sênior (Time Mercúrio)
+
+*   **[Concluído] Subtarefa 8.3.1: Migrar Gatilhos HTMX para a Linha (TR).**
+    *   Mover lógica de `hx-get` do botão para o elemento `<tr>`.
+    *   Implementar `hx-trigger="dblclick"` para acionamento intuitivo.
+*   **[Concluído] Subtarefa 8.3.2: Implementar Feedback de Interatividade (Hover/Cursor).**
+    *   Ajustar CSS para que a linha reaja ao mouse, indicando capacidade de edição.
+    *   Remover ícones de botões redundantes.
+*   **[Concluído] Subtarefa 8.3.3: Ajuste de Acessibilidade e Teclado.**
+    *   Garantir que a linha seja "focável" e responda à tecla Enter.
+*   **[Concluído] Subtarefa 8.3.4: Validação em Ambiente Docker e Log.**
+
+### Fase 8.4: Correção Crítica de Compilação JSP (Jasper Exception)
+*Referência:* Log de erro `ClassNotFoundException` em `admin-match-edit-row.jsp`.
+
+*   **[Concluído] Subtarefa 8.4.1: Saneamento de Sintaxe JSP.**
+    *   Reescrever `admin-match-edit-row.jsp` de forma minimalista para evitar erros do Jasper.
+*   **[Concluído] Subtarefa 8.4.2: Estabilização de Seletores HTMX (Target This).**
+    *   Ajustar `admin-match-row.jsp` para usar `hx-target="this"` e remover atributos conflitantes.
+*   **[Concluído] Subtarefa 8.4.3: Reforço de Mapeamento de Parâmetros na Action.**
+    *   Aumentar verbosidade de logs na `AdminAction` para validar recepção do ID.
+*   **[Concluído] Subtarefa 8.4.4: Redeploy e Teste de Fumaça.**
+
+### Fase 8.5: Implementação de Painel Lateral Administrativo (Side Drawer UX)
+*Referência:* Estratégia UX Sênior - Master-Detail Pattern.
+
+*   **[Concluído] Subtarefa 8.5.1: Infraestrutura de Shell no Layout.**
+    *   8.5.1.1: Adicionar container raiz `#admin-drawer-root` em `jogos.jsp`.
+    *   8.5.1.2: Definir esqueleto CSS base para o Drawer (posicionamento fixo à direita).
+*   **[Concluído] Subtarefa 8.5.2: Gatilho de Seleção e Estado Visual.**
+    *   8.5.2.1: Ajustar `admin-match-row.jsp` para disparar carregamento no Drawer via `click`.
+    *   8.5.2.2: Implementar classe CSS `.match-row--selected` para feedback de foco na tabela.
+*   **[Concluído] Subtarefa 8.5.3: Criação do Fragmento de Edição (Painel).**
+    *   8.5.3.1: Criar `admin-match-edit-panel.jsp` (Estrutura em `div`, sem tags de tabela).
+    *   8.5.3.2: Mapear novo resultado na `AdminAction` ou ajustar o existente para ser agnóstico.
+*   **[Concluído] Subtarefa 8.5.4: Refinamento de UX e Animações (Skill: `ui-ux-pro-max`).**
+    *   8.5.4.1: Implementar animação de "Slide-in" e Overlay (escurecimento do fundo).
+    *   8.5.4.2: Adicionar botão de fechar e suporte à tecla `ESC` para fechar o painel.
+*   **[Concluído] Subtarefa 8.5.5: Ciclo de Salvamento e Atualização Reativa.**
+    *   8.5.5.1: Configurar formulário do painel para disparar evento HTMX de atualização da linha.
+    *   8.5.5.2: Validar feedback de sucesso/erro dentro do próprio painel.
+*   **[Concluído] Subtarefa 8.5.6: Deploy, Validação e Registro.**
+
+### Fase 8.6: Estabilização Definitiva do Side Drawer (UX Robustness)
+*Referência:* Diagnóstico de falha de swap e visibilidade.
+
+*   **[Concluído] Subtarefa 8.6.1: Reposicionamento do Shell Administrativo.**
+    *   8.6.1.1: Mover containers do Drawer para a raiz de `jogos.jsp`.
+    *   8.6.1.2: Garantir que o Drawer esteja fora de containers com `overflow:hidden`.
+*   **[Concluído] Subtarefa 8.6.2: Refatoração do Gatilho de Ação.**
+    *   8.6.2.1: Reintroduzir botão `<button>` explícito para ação "Gerenciar" em `admin-match-row.jsp`.
+    *   8.6.2.2: Remover gatilhos de clique/duplo clique da tag `<tr>` para evitar conflitos.
+*   **[Concluído] Subtarefa 8.6.3: Orquestração via Eventos JS (HTMX Events).**
+    *   8.6.3.1: Centralizar abertura do Drawer no `ux-helper.js` via evento `htmx:afterOnLoad`.
+    *   8.6.3.2: Implementar feedback visual de "linha ativa" via JS para maior precisão.
+*   **[Concluído] Subtarefa 8.6.4: Reforço de CSS e Redeploy.**
+
+### Fase 8.7: Edição Direta por Combos Administrativos (Auto-Save UX)
+*Referência:* Estratégia de Simplificação Radical (Princípio Meikai).
+
+*   **[Concluído] Subtarefa 8.7.1: Transformation Visual da Tabela Admin.**
+    *   8.7.1.1: Substituir textos estáticos por `<select>` e `<input>` em `admin-match-row.jsp`.
+    *   8.7.1.2: Remover botão "Gerenciar" e colunas de ação redundantes.
+*   **[Concluído] Subtarefa 8.7.2: Implementação de Persistência Imediata (Auto-Save).**
+    *   8.7.2.1: Configurar `hx-post` e `hx-trigger="change"` em todos os campos editáveis.
+    *   8.7.2.2: Garantir que todos os parâmetros necessários (id, data, hora, etc) sejam enviados em cada mudança.
+*   **[Concluído] Subtarefa 8.7.3: Feedback Visual de Sucesso (Yukai).**
+    *   8.7.3.1: Implementar classe CSS para "flash" de sucesso ao salvar.
+*   **[Concluído] Subtarefa 8.7.4: Deploy Completo e Validação Final.**
+
+**
+    *   8.6.4.1: Ajustar `z-index` e transições para máxima prioridade visual.
+    *   8.6.4.2: Executar deploy completo e validar.
+
+**
+
+**
+
+
+

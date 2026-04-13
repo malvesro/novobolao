@@ -111,22 +111,35 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 	}
 	
 	public String prepararEdicaoEstruturalHtmx() {
-		this.jogos = List.of(getJogoService().buscarPorId(this.id).orElseThrow());
-		this.equipes = getEquipeService().buscarTodasEquipes();
-		markSkipTemplate();
-		return SUCCESS;
+		LOGGER.info("[HTMX-ADMIN][EDICAO-ESTRUTURAL] Preparando edição para jogo ID={}", this.id);
+		try {
+			if (this.id == null) {
+				LOGGER.warn("[HTMX-ADMIN][EDICAO-ESTRUTURAL] ID do jogo é nulo.");
+				if (httpResponse != null) { httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST); }
+				return NONE;
+			}
+			this.jogos = List.of(getJogoService().buscarPorId(this.id).orElseThrow(() -> new IllegalArgumentException("Jogo não encontrado")));
+			this.equipes = getEquipeService().buscarTodasEquipes();
+			markSkipTemplate();
+			return SUCCESS;
+		} catch (Exception ex) {
+			LOGGER.error("[HTMX-ADMIN][EDICAO-ESTRUTURAL] Erro ao preparar edição para ID={}", this.id, ex);
+			if (httpResponse != null) { httpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); }
+			return NONE;
+		}
 	}
 
 	public String salvarEdicaoEstruturalHtmx() {
+		LOGGER.info("[HTMX-ADMIN][EDICAO-ESTRUTURAL] Salvando alterações estruturais para jogo ID={}", this.id);
 		HttpServletResponse response = getHttpResponse();
 		if (response == null) {
 			return NONE;
 		}
-		int statusCode = HttpServletResponse.SC_NO_CONTENT;
 		try {
 			if (this.id == null || this.data == null || this.hora == null || this.equipe1Id == null 
 					|| this.equipe2Id == null || this.local == null || this.fase == null) {
-				throw new IllegalArgumentException();
+				LOGGER.warn("[HTMX-ADMIN][EDICAO-ESTRUTURAL] Parâmetros obrigatórios ausentes para ID={}", this.id);
+				throw new IllegalArgumentException("Parâmetros obrigatórios ausentes");
 			}
 			getJogoService().atualizarDadosEstruturaisJogo(
 					this.id, 
@@ -137,24 +150,41 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 					this.equipe1Id, 
 					this.equipe2Id
 			);
+			
+			// Após salvar, recarregamos o jogo para devolver a linha da tabela atualizada
+			this.jogos = List.of(getJogoService().buscarPorId(this.id).orElseThrow());
+			this.equipes = getEquipeService().buscarTodasEquipes(); // Necessário para os combos na linha
+			markSkipTemplate();
+			LOGGER.info("[HTMX-ADMIN][EDICAO-ESTRUTURAL] Sucesso ao salvar ID={}, retornando fragmento de linha.", this.id);
+			return SUCCESS; 
 		} catch (IllegalArgumentException ex) {
-			statusCode = HttpServletResponse.SC_BAD_REQUEST;
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			LOGGER.warn("[HTMX-ADMIN][EDICAO-ESTRUTURAL] Erro de validação ao salvar ID={}: {}", this.id, ex.getMessage());
+			return NONE;
 		} catch (Exception ex) {
-			LOGGER.error("Erro ao salvar edição estrutural do jogo", ex);
-			statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+			LOGGER.error("[HTMX-ADMIN][EDICAO-ESTRUTURAL] Erro interno ao salvar ID={}", this.id, ex);
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			return NONE;
 		}
-		response.setStatus(statusCode);
-		return NONE;
 	}
 
 	public String carregarLinhaJogoHtmx() {
-		this.jogos = List.of(getJogoService().buscarPorId(this.id).orElseThrow());
-		markSkipTemplate();
-		return SUCCESS;
+		LOGGER.info("[HTMX-ADMIN][EDICAO-ESTRUTURAL] Recarregando linha do jogo ID={}", this.id);
+		try {
+			this.jogos = List.of(getJogoService().buscarPorId(this.id).orElseThrow());
+			this.equipes = getEquipeService().buscarTodasEquipes(); // Necessário para os combos na linha
+			markSkipTemplate();
+			return SUCCESS;
+		} catch (Exception ex) {
+			LOGGER.error("[HTMX-ADMIN][EDICAO-ESTRUTURAL] Erro ao carregar linha para ID={}", this.id, ex);
+			if (httpResponse != null) { httpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); }
+			return NONE;
+		}
 	}
 	
 	public String carregarJogos() {
 		this.jogos = getJogoService().buscarTodos();
+		this.equipes = getEquipeService().buscarTodasEquipes(); // Necessário para os combos de edição direta
 		return SUCCESS;
 	}
     
@@ -252,6 +282,7 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 
 	@StrutsParameter
 	public void setId(Long id) {
+		LOGGER.info("[HTMX-TRACE] setId chamado com valor: {}", id);
 		this.id = id;
 	}
 
