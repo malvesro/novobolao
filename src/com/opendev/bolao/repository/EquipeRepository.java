@@ -34,12 +34,17 @@ public interface EquipeRepository extends JpaRepository<Equipe, Long> {
 
     /**
      * Retorna todas as equipes que não pertencem ao grupo de placeholders.
-     * Filtra explicitamente pelo grupo e também por nomes que não começam com dígitos,
-     * para garantir que placeholders como '1A' nunca apareçam em listas reais.
+     * Filtra explicitamente pelos grupos de A a L da Copa 2026.
+     * Exclui qualquer equipe que tenha nomes começando com números ou 'V' ou 'Winner' para evitar placeholders.
      *
      * @return Lista de equipes reais ordenada por nome.
      */
     @Query("SELECT e FROM Equipe e WHERE e.grupo IN ('A','B','C','D','E','F','G','H','I','J','K','L') " +
-           "AND e.nomePais NOT REGEXP '^[0-9]' ORDER BY e.nomePais ASC")
+           "AND e.nomePais NOT LIKE '1%' " +
+           "AND e.nomePais NOT LIKE '2%' " +
+           "AND e.nomePais NOT LIKE '3%' " +
+           "AND e.nomePais NOT LIKE 'V%' " +
+           "AND e.nomePais NOT LIKE 'Winner%' " +
+           "ORDER BY e.nomePais ASC")
     List<Equipe> buscarApenasPaisesReais();
 }
