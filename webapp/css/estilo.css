@@ -2416,3 +2416,58 @@ body.drawer-open {
     0% { background-color: rgba(239, 68, 68, 0.4); }
     100% { background-color: transparent; }
 }
+
+/* ===========================================================
+   Ajustes de Compactação Admin (Fase 8.9 - Anti-Scroll)
+   =========================================================== */
+
+.match-row--admin-direct .form-control-inline {
+    font-size: 11px !important;
+    padding: 2px 4px !important;
+    height: auto !important;
+    border-radius: 4px;
+}
+
+.match-row--admin-direct select[name="hora"] {
+    max-width: 70px;
+}
+
+.match-row--admin-direct select[name="local"] {
+    max-width: 110px;
+}
+
+.match-row--admin-direct select[name="fase"] {
+    max-width: 135px;
+}
+
+.match-row--admin-direct .team-select-direct {
+    max-width: 100px;
+}
+
+.match-row--admin-direct .score-input {
+    width: 28px !important;
+    height: 24px !important;
+    font-size: 11px !important;
+    padding: 0 2px !important;
+    text-align: center;
+}
+
+.match-table th,
+.match-table td {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+}
+
+.match-row--admin-direct .team-cell {
+    gap: 4px !important;
+    display: inline-flex;
+    align-items: center;
+}
+
+.match-table__team--home .team-cell {
+    justify-content: flex-end;
+}
+
+.match-table__team--away .team-cell {
+    justify-content: flex-start;
+}
