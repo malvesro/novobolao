@@ -22,14 +22,8 @@ public class EquipeServiceImpl implements EquipeService {
 
 	@Override
 	public List<Equipe> buscarApenasPaisesReais() {
-		List<Equipe> equipes = getEquipeRepository().buscarApenasPaisesReais();
-		// Filtro de segurança em nível de serviço para garantir que nenhum placeholder vaze para a UI
-		return equipes.stream()
-				.filter(e -> e.getGrupo() != null && e.getGrupo() >= 'A' && e.getGrupo() <= 'L')
-				.filter(e -> !e.getNomePais().matches("^[0-9].*"))
-				.filter(e -> !e.getNomePais().startsWith("Winner"))
-				.filter(e -> !e.getNomePais().startsWith("V"))
-				.collect(Collectors.toList());
+		// O repositório já realiza a filtragem via HQL (Grupo A-L e exclusão de placeholders conhecidos)
+		return getEquipeRepository().buscarApenasPaisesReais();
 	}
 
 	public EquipeRepository getEquipeRepository() {
