@@ -12,11 +12,16 @@ import com.opendev.bolao.service.EquipeService;
  * Refatorado para utilizar Spring Data JPA Repositories.
  */
 public class EquipeServiceImpl implements EquipeService {
-	
-	private EquipeRepository equipeRepository;	
+
+	private EquipeRepository equipeRepository;
 
 	public List<Equipe> buscarTodasEquipes() {
 		return getEquipeRepository().findAll(Sort.by("nomePais"));
+	}
+
+	@Override
+	public List<Equipe> buscarApenasPaisesReais() {
+		return getEquipeRepository().buscarApenasPaisesReais();
 	}
 
 	public EquipeRepository getEquipeRepository() {

@@ -50,7 +50,7 @@ INSERT INTO `EQP_EQUIPE` (`EQP_ID`, `EQP_PAIS`, `EQP_GRUPO`) VALUES
   (138, 'Gana', 'L'),
   (139, 'Inglaterra', 'L'),
   (140, 'Panamá', 'L'),
-  (141, 'República Tcheca', 'A'),
+  (141, 'Tchéquia', 'A'),
   (142, 'Bósnia e Herzegovina', 'B'),
   (143, 'Turquia', 'D'),
   (144, 'Suécia', 'F'),

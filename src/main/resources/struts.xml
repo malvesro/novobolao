@@ -165,7 +165,9 @@
 
 		<action name="criarJogo" class="adminAction" method="criarNovoJogoHtmx" />
 
-		<action name="atualizarResultadoJogo" class="adminAction" method="atualizarResultadoDoJogoHtmx" />
+		<action name="atualizarResultadoJogo" class="adminAction" method="atualizarResultadoDoJogoHtmx">
+			<result name="success">/WEB-INF/content/admin/partials/admin-match-row.jsp</result>
+		</action>
 		
 		<action name="atualizarPapelParticipante" class="adminAction" method="atualizarPapelParticipanteHtmx">
 			<result name="success">/WEB-INF/content/admin/partials/participantes-table.jsp</result>

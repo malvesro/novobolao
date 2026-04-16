@@ -841,7 +841,7 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     *   8.6.3.2: Implementar feedback visual de "linha ativa" via JS para maior precisão.
 *   **[Concluído] Subtarefa 8.6.4: Reforço de CSS e Redeploy.**
 
-### Fase 8.7: Edição Direta por Combos Administrativos (Auto-Save UX)
+### Fase 8.7: Edição Direta por Combos Administrativos (Auto-Save UX) (CONCLUÍDO)
 *Referência:* Estratégia de Simplificação Radical (Princípio Meikai).
 
 *   **[Concluído] Subtarefa 8.7.1: Transformation Visual da Tabela Admin.**
@@ -853,6 +853,19 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 *   **[Concluído] Subtarefa 8.7.3: Feedback Visual de Sucesso (Yukai).**
     *   8.7.3.1: Implementar classe CSS para "flash" de sucesso ao salvar.
 *   **[Concluído] Subtarefa 8.7.4: Deploy Completo e Validação Final.**
+
+### Fase 8.8: Padronização e Refinamento de Equipes (FIFA 2026)
+*Referência:* Diretivas de nomes e bandeiras da Copa 2026.
+
+*   **[Concluído] Subtarefa 8.8.1: Padronização de Nomes das Equipes.**
+    *   8.8.1.1: Revisar e fixar nomes no SQL (RD Congo, Irã, Holanda, Catar, Coreia do Sul).
+    *   8.8.1.2: Sincronizar `flags.properties` com as chaves normalizadas.
+*   **[Concluído] Subtarefa 8.8.2: Refinamento de Listagem Administrativa.**
+    *   8.8.2.1: Filtrar apenas seleções reais nos dropdowns (Remover placeholders do Grupo Z).
+    *   8.8.2.2: Ordenar lista de jogos por cronologia (Data/Hora).
+*   **[Concluído] Subtarefa 8.8.3: Correção de Renderização de Bandeiras HTMX.**
+    *   8.8.3.1: Investigar falha na atualização visual da bandeira após Auto-Save.
+    *   8.8.3.2: Ajustar fragmento `admin-match-row.jsp` para garantir integridade do DOM e URLs de assets.
 
 **
     *   8.6.4.1: Ajustar `z-index` e transições para máxima prioridade visual.
