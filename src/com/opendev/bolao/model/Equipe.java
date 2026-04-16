@@ -63,7 +63,7 @@ public class Equipe implements Serializable {
     }
 
 	public String getCodigoPais() {
-		return FlagUtils.countryCodeFromName(this.nomePais);
+		return FlagUtils.countryCodeFromName(getNomePais());
 	}
 
 	public String getEmojiBandeira() {
@@ -71,14 +71,14 @@ public class Equipe implements Serializable {
 	}
 
 	public String getSiglaPais() {
-		return FlagUtils.fallbackAcronym(getCodigoPais(), this.nomePais);
+		return FlagUtils.fallbackAcronym(getCodigoPais(), getNomePais());
 	}
 
 	public boolean hasBandeira() {
-		return FlagUtils.hasAssetForCountry(this.nomePais);
+		return FlagUtils.hasAssetForCountry(getNomePais());
 	}
 
 	public String getBandeiraUrl() {
-		return FlagUtils.assetPathForCountry(this.nomePais).orElse("");
+		return FlagUtils.assetPathForCountry(getNomePais()).orElse("");
 	}
 }
