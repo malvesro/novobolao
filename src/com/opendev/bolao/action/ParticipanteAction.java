@@ -145,7 +145,7 @@ public class ParticipanteAction extends ActionSupport {
 	           setJogos(getJogoService().buscarUsandoFiltro(filtro));
 	           setFiltro(filtro);
 	       }
-	       setEquipes(getEquipeService().buscarTodasEquipes());
+	       setEquipes(getEquipeService().buscarApenasPaisesReais());
 	       setTelaPalpites(true);
 	       prepararMapaPalpitesUsuario();
 	       atualizarProgressoPalpites(filtro);

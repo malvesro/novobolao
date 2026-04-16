@@ -46,14 +46,14 @@ class AdminActionTest {
         jogo.setId(1L);
 
         when(jogoService.buscarPorId(1L)).thenReturn(Optional.of(jogo));
-        when(equipeService.buscarTodasEquipes()).thenReturn(java.util.List.of());
+        when(equipeService.buscarApenasPaisesReais()).thenReturn(java.util.List.of());
 
         String result = adminAction.prepararEdicaoEstruturalHtmx();
 
         assertThat(result).isEqualTo(ActionSupport.SUCCESS);
         assertThat(adminAction.getJogos()).containsExactly(jogo);
         verify(jogoService).buscarPorId(1L);
-        verify(equipeService).buscarTodasEquipes();
+        verify(equipeService).buscarApenasPaisesReais();
     }
 
     @Test

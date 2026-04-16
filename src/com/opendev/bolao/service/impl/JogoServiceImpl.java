@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Sort;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -52,7 +53,7 @@ public class JogoServiceImpl implements JogoService {
 	}
 
 	public List<Jogo> buscarTodos() {
-		return getJogoRepository().findAll();
+		return getJogoRepository().findAll(Sort.by("data", "hora"));
 	}
 	
 	public void atualizarResultado(Long idJogo, Integer golsEquipe1, Integer golsEquipe2) {
@@ -92,7 +93,7 @@ public class JogoServiceImpl implements JogoService {
  
  public List buscarUsandoFiltro(FiltroBuscaJogos filtro) {
         if (filtro == null) {
-            return getJogoRepository().findAll();
+            return getJogoRepository().findAll(Sort.by("data", "hora"));
         }
         Query query = entityManager.createQuery(filtro.getHqlQuery());
         filtro.popularParametrosDaHql(query);
