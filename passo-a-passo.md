@@ -867,6 +867,14 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     *   8.8.3.1: Investigar falha na atualização visual da bandeira após Auto-Save.
     *   8.8.3.2: Ajustar fragmento `admin-match-row.jsp` para garantir integridade do DOM e URLs de assets.
 
+### Fase 8.9: Adequação de Leiaute e Compactação (Anti-Scroll)
+*Referência:* Problema de overflow horizontal na tabela administrativa.
+
+*   **[Concluído] Subtarefa 8.9.1: Compactação de Controles Inline.**
+    *   Implementar larguras máximas (`max-width`) para combos de Hora, Local, Fase e Equipes.
+    *   Reduzir tamanho da fonte e padding horizontal nas células da tabela.
+    *   Aproximar inputs de placar e bandeiras no container de time.
+
 **
     *   8.6.4.1: Ajustar `z-index` e transições para máxima prioridade visual.
     *   8.6.4.2: Executar deploy completo e validar.
