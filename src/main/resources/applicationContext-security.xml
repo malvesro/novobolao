@@ -13,6 +13,7 @@
     <!-- Global Method Security -->
     <security:global-method-security secured-annotations="enabled" pre-post-annotations="enabled" proxy-target-class="true">
         <security:protect-pointcut expression="execution(* com.opendev.bolao.service.EquipeService.buscarTodasEquipes(..))" access="hasRole('ADMIN')" />
+        <security:protect-pointcut expression="execution(* com.opendev.bolao.service.EquipeService.buscarApenasPaisesReais(..))" access="hasAnyRole('ADMIN', 'USER')" />
         <security:protect-pointcut expression="execution(* com.opendev.bolao.service.JogoService.criarNovoJogo(..))" access="hasRole('ADMIN')" />
         <security:protect-pointcut expression="execution(* com.opendev.bolao.service.JogoService.atualizarResultado(..))" access="hasRole('ADMIN')" />
         <security:protect-pointcut expression="execution(* com.opendev.bolao.service.ParticipanteService.buscarTodos(..))" access="hasRole('ADMIN')" />

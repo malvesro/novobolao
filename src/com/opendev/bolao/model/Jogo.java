@@ -222,4 +222,34 @@ public class Jogo implements Serializable, Comparable<Jogo> {
         return getEquipe1().getNomePais() + " X " + getEquipe2().getNomePais();
     }
 
+
+    public String getEquipe1BandeiraUrl() {
+        return getEquipe1() != null ? getEquipe1().getBandeiraUrl() : "";
+    }
+
+    public String getEquipe2BandeiraUrl() {
+        return getEquipe2() != null ? getEquipe2().getBandeiraUrl() : "";
+    }
+
+    public String getEquipe1SiglaPais() {
+        return getEquipe1() != null ? getEquipe1().getSiglaPais() : "";
+    }
+
+    public String getEquipe1EmojiBandeira() {
+        return getEquipe1() != null ? getEquipe1().getEmojiBandeira() : "";
+    }
+
+    public String getEquipe2EmojiBandeira() {
+        return getEquipe2() != null ? getEquipe2().getEmojiBandeira() : "";
+    }
+
+    public String getRowStyleClass() {
+        if (getEquipe1() != null && "Brasil".equals(getEquipe1().getNomePais())) return "brasil";
+        if (getEquipe2() != null && "Brasil".equals(getEquipe2().getNomePais())) return "brasil";
+        return ""; // Row zebra coloring is handled by CSS nth-child or rowIndex usually, but here we can return a base class
+    }
+
+    public String getEquipe2SiglaPais() {
+        return getEquipe2() != null ? getEquipe2().getSiglaPais() : "";
+    }
 }

@@ -655,5 +655,6 @@ sequenceDiagram
 | Remover participante | `POST /admin/apagarParticipanteHtmx.action` | `AdminAction#apagarParticipante` | Exclui registro e recarrega lista | 200 + fragmento `participantes-rows.jspf` |
 | Criar jogo | `POST /admin/criarJogo.action` | `AdminAction#criarNovoJogoHtmx` | Exige data/hora, fase numérica e equipes distintas | 204 sucesso / 400 validação / 500 erro interno |
 | Atualizar resultado | `POST /admin/atualizarResultadoJogo.action` | `AdminAction#atualizarResultadoDoJogoHtmx` | Rejeita gols negativos e invalida cache de ranking | 204 sucesso / 400 validação / 500 erro interno |
+| Editar estrutural | `POST /admin/salvarEdicaoEstrutural.action` | `AdminAction#salvarEdicaoEstruturalHtmx` | Atualiza data, hora, local, fase e times | 200 + fragmento `admin-match-row.jsp` |
 
 > **Observação:** toda navegação protegida passa pelo filtro Spring Security (`springSecurityFilterChain`) e pela stack `bolaoStack` do Struts (COOP/COEP/Fetch Metadata), garantindo salvaguardas contra CSRF, clickjacking e requisições cross-origin.

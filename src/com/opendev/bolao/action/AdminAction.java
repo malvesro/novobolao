@@ -35,6 +35,7 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 	private List equipes;
 	private List jogos;
 	private List participantes;
+	private Jogo jogo;
 	private Long id;
 	private String papel;
 	private String status;
@@ -49,7 +50,7 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 
 	
 	public String carregarInfoEquipes() {
-		this.equipes = getEquipeService().buscarTodasEquipes();		
+		this.equipes = getEquipeService().buscarApenasPaisesReais();
 		return SUCCESS;
 	}
 	
@@ -72,22 +73,32 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 		getJogoService().atualizarResultado(idJogo, golsEquipe1, golsEquipe2);
 	}
 
+
 	public String atualizarResultadoDoJogoHtmx() {
+		LOGGER.info("[HTMX-ADMIN][RESULTADO] Atualizando resultado para jogo ID={}", this.id);
 		HttpServletResponse response = getHttpResponse();
 		if (response == null) {
 			return NONE;
 		}
-		int statusCode = HttpServletResponse.SC_NO_CONTENT;
 		try {
 			atualizarResultadoDoJogo(this.id, this.golsEquipe1, this.golsEquipe2);
+
+			// Recarregar dados para retorno do fragmento
+			this.jogo = getJogoService().buscarPorId(this.id).orElseThrow(() -> new IllegalArgumentException("Jogo não encontrado"));
+			this.jogos = List.of(this.jogo);
+			this.equipes = getEquipeService().buscarApenasPaisesReais();
+			markSkipTemplate();
+			return SUCCESS;
 		} catch (IllegalArgumentException ex) {
-			statusCode = HttpServletResponse.SC_BAD_REQUEST;
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return NONE;
 		} catch (Exception ex) {
-			statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+			LOGGER.error("[HTMX-ADMIN][RESULTADO] Erro ao atualizar ID={}", this.id, ex);
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			return NONE;
 		}
-		response.setStatus(statusCode);
-		return NONE;
 	}
+
 
 	public String criarNovoJogoHtmx() {
 		HttpServletResponse response = getHttpResponse();
@@ -118,8 +129,9 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 				if (httpResponse != null) { httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST); }
 				return NONE;
 			}
-			this.jogos = List.of(getJogoService().buscarPorId(this.id).orElseThrow(() -> new IllegalArgumentException("Jogo não encontrado")));
-			this.equipes = getEquipeService().buscarTodasEquipes();
+			this.jogo = getJogoService().buscarPorId(this.id).orElseThrow(() -> new IllegalArgumentException("Jogo não encontrado"));
+			this.jogos = List.of(this.jogo);
+			this.equipes = getEquipeService().buscarApenasPaisesReais();
 			markSkipTemplate();
 			return SUCCESS;
 		} catch (Exception ex) {
@@ -152,8 +164,9 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 			);
 			
 			// Após salvar, recarregamos o jogo para devolver a linha da tabela atualizada
-			this.jogos = List.of(getJogoService().buscarPorId(this.id).orElseThrow());
-			this.equipes = getEquipeService().buscarTodasEquipes(); // Necessário para os combos na linha
+			this.jogo = getJogoService().buscarPorId(this.id).orElseThrow(() -> new IllegalArgumentException("Jogo não encontrado"));
+			this.jogos = List.of(this.jogo);
+			this.equipes = getEquipeService().buscarApenasPaisesReais(); // Necessário para os combos na linha
 			markSkipTemplate();
 			LOGGER.info("[HTMX-ADMIN][EDICAO-ESTRUTURAL] Sucesso ao salvar ID={}, retornando fragmento de linha.", this.id);
 			return SUCCESS; 
@@ -171,8 +184,9 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 	public String carregarLinhaJogoHtmx() {
 		LOGGER.info("[HTMX-ADMIN][EDICAO-ESTRUTURAL] Recarregando linha do jogo ID={}", this.id);
 		try {
-			this.jogos = List.of(getJogoService().buscarPorId(this.id).orElseThrow());
-			this.equipes = getEquipeService().buscarTodasEquipes(); // Necessário para os combos na linha
+			this.jogo = getJogoService().buscarPorId(this.id).orElseThrow(() -> new IllegalArgumentException("Jogo não encontrado"));
+			this.jogos = List.of(this.jogo);
+			this.equipes = getEquipeService().buscarApenasPaisesReais(); // Necessário para os combos na linha
 			markSkipTemplate();
 			return SUCCESS;
 		} catch (Exception ex) {
@@ -184,7 +198,7 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 	
 	public String carregarJogos() {
 		this.jogos = getJogoService().buscarTodos();
-		this.equipes = getEquipeService().buscarTodasEquipes(); // Necessário para os combos de edição direta
+		this.equipes = getEquipeService().buscarApenasPaisesReais(); // Necessário para os combos de edição direta
 		return SUCCESS;
 	}
     
@@ -275,6 +289,10 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
     public List getParticipantes() {
         return this.participantes;
     }
+
+	public Jogo getJogo() {
+		return jogo;
+	}
 
 	public Long getId() {
 		return id;

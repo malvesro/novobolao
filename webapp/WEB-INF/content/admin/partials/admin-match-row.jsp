@@ -3,14 +3,17 @@
 <%@taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
+
+<c:if test="${empty base}">
+    <c:set var="base" value="${pageContext.request.contextPath eq '/' ? '' : pageContext.request.contextPath}" />
+</c:if>
 <fmt:formatDate var="dataJogoFormatada" value="${jogo.data}" pattern="dd/MM/yyyy" />
 <fmt:formatDate var="horaJogoFormatada" value="${jogo.hora}" pattern="HH:mm" />
 
-<tr class="${rowStyleClass} match-row--admin-direct" id="jogoTr_${jogo.id}" data-jogo-id="${jogo.id}">
-    <input type="hidden" name="id" value="${jogo.id}" />
-    <input type="hidden" name="data" value="${dataJogoFormatada}" />
-    
+<tr class="${jogo.rowStyleClass} match-row--admin-direct" id="jogoTr_${jogo.id}" data-jogo-id="${jogo.id}">
     <td class="match-table__time">
+        <input type="hidden" name="id" value="${jogo.id}" />
+        <input type="hidden" name="data" value="${dataJogoFormatada}" />
         <sec:authorize access="hasRole('ADMIN')">
             <select name="hora" class="form-control-inline" 
                     hx-post="${base}/admin/salvarEdicaoEstrutural.action" 
@@ -76,10 +79,15 @@
             <sec:authorize access="!hasRole('ADMIN')"><span>${jogo.equipe1.nomePais}</span></sec:authorize>
             
             <c:choose>
-                <c:when test="${not empty jogo.equipe1.bandeiraUrl}">
-                    <img class="flag-icon icon-inline" src="${pageContext.request.contextPath}${jogo.equipe1.bandeiraUrl}" width="24" height="18" loading="lazy" alt="" />
+                <c:when test="${not empty jogo.equipe1BandeiraUrl}">
+                    <img class="flag-icon icon-inline" src="${base}${jogo.equipe1BandeiraUrl}" width="24" height="18" loading="lazy" alt="Bandeira de ${jogo.equipe1.nomePais}" title="${jogo.equipe1.nomePais}" />
                 </c:when>
-                <c:otherwise><span class="flag-icon flag-icon--fallback icon-inline">${jogo.equipe1.siglaPais}</span></c:otherwise>
+                <c:when test="${not empty jogo.equipe1EmojiBandeira}">
+                    <span class="flag-icon icon-inline" role="img" aria-label="${jogo.equipe1.nomePais}" title="${jogo.equipe1.nomePais}">
+                        <c:out value="${jogo.equipe1EmojiBandeira}" />
+                    </span>
+                </c:when>
+                <c:otherwise><span class="flag-icon flag-icon--fallback icon-inline" title="${jogo.equipe1.nomePais}">${jogo.equipe1SiglaPais}</span></c:otherwise>
             </c:choose>
 
             <sec:authorize access="hasRole('ADMIN')">
@@ -101,10 +109,15 @@
             <sec:authorize access="!hasRole('ADMIN')"><span class="score-value">${jogo.golsEquipe2}</span></sec:authorize>
 
             <c:choose>
-                <c:when test="${not empty jogo.equipe2.bandeiraUrl}">
-                    <img class="flag-icon icon-inline" src="${pageContext.request.contextPath}${jogo.equipe2.bandeiraUrl}" width="24" height="18" loading="lazy" alt="" />
+                <c:when test="${not empty jogo.equipe2BandeiraUrl}">
+                    <img class="flag-icon icon-inline" src="${base}${jogo.equipe2BandeiraUrl}" width="24" height="18" loading="lazy" alt="Bandeira de ${jogo.equipe2.nomePais}" title="${jogo.equipe2.nomePais}" />
                 </c:when>
-                <c:otherwise><span class="flag-icon flag-icon--fallback icon-inline">${jogo.equipe2.siglaPais}</span></c:otherwise>
+                <c:when test="${not empty jogo.equipe2EmojiBandeira}">
+                    <span class="flag-icon icon-inline" role="img" aria-label="${jogo.equipe2.nomePais}" title="${jogo.equipe2.nomePais}">
+                        <c:out value="${jogo.equipe2EmojiBandeira}" />
+                    </span>
+                </c:when>
+                <c:otherwise><span class="flag-icon flag-icon--fallback icon-inline" title="${jogo.equipe2.nomePais}">${jogo.equipe2SiglaPais}</span></c:otherwise>
             </c:choose>
 
             <sec:authorize access="hasRole('ADMIN')">
