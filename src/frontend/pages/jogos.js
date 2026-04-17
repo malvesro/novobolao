@@ -3,8 +3,6 @@ const DEBUG_LABEL = '[bolao:jogos]';
 const state = {
   expandedMatchId: null,
   lastInlineTrigger: null,
-  lastPanelTrigger: null,
-  meusPalpitesLoaded: false,
   initialized: false,
   autoSaveTimers: {},
 };
@@ -95,21 +93,6 @@ function atualizarResultado(input) {
   }).catch(() => {
     debugWarn('Falha ao atualizar resultado.', { jogoId });
   });
-}
-
-function carregarMeusPalpites() {
-  if (window.htmx) {
-    debugInfo('Recarregando Meus Palpites via HTMX em background.');
-    window.htmx.ajax('GET', `${getBaseUrl()}/seguro/meusPalpitesPartial.action`, {
-      target: '#todos_palpites_table',
-      swap: 'innerHTML'
-    });
-  }
-}
-
-function isMeusPalpitesOpen() {
-  const details = document.querySelector('details[hx-target="#todos_palpites_table"]');
-  return details ? details.open : false;
 }
 
 function storeInlineInitialState() {
