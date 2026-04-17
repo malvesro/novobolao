@@ -102,7 +102,10 @@
 		<action name="alterarSenha" class="participanteAction" method="alterarSenha">
 			<result name="success">/WEB-INF/content/seguro/trocaSenha.jsp</result>
 			<result name="input">/WEB-INF/content/seguro/trocaSenha.jsp</result>
-			<result name="login" type="redirectAction">login</result>
+			<result name="login" type="redirectAction">
+				<param name="actionName">login</param>
+				<param name="namespace">/</param>
+			</result>
 		</action>
 		
 		<action name="palpiteFormPartial" class="participanteAction" method="carregarPalpiteFormHtmx">
