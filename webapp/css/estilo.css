@@ -413,6 +413,10 @@ div.menu_header span {
 	margin-left: 4px;
 }
 
+div.menu_header--expanded {
+	/* Reserva para ícones ou estilos de expansão se necessário */
+}
+
 div.menu_item {
 	font-weight: normal;
 }

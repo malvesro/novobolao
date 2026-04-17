@@ -128,10 +128,12 @@ public class ParticipanteAction extends ActionSupport {
     }
 
     public String trocaSenha() {
+        LOGGER.info("[PERFIL][SENHA] Acessando formulario de troca de senha.");
         return SUCCESS;
     }
 
     public String alterarSenha() {
+        LOGGER.info("[PERFIL][SENHA] Recebendo solicitacao de alteracao de senha.");
         String loginLocal = RequestUtils.getLoginParticipanteAutenticado();
         if (loginLocal == null) {
             return LOGIN;
