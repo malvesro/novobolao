@@ -869,11 +869,22 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 
 **
     *   8.6.4.1: Ajustar `z-index` e transições para máxima prioridade visual.
-    *   8.6.4.2: Executar deploy completo e validar.
-
-**
-
-**
 
 
+### Fase 8.9: Adequação de Leiaute e Compactação (Anti-Scroll)
+*Referência:* Problema de overflow horizontal na tabela administrativa.
 
+*   **[Concluído] Subtarefa 8.9.1: Compactação de Controles Inline.**
+    *   Implementar larguras máximas (max-width) para combos de Hora, Local, Fase e Equipes.
+    *   Reduzir tamanho da fonte e padding horizontal nas células da tabela.
+    *   Aproximar inputs de placar e bandeiras no container de time.
+
+### Fase 8.10: Expansão do Leiaute (Wide Screen Support)
+*Referência:* Feedback do usuário sobre componentes "espremidos" no centro.
+
+*   **[Concluído] Subtarefa 8.10.1: Ampliação do Container Principal (#wrapper).**
+    *   Aumentar largura máxima de 840px para 1200px no estilo.css.
+*   **[Concluído] Subtarefa 8.10.2: Expansão das Seções Centrais.**
+    *   Aumentar max-width de .dashboard-section e portlets de 720px para 1000px.
+*   **[Concluído] Subtarefa 8.10.3: Alinhamento do Rodapé.**
+    *   Sincronizar largura do #footer com o novo layout.
