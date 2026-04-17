@@ -888,3 +888,10 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     *   Aumentar max-width de .dashboard-section e portlets de 720px para 1000px.
 *   **[Concluído] Subtarefa 8.10.3: Alinhamento do Rodapé.**
     *   Sincronizar largura do #footer com o novo layout.
+
+### Fase 8.11: Limpeza de Funcionalidades Redundantes (UX Cleanup)
+*Referência:* Redundância da seção "Ver meus palpites" após implementação do Direct Inline.
+
+*   **[Concluído] Subtarefa 8.11.1: Remoção da seção global de palpites.**
+    *   Remover o componente `<details>` em `jogos.jsp`.
+    *   Limpar Action, fragmentos JSP e scripts JS órfãos relacionados à listagem global.

@@ -1816,20 +1816,7 @@ div.legenda span.abrev {
 	height: 112px;
 }
 
-.tips-panel {
-	display: none;
-	width: 100%;
-	max-width: 1000px;
-	margin: 0 auto;
-	background-color: var(--color-surface);
-	border: 1px dashed var(--color-border);
-	border-radius: var(--radius-base);
-	box-shadow: var(--shadow-base);
-}
 
-.tips-panel--visible {
-	display: block;
-}
 
 .link-button {
 	background: none;
@@ -1857,38 +1844,11 @@ div.legenda span.abrev {
 	margin-left: 0;
 }
 
-.tips-panel__body {
-	padding: 1rem;
-}
 
-.tips-panel__header {
-	display: flex;
-	justify-content: flex-end;
-}
 
-.tips-panel__table {
-	width: 100%;
-	border-collapse: collapse;
-	margin-top: 0.5rem;
-}
 
-.tips-panel__table th,
-.tips-panel__table td {
-	padding: 0.4rem;
-	border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
 
-.tips-panel__footer {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-top: 0.75rem;
-}
 
-.tips-panel__scroll {
-	max-height: 140px;
-	overflow: auto;
-}
 
 .tips-info {
 	width: 100%;
