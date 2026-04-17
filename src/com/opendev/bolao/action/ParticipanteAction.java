@@ -85,11 +85,14 @@ public class ParticipanteAction extends ActionSupport {
     private InputStream graficoStream;
     private String rival;
 
-    // Parâmetros de Cadastro
+    // Parâmetros de Cadastro / Senha
     private String login;
     private String nome;
     private String email;
     private String senha;
+    private String senhaAtual;
+    private String novaSenha;
+    private String confirmarSenha;
 
     // Parâmetros de Filtro
     private boolean usarFiltro;
@@ -126,6 +129,45 @@ public class ParticipanteAction extends ActionSupport {
 
     public String trocaSenha() {
         return SUCCESS;
+    }
+
+    public String alterarSenha() {
+        String loginLocal = RequestUtils.getLoginParticipanteAutenticado();
+        if (loginLocal == null) {
+            return LOGIN;
+        }
+
+        if (ValidacaoUtils.isVazia(senhaAtual) || ValidacaoUtils.isVazia(novaSenha) || ValidacaoUtils.isVazia(confirmarSenha)) {
+            addActionError(getText("match.submit.error", "Todos os campos são obrigatórios."));
+            return INPUT;
+        }
+
+        if (!novaSenha.equals(confirmarSenha)) {
+            addActionError(getText("pwd.change.error.mismatch", "As senhas informadas não conferem."));
+            return INPUT;
+        }
+
+        try {
+            getParticipanteService().alterarSenha(loginLocal, senhaAtual, novaSenha);
+            addActionMessage(getText("pwd.change.success", "Senha alterada com sucesso!"));
+            // Limpa campos após sucesso
+            this.senhaAtual = null;
+            this.novaSenha = null;
+            this.confirmarSenha = null;
+            return SUCCESS;
+        } catch (ValidacaoException e) {
+            if (e.getErros() != null && !e.getErros().isEmpty()) {
+                MensagemErro erro = (MensagemErro) e.getErros().get(0);
+                addActionError(erro.getMensagem());
+            } else {
+                addActionError(e.getMessage());
+            }
+        } catch (Exception e) {
+            LOGGER.error("[PERFIL][SENHA] Erro inesperado ao trocar senha para usuario={}", loginLocal, e);
+            addActionError("Erro inesperado ao processar a troca de senha.");
+        }
+
+        return INPUT;
     }
 
 	public String logout() {
@@ -289,6 +331,18 @@ public class ParticipanteAction extends ActionSupport {
     public void setSenha(String senha) {
         this.senha = senha == null ? null : senha.trim();
     }
+
+    public String getSenhaAtual() { return senhaAtual; }
+    @StrutsParameter
+    public void setSenhaAtual(String senhaAtual) { this.senhaAtual = senhaAtual; }
+
+    public String getNovaSenha() { return novaSenha; }
+    @StrutsParameter
+    public void setNovaSenha(String novaSenha) { this.novaSenha = novaSenha; }
+
+    public String getConfirmarSenha() { return confirmarSenha; }
+    @StrutsParameter
+    public void setConfirmarSenha(String confirmarSenha) { this.confirmarSenha = confirmarSenha; }
 
     public boolean isUsarFiltro() { return usarFiltro; }
     @StrutsParameter
