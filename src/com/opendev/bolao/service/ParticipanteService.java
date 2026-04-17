@@ -10,9 +10,9 @@ import com.opendev.bolao.model.Participante;
 
 
 public interface ParticipanteService {
-    
+
     public Participante criarNovo(Participante participante) throws ValidacaoException;
-	
+
 	public List buscarClassificacao();
 
 	public Optional<Participante> buscarPorLogin(String login);
@@ -20,15 +20,17 @@ public interface ParticipanteService {
 	public Optional<Participante> buscarPorEmail(String email);
 
     public List buscarTodos();
-    
+
     public void atualizarAutorizacao(Long id, boolean autorizado);
-    
+
     public void atualizarPapel(Long id, String papel);
 
     public void apagar(Long id);
-    
+
+    public void alterarSenha(String login, String senhaAtual, String novaSenha) throws ValidacaoException;
+
     public GraficoComparativoDesempenho construirGraficoDesempenho(Participante participante, Long idRivail);
-    
+
     public GraficoBarraLideres construirGraficoDeBarrasDosLideres();
 
 }
