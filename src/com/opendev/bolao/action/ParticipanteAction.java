@@ -329,13 +329,6 @@ public class ParticipanteAction extends ActionSupport {
     	return getPalpiteService().buscarPalpitesDoParticipante(login);
     }
     
-    public String listarMeusPalpitesHtmx() {
-	marcarRespostaParcial();
-    	String login = RequestUtils.getLoginParticipanteAutenticado();
-    	this.palpites = getPalpiteService().buscarPalpitesDoParticipante(login);
-    	return SUCCESS;
-    }
-
     public String listarPalpitesDoJogoHtmx() {
         marcarRespostaParcial();
         if (this.jogoId == null) {

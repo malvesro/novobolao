@@ -219,56 +219,6 @@
 									</opendev:portlet>
 								</div>
 								<span class="spacer spacer-sm"></span>
-								<details class="portlet collapsible-portlet" hx-get="${meusPalpitesUrl}"
-									hx-trigger="toggle once" hx-target="#todos_palpites_table" hx-swap="innerHTML">
-									<summary class="collapsible-portlet__header"
-										style="cursor: pointer; font-weight: bold; padding: 0.6rem; border-bottom: 1px solid var(--color-border); list-style: none;">
-										<img alt="" src="${base}/img/triang_yellow.png" class="icon-inline" />
-										Ver meus palpites
-									</summary>
-									<div class="portlet-content tips-panel__body" style="padding: 1rem;">
-										<div class="tips-panel__footer" style="padding-bottom: 0.5rem;">
-											<p style="margin: 0; font-weight: bold;">
-												<fmt:message key="match.tip.now" />
-											</p>
-											<button type="button" class="icon-button button-ghost"
-												hx-get="${meusPalpitesUrl}" hx-target="#todos_palpites_table"
-												hx-swap="innerHTML" title="Recarregar meus palpites">
-												<img alt="Recarregar" src="${base}/img/refresh.png"
-													class="icon-inline" />
-											</button>
-										</div>
-										<div class="tips-panel__scroll" style="overflow-x: auto;">
-											<table class="table tips-panel__table">
-												<thead>
-													<tr>
-														<th scope="col">
-															<fmt:message key="match.tip.date" />
-														</th>
-														<th scope="col">
-															<fmt:message key="match.tip.hour" />
-														</th>
-														<th scope="col">
-															<fmt:message key="match.tip.teams" />
-														</th>
-														<th scope="col" style="text-align: center;">
-															<fmt:message key="match.tip.mine" />
-														</th>
-													</tr>
-												</thead>
-												<tbody id="todos_palpites_table">
-													<tr>
-														<td colspan="4" class="text-center" style="padding: 1rem;">
-															<fmt:message key="general.loading" />
-														</td>
-													</tr>
-												</tbody>
-											</table>
-										</div>
-									</div>
-								</details>
-								<span class="spacer spacer-sm"></span>
-								<span class="spacer spacer-sm"></span>
 								<div id="palpites_info" class="legenda tips-info">
 									<p><img alt="" src="${base}/img/information.gif" class="icon-inline"
 											aria-hidden="true" />

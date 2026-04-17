@@ -99,10 +99,6 @@
 			<result name="success">/WEB-INF/content/seguro/trocaSenha.jsp</result>
 		</action>
 		
-		<action name="meusPalpitesPartial" class="participanteAction" method="listarMeusPalpitesHtmx">
-			<result name="success">/WEB-INF/content/seguro/partials/meus-palpites-rows.jsp</result>
-		</action>
-
 		<action name="palpiteFormPartial" class="participanteAction" method="carregarPalpiteFormHtmx">
 			<result name="success">/WEB-INF/content/seguro/partials/palpite-inline-form.jsp</result>
 			<result name="error">/WEB-INF/content/seguro/partials/palpite-inline-form.jsp</result>
