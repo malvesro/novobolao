@@ -1,7 +1,6 @@
 package com.opendev.bolao.service.impl;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.data.domain.Sort;
 
 import com.opendev.bolao.model.Equipe;

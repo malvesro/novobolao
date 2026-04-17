@@ -183,6 +183,8 @@ body>#wrapper {
 	margin-left: 10px;
 	margin-right: 10px;
 	background-image: url("../img/bolao_logo.png");
+	background-repeat: no-repeat;
+	background-position: center;
 }
 
 #content {

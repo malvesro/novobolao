@@ -17,6 +17,10 @@ O usuário reportou que os componentes da aplicação pareciam "espremidos" no c
 ### 3. Sincronização de Rodapé
 - O selector `#footer` foi ajustado para `width: 100%` com `max-width: 1200px`, garantindo alinhamento perfeito com o container principal.
 
+### 4. Refinamentos de UI e Backend
+- **Cabeçalho:** Aplicado `background-repeat: no-repeat;` e `background-position: center;` ao `#header` para evitar que o logo se repita no novo layout expandido.
+- **Backend:** Removido filtro de stream redundante em `EquipeServiceImpl.java`. A filtragem de equipes reais (Grupo A-L) já é realizada de forma eficiente no nível de banco de dados via HQL no repositório.
+
 ## Impacto Técnico
 - **Risco:** Baixo. As alterações afetam apenas a apresentação visual (CSS).
 - **Compatibilidade:** Mantida a responsividade para dispositivos móveis através dos media queries existentes.
