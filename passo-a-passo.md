@@ -361,6 +361,12 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Pendente] Testes e QA:** testes unitários do serviço de recuperação, cenários de expiração/reuso de OTP, validação de UX em desktop/mobile e `mvn -Dfrontend.skip=true test`.
     * **[Pendente] Atualização de documentação e evidências:** registrar log de sessão, atualizar `passo-a-passo.md` com status e atualizar ADR da decisão arquitetural do fluxo de recuperação.
 
+30. **[Concluído] Implementação da Troca de Senha Autenticada (17/04/2026):** Disponibilizar formulário para alteração de senha por usuários logados. (Skill: `modernization-java-migration v1.0.0`)
+    * **[Concluído] Implementar UI de troca de senha:** Criar `webapp/WEB-INF/content/seguro/trocaSenha.jsp` com campos para senha atual, nova e confirmação.
+    * **[Concluído] Implementar lógica de backend:** Adicionar método `alterarSenha` em `ParticipanteAction` com validação de senha atual (BCrypt) e política de nova senha.
+    * **[Concluído] Registrar data da última troca:** Garantir que a coluna `PAR_DH_ULTIMA_TROCA_SENHA` seja atualizada no sucesso.
+    * **[Concluído] Testes e QA:** Executar `mvn test` e validar fluxos em ambiente Docker.
+
 ### Fase 2.8: Refinanciamento de Débito Técnico e Arquitetura (CONCLUÍDO)
 
 1. **[Concluído]** **Migração para java.util.Optional:** Substituído o uso de retornos `null` por `Optional<T>` nos repositórios e serviços migrados.

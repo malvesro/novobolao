@@ -32,7 +32,10 @@ import com.opendev.bolao.model.PrivilegioId;
 import com.opendev.bolao.service.ParticipanteService;
 import com.opendev.bolao.util.DadosClassificacao;
 import com.opendev.bolao.util.SanitizationUtils;
+import com.opendev.bolao.util.ValidacaoUtils;
 import com.opendev.bolao.util.MensagemErro;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
@@ -41,6 +44,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * Refatorado para utilizar Spring Data JPA Repositories.
  */
 public class ParticipanteServiceImpl implements ParticipanteService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ParticipanteServiceImpl.class);
 	
 	private ParticipanteRepository participanteRepository;
 	private JogoRepository jogoRepository;
@@ -71,6 +76,34 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
 		this.passwordEncoder = passwordEncoder;
 	}
+
+    @Override
+    public void alterarSenha(String login, String senhaAtual, String novaSenha) throws ValidacaoException {
+        if (login == null || senhaAtual == null || novaSenha == null) {
+            throw new ValidacaoException(Collections.singletonList(new MensagemErro("Geral", "Dados insuficientes para troca de senha.", MensagemErro.SEVERIDADE_ERRO)));
+        }
+
+        Participante participante = buscarPorLogin(login)
+                .orElseThrow(() -> {
+                    List<MensagemErro> erros = new ArrayList<>();
+                    erros.add(new MensagemErro("Login", "Participante não encontrado.", MensagemErro.SEVERIDADE_ERRO));
+                    return new ValidacaoException(erros);
+                });
+
+        if (!passwordEncoder.matches(senhaAtual, participante.getSenha())) {
+            throw new ValidacaoException(Collections.singletonList(new MensagemErro("Senha atual", "Senha atual incorreta.", MensagemErro.SEVERIDADE_ERRO)));
+        }
+
+        if (!ValidacaoUtils.isSenhaValida(novaSenha)) {
+            throw new ValidacaoException(Collections.singletonList(new MensagemErro("Nova senha", "A nova senha deve ter entre 8 e 64 caracteres.", MensagemErro.SEVERIDADE_ERRO)));
+        }
+
+        participante.setSenha(passwordEncoder.encode(novaSenha));
+        participante.setDataHoraUltimaTrocaSenha(new Timestamp(System.currentTimeMillis()));
+        getParticipanteRepository().save(participante);
+
+        LOGGER.info("[PERFIL][SENHA] Senha alterada com sucesso para usuario={}", login);
+    }
 	
 	public GraficoComparativoDesempenho construirGraficoDesempenho(Participante participante, Long idRivail) {
 		TimeSeriesCollection seriesCollection = null;
