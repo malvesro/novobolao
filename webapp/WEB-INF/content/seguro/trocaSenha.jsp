@@ -5,68 +5,66 @@
 
 <div class="spacer-xl"></div>
 
-<c:choose>
-    <c:when test="${not empty sucessoCadastro and sucessoCadastro}">
-        <div class="alert">
-            <span>
-                <img alt="" src="${base}/img/information.gif" class="icon-inline-top" />
-            </span>
-            <span id="field_info">
-                <fmt:message key="pwd.change.success" />
-            </span>
-            <div class="text-center mt-md">
-                <c:url var="homeURL" value="/seguro/principal.action" />
-                <a href="${homeURL}" class="button">
-                    <fmt:message key="general.back" />
-                </a>
-            </div>
+<s:if test="sucessoCadastro">
+    <div class="alert">
+        <span>
+            <img alt="" src="${base}/img/information.gif" class="icon-inline-top" />
+        </span>
+        <span id="field_info">
+            <fmt:message key="pwd.change.success" />
+        </span>
+        <div class="text-center mt-md">
+            <c:url var="homeURL" value="/seguro/principal.action" />
+            <a href="${homeURL}" class="button">
+                <fmt:message key="menu.geral.principal" />
+            </a>
         </div>
-    </c:when>
-    <c:otherwise>
-        <opendev:mensagensErro nomeAtributo="errosInclusao" />
+    </div>
+</s:if>
+<s:else>
+    <opendev:mensagensErro nomeAtributo="errosInclusao" />
 
-        <fmt:message key="pwd.change.title" var="pwdTitle" />
-        <opendev:portlet id="loginportlet" icon="/img/lock.png" title="${pwdTitle}">
+    <fmt:message key="pwd.change.title" var="pwdTitle" />
+    <opendev:portlet id="pwd_portlet" icon="/img/lock.png" title="${pwdTitle}">
+        <s:form id="formAlterarSenha" action="alterarSenha" namespace="/seguro" method="post">
             <div class="inner">
                 <div class="text-center mb-md">
                     <fmt:message key="pwd.change.description" />
                 </div>
 
-                <c:url var="alterarSenhaURL" value="/seguro/alterarSenha.action" />
-                <form id="formAlterarSenha" action="${alterarSenhaURL}" method="post">
-                    <s:token />
-                    <div class="form-grid">
-                        <div class="form-row">
-                            <label for="pwd_current">
-                                <fmt:message key="pwd.change.current" />
-                            </label>
-                            <input id="pwd_current" type="password" name="senhaAtual" class="text" autocomplete="current-password" autofocus required />
-                        </div>
-                        <div class="form-row">
-                            <label for="pwd_new">
-                                <fmt:message key="pwd.change.new" />
-                            </label>
-                            <input id="pwd_new" type="password" name="novaSenha" class="text" autocomplete="new-password" required />
-                        </div>
-                        <div class="form-row">
-                            <label for="pwd_confirm">
-                                <fmt:message key="pwd.change.confirm" />
-                            </label>
-                            <input id="pwd_confirm" type="password" name="confirmarSenha" class="text" autocomplete="new-password" required />
-                        </div>
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label for="pwd_current">
+                            <fmt:message key="pwd.change.current" />
+                        </label>
+                        <s:password id="pwd_current" name="senhaAtual" cssClass="text" autocomplete="current-password" autofocus="true" />
                     </div>
-                </form>
+                    <div class="form-row">
+                        <label for="pwd_new">
+                            <fmt:message key="pwd.change.new" />
+                        </label>
+                        <s:password id="pwd_new" name="novaSenha" cssClass="text" autocomplete="new-password" />
+                    </div>
+                    <div class="form-row">
+                        <label for="pwd_confirm">
+                            <fmt:message key="pwd.change.confirm" />
+                        </label>
+                        <s:password id="pwd_confirm" name="confirmarSenha" cssClass="text" autocomplete="new-password" />
+                    </div>
+                </div>
 
                 <div class="form-links mt-md">
                     <c:url var="principalURL" value="/seguro/principal.action" />
-                    <a href="${principalURL}" class="link-secondary"><fmt:message key="general.back" /></a>
+                    <a href="${principalURL}" class="link-secondary">
+                        <fmt:message key="menu.geral.principal" />
+                    </a>
                 </div>
             </div>
 
             <div class="footer">
                 <fmt:message var="submitLabel" key="pwd.change.submit" />
-                <input type="submit" class="button" value="${submitLabel}" onclick="document.getElementById('formAlterarSenha').submit(); return false;" />
+                <s:submit cssClass="button" value="%{#attr.submitLabel}" />
             </div>
-        </opendev:portlet>
-    </c:otherwise>
-</c:choose>
+        </s:form>
+    </opendev:portlet>
+</s:else>

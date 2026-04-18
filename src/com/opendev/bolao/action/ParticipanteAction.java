@@ -150,6 +150,7 @@ public class ParticipanteAction extends ActionSupport {
 
         if (!erros.isEmpty()) {
             setErrosInclusao(erros);
+            exporFeedbackParaRequest();
             return INPUT;
         }
 
@@ -160,6 +161,8 @@ public class ParticipanteAction extends ActionSupport {
             this.senhaAtual = null;
             this.novaSenha = null;
             this.confirmarSenha = null;
+            exporFeedbackParaRequest();
+            LOGGER.info("[PERFIL][SENHA] Senha alterada com sucesso para usuario={}", loginLocal);
             return SUCCESS;
         } catch (ValidacaoException e) {
             setErrosInclusao(e.getErros());
@@ -170,7 +173,16 @@ public class ParticipanteAction extends ActionSupport {
             setErrosInclusao(erroInesperado);
         }
 
+        exporFeedbackParaRequest();
         return INPUT;
+    }
+
+    private void exporFeedbackParaRequest() {
+        HttpServletRequest request = RequestUtils.getRequest();
+        if (request != null) {
+            request.setAttribute("errosInclusao", getErrosInclusao());
+            request.setAttribute("sucessoCadastro", isSucessoCadastro());
+        }
     }
 
 	public String logout() {
@@ -853,6 +865,10 @@ public class ParticipanteAction extends ActionSupport {
     }
     
     public boolean isSucessoCadastro() {
+        return this.sucessoCadastro;
+    }
+
+    public boolean getSucessoCadastro() {
         return this.sucessoCadastro;
     }
 
