@@ -139,34 +139,35 @@ public class ParticipanteAction extends ActionSupport {
             return LOGIN;
         }
 
+        List erros = new ArrayList();
         if (ValidacaoUtils.isVazia(senhaAtual) || ValidacaoUtils.isVazia(novaSenha) || ValidacaoUtils.isVazia(confirmarSenha)) {
-            addActionError(getText("match.submit.error", "Todos os campos são obrigatórios."));
-            return INPUT;
+            erros.add(new MensagemErro("Senha", getText("match.submit.error", "Todos os campos são obrigatórios."), MensagemErro.SEVERIDADE_ERRO));
         }
 
-        if (!novaSenha.equals(confirmarSenha)) {
-            addActionError(getText("pwd.change.error.mismatch", "As senhas informadas não conferem."));
+        if (erros.isEmpty() && !novaSenha.equals(confirmarSenha)) {
+            erros.add(new MensagemErro("Confirmar senha", getText("pwd.change.error.mismatch", "As senhas informadas não conferem."), MensagemErro.SEVERIDADE_ERRO));
+        }
+
+        if (!erros.isEmpty()) {
+            setErrosInclusao(erros);
             return INPUT;
         }
 
         try {
             getParticipanteService().alterarSenha(loginLocal, senhaAtual, novaSenha);
-            addActionMessage(getText("pwd.change.success", "Senha alterada com sucesso!"));
+            setSucessoCadastro(true);
             // Limpa campos após sucesso
             this.senhaAtual = null;
             this.novaSenha = null;
             this.confirmarSenha = null;
             return SUCCESS;
         } catch (ValidacaoException e) {
-            if (e.getErros() != null && !e.getErros().isEmpty()) {
-                MensagemErro erro = (MensagemErro) e.getErros().get(0);
-                addActionError(erro.getMensagem());
-            } else {
-                addActionError(e.getMessage());
-            }
+            setErrosInclusao(e.getErros());
         } catch (Exception e) {
             LOGGER.error("[PERFIL][SENHA] Erro inesperado ao trocar senha para usuario={}", loginLocal, e);
-            addActionError("Erro inesperado ao processar a troca de senha.");
+            List erroInesperado = new ArrayList();
+            erroInesperado.add(new MensagemErro("Geral", "Erro inesperado ao processar a troca de senha.", MensagemErro.SEVERIDADE_ERRO));
+            setErrosInclusao(erroInesperado);
         }
 
         return INPUT;
