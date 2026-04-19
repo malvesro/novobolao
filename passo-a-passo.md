@@ -363,9 +363,10 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
 
 30. **[Concluído] Implementação da Troca de Senha Autenticada (17/04/2026):** Disponibilizar formulário para alteração de senha por usuários logados. (Skill: `modernization-java-migration v1.0.0`)
     * **[Concluído] Implementar UI de troca de senha:** Criar `webapp/WEB-INF/content/seguro/trocaSenha.jsp` com campos para senha atual, nova e confirmação.
-    * **[Concluído] Implementar lógica de backend:** Adicionar método `alterarSenha` em `ParticipanteAction` com validação de senha atual (BCrypt) e política de nova senha.
-    * **[Concluído] Registrar data da última troca:** Garantir que a coluna `PAR_DH_ULTIMA_TROCA_SENHA` seja atualizada no sucesso.
-    * **[Concluído] Testes e QA:** Executar `mvn test` e validar fluxos em ambiente Docker.
+*   **[Concluído] Refinamento UX/UI Sênior:** Aplicar `theme="simple"`, centralização de portlet e estilos modernos no `estilo.css` para resolver layout quebrado.
+*   **[Concluído] Implementar lógica de backend:** Adicionar método `alterarSenha` em `ParticipanteAction` com validação de senha atual (BCrypt) e política de nova senha.
+*   **[Concluído] Registrar data da última troca:** Garantir que a coluna `PAR_DH_ULTIMA_TROCA_SENHA` seja atualizada no sucesso.
+*   **[Concluído] Testes e QA:** Executar `mvn test` e validar fluxos em ambiente Docker.
 
 ### Fase 2.8: Refinanciamento de Débito Técnico e Arquitetura (CONCLUÍDO)
 
