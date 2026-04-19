@@ -156,17 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Password Visibility Toggle
-    document.body.addEventListener('change', (e) => {
-        if (e.target.classList.contains('js-toggle-password')) {
-            const isChecked = e.target.checked;
-            const type = isChecked ? 'text' : 'password';
-            document.querySelectorAll('.js-password-field').forEach(field => {
-                field.setAttribute('type', type);
-            });
-        }
-    });
-
     // Expor globalmente para botões inline (onclick)
     window.closeDrawer = closeDrawer;
 });
