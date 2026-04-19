@@ -37,19 +37,25 @@
                         <label for="pwd_current">
                             <fmt:message key="pwd.change.current" />
                         </label>
-                        <s:password id="pwd_current" name="senhaAtual" cssClass="text" autocomplete="current-password" autofocus="true" theme="simple" />
+                        <s:password id="pwd_current" name="senhaAtual" cssClass="text js-password-field" autocomplete="current-password" autofocus="true" theme="simple" />
                     </div>
                     <div class="form-row">
                         <label for="pwd_new">
                             <fmt:message key="pwd.change.new" />
                         </label>
-                        <s:password id="pwd_new" name="novaSenha" cssClass="text" autocomplete="new-password" theme="simple" />
+                        <s:password id="pwd_new" name="novaSenha" cssClass="text js-password-field" autocomplete="new-password" theme="simple" />
                     </div>
                     <div class="form-row">
                         <label for="pwd_confirm">
                             <fmt:message key="pwd.change.confirm" />
                         </label>
-                        <s:password id="pwd_confirm" name="confirmarSenha" cssClass="text" autocomplete="new-password" theme="simple" />
+                        <s:password id="pwd_confirm" name="confirmarSenha" cssClass="text js-password-field" autocomplete="new-password" theme="simple" />
+                    </div>
+                    <div class="form-row form-row--inline mt-sm">
+                        <input type="checkbox" id="show_passwords" class="js-toggle-password" />
+                        <label for="show_passwords" class="label-inline">
+                            <fmt:message key="pwd.change.show" />
+                        </label>
                     </div>
                 </div>
 
