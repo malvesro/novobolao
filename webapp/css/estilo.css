@@ -2387,3 +2387,52 @@ body.drawer-open {
     0% { background-color: rgba(239, 68, 68, 0.4); }
     100% { background-color: transparent; }
 }
+
+/* Password Change Specific Styles */
+#pwd_portlet {
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+#pwd_portlet .form-row label {
+    color: var(--color-text);
+}
+
+#pwd_portlet input.text {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#pwd_portlet input.text:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    outline: none;
+}
+
+.button-secondary {
+    font-family: verdana, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-surface);
+    height: 32px;
+    color: var(--color-text-muted);
+    padding: 0 1.5rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button-secondary:hover {
+    transform: translateY(-1px);
+    color: var(--color-text);
+    border-color: var(--color-primary);
+}
