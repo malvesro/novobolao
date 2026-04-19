@@ -2436,3 +2436,24 @@ body.drawer-open {
     color: var(--color-text);
     border-color: var(--color-primary);
 }
+
+.form-row--inline {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.label-inline {
+    margin: 0 !important;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+#pwd_portlet input[type="checkbox"] {
+    width: auto;
+    cursor: pointer;
+}
+
+#pwd_portlet input.text {
+    background-image: none !important; /* Remove legacy background image */
+}
