@@ -902,3 +902,11 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 *   **[Concluído] Subtarefa 8.11.1: Remoção da seção global de palpites.**
     *   Remover o componente `<details>` em `jogos.jsp`.
     *   Limpar Action, fragmentos JSP e scripts JS órfãos relacionados à listagem global.
+
+### Fase 8.12: Correção Visual e Estrutural do Rodapé (Fix UX)
+*Referência:* Quebra visual do rodapé (fora do wrapper e com estilos legados).
+
+*   **[Concluído] Subtarefa 8.12.1: Correção de Aninhamento e Estilização.**
+    *   Mover o `#footer` para dentro do `#wrapper` em `rodape.jspf`.
+    *   Remover imagens de fundo e bordas legadas no `estilo.css`.
+    *   Aplicar paleta de cores 2026 e tipografia moderna à versão do sistema.
