@@ -197,29 +197,13 @@ body>#wrapper {
 
 #footer {
 	width: 100%;
-	max-width: 1200px;
-	text-align: left;
-	margin: 0 auto;
-	position: relative;
-	height: 38px;
-	background-image: url("../img/footer_bg.png");
+	margin-top: 2.5rem;
+	padding: 1.5rem 0;
+	border-top: 1px solid var(--color-border);
 }
 
-body>#footer {
-	background-image: url("../img/footer_bg.png");
-}
-
-#footer div {
-	margin-left: 10px;
-	margin-right: 10px;
-	border-top: 1px solid #283F08;
-}
-
-#footer div p {
-	color: #959D9F;
-	text-align: center;
-	margin-top: 3px;
-	margin-bottom: 1px;
+#footer p {
+	margin: 0;
 }
 
 input.text {
@@ -1917,9 +1901,11 @@ div.legenda span.abrev {
 }
 
 .system-version {
+	font-family: var(--font-main);
 	font-size: 0.75rem;
-	color: var(--color-muted, #5f6368);
-	margin-top: 0.5rem;
+	color: var(--color-text-muted);
+	text-align: center;
+	opacity: 0.8;
 }
 
 .dialog-backdrop {
@@ -2147,68 +2133,70 @@ div.legenda span.abrev {
 .htmx-request.match-row {
 	opacity: 0.5;
 }
+
 /* Melhorias para Edição Administrativa HTMX */
 .match-row-edit {
-    background-color: rgba(16, 185, 129, 0.05) !important;
-    border-left: 4px solid var(--color-primary);
-    transition: all 0.3s ease;
+	background-color: rgba(16, 185, 129, 0.05) !important;
+	border-left: 4px solid var(--color-primary);
+	transition: all 0.3s ease;
 }
 
 .match-row-edit td {
-    padding: 1.5rem !important;
+	padding: 1.5rem !important;
 }
 
 .admin-edit-form {
-    background: var(--color-surface);
-    border-radius: var(--radius-base);
-    box-shadow: var(--shadow-premium);
-    padding: 1rem;
+	background: var(--color-surface);
+	border-radius: var(--radius-base);
+	box-shadow: var(--shadow-premium);
+	padding: 1rem;
 }
 
 .form-control--small {
-    height: 32px;
-    padding: 0.25rem 0.5rem;
-    font-size: 11px;
+	height: 32px;
+	padding: 0.25rem 0.5rem;
+	font-size: 11px;
 }
 
 .progress-spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-top-color: var(--color-primary);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    display: none;
-    margin-left: 0.5rem;
+	width: 20px;
+	height: 20px;
+	border: 2px solid rgba(255, 255, 255, 0.1);
+	border-top-color: var(--color-primary);
+	border-radius: 50%;
+	animation: spin 0.8s linear infinite;
+	display: none;
+	margin-left: 0.5rem;
 }
 
 .htmx-request .progress-spinner {
-    display: inline-block;
+	display: inline-block;
 }
 
 .match-row.htmx-request {
-    opacity: 0.6;
-    filter: grayscale(0.5);
+	opacity: 0.6;
+	filter: grayscale(0.5);
 }
 
 /* UX Admin: Interatividade da Linha de Jogo */
 .match-row--admin {
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
-    cursor: pointer;
+	transition: background-color 0.2s ease, box-shadow 0.2s ease;
+	cursor: pointer;
 }
 
 .match-row--admin:hover {
-    background-color: rgba(37, 99, 235, 0.08) !important; /* Blue tint */
-    box-shadow: inset 4px 0 0 var(--color-primary);
+	background-color: rgba(37, 99, 235, 0.08) !important;
+	/* Blue tint */
+	box-shadow: inset 4px 0 0 var(--color-primary);
 }
 
 .match-row--admin:active {
-    background-color: rgba(37, 99, 235, 0.12) !important;
+	background-color: rgba(37, 99, 235, 0.12) !important;
 }
 
 /* Tooltip nativo personalizado (opcional via title) */
 .match-row--admin[title] {
-    position: relative;
+	position: relative;
 }
 
 /* ===========================================================
@@ -2216,244 +2204,267 @@ div.legenda span.abrev {
    =========================================================== */
 
 :root {
-    --drawer-width: 450px;
-    --drawer-bg: var(--color-surface);
-    --drawer-shadow: -5px 0 25px rgba(0,0,0,0.3);
-    --drawer-transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+	--drawer-width: 450px;
+	--drawer-bg: var(--color-surface);
+	--drawer-shadow: -5px 0 25px rgba(0, 0, 0, 0.3);
+	--drawer-transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Overlay de fundo (escurecimento) */
 .drawer-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(2px);
-    z-index: 10000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(2px);
+	z-index: 10000;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 body.drawer-open .drawer-overlay {
-    opacity: 1;
-    visibility: visible;
+	opacity: 1;
+	visibility: visible;
 }
 
 /* Container do Painel Lateral */
 .admin-drawer {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: var(--drawer-width);
-    max-width: 90vw;
-    height: 100%;
-    background: var(--drawer-bg);
-    box-shadow: var(--drawer-shadow);
-    z-index: 10001;
-    transform: translateX(100%);
-    transition: var(--drawer-transition);
-    overflow-y: auto;
-    border-left: 1px solid var(--color-border);
+	position: fixed;
+	top: 0;
+	right: 0;
+	width: var(--drawer-width);
+	max-width: 90vw;
+	height: 100%;
+	background: var(--drawer-bg);
+	box-shadow: var(--drawer-shadow);
+	z-index: 10001;
+	transform: translateX(100%);
+	transition: var(--drawer-transition);
+	overflow-y: auto;
+	border-left: 1px solid var(--color-border);
 }
 
 body.drawer-open .admin-drawer {
-    transform: translateX(0);
+	transform: translateX(0);
 }
 
 /* Bloqueio de scroll no body quando o drawer está aberto */
 body.drawer-open {
-    overflow: hidden;
+	overflow: hidden;
 }
 
 /* Conteúdo interno do Drawer */
 .drawer-content {
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+	padding: 2rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
 }
 
 .drawer-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--color-border);
-    padding-bottom: 1rem;
-    margin-bottom: 1rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid var(--color-border);
+	padding-bottom: 1rem;
+	margin-bottom: 1rem;
 }
 
 .drawer-header h2 {
-    margin: 0;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1.5rem;
-    color: var(--color-primary);
+	margin: 0;
+	font-family: 'Barlow Condensed', sans-serif;
+	font-size: 1.5rem;
+	color: var(--color-primary);
 }
 
 .drawer-close-btn {
-    background: none;
-    border: none;
-    color: var(--color-text-muted);
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0.5rem;
-    transition: color 0.2s;
+	background: none;
+	border: none;
+	color: var(--color-text-muted);
+	font-size: 1.5rem;
+	cursor: pointer;
+	padding: 0.5rem;
+	transition: color 0.2s;
 }
 
 .drawer-close-btn:hover {
-    color: var(--color-text);
+	color: var(--color-text);
 }
 
 /* Estado de Seleção na Tabela */
 .match-row--selected {
-    background-color: rgba(37, 99, 235, 0.15) !important;
-    box-shadow: inset 6px 0 0 var(--color-primary) !important;
+	background-color: rgba(37, 99, 235, 0.15) !important;
+	box-shadow: inset 6px 0 0 var(--color-primary) !important;
 }
 
 /* Animação de entrada do conteúdo do Drawer */
 .drawer-content {
-    animation: drawer-fade-in 0.4s ease-out;
+	animation: drawer-fade-in 0.4s ease-out;
 }
 
 @keyframes drawer-fade-in {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 /* Spinner de carregamento no Drawer */
 #drawer-save-indicator {
-    width: 24px;
-    height: 24px;
-    border: 3px solid rgba(255, 255, 255, 0.1);
-    border-top-color: var(--color-primary);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    display: none;
+	width: 24px;
+	height: 24px;
+	border: 3px solid rgba(255, 255, 255, 0.1);
+	border-top-color: var(--color-primary);
+	border-radius: 50%;
+	animation: spin 0.8s linear infinite;
+	display: none;
 }
 
 .htmx-request#drawer-save-indicator {
-    display: inline-block;
+	display: inline-block;
 }
 
 /* Ajustes de Spinner e Prioridade Drawer */
 .progress-spinner--mini {
-    width: 16px;
-    height: 16px;
-    border-width: 2px;
-    display: none;
-    vertical-align: middle;
+	width: 16px;
+	height: 16px;
+	border-width: 2px;
+	display: none;
+	vertical-align: middle;
 }
 
 .admin-manage-btn.htmx-request .icon-inline {
-    display: none;
+	display: none;
 }
 
 .admin-manage-btn.htmx-request .progress-spinner--mini {
-    display: inline-block;
+	display: inline-block;
 }
 
 /* Garantia de Sobreposição Absoluta */
-.drawer-overlay { z-index: 99998 !important; }
-.admin-drawer { z-index: 99999 !important; }
+.drawer-overlay {
+	z-index: 99998 !important;
+}
+
+.admin-drawer {
+	z-index: 99999 !important;
+}
 
 /* Botão de Fechar flutuante se necessário */
 .drawer-close-btn {
-    font-size: 2rem;
-    line-height: 1;
+	font-size: 2rem;
+	line-height: 1;
 }
 
 /* Feedback de Auto-Save (Fase 8.7) */
-.match-row--admin-direct select, 
+.match-row--admin-direct select,
 .match-row--admin-direct input {
-    outline: none;
+	outline: none;
 }
 
 .match-row--admin-direct .save-flash {
-    animation: save-confirm 1s ease-out;
+	animation: save-confirm 1s ease-out;
 }
 
 @keyframes save-confirm {
-    0% { background-color: rgba(16, 185, 129, 0.4); }
-    100% { background-color: transparent; }
+	0% {
+		background-color: rgba(16, 185, 129, 0.4);
+	}
+
+	100% {
+		background-color: transparent;
+	}
 }
 
 .match-row--admin-direct .save-error {
-    animation: save-fail 1s ease-out;
+	animation: save-fail 1s ease-out;
 }
 
 @keyframes save-fail {
-    0% { background-color: rgba(239, 68, 68, 0.4); }
-    100% { background-color: transparent; }
+	0% {
+		background-color: rgba(239, 68, 68, 0.4);
+	}
+
+	100% {
+		background-color: transparent;
+	}
 }
 
 /* Password Change Specific Styles */
 #pwd_portlet {
-    max-width: 480px;
-    margin: 0 auto;
+	max-width: 480px;
+	margin: 0 auto;
 }
 
 #pwd_portlet .form-row label {
-    color: var(--color-text);
+	color: var(--color-text);
 }
 
 #pwd_portlet input.text {
-    background-color: var(--color-background);
-    color: var(--color-text);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    padding: 0.5rem;
-    font-size: 14px;
-    transition: border-color 0.2s, box-shadow 0.2s;
+	background-color: var(--color-background);
+	color: var(--color-text);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	padding: 0.5rem;
+	font-size: 14px;
+	transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 #pwd_portlet input.text:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-    outline: none;
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+	outline: none;
 }
 
 .button-secondary {
-    font-family: verdana, sans-serif;
-    font-size: 11px;
-    font-weight: bold;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    background-color: var(--color-surface);
-    height: 32px;
-    color: var(--color-text-muted);
-    padding: 0 1.5rem;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+	font-family: verdana, sans-serif;
+	font-size: 11px;
+	font-weight: bold;
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-sm);
+	background-color: var(--color-surface);
+	height: 32px;
+	color: var(--color-text-muted);
+	padding: 0 1.5rem;
+	cursor: pointer;
+	transition: transform 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .button-secondary:hover {
-    transform: translateY(-1px);
-    color: var(--color-text);
-    border-color: var(--color-primary);
+	transform: translateY(-1px);
+	color: var(--color-text);
+	border-color: var(--color-primary);
 }
 
 .form-row--inline {
-    flex-direction: row;
-    align-items: center;
-    gap: 0.5rem;
+	flex-direction: row;
+	align-items: center;
+	gap: 0.5rem;
 }
 
 .label-inline {
-    margin: 0 !important;
-    cursor: pointer;
-    font-size: 11px;
+	margin: 0 !important;
+	cursor: pointer;
+	font-size: 11px;
 }
 
 #pwd_portlet input[type="checkbox"] {
-    width: auto;
-    cursor: pointer;
+	width: auto;
+	cursor: pointer;
 }
 
 #pwd_portlet input.text {
-    background-image: none !important; /* Remove legacy background image */
+	background-image: none !important;
+	/* Remove legacy background image */
 }
