@@ -21,7 +21,7 @@ INSERT INTO `PAR_PARTICIPANTE` (
   1, 
   'Administrador do Sistema', 
   'admin',
-  '$2b$12$QGastsU88DIlT8u5nVXfbuIlEbeXifCooeLiPcYz2MeZBdgXrr9/u', -- BCrypt de 'admin123'
+  '$2a$12$Z9GIzlFcAhxkOjbcMdogteO0sfyibnSHRGxoL9.fG.Z27hPTJIX3G', 
   'admin@bolao.local', 
   'T', 
   '127.0.0.1', 
