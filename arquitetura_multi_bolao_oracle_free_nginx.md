@@ -129,13 +129,13 @@ Internet
                     +------------+------------+
                     |                         |
            localhost:8080             localhost:8081
-            bolao_copa                 bolao_empresa
+            bolao_copa                 bolao_mercurio
                     |                         |
                     +------------+------------+
                                  |
                      MySQL HeatWave Always Free
                        schema bolao_copa
-                       schema bolao_empresa
+                       schema bolao_mercurio
 ```
 
 ### Interpretação do fluxo
@@ -144,7 +144,7 @@ Internet
 - O DNS resolve para o **mesmo IP público da VM**.
 - O **Nginx** recebe a conexão e lê o hostname.
 - Se o domínio for do Bolão Copa, encaminha para `localhost:8080`.
-- Se o domínio for do Bolão Empresa, encaminha para `localhost:8081`.
+- Se o domínio for do Bolão Mercúrio, encaminha para `localhost:8081`.
 - Cada aplicação usa seu próprio schema e seu próprio usuário MySQL.
 
 Esse modelo fornece **isolamento lógico**, simplicidade e baixo custo operacional.
@@ -191,7 +191,7 @@ Antes de criar qualquer recurso, defina o desenho lógico.
 | 80    | HTTP        | Pública                                 |
 | 443   | HTTPS       | Pública                                 |
 | 8080  | App Copa    | Apenas local/interna                    |
-| 8081  | App Empresa | Apenas local/interna                    |
+| 8081  | App Mercúrio | Apenas local/interna                    |
 | 3000  | Grafana     | Preferencialmente restrita              |
 | 9090  | Prometheus  | Preferencialmente restrita              |
 
@@ -415,7 +415,7 @@ sudo apt install -y curl wget git unzip htop jq net-tools mysql-client
 ### 12.4 Criar diretórios
 
 ```bash
-mkdir -p ~/bolao/{copa,empresa,nginx,monitoring/prometheus,scripts,backups}
+mkdir -p ~/bolao/{copa,mercurio,nginx,monitoring/prometheus,scripts,backups}
 ```
 
 Estrutura sugerida:
@@ -423,7 +423,7 @@ Estrutura sugerida:
 ```text
 ~/bolao/
 ├── copa/
-├── empresa/
+├── mercurio/
 ├── nginx/
 ├── monitoring/
 │   └── prometheus/
@@ -483,13 +483,13 @@ mysql -h IP_PRIVADO_MYSQL -u admin -p
 
 ```sql
 CREATE DATABASE bolao_copa CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE DATABASE bolao_empresa CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE bolao_mercurio CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE USER 'app_copa'@'%' IDENTIFIED BY 'SenhaCopa#2026!';
-CREATE USER 'app_empresa'@'%' IDENTIFIED BY 'SenhaEmpresa#2026!';
+CREATE USER 'app_mercurio'@'%' IDENTIFIED BY 'SenhaMercurio#2026!';
 
 GRANT ALL PRIVILEGES ON bolao_copa.* TO 'app_copa'@'%';
-GRANT ALL PRIVILEGES ON bolao_empresa.* TO 'app_empresa'@'%';
+GRANT ALL PRIVILEGES ON bolao_mercurio.* TO 'app_mercurio'@'%';
 
 FLUSH PRIVILEGES;
 ```
@@ -570,24 +570,24 @@ APP_SECRET=uma_chave_grande_e_unica_para_copa
 chmod 600 ~/bolao/copa/.env
 ```
 
-### 16.2 Arquivo `.env` do Bolão Empresa
+### 16.2 Arquivo `.env` do Bolão Mercúrio
 
-Crie `~/bolao/empresa/.env`:
+Crie `~/bolao/mercurio/.env`:
 
 ```env
-APP_NAME=Bolao Empresa
+APP_NAME=Bolao Mercúrio
 APP_PORT=8080
 APP_ENV=production
 DB_HOST=IP_PRIVADO_MYSQL
 DB_PORT=3306
-DB_NAME=bolao_empresa
-DB_USER=app_empresa
-DB_PASSWORD=SenhaEmpresa#2026!
-APP_SECRET=uma_chave_grande_e_unica_para_empresa
+DB_NAME=bolao_mercurio
+DB_USER=app_mercurio
+DB_PASSWORD=SenhaMercurio#2026!
+APP_SECRET=uma_chave_grande_e_unica_para_mercurio
 ```
 
 ```bash
-chmod 600 ~/bolao/empresa/.env
+chmod 600 ~/bolao/mercurio/.env
 ```
 
 ### 16.3 Docker Compose do Bolão Copa
@@ -669,9 +669,9 @@ networks:
     driver: bridge
 ```
 
-### 16.4 Docker Compose do Bolão Empresa
+### 16.4 Docker Compose do Bolão Mercúrio
 
-Crie `~/bolao/empresa/docker-compose.yml`:
+Crie `~/bolao/mercurio/docker-compose.yml`:
 
 ```yaml
 # Mesmas correções aplicadas ao docker-compose do Bolão Copa.
@@ -679,7 +679,7 @@ Crie `~/bolao/empresa/docker-compose.yml`:
 services:
   app:
     image: seu-registry/bolao-app:1.0.0
-    container_name: bolao_empresa
+    container_name: bolao_mercurio
     restart: unless-stopped
     ports:
       - "127.0.0.1:8081:8080"
@@ -717,7 +717,7 @@ networks:
 cd ~/bolao/copa
 docker compose up -d
 
-cd ~/bolao/empresa
+cd ~/bolao/mercurio
 docker compose up -d
 ```
 
@@ -830,7 +830,7 @@ server {
 }
 ```
 
-### 17.4 Arquivo do domínio Empresa
+### 17.4 Arquivo do domínio Mercúrio
 
 Crie `/etc/nginx/sites-available/bolao-mercurio`:
 
@@ -922,7 +922,7 @@ Verifique:
 sudo certbot --nginx -d bolao-copa.seudominio.com.br
 ```
 
-### 18.3 Gerar certificado do domínio Empresa
+### 18.3 Gerar certificado do domínio Mercúrio
 
 ```bash
 sudo certbot --nginx -d bolao-mercurio.seudominio.com.br
@@ -1186,10 +1186,10 @@ echo "[$(date)] Iniciando backup..." >> "$BACKUP_DIR/backup.log"
 
 # O mysqldump lê host, usuário e senha automaticamente de ~/.my.cnf
 mysqldump bolao_copa  > "$BACKUP_DIR/bolao_copa_$DATE.sql"
-mysqldump bolao_empresa > "$BACKUP_DIR/bolao_empresa_$DATE.sql"
+mysqldump bolao_mercurio > "$BACKUP_DIR/bolao_mercurio_$DATE.sql"
 
 gzip "$BACKUP_DIR/bolao_copa_$DATE.sql"
-gzip "$BACKUP_DIR/bolao_empresa_$DATE.sql"
+gzip "$BACKUP_DIR/bolao_mercurio_$DATE.sql"
 
 # Retém apenas os últimos 7 dias de backup.
 find "$BACKUP_DIR" -name '*.gz' -mtime +7 -delete
@@ -1265,22 +1265,22 @@ Configuração sugerida:
 ### Banco
 
 - [ ] Schema `bolao_copa` criado.
-- [ ] Schema `bolao_empresa` criado.
+- [ ] Schema `bolao_mercurio` criado.
 - [ ] Usuário `app_copa` criado.
-- [ ] Usuário `app_empresa` criado.
+- [ ] Usuário `app_mercurio` criado.
 - [ ] Permissões isoladas conferidas.
 
 ### Aplicações
 
 - [ ] Container `bolao_copa` rodando na porta 8080.
-- [ ] Container `bolao_empresa` rodando na porta 8081.
+- [ ] Container `bolao_mercurio` rodando na porta 8081.
 - [ ] Health check respondendo nos dois.
 
 ### Nginx e SSL
 
 - [ ] Nginx instalado.
 - [ ] Site do domínio Copa configurado.
-- [ ] Site do domínio Empresa configurado.
+- [ ] Site do domínio Mercúrio configurado.
 - [ ] HTTPS funcionando nos dois domínios.
 - [ ] HTTP redirecionando para HTTPS.
 
@@ -1408,8 +1408,8 @@ oci os object put \
 
 oci os object put \
   --bucket-name bolao-backups \
-  --file "$BACKUP_DIR/bolao_empresa_$DATE.sql.gz" \
-  --name "empresa/bolao_empresa_$DATE.sql.gz"
+  --file "$BACKUP_DIR/bolao_mercurio_$DATE.sql.gz" \
+  --name "mercurio/bolao_mercurio_$DATE.sql.gz"
 ```
 
 ---
