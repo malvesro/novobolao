@@ -560,7 +560,7 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_AUTH=true
 SMTP_TLS=true
-SMTP_USERNAME=bolaoapp.copa@gmail.com
+SMTP_USERNAME=novobolaocopa@gmail.com
 SMTP_PASSWORD=senha_do_app_gerada_16_digitos
 ```
 
@@ -594,7 +594,7 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_AUTH=true
 SMTP_TLS=true
-SMTP_USERNAME=bolaoapp.mercurio@gmail.com
+SMTP_USERNAME=novobolaocopa@gmail.com
 SMTP_PASSWORD=senha_do_app_gerada_16_digitos
 ```
 
@@ -608,7 +608,7 @@ O sistema Bolão dispara notificações importantes usando serviço de E-mail (S
 
 Siga o tutorial conforme a [documentação do Google](https://support.google.com/accounts/answer/185833):
 
-1. **Crie uma conta Gmail dedicada:** (ex: `bolaoapp.copa@gmail.com`). Evite criar abrindo do servidor OCI. Utilize seu computador/celular.
+1. **Crie uma conta Gmail dedicada:** (ex: `novobolaocopa@gmail.com`). Evite criar abrindo do servidor OCI. Utilize seu computador/celular.
 2. Acesse a área _Account Settings > Security_ de sua conta Google.
 3. Ative a **Verificação em 2 Passos (2-Step Verification)** (A senha de app exige este requisito).
 4. Procure por **Senhas de Aplicativo (App Passwords)** na busca de segurança.
