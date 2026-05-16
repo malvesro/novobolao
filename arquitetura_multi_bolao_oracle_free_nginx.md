@@ -44,8 +44,8 @@ Esta arquitetura foi desenhada para atender o seguinte cenário:
 - Duas instâncias da aplicação **Bolão**.
 - Dois públicos diferentes.
 - Dois domínios diferentes, por exemplo:
-  - `bolao-copa.seudominio.com.br`
-  - `bolao-mercurio.seudominio.com.br`
+  - `bolao-copa.duckdns.org`
+  - `bolao-mercurio.duckdns.org`
 - Isolamento lógico de dados no MySQL.
 - Tudo rodando dentro do **Always Free** da Oracle Cloud.
 - Sem usar o **OCI Load Balancer**, evitando o limite de **10 Mbps**.
@@ -114,8 +114,8 @@ A arquitetura proposta usa apenas componentes compatíveis com o plano gratuito 
 ```text
 Internet
    |
-   |  bolao-copa.seudominio.com.br
-   |  bolao-mercurio.seudominio.com.br
+   |  bolao-copa.duckdns.org
+   |  bolao-mercurio.duckdns.org
    |
    +-----------------------------+
                                  |
@@ -165,8 +165,8 @@ Antes de começar, tenha em mãos:
 
 Sugestão de domínios:
 
-- `bolao-copa.seudominio.com.br`
-- `bolao-mercurio.seudominio.com.br`
+- `bolao-copa.duckdns.org`
+- `bolao-mercurio.duckdns.org`
 
 Usar subdomínios do mesmo domínio principal simplifica bastante o gerenciamento DNS e os certificados.
 
@@ -506,34 +506,30 @@ Isso oferece isolamento lógico suficiente para a maioria dos cenários de dois 
 
 ---
 
-## 15. Passo 9 — Publicar DNS para os dois domínios
+## 15. Passo 9 — Configurar domínios gratuitos no DuckDNS
 
-Você pode usar Cloudflare, Registro.br ou outro provedor DNS.
+Para mantermos o custo zero em todas as camadas (incluindo o DNS e o Certificado SSL), utilizaremos o **DuckDNS**, um serviço gratuito que mapeia domínios (ex: `bolao.duckdns.org`) para o IP da nossa VM.
 
-### 15.1 Conceito
+### 15.1 Conta no DuckDNS
+1. Acesse https://www.duckdns.org.
+2. Faça login com GitHub, Google ou e-mail.
+3. A conta gratuita permite criar até **5 domínios**.
 
-Os dois domínios devem apontar para o **mesmo IP público da VM**.
+### 15.2 Registrar os Domínios
+Crie os domínios desejados apontando para o **mesmo IP público da sua VM Oracle**:
+1. No campo *domain*: Digite `bolao-copa` e clique em *add domain*. 
+2. No campo *domain*: Digite `bolao-mercurio` e clique em *add domain*.
+3. Atualize o campo **current ip** de ambos para o IPv4 público gerado na sua instância ARM (Passo 3) e clique em `Update IP`.
 
-Exemplo:
-
-```text
-bolao-copa.seudominio.com.br     A   IP_PUBLICO_DA_VM
-bolao-mercurio.seudominio.com.br  A   IP_PUBLICO_DA_VM
-```
-
-### 15.2 Cloudflare
-
-Se usar Cloudflare:
-
-- crie dois registros `A`;
-- ambos apontando para o IP público da VM;
-- inicialmente pode deixar sem proxy, se preferir simplificar o SSL.
+> *Exemplo gerado na sua conta:*
+> `bolao-copa.duckdns.org`     ➜   `IP_PUBLICO_DA_VM`
+> `bolao-mercurio.duckdns.org`  ➜   `IP_PUBLICO_DA_VM`
 
 ### 15.3 Teste de propagação
 
 ```bash
-nslookup bolao-copa.seudominio.com.br
-nslookup bolao-mercurio.seudominio.com.br
+nslookup bolao-copa.duckdns.org
+nslookup bolao-mercurio.duckdns.org
 ```
 
 Ambos devem resolver para o mesmo IP.
@@ -769,17 +765,17 @@ Crie `/etc/nginx/sites-available/bolao-copa`:
 # Justificativa: nunca servir conteúdo em HTTP puro em produção.
 server {
     listen 80;
-    server_name bolao-copa.seudominio.com.br;
+    server_name bolao-copa.duckdns.org;
     return 301 https://$host$request_uri;
 }
 
 server {
     listen 443 ssl http2;
-    server_name bolao-copa.seudominio.com.br;
+    server_name bolao-copa.duckdns.org;
 
     # Certificados emitidos pelo Certbot (Passo 12).
-    ssl_certificate     /etc/letsencrypt/live/bolao-copa.seudominio.com.br/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/bolao-copa.seudominio.com.br/privkey.pem;
+    ssl_certificate     /etc/letsencrypt/live/bolao-copa.duckdns.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/bolao-copa.duckdns.org/privkey.pem;
 
     # Apenas TLS 1.2 e 1.3 — versões antigas (TLS 1.0/1.1) são vulneráveis.
     ssl_protocols TLSv1.2 TLSv1.3;
@@ -838,16 +834,16 @@ Crie `/etc/nginx/sites-available/bolao-mercurio`:
 # Estrutura idêntica ao bolao-copa, ajustando apenas server_name e proxy_pass.
 server {
     listen 80;
-    server_name bolao-mercurio.seudominio.com.br;
+    server_name bolao-mercurio.duckdns.org;
     return 301 https://$host$request_uri;
 }
 
 server {
     listen 443 ssl http2;
-    server_name bolao-mercurio.seudominio.com.br;
+    server_name bolao-mercurio.duckdns.org;
 
-    ssl_certificate     /etc/letsencrypt/live/bolao-mercurio.seudominio.com.br/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/bolao-mercurio.seudominio.com.br/privkey.pem;
+    ssl_certificate     /etc/letsencrypt/live/bolao-mercurio.duckdns.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/bolao-mercurio.duckdns.org/privkey.pem;
 
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
@@ -919,13 +915,13 @@ Verifique:
 ### 18.2 Gerar certificado do domínio Copa
 
 ```bash
-sudo certbot --nginx -d bolao-copa.seudominio.com.br
+sudo certbot --nginx -d bolao-copa.duckdns.org
 ```
 
 ### 18.3 Gerar certificado do domínio Mercúrio
 
 ```bash
-sudo certbot --nginx -d bolao-mercurio.seudominio.com.br
+sudo certbot --nginx -d bolao-mercurio.duckdns.org
 ```
 
 ### 18.4 Testar renovação
@@ -940,8 +936,8 @@ Se preferir, você também pode emitir um único certificado com múltiplos nome
 
 ```bash
 sudo certbot --nginx \
-  -d bolao-copa.seudominio.com.br \
-  -d bolao-mercurio.seudominio.com.br
+  -d bolao-copa.duckdns.org \
+  -d bolao-mercurio.duckdns.org
 ```
 
 Isso simplifica a manutenção, principalmente quando os dois hostnames pertencem ao mesmo domínio principal.
@@ -1015,18 +1011,18 @@ curl -I http://localhost:8081/health
 ### 20.2 Teste de DNS
 
 ```bash
-nslookup bolao-copa.seudominio.com.br
-nslookup bolao-mercurio.seudominio.com.br
+nslookup bolao-copa.duckdns.org
+nslookup bolao-mercurio.duckdns.org
 ```
 
 ### 20.3 Teste HTTP/HTTPS
 
 ```bash
-curl -I http://bolao-copa.seudominio.com.br
-curl -I https://bolao-copa.seudominio.com.br
+curl -I http://bolao-copa.duckdns.org
+curl -I https://bolao-copa.duckdns.org
 
-curl -I http://bolao-mercurio.seudominio.com.br
-curl -I https://bolao-mercurio.seudominio.com.br
+curl -I http://bolao-mercurio.duckdns.org
+curl -I https://bolao-mercurio.duckdns.org
 ```
 
 ### 20.4 Resultado esperado
@@ -1038,7 +1034,7 @@ curl -I https://bolao-mercurio.seudominio.com.br
 ### 20.5 Teste de cabeçalhos
 
 ```bash
-curl -I https://bolao-copa.seudominio.com.br
+curl -I https://bolao-copa.duckdns.org
 ```
 
 Verifique se existem headers como:
