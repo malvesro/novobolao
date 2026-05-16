@@ -554,6 +554,14 @@ DB_NAME=bolao_copa
 DB_USER=app_copa
 DB_PASSWORD=SenhaCopa#2026!
 APP_SECRET=uma_chave_grande_e_unica_para_copa
+
+# Conta de E-mail via App Passwords do Gmail (gratuito)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_AUTH=true
+SMTP_TLS=true
+SMTP_USERNAME=bolaoapp.copa@gmail.com
+SMTP_PASSWORD=senha_do_app_gerada_16_digitos
 ```
 
 **Proteger o arquivo imediatamente após criar:**
@@ -580,13 +588,35 @@ DB_NAME=bolao_mercurio
 DB_USER=app_mercurio
 DB_PASSWORD=SenhaMercurio#2026!
 APP_SECRET=uma_chave_grande_e_unica_para_mercurio
+
+# Conta de E-mail via App Passwords do Gmail (gratuito)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_AUTH=true
+SMTP_TLS=true
+SMTP_USERNAME=bolaoapp.mercurio@gmail.com
+SMTP_PASSWORD=senha_do_app_gerada_16_digitos
 ```
 
 ```bash
 chmod 600 ~/bolao/mercurio/.env
 ```
 
-### 16.3 Docker Compose do Bolão Copa
+### 16.3 Setup do Envio de E-mails via Gmail
+
+O sistema Bolão dispara notificações importantes usando serviço de E-mail (SMTP). Para preservar nosso fluxo **100% gratuito**, documentamos o uso de contas Gmail. Contudo, devido a regras de segurança do Google (que bloqueiam senha básica em apps terciários), faremos o uso oficial e seguro de **Senhas de Aplicativo**.
+
+Siga o tutorial conforme a [documentação do Google](https://support.google.com/accounts/answer/185833):
+
+1. **Crie uma conta Gmail dedicada:** (ex: `bolaoapp.copa@gmail.com`). Evite criar abrindo do servidor OCI. Utilize seu computador/celular.
+2. Acesse a área _Account Settings > Security_ de sua conta Google.
+3. Ative a **Verificação em 2 Passos (2-Step Verification)** (A senha de app exige este requisito).
+4. Procure por **Senhas de Aplicativo (App Passwords)** na busca de segurança.
+5. Selecione "_Outro (Custom name)_", digite "Bolão App" e clique em **Gerar**.
+6. O Google retornará uma senha aleatória de **16 caracteres**.
+7. Copie e cole na variável `SMTP_PASSWORD` em ambos os arquivos `.env` que acabamos de configurar nos passos anteriores, associada com seu e-mail (`SMTP_USERNAME`).
+
+### 16.4 Docker Compose do Bolão Copa
 
 Crie `~/bolao/copa/docker-compose.yml`:
 
@@ -665,7 +695,7 @@ networks:
     driver: bridge
 ```
 
-### 16.4 Docker Compose do Bolão Mercúrio
+### 16.5 Docker Compose do Bolão Mercúrio
 
 Crie `~/bolao/mercurio/docker-compose.yml`:
 
