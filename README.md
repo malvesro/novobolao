@@ -1,3 +1,12 @@
+---
+title: Novobolao da Copa
+emoji: ⚽
+colorFrom: green
+colorTo: yellow
+sdk: docker
+pinned: false
+---
+
 # Sistema Bolão (Java EE legado)
 
 Este documento é uma análise técnica do projeto **Sistema Bolão**, com foco em arquitetura, tecnologias, funcionalidades e recomendações de evolução. O objetivo é tornar o entendimento rápido e permitir modernização **com o mínimo de alterações** no comportamento atual.
