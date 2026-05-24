@@ -1,0 +1,52 @@
+# OS / arquivos temporarios
+.DS_Store
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+*:Zone.Identifier
+
+# IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+.springBeans
+
+# Build / artefatos
+/target/
+/build/
+/out/
+/bin/
+*.class
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Arquivos compilados no webapp (gerados durante build)
+webapp/WEB-INF/classes/**/*.class
+
+# Node.js
+/node_modules/
+
+# Variáveis de ambiente locais
+.env
+
+# Anotações locais (.ia)
+.ia/*.txt
+
+# Python Virtual Envs
+.venv*/
+__pycache__/
+*.pyc
+
+# Pastas de Documentação/Prints (não necessárias no deploy)
+/aiven/
+/telas/
+/apresentacao/
+/docs/img/

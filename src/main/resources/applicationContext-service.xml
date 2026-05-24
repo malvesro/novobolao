@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="buildInfoProvider" class="com.opendev.bolao.infrastructure.BuildInfoProvider" />
+
+	<bean id="transactionProxyTemplate"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+		abstract="true" scope="singleton" depends-on="entityManagerFactory">
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="frozen" value="false" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="buscar*">PROPAGATION_REQUIRED,readOnly</prop>
+				<prop key="criar*">PROPAGATION_REQUIRED</prop>
+				<prop key="apagar*">PROPAGATION_REQUIRED</prop>
+				<prop key="atualizar*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="equipeServiceImpl"
+		class="com.opendev.bolao.service.impl.EquipeServiceImpl">
+		<property name="equipeRepository" ref="equipeRepository" />
+	</bean>
+	<bean id="equipeService" parent="transactionProxyTemplate">
+		<property name="proxyInterfaces">
+			<list><value>com.opendev.bolao.service.EquipeService</value></list>
+		</property>
+		<property name="target">
+			<ref bean="equipeServiceImpl" />
+		</property>
+	</bean>
+
+	<bean id="jogoServiceImpl"
+		class="com.opendev.bolao.service.impl.JogoServiceImpl">
+		<property name="jogoRepository" ref="jogoRepository" />
+		<property name="equipeRepository" ref="equipeRepository" />
+		<property name="participanteRepository" ref="participanteRepository" />
+	</bean>
+	<bean id="jogoService" parent="transactionProxyTemplate">
+		<property name="proxyInterfaces">
+			<list><value>com.opendev.bolao.service.JogoService</value></list>
+		</property>
+		<property name="target">
+			<ref bean="jogoServiceImpl" />
+		</property>
+	</bean>
+	
+	<bean id="palpiteServiceImpl"
+		class="com.opendev.bolao.service.impl.PalpiteServiceImpl">
+		<property name="jogoRepository" ref="jogoRepository" />
+		<property name="participanteRepository" ref="participanteRepository" />
+		<property name="palpiteRepository" ref="palpiteRepository" />
+	</bean>
+	<bean id="palpiteService" parent="transactionProxyTemplate">
+		<property name="proxyInterfaces">
+			<list><value>com.opendev.bolao.service.PalpiteService</value></list>
+		</property>
+		<property name="target">
+			<ref bean="palpiteServiceImpl" />
+		</property>
+	</bean>
+
+    <bean id="palpiteAuthorizationService"
+        class="com.opendev.bolao.service.impl.PalpiteAuthorizationServiceImpl" />
+
+
+	<bean id="participanteServiceImpl"
+		class="com.opendev.bolao.service.impl.ParticipanteServiceImpl">
+		<property name="participanteRepository" ref="participanteRepository" />
+		<property name="jogoRepository" ref="jogoRepository" />
+		<property name="privilegioRepository" ref="privilegioRepository" />
+		<property name="palpiteRepository" ref="palpiteRepository" />
+		<property name="passwordEncoder" ref="passwordEncoder" />
+	</bean>
+	<bean id="participanteService" parent="transactionProxyTemplate">
+		<property name="proxyInterfaces">
+			<list><value>com.opendev.bolao.service.ParticipanteService</value></list>
+		</property>
+		<property name="target">
+			<ref bean="participanteServiceImpl" />
+		</property>
+	</bean>
+
+	<bean id="recuperacaoSenhaServiceImpl"
+		class="com.opendev.bolao.service.impl.RecuperacaoSenhaServiceImpl">
+		<property name="participanteRepository" ref="participanteRepository" />
+		<property name="passwordEncoder" ref="passwordEncoder" />
+	</bean>
+	<bean id="recuperacaoSenhaService" parent="transactionProxyTemplate">
+		<property name="proxyInterfaces">
+			<list><value>com.opendev.bolao.service.RecuperacaoSenhaService</value></list>
+		</property>
+		<property name="target">
+			<ref bean="recuperacaoSenhaServiceImpl" />
+		</property>
+	</bean>
+
+	<!-- Servicos do Bate-Papo -->
+	<bean id="formatadorMensagem" class="com.opendev.bolao.chat.FormatadorMensagem" scope="singleton" lazy-init="true" />
+	<bean id="batePapo" class="com.opendev.bolao.chat.BatePapo" scope="singleton" lazy-init="true">
+		<property name="formatadorMensagem">
+			<ref bean="formatadorMensagem" />
+		</property>
+		<property name="participanteService">
+			<ref bean="participanteService" />
+		</property>
+	</bean>
+
+</beans>

@@ -1,0 +1,79 @@
+<c:forEach var="participante" items="${participantes}" varStatus="loop">
+    <c:choose>
+        <c:when test="${loop.count mod 2 eq 0}">
+            <c:set var="rowClasses" value="impar" />
+        </c:when>
+        <c:otherwise>
+            <c:set var="rowClasses" value="par" />
+        </c:otherwise>
+    </c:choose>
+    <c:if test="${participante.login eq pageContext.request.userPrincipal.name}">
+        <c:set var="rowClasses" value="${rowClasses} ranking-highlight" />
+    </c:if>
+    <tr id="linhaParticipante_${participante.id}" class="${rowClasses}">
+        <td class="text-center">${loop.count}</td>
+        <td class="text-left"><c:out value="${participante.nomeFormatado}" /></td>
+        <td class="text-left"><c:out value="${participante.login}" /></td>
+        <td class="text-left"><c:out value="${participante.email}" /></td>
+        <td class="text-center">
+            <c:set var="papelAtual" value="" />
+            <c:forEach var="privilegio" items="${participante.privilegios}">
+                <c:if test="${empty papelAtual}">
+                    <c:set var="papelAtual" value="${privilegio.papel}" />
+                </c:if>
+                <c:if test="${privilegio.papel eq 'ROLE_ADMIN'}">
+                    <c:set var="papelAtual" value="ROLE_ADMIN" />
+                </c:if>
+            </c:forEach>
+            <c:if test="${papelAtual eq 'admin'}">
+                <c:set var="papelAtual" value="ROLE_ADMIN" />
+            </c:if>
+            <c:if test="${papelAtual eq 'geral' or papelAtual eq 'restrito'}">
+                <c:set var="papelAtual" value="ROLE_USER" />
+            </c:if>
+            <select name="papel"
+                    class="form-control input-centered table-participants__select"
+                    aria-label="Papel do participante ${participante.login}"
+                    hx-post="${base}/admin/atualizarPapelParticipante.action"
+                    hx-target="#participantesTableBody"
+                    hx-select="#participantesTableBody"
+                    hx-swap="outerHTML"
+                    hx-trigger="change"
+                    hx-include="#csrfTokenField"
+                    hx-vals='{"id":"${participante.id}"}'>
+                <option value="" <c:if test="${empty papelAtual}">selected="selected"</c:if>><fmt:message key="member.role.none" /></option>
+                <option value="ROLE_ADMIN" <c:if test="${papelAtual eq 'ROLE_ADMIN'}">selected="selected"</c:if>><fmt:message key="member.role.admin" /></option>
+                <option value="ROLE_USER" <c:if test="${papelAtual eq 'ROLE_USER'}">selected="selected"</c:if>><fmt:message key="member.role.user" /></option>
+                <c:if test="${not empty papelAtual and papelAtual ne 'ROLE_ADMIN' and papelAtual ne 'ROLE_USER'}">
+                    <option value="${papelAtual}" selected="selected">${papelAtual}</option>
+                </c:if>
+            </select>
+        </td>
+        <td class="text-center">
+            <select name="status"
+                    class="form-control input-centered table-participants__select"
+                    aria-label="Status do participante ${participante.login}"
+                    hx-post="${base}/admin/atualizarStatusParticipante.action"
+                    hx-target="#participantesTableBody"
+                    hx-select="#participantesTableBody"
+                    hx-swap="outerHTML"
+                    hx-trigger="change"
+                    hx-include="#csrfTokenField"
+                    hx-vals='{"id":"${participante.id}"}'>
+                <option value="true" <c:if test="${participante.habilitado}">selected="selected"</c:if>><fmt:message key="member.status.enabled" /></option>
+                <option value="false" <c:if test="${not participante.habilitado}">selected="selected"</c:if>><fmt:message key="member.status.disabled" /></option>
+            </select>
+        </td>
+        <td class="text-center">
+            <img alt="Remover participante"
+                 src="${base}/img/delete.png"
+                 hx-post="${base}/admin/apagarParticipanteHtmx.action"
+                 hx-target="#participantesTableBody"
+                 hx-swap="outerHTML"
+                 hx-include="#csrfTokenField"
+                 hx-vals='{"id":"${participante.id}"}'
+                 hx-confirm="Deseja realmente apagar este participante?"
+                 class="icon-button" />
+        </td>
+    </tr>
+</c:forEach>

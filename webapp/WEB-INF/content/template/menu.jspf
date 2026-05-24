@@ -1,0 +1,121 @@
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@taglib prefix="s" uri="/struts-tags" %>
+
+<p id="logout_func" class="logout-banner">
+	<c:url var="logoutUrl" value="/j_logout" />
+	<fmt:message key="logout.text">
+		<fmt:param value="${pageContext.request.userPrincipal.name}" />
+	</fmt:message>
+	<form id="logoutForm" class="logout-form" action="${logoutUrl}" method="post">
+		<button type="submit" class="link-button">
+			<fmt:message key="logout.exit" />
+		</button>
+		<c:if test="${not empty _csrf}">
+			<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+		</c:if>
+	</form>
+</p>
+<p class="text-right">
+    <fmt:message key="general.online">
+        <fmt:param value="${opendev:participantesOnline()}" />
+    </fmt:message>
+</p>
+<div class="spacer-sm"></div>
+<div id="menu">
+  <div id="geral_header" class="menu_header" data-menu-target="geral_itens" role="button" tabindex="0" aria-controls="geral_itens" aria-expanded="true">
+    <span><fmt:message key="menu.geral.title" /></span>
+  </div>
+  <div id="geral_itens" class="menu_item">
+    <span>
+    <c:url var="indexUrl" value="/index.action" />
+    <c:url var="rulesUrl" value="/regras.action" />
+    <a href="${indexUrl}">
+      <span><fmt:message key="menu.geral.principal" /></span>
+    </a>
+    <a href="${rulesUrl}">
+      <span><fmt:message key="menu.geral.rules" /></span>
+    </a>
+    <%--
+    <c:url var="chatUrl" value="/seguro/batePapo.action" />
+    <a href="${chatUrl}">
+      <span><fmt:message key="menu.geral.chat" /></span>
+    </a>
+    --%>
+    </span>
+  </div>
+  <sec:authorize access="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')">
+	<div id="participante_header" class="menu_header" data-menu-target="participante_itens" role="button" tabindex="0" aria-controls="participante_itens" aria-expanded="true">
+		<span><fmt:message key="menu.participante.title" /></span>
+	</div>
+	<div id="participante_itens" class="menu_item">
+		<span>
+		<s:url var="trocaSenhaURL" action="trocaSenha" namespace="/seguro" />
+		<s:a href="%{trocaSenhaURL}">
+			<span><fmt:message key="menu.participante.pwd" /></span>
+		</s:a>
+		</span>
+	</div>
+  </sec:authorize>
+	<div id="bolao_header" class="menu_header" data-menu-target="bolao_itens" role="button" tabindex="0" aria-controls="bolao_itens" aria-expanded="true">
+		<span><fmt:message key="menu.bolao.title" /></span>
+	</div>
+	<div id="bolao_itens" class="menu_item">
+		<span>
+        <c:url var="rankingActionUrl" value="/seguro/ranking.action" />
+		<a href="${rankingActionUrl}">
+			<span><fmt:message key="menu.bolao.ranking" /></span>
+		</a>
+        <sec:authorize access="hasRole('USER')">
+        <c:url var="performanceActionUrl" value="/seguro/graficoDesempenho.action" />
+		<a href="${performanceActionUrl}">
+			<span><fmt:message key="menu.bolao.performance" /></span>
+		</a>
+        </sec:authorize>
+        <sec:authorize access="hasAnyRole('USER', 'ADMIN')">
+		<c:url var="palpitesActionUrl" value="/seguro/palpites.action" />
+		<a href="${palpitesActionUrl}">
+			<span><fmt:message key="menu.bolao.tips" /></span>
+		</a>
+        </sec:authorize>
+		</span>
+	</div>
+<%--
+	<div id="copa_header" class="menu_header" data-menu-target="copa_itens" role="button" tabindex="0" aria-controls="copa_itens" aria-expanded="true">
+		<span><fmt:message key="menu.cup.title" /></span>
+	</div>
+	<div id="copa_itens" class="menu_item">
+		<span>
+        <c:url var="copaActionURL" value="/seguro/copa.action" />
+		<a href="${copaActionURL}">
+			<span><fmt:message key="menu.cup.ranking" /></span>
+		</a>
+		<a href="#">
+			<span><fmt:message key="menu.cup.stadium" /></span>
+		</a>
+		</span>
+	</div>
+--%>
+	<sec:authorize access="hasRole('ADMIN')">
+	<div id="admin_header" class="menu_header" data-menu-target="admin_itens" role="button" tabindex="0" aria-controls="admin_itens" aria-expanded="true">
+		<span><fmt:message key="menu.admin.title" /></span>
+	</div>
+	<div id="admin_itens" class="menu_item">
+		<span>
+		<c:url var="infoEquipesActionUrl" value="/admin/infoEquipes.action" />
+		<a href="${infoEquipesActionUrl}">
+			<span><fmt:message key="menu.admin.matchs" /></span>
+		</a>
+		<c:url var="jogosAdminActionUrl" value="/admin/jogos.action" />
+		<a href="${jogosAdminActionUrl}">
+			<span><fmt:message key="menu.admin.update.matchs" /></span>
+		</a>
+        <c:url var="participantesAdminActionUrl" value="/admin/participantes.action" />
+		<a href="${participantesAdminActionUrl}">
+			<span><fmt:message key="menu.admin.users" /></span>
+		</a>
+		</span>
+	</div>
+	</sec:authorize>
+</div>

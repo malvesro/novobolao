@@ -1,0 +1,195 @@
+<%--
+    Fragmento de linha de jogo (match row) para o Bolão 2026.
+    Utilizado tanto na listagem inicial quanto nas respostas parciais HTMX.
+    Espera no contexto: jogo, palpiteUsuario, palpitePermitido, palpiteStatus, 
+    palpiteStatusLabel, palpiteSemRegistro, palpiteBloqueioMotivo, _csrf.
+--%>
+<tr class="match-row ${rowStyleClass}"
+    id="jogoTr_${jogo.id}"
+    hx-indicator="#indicator_${jogo.id}"
+    data-jogo-id="${jogo.id}">
+    
+    <td class="match-table__time">
+        <input type="hidden" name="jogoId" value="${jogo.id}" />
+        <c:if test="${not empty _csrf}">
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+        </c:if>
+        ${horaJogoFormatada}
+    </td>
+    <td class="match-table__location">${jogo.local}</td>
+    <td class="match-table__group">
+        <c:choose>
+            <c:when test="${jogo.faseDeGrupos}">
+                <c:choose>
+                    <c:when test="${not empty jogo.equipe1.grupo}">
+                        <fmt:message key="match.group" var="grupoLabelRow" />
+                        <span>${grupoLabelRow} ${jogo.equipe1.grupo}</span>
+                    </c:when>
+                    <c:otherwise>
+                        <span>${jogo.descricaoFase}</span>
+                    </c:otherwise>
+                </c:choose>
+            </c:when>
+            <c:otherwise>
+                <span>${jogo.descricaoFase}</span>
+            </c:otherwise>
+        </c:choose>
+    </td>
+
+    <%-- Time da Casa + Input de Placar --%>
+    <td class="match-table__team match-table__team--home">
+        <div class="team-cell text-right">
+            <span><c:out value="${jogo.equipe1.nomePais}" /></span>
+            <c:choose>
+                <c:when test="${not empty jogo.equipe1.bandeiraUrl}">
+                    <img class="flag-icon icon-inline" src="${pageContext.request.contextPath}${jogo.equipe1.bandeiraUrl}" alt="Bandeira de ${jogo.equipe1.nomePais}" width="24" height="18" loading="lazy" />
+                </c:when>
+                <c:when test="${not empty jogo.equipe1.emojiBandeira}">
+                    <span class="flag-icon icon-inline" role="img" aria-label="${jogo.equipe1.nomePais}">
+                        <c:out value="${jogo.equipe1.emojiBandeira}" />
+                    </span>
+                </c:when>
+                <c:otherwise>
+                    <span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+                        <c:out value="${jogo.equipe1.siglaPais}" />
+                    </span>
+                </c:otherwise>
+            </c:choose>
+            
+            <c:choose>
+                <c:when test="${telaPalpites and palpitePermitido}">
+                    <input class="palpite-inputs__score input-score-home"
+                           id="p1_${jogo.id}"
+                           name="palpiteGolsEquipe1"
+                           type="number" min="0" max="99"
+                           inputmode="numeric"
+                           value="${palpiteUsuario.golsEquipe1}"
+                           hx-post="${pageContext.request.contextPath}/seguro/atualizarPalpitePartial.action"
+                           hx-trigger="change delay:800ms, blur"
+                           hx-target="closest tbody"
+                           hx-swap="innerHTML settle:1.5s"
+                           hx-sync="closest tbody:replace"
+                           hx-include="closest tbody"
+                           aria-label="Gols ${jogo.equipe1.nomePais}"
+                           required />
+                </c:when>
+                <c:when test="${telaPalpites}">
+                     <span class="score-value score-value--palpite"><c:out value="${palpiteUsuario.golsEquipe1}" /></span>
+                </c:when>
+                <c:otherwise>
+                    <span class="score-value"><c:out value="${jogo.golsEquipe1}" /></span>
+                </c:otherwise>
+            </c:choose>
+        </div>
+    </td>
+
+    <td class="match-table__separator">
+        <span class="sep-x">X</span>
+        <div id="indicator_${jogo.id}" class="htmx-indicator progress-spinner"></div>
+    </td>
+
+    <%-- Input de Placar + Time Visitante --%>
+    <td class="match-table__team match-table__team--away">
+        <div class="team-cell text-left">
+            <c:choose>
+                <c:when test="${telaPalpites and palpitePermitido}">
+                    <input class="palpite-inputs__score input-score-away"
+                           id="p2_${jogo.id}"
+                           name="palpiteGolsEquipe2"
+                           type="number" min="0" max="99"
+                           inputmode="numeric"
+                           value="${palpiteUsuario.golsEquipe2}"
+                           hx-post="${pageContext.request.contextPath}/seguro/atualizarPalpitePartial.action"
+                           hx-trigger="change delay:800ms, blur"
+                           hx-target="closest tbody"
+                           hx-swap="innerHTML settle:1.5s"
+                           hx-sync="closest tbody:replace"
+                           hx-include="closest tbody"
+                           aria-label="Gols ${jogo.equipe2.nomePais}"
+                           required />
+                </c:when>
+                <c:when test="${telaPalpites}">
+                    <span class="score-value score-value--palpite"><c:out value="${palpiteUsuario.golsEquipe2}" /></span>
+                </c:when>
+                <c:otherwise>
+                    <span class="score-value"><c:out value="${jogo.golsEquipe2}" /></span>
+                </c:otherwise>
+            </c:choose>
+
+            <c:choose>
+                <c:when test="${not empty jogo.equipe2.bandeiraUrl}">
+                    <img class="flag-icon icon-inline" src="${pageContext.request.contextPath}${jogo.equipe2.bandeiraUrl}" alt="Bandeira de ${jogo.equipe2.nomePais}" width="24" height="18" loading="lazy" />
+                </c:when>
+                <c:when test="${not empty jogo.equipe2.emojiBandeira}">
+                    <span class="flag-icon icon-inline" role="img" aria-label="${jogo.equipe2.nomePais}">
+                        <c:out value="${jogo.equipe2.emojiBandeira}" />
+                    </span>
+                </c:when>
+                <c:otherwise>
+                    <span class="flag-icon flag-icon--fallback icon-inline" aria-hidden="true">
+                        <c:out value="${jogo.equipe2.siglaPais}" />
+                    </span>
+                </c:otherwise>
+            </c:choose>
+            <span><c:out value="${jogo.equipe2.nomePais}" /></span>
+        </div>
+    </td>
+
+    <%-- Coluna de Status/Ações --%>
+    <td class="match-table__status-cell">
+        <c:if test="${telaPalpites}">
+            <c:if test="${palpiteAtualizado}">
+                <span class="feedback-toast" hx-trigger="load delay:2s" hx-on="load: this.remove()">✓ Salvo</span>
+            </c:if>
+            <c:choose>
+                <c:when test="${not empty palpiteUsuario}">
+                    <span class="badge badge--registered">${palpiteStatusLabel}</span>
+                </c:when>
+                <c:otherwise>
+                    <span class="palpite-placeholder">${palpiteSemRegistro}</span>
+                    <c:if test="${not palpitePermitido}">
+                        <span class="badge badge--locked">Encerrado</span>
+                    </c:if>
+                </c:otherwise>
+            </c:choose>
+        </c:if>
+        <button type="button" 
+                class="btn-grupo-toggle" 
+                hx-get="${base}/seguro/palpitesDoJogoPartial.action?jogoId=${jogo.id}"
+                hx-target="#group-content_${jogo.id}"
+                hx-trigger="click once"
+                data-js="toggle-group-details"
+                data-target="#group-row_${jogo.id}"
+                title="Ver palpites do grupo">
+            👥
+        </button>
+    </td>
+</tr>
+
+<%-- Linha oculta para detalhes do grupo --%>
+<tr id="group-row_${jogo.id}" class="match-group-details-row hidden">
+    <td colspan="7">
+        <div class="group-details-container" aria-live="polite">
+            <div class="group-details-header">
+                <h4>Palpites do Grupo - ${jogo.equipe1.nomePais} x ${jogo.equipe2.nomePais}</h4>
+                <button type="button" class="btn-close-details" data-js="close-details" data-target="#group-row_${jogo.id}">×</button>
+            </div>
+            <table class="table table-group-tips">
+                <thead>
+                    <tr>
+                        <th>Participante</th>
+                        <th class="text-center">Palpite</th>
+                        <th class="text-center">Pontos</th>
+                    </tr>
+                </thead>
+                <tbody id="group-content_${jogo.id}">
+                    <tr>
+                        <td colspan="3" class="text-center p-md">
+                            <span class="loading-spinner"></span> Carregando...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </td>
+</tr>

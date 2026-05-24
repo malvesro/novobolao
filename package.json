@@ -1,0 +1,22 @@
+{
+  "name": "sistema-bolao-frontend",
+  "version": "0.3.2",
+  "private": true,
+  "type": "module",
+  "packageManager": "npm@11.6.0",
+  "engines": {
+    "node": ">=18.17.0",
+    "npm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@axe-core/cli": "^4.11.1",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.35",
+    "vite": "^5.4.21"
+  }
+}

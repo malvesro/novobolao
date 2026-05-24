@@ -1,0 +1,55 @@
+{
+  "_manifest": {
+    "version": "1.0.0",
+    "updated_at": "2026-02-13",
+    "purpose": "Define parâmetros de operacao e limites de IA para o projeto."
+  },
+
+  "infrastructure_settings": {
+    "_doc": "Configuracoes globais de ambiente que afetam IDEs e scripts.",
+
+    "strict_mode": true,
+    "_strict_mode_comment": "Quando true, forca o respeito aos padroes do projeto.",
+
+    "environment": "production-grade",
+    "_environment_comment": "Use 'production-grade' para auditoria forte e bloqueio de envio de telemetria sensivel."
+  },
+
+  "generation_constraints": {
+    "_doc": "Hiperparametros que controlam criatividade vs. precisao.",
+
+    "temperature": 0.1,
+    "_temperature_comment": "Use baixo para reduzir alucinacoes. Ajuste conforme o dominio.",
+
+    "top_p": 0.95,
+    "_top_p_comment": "Nucleus sampling. Restringe a IA a considerar apenas os 95% tokens de maior probabilidade, eliminando sintaxes exóticas.",
+
+    "max_output_tokens": 65536,
+    "_max_output_tokens_comment": "Ajuste para respostas longas (relatorios, refatoracoes extensas sem cortes do código).",
+
+    "stop_sequences": ["<|endoftext|>", "User:", "Human:"],
+    "_stop_sequences_comment": "Sentinelas que forçam a parada imediata da geração, prevenindo que a IA comece a alucinar um diálogo falso após entregar o código."
+  },
+
+  "model_routing": {
+    "_doc": "Estrategia de orquestracao de modelos (evita vendor-lockin).",
+
+    "primary": "gemini-1.5-pro-latest",
+    "_primary_comment": "Modelo principal para codificacao e arquitetura.",
+
+    "secondary": "gemini-1.5-pro-latest",
+    "_secondary_comment": "Modelo para analise de contexto extenso e logs.",
+  },
+
+  "context_grounding": {
+    "_doc": "Arquivos que compoem a memoria base antes do prompt.",
+
+    "system_instruction_path": "./AGENTS.md",
+    "skills_registry_path": "./.ia/skills/registry.json",
+
+    "compliance_docs": [
+      "./.ia/diretrizes/arquitetura.md"
+    ],
+    "_compliance_docs_comment": "Ajuste para os documentos reais do projeto."
+  }
+}

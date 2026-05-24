@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean name="participanteAction"
+    	class="com.opendev.bolao.action.ParticipanteAction"
+    	scope="prototype">
+    	<property name="palpiteService" ref="palpiteService" />
+    	<property name="palpiteAuthorizationService" ref="palpiteAuthorizationService" />
+    	<property name="participanteService" ref="participanteService" />
+    	<property name="jogoService" ref="jogoService" />
+    	<property name="equipeService" ref="equipeService" />
+    </bean>
+
+    <bean name="recuperacaoSenhaAction"
+        class="com.opendev.bolao.action.RecuperacaoSenhaAction"
+        scope="prototype">
+        <property name="recuperacaoSenhaService" ref="recuperacaoSenhaService" />
+    </bean>
+    
+    <bean name="adminAction"
+    	class="com.opendev.bolao.action.AdminAction"
+    	scope="prototype">
+  <property name="equipeService" ref="equipeService" />
+    	<property name="jogoService" ref="jogoService" />
+    	<property name="participanteService" ref="participanteService" />
+    </bean>
+
+</beans>

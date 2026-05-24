@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                      https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+	version="6.0">
+
+	<context-param>
+		<param-name>jakarta.servlet.jsp.jstl.fmt.localizationContext</param-name>
+		<param-value>messages</param-value>
+	</context-param>
+	
+	<context-param>
+		<param-name>jakarta.servlet.jsp.jstl.fmt.fallbackLocale</param-name>
+		<param-value>en</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>horarios</param-name>
+		<param-value>00:00,01:00,13:00,14:00,15:00,16:00,17:00,17:30,18:00,19:00,20:00,20:30,21:00,22:00,22:30,23:00</param-value>
+	</context-param>
+	<context-param>
+		<param-name>datas</param-name>
+		<param-value>
+			11/06/2026,12/06/2026,13/06/2026,14/06/2026,15/06/2026,
+			16/06/2026,17/06/2026,18/06/2026,19/06/2026,20/06/2026,
+			21/06/2026,22/06/2026,23/06/2026,24/06/2026,25/06/2026,
+			26/06/2026,27/06/2026,28/06/2026,29/06/2026,30/06/2026,
+			01/07/2026,02/07/2026,03/07/2026,19/07/2026
+		</param-value>
+	</context-param>
+	<context-param>
+		<param-name>locais</param-name>
+		<param-value>
+				Atlanta,Boston,Cidade do México,Dallas,Filadélfia,Guadalajara,
+				Houston,Kansas City,Los Angeles,Miami,Monterrey,Nova York/Nova Jersey,
+				Santa Clara,Seattle,Toronto,Vancouver
+			</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			classpath*:applicationContext-resources.xml,
+			classpath*:applicationContext-hibernate.xml,
+			classpath*:applicationContext-security.xml,
+			classpath*:applicationContext-service.xml,
+			classpath*:applicationContext-action.xml,
+			classpath*:applicationContext-scheduler.xml
+		</param-value>
+	</context-param>
+
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter>
+		<filter-name>jpaEntityManagerInViewFilter</filter-name>
+		<filter-class>org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter</filter-class>
+		<init-param>
+			<param-name>entityManagerFactoryBeanName</param-name>
+			<param-value>entityManagerFactory</param-value>
+		</init-param>
+	</filter>
+	<filter>
+		<filter-name>securityFilter</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+		<init-param>
+			<param-name>targetBeanName</param-name>
+			<param-value>springSecurityFilterChain</param-value>
+		</init-param>
+	</filter>
+	<filter>
+		<filter-name>requestContextFilter</filter-name>
+		<filter-class>org.springframework.web.filter.RequestContextFilter</filter-class>
+	</filter>
+	<filter>
+		<filter-name>struts2</filter-name>
+		<filter-class>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>jpaEntityManagerInViewFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>securityFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>requestContextFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>struts2</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<listener>
+		<listener-class>com.opendev.bolao.infrastructure.TimeZoneInitializer</listener-class>
+	</listener>
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+	<listener>
+		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+	</listener>
+	<listener>
+		<listener-class>com.opendev.bolao.util.ContadorParticipantesOnline</listener-class>
+	</listener>
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>Entire Application</web-resource-name>
+			<url-pattern>/*</url-pattern>
+		</web-resource-collection>
+		<user-data-constraint>
+			<transport-guarantee>NONE</transport-guarantee>
+		</user-data-constraint>
+	</security-constraint>
+
+	<session-config>
+		<session-timeout>30</session-timeout>
+	</session-config>
+
+	<welcome-file-list>
+		<welcome-file>index.action</welcome-file>
+	</welcome-file-list>
+
+	<jsp-config>
+		<taglib>
+			<taglib-uri>http://www.opendev.com.br/tld</taglib-uri>
+			<taglib-location>/WEB-INF/tld/opendev.tld</taglib-location>
+		</taglib>
+		<jsp-property-group>
+			<url-pattern>/WEB-INF/content/seguro/partials/*</url-pattern>
+			<url-pattern>/WEB-INF/content/admin/partials/*</url-pattern>
+			<page-encoding>UTF-8</page-encoding>
+			<content-type>text/html; charset=UTF-8</content-type>
+		</jsp-property-group>
+		<jsp-property-group>
+			<url-pattern>*.jsp</url-pattern>
+			<page-encoding>UTF-8</page-encoding>
+			<content-type>text/html; charset=UTF-8</content-type>
+			<include-prelude>/WEB-INF/content/template/cabecalho.jspf</include-prelude>
+			<include-coda>/WEB-INF/content/template/rodape.jspf</include-coda>
+		</jsp-property-group>
+	</jsp-config>
+
+</web-app>

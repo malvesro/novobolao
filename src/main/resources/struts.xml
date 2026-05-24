@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
+	"https://struts.apache.org/dtds/struts-2.5.dtd">
+
+<struts>
+	<constant name="struts.devMode" value="false" />
+	<constant name="struts.objectFactory" value="spring" />
+
+	<!-- Endurecimento de Segurança (Struts 7) -->
+	<constant name="struts.ognl.expressionMaxLength" value="200" />
+	<constant name="struts.allowlist.enable" value="true" />
+	<constant name="struts.allowlist.packageNames" value="com.opendev.bolao.model, com.opendev.bolao.util" />
+	<constant name="struts.ognl.excludedNodeTypes" value="ognl.ASTThisVarRef, ognl.ASTVarRef" />
+
+	<package name="bolao-default" extends="struts-default">
+		
+		<interceptors>
+			<interceptor name="htmxDebug" class="com.opendev.bolao.interceptor.HtmxDebugInterceptor" />
+			<interceptor-stack name="bolaoStack">
+				<interceptor-ref name="htmxDebug" />
+				<!-- Proteções Cross-Origin modernas -->
+				<interceptor-ref name="coop" />
+				<interceptor-ref name="coep" />
+				<interceptor-ref name="fetchMetadata" />
+				<interceptor-ref name="defaultStack" />
+			</interceptor-stack>
+		</interceptors>
+
+		<default-interceptor-ref name="bolaoStack" />
+
+		<default-action-ref name="index" />
+
+		<!-- Action raiz para garantir que acessos a `/` e `/index.action` sejam tratados -->
+		<action name="" class="participanteAction" method="index">
+			<result name="success">/WEB-INF/content/index.jsp</result>
+		</action>
+
+		<action name="index" class="participanteAction" method="index">
+			<result name="success">/WEB-INF/content/index.jsp</result>
+		</action>
+
+		<action name="login" class="participanteAction" method="login">
+			<result name="success">/WEB-INF/content/login.jsp</result>
+		</action>
+
+		<action name="recuperarSenhaForm" class="recuperacaoSenhaAction" method="recuperarSenhaForm">
+			<result name="success">/WEB-INF/content/recuperacao/recuperar-senha.jsp</result>
+		</action>
+
+		<action name="enviarOtpRecuperacao" class="recuperacaoSenhaAction" method="enviarOtpRecuperacao">
+			<result name="success">/WEB-INF/content/recuperacao/recuperar-senha.jsp</result>
+			<result name="input">/WEB-INF/content/recuperacao/recuperar-senha.jsp</result>
+		</action>
+
+		<action name="validarOtpRecuperacao" class="recuperacaoSenhaAction" method="validarOtpRecuperacao">
+			<result name="success">/WEB-INF/content/recuperacao/redefinir-senha.jsp</result>
+			<result name="input">/WEB-INF/content/recuperacao/recuperar-senha.jsp</result>
+		</action>
+
+		<action name="redefinirSenha" class="recuperacaoSenhaAction" method="redefinirSenha">
+			<result name="success">/WEB-INF/content/recuperacao/redefinir-senha.jsp</result>
+			<result name="input">/WEB-INF/content/recuperacao/redefinir-senha.jsp</result>
+		</action>
+
+		<action name="logout" class="participanteAction" method="logout">
+			<result name="success">/WEB-INF/content/login.jsp</result>
+		</action>
+
+		<action name="cadastroForm" class="participanteAction" method="cadastroForm">
+			<result name="success">/WEB-INF/content/cadastro.jsp</result>
+		</action>
+		
+		<action name="cadastro" class="participanteAction" method="cadastrar">
+			<result name="success">/WEB-INF/content/cadastro.jsp</result>
+			<result name="input">/WEB-INF/content/cadastro.jsp</result>
+		</action>
+
+		<action name="regras" class="participanteAction" method="regras">
+			<result name="success">/WEB-INF/content/regras.jsp</result>
+		</action>
+		
+	</package>
+	
+	<package name="seguro" extends="bolao-default" namespace="/seguro">
+		<action name="ranking" class="participanteAction" method="buscarParticipantes">
+			<result name="success">/WEB-INF/content/seguro/classificacao.jsp</result>
+		</action>
+
+		<action name="palpites" class="participanteAction" method="prepararInfoPalpites">
+			<result name="success">/WEB-INF/content/seguro/jogos.jsp</result>
+		</action>
+
+		<action name="batePapo" class="participanteAction" method="batePapo">
+			<result name="success">/WEB-INF/content/seguro/batePapo.jsp</result>
+		</action>
+
+		<action name="trocaSenha" class="participanteAction" method="trocaSenha">
+			<result name="success">/WEB-INF/content/seguro/trocaSenha.jsp</result>
+		</action>
+
+		<action name="alterarSenha" class="participanteAction" method="alterarSenha">
+			<result name="success">/WEB-INF/content/seguro/trocaSenha.jsp</result>
+			<result name="input">/WEB-INF/content/seguro/trocaSenha.jsp</result>
+			<result name="login" type="redirectAction">
+				<param name="actionName">login</param>
+				<param name="namespace">/</param>
+			</result>
+		</action>
+		
+		<action name="palpiteFormPartial" class="participanteAction" method="carregarPalpiteFormHtmx">
+			<result name="success">/WEB-INF/content/seguro/partials/palpite-inline-form.jsp</result>
+			<result name="error">/WEB-INF/content/seguro/partials/palpite-inline-form.jsp</result>
+		</action>
+
+		<action name="palpitesDoJogoPartial" class="participanteAction" method="listarPalpitesDoJogoHtmx">
+			<result name="success">/WEB-INF/content/seguro/partials/palpites-jogo-rows.jsp</result>
+		</action>
+
+		<action name="atualizarPalpitePartial" class="participanteAction" method="atualizarPalpiteHtmx">
+			<result name="success">/WEB-INF/content/seguro/partials/palpite-cell-response.jsp</result>
+			<result name="error">/WEB-INF/content/seguro/partials/palpite-cell-response.jsp</result>
+		</action>
+
+		<action name="palpiteProgressPartial" class="participanteAction" method="prepararInfoPalpites">
+			<result name="success">/WEB-INF/content/seguro/partials/palpite-progress-bar.jsp</result>
+		</action>
+
+		<action name="graficoDesempenho" class="participanteAction" method="gerarGraficoDesempenho">
+			<result name="success">/WEB-INF/content/seguro/graficoDesempenho.jsp</result>
+		</action>
+
+		<action name="graficoDesempenhoImagem" class="participanteAction" method="gerarGraficoDesempenhoImagem">
+			<result type="stream">
+				<param name="contentType">image/png</param>
+				<param name="inputName">graficoStream</param>
+			</result>
+		</action>
+		
+		<action name="copa" class="participanteAction" method="gerarClassificacaoDaCopa">
+			<result name="success">/WEB-INF/content/seguro/copa.jsp</result>
+		</action>
+		
+		<action name="principal" class="participanteAction" method="obterDadosPaginaPrincipal">
+			<result name="success">/WEB-INF/content/seguro/principal.jsp</result>
+		</action>
+
+		<action name="graficoLiderancaImagem" class="participanteAction" method="gerarGraficoLiderancaImagem">
+			<result type="stream">
+				<param name="contentType">image/png</param>
+				<param name="inputName">graficoStream</param>
+			</result>
+		</action>
+
+	</package>
+	
+	<package name="admin" extends="bolao-default" namespace="/admin">
+	
+		<action name="infoEquipes" class="adminAction" method="carregarInfoEquipes">
+			<result name="success">/WEB-INF/content/admin/inclusaoJogo.jsp</result>
+		</action>
+		
+		<action name="jogos" class="adminAction" method="carregarJogos">
+			<result name="success">/WEB-INF/content/seguro/jogos.jsp</result>
+		</action>
+		
+		<action name="participantes" class="adminAction" method="carregarParticipantes">
+			<result name="success">/WEB-INF/content/admin/participantes.jsp</result>
+		</action>
+
+		<action name="criarJogo" class="adminAction" method="criarNovoJogoHtmx" />
+
+		<action name="atualizarResultadoJogo" class="adminAction" method="atualizarResultadoDoJogoHtmx">
+			<result name="success">/WEB-INF/content/admin/partials/admin-match-row.jsp</result>
+		</action>
+		
+		<action name="atualizarPapelParticipante" class="adminAction" method="atualizarPapelParticipanteHtmx">
+			<result name="success">/WEB-INF/content/admin/partials/participantes-table.jsp</result>
+			<result name="fragment">/WEB-INF/content/admin/partials/participantes-table.jsp</result>
+		</action>
+
+		<action name="atualizarStatusParticipante" class="adminAction" method="atualizarStatusParticipanteHtmx">
+			<result name="success">/WEB-INF/content/admin/partials/participantes-table.jsp</result>
+			<result name="fragment">/WEB-INF/content/admin/partials/participantes-table.jsp</result>
+		</action>
+
+		<action name="apagarParticipanteHtmx" class="adminAction" method="apagarParticipante">
+			<result name="success">/WEB-INF/content/admin/partials/participantes-table.jsp</result>
+			<result name="fragment">/WEB-INF/content/admin/partials/participantes-table.jsp</result>
+		</action>
+
+		<action name="prepararEdicaoEstrutural" class="adminAction" method="prepararEdicaoEstruturalHtmx">
+			<result name="success">/WEB-INF/content/admin/partials/admin-match-edit-panel.jsp</result>
+		</action>
+
+		<action name="salvarEdicaoEstrutural" class="adminAction" method="salvarEdicaoEstruturalHtmx">
+			<result name="success">/WEB-INF/content/admin/partials/admin-match-row.jsp</result>
+		</action>
+
+		<action name="carregarLinhaJogoAdmin" class="adminAction" method="carregarLinhaJogoHtmx">
+			<result name="success">/WEB-INF/content/admin/partials/admin-match-row.jsp</result>
+		</action>
+	
+	</package>
+
+</struts>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/security
+           http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<!-- Spring Security 6 Configuration -->
+
+    <!-- Global Method Security -->
+    <security:global-method-security secured-annotations="enabled" pre-post-annotations="enabled" proxy-target-class="true">
+        <security:protect-pointcut expression="execution(* com.opendev.bolao.service.EquipeService.buscarTodasEquipes(..))" access="hasRole('ADMIN')" />
+        <security:protect-pointcut expression="execution(* com.opendev.bolao.service.EquipeService.buscarApenasPaisesReais(..))" access="hasAnyRole('ADMIN', 'USER')" />
+        <security:protect-pointcut expression="execution(* com.opendev.bolao.service.JogoService.criarNovoJogo(..))" access="hasRole('ADMIN')" />
+        <security:protect-pointcut expression="execution(* com.opendev.bolao.service.JogoService.atualizarResultado(..))" access="hasRole('ADMIN')" />
+        <security:protect-pointcut expression="execution(* com.opendev.bolao.service.ParticipanteService.buscarTodos(..))" access="hasRole('ADMIN')" />
+        <security:protect-pointcut expression="execution(* com.opendev.bolao.service.ParticipanteService.apagar(..))" access="hasRole('ADMIN')" />
+        <security:protect-pointcut expression="execution(* com.opendev.bolao.service.ParticipanteService.atualizarAutorizacao(..))" access="hasRole('ADMIN')" />
+        <security:protect-pointcut expression="execution(* com.opendev.bolao.service.ParticipanteService.atualizarPapel(..))" access="hasRole('ADMIN')" />
+    </security:global-method-security>
+
+    <!-- HTTP Security Configuration -->
+    <security:http auto-config="false" use-expressions="true">
+        
+        <!-- Intercept URLs -->
+        <!-- Note: patterns are matched in order, most specific first -->
+        <security:intercept-url pattern="/login.action*" access="permitAll" />
+        <security:intercept-url pattern="/cadastroForm.action*" access="permitAll" />
+        <security:intercept-url pattern="/cadastro.action*" access="permitAll" />
+        <security:intercept-url pattern="/index.action*" access="permitAll" />
+        <security:intercept-url pattern="/regras.action*" access="permitAll" />
+        <security:intercept-url pattern="/recuperarSenhaForm.action*" access="permitAll" />
+        <security:intercept-url pattern="/enviarOtpRecuperacao.action*" access="permitAll" />
+        <security:intercept-url pattern="/validarOtpRecuperacao.action*" access="permitAll" />
+        <security:intercept-url pattern="/redefinirSenha.action*" access="permitAll" />
+        <security:intercept-url pattern="/admin/**" access="hasRole('ADMIN')" />
+        <security:intercept-url pattern="/seguro/palpites.action" access="hasAnyRole('ADMIN', 'USER')" />
+        <security:intercept-url pattern="/seguro/**" access="hasAnyRole('ADMIN', 'USER')" />
+        
+        <!-- Public Resources -->
+        <security:intercept-url pattern="/assets/**" access="permitAll" />
+        <security:intercept-url pattern="/css/**" access="permitAll" />
+        <security:intercept-url pattern="/js/**" access="permitAll" />
+        <security:intercept-url pattern="/img/**" access="permitAll" />
+        <security:intercept-url pattern="/fx/**" access="permitAll" />
+        <security:intercept-url pattern="/favicon.ico*" access="permitAll" />
+        <security:intercept-url pattern="/" access="permitAll" />
+
+        <!-- Form Login Configuration -->
+        <security:form-login 
+            login-page="/login.action" 
+            authentication-failure-url="/login.action?status=invalido"
+            default-target-url="/seguro/principal.action"
+            always-use-default-target="true"
+            login-processing-url="/j_security_check"
+            username-parameter="j_username"
+            password-parameter="j_password" />
+
+        <!-- Expression Handler for HTTP security (AuthorizationManager) -->
+        <security:expression-handler ref="httpSecurityExpressionHandler" />
+
+        <!-- Logout Configuration -->
+        <security:logout 
+            logout-url="/j_logout"
+            logout-success-url="/login.action" 
+            invalidate-session="true"
+            delete-cookies="JSESSIONID" />
+        
+        <!-- Anonymous Access -->
+        <security:anonymous key="anonymous" granted-authority="ROLE_ANONYMOUS" />
+        
+        <!-- Session Management -->
+        <security:session-management session-fixation-protection="migrateSession" />
+
+        <!-- CSRF Protection -->
+        <security:csrf token-repository-ref="csrfTokenRepository" />
+        
+        <!-- Security Headers -->
+        <security:headers>
+            <security:hsts disabled="true" />
+            <security:referrer-policy policy="strict-origin-when-cross-origin" />
+            <security:frame-options policy="SAMEORIGIN" />
+        </security:headers>
+
+        <security:custom-filter after="HEADERS_FILTER" ref="cspNonceFilter" />
+
+    </security:http>
+
+    <!-- Authentication Manager -->
+    <security:authentication-manager id="authenticationManager">
+        <security:authentication-provider user-service-ref="jdbcUserService">
+            <security:password-encoder ref="passwordEncoder" />
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+    <!-- JDBC User Service -->
+    <security:jdbc-user-service id="jdbcUserService" 
+        data-source-ref="defaultDataSource"
+        users-by-username-query="select PAR_LOGIN, PAR_SENHA, case when PAR_HABILITADO = 'T' then true else false end as enabled from PAR_PARTICIPANTE where PAR_LOGIN = ?"
+        authorities-by-username-query="select par.PAR_LOGIN, pri.PRI_PAPEL from PRI_PRIVILEGIO as pri inner join PAR_PARTICIPANTE as par where par.PAR_LOGIN = ? and par.PAR_ID = pri.PRI_PAR_ID" />
+
+    <!-- Password Encoder (BCrypt only) -->
+    <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+
+    <!-- Required for HTTP security expression evaluation -->
+    <bean id="httpSecurityExpressionHandler"
+          class="org.springframework.security.web.access.expression.DefaultHttpSecurityExpressionHandler" />
+
+    <!-- Required for JSP security taglib expressions -->
+    <bean id="webSecurityExpressionHandler"
+          class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler" />
+
+    <!-- Logger Listener for security events -->
+    <bean id="loggerListener" class="org.springframework.security.authentication.event.LoggerListener" />
+
+    <bean id="csrfTokenRepository" class="org.springframework.security.web.csrf.CookieCsrfTokenRepository">
+        <property name="cookieHttpOnly" value="false" />
+        <property name="cookiePath" value="/" />
+    </bean>
+
+    <bean id="cspNonceFilter" class="com.opendev.bolao.security.CspNonceFilter" />
+
+</beans>

@@ -1,0 +1,15 @@
+<project name="sistema bolao" basedir="." default="deploy">
+	
+	<property file="build.properties" />
+	
+	<target name="deploy">
+		<delete dir="${war.dir}" failonerror="false" />
+		<delete file="${war.file}" failonerror="false" />
+		<war destfile="${war.file}"
+			compress="true" webxml="${basedir}/webapp/WEB-INF/web.xml">
+			<fileset dir="${basedir}/webapp/">
+			</fileset>
+		</war>
+	</target>
+	
+</project>

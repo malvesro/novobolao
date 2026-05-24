@@ -1,0 +1,368 @@
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" language="java" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@taglib prefix="s" uri="/struts-tags" %>
+<%@taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@taglib prefix="opendev" uri="http://www.opendev.com.br/tld" %>
+
+<%
+	boolean skipTemplate = Boolean.TRUE.equals(request.getAttribute("skipTemplate"));
+	if (!skipTemplate) {
+%>
+<!DOCTYPE html PUBLIC
+	"-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<c:if test="${empty applicationScope.base}">
+	<c:choose>
+		<c:when test="${pageContext.request.contextPath eq '/'}">
+			<c:set var="base" value="" scope="application" />
+		</c:when>
+		<c:otherwise>
+			<c:set var="base" value="${pageContext.request.contextPath}" scope="application" />
+		</c:otherwise>
+	</c:choose>
+</c:if>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="pragma" content="no-cache" />
+<title><fmt:message key="app.title" /></title>
+<c:if test="${not empty _csrf}">
+	<meta name="_csrf" content="${_csrf.token}" />
+	<meta name="_csrf_header" content="${_csrf.headerName}" />
+	<meta name="_csrf_parameter" content="${_csrf.parameterName}" />
+</c:if>
+<script type="text/javascript" src="${base}/js/htmx.min.js" nonce="${cspNonce}"></script>
+<script type="text/javascript" nonce="${cspNonce}">
+	(function () {
+		'use strict';
+
+		function getMetaContent(name) {
+			var element = document.querySelector('meta[name="' + name + '"]');
+			return element ? element.getAttribute('content') : null;
+		}
+
+		function syncMeta(meta, value) {
+			if (!meta || meta.getAttribute('content') === value) {
+				return;
+			}
+			meta.setAttribute('content', value);
+		}
+
+		function ensureGlobalField() {
+			var field = document.getElementById('csrfTokenField');
+			if (!field) {
+				field = document.createElement('input');
+				field.type = 'hidden';
+				field.id = 'csrfTokenField';
+				field.setAttribute('aria-hidden', 'true');
+				field.setAttribute('data-csrf-field', 'include');
+				field.setAttribute('hidden', 'hidden');
+				document.body.appendChild(field);
+			}
+			field.name = parameterName;
+			field.value = token;
+			return field;
+		}
+
+		function syncGlobalField() {
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', syncGlobalField, { once: true });
+				return;
+			}
+			if (!document.body) {
+				return;
+			}
+			ensureGlobalField();
+		}
+
+		function ensureFormToken(form) {
+			if (!form || !(form instanceof HTMLFormElement)) {
+				return;
+			}
+			if ((form.method || 'get').toLowerCase() !== 'post') {
+				return;
+			}
+			var existing = form.querySelector('input[data-csrf-field="include"]');
+			if (!existing) {
+				existing = form.querySelector('input[name="' + parameterName + '"]');
+			}
+			if (!existing) {
+				existing = document.createElement('input');
+				existing.type = 'hidden';
+				existing.setAttribute('data-csrf-field', 'include');
+				form.appendChild(existing);
+			}
+			existing.name = parameterName;
+			existing.value = token;
+		}
+
+		function updateForms() {
+			var forms = document.querySelectorAll('form');
+			for (var i = 0; i < forms.length; i += 1) {
+				ensureFormToken(forms[i]);
+			}
+		}
+
+		function applyToken(nextToken, nextHeaderName, nextParameterName) {
+			var tokenChanged = nextToken && nextToken !== token;
+			var headerChanged = nextHeaderName && nextHeaderName !== headerName;
+			var parameterChanged = nextParameterName && nextParameterName !== parameterName;
+			if (!tokenChanged && !headerChanged && !parameterChanged) {
+				return;
+			}
+			if (tokenChanged) {
+				token = nextToken;
+				syncMeta(csrfMeta, token);
+			}
+			if (headerChanged) {
+				headerName = nextHeaderName;
+				syncMeta(csrfHeaderMeta, headerName);
+			}
+			if (parameterChanged) {
+				parameterName = nextParameterName;
+				syncMeta(csrfParameterMeta, parameterName);
+			}
+			syncGlobalField();
+			updateForms();
+		}
+
+		function extractTokenFromXhr(xhr) {
+			if (!xhr || !xhr.getResponseHeader) {
+				return;
+			}
+			var newHeaderName = xhr.getResponseHeader('X-CSRF-HEADER');
+			var newParameterName = xhr.getResponseHeader('X-CSRF-PARAM');
+			var newToken = xhr.getResponseHeader(headerName) ||
+				xhr.getResponseHeader('X-CSRF-TOKEN') ||
+				xhr.getResponseHeader('X-XSRF-TOKEN');
+			applyToken(newToken, newHeaderName, newParameterName);
+		}
+
+		function extractTokenFromResponse(response) {
+			if (!response || !response.headers || typeof response.headers.get !== 'function') {
+				return;
+			}
+			var newHeaderName = response.headers.get('X-CSRF-HEADER');
+			var newParameterName = response.headers.get('X-CSRF-PARAM');
+			var newToken = response.headers.get(headerName) ||
+				response.headers.get('X-CSRF-TOKEN') ||
+				response.headers.get('X-XSRF-TOKEN');
+			applyToken(newToken, newHeaderName, newParameterName);
+		}
+
+		var csrfMeta = document.querySelector('meta[name="_csrf"]');
+		var csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+		var csrfParameterMeta = document.querySelector('meta[name="_csrf_parameter"]');
+
+		var token = getMetaContent('_csrf');
+		var headerName = getMetaContent('_csrf_header') || 'X-CSRF-TOKEN';
+		var parameterName = getMetaContent('_csrf_parameter') || '_csrf';
+
+		if (!token) {
+			return;
+		}
+
+		syncMeta(csrfMeta, token);
+		syncGlobalField();
+		updateForms();
+
+		document.addEventListener('submit', function (event) {
+			ensureFormToken(event.target);
+		}, true);
+
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', updateForms);
+		}
+
+		if (window.fetch) {
+			var originalFetch = window.fetch.bind(window);
+			window.fetch = function (input, init) {
+				var requestInit = init ? Object.assign({}, init) : {};
+				var headers;
+
+				if (typeof Request !== 'undefined' && input instanceof Request) {
+					headers = new Headers(input.headers);
+					if (!headers.has(headerName)) {
+						headers.set(headerName, token);
+					}
+					if (headerName !== 'X-CSRF-TOKEN' && !headers.has('X-CSRF-TOKEN')) {
+						headers.set('X-CSRF-TOKEN', token);
+					}
+					requestInit.headers = headers;
+					return originalFetch(new Request(input, requestInit)).then(function (response) {
+						extractTokenFromResponse(response);
+						return response;
+					});
+				}
+
+				headers = new Headers(requestInit.headers || undefined);
+				if (!headers.has(headerName)) {
+					headers.set(headerName, token);
+				}
+				if (headerName !== 'X-CSRF-TOKEN' && !headers.has('X-CSRF-TOKEN')) {
+					headers.set('X-CSRF-TOKEN', token);
+				}
+				requestInit.headers = headers;
+				return originalFetch(input, requestInit).then(function (response) {
+					extractTokenFromResponse(response);
+					return response;
+				});
+			};
+		}
+
+		if (window.htmx && window.htmx.on) {
+			window.htmx.on('htmx:configRequest', function (event) {
+				event.detail.headers[headerName] = token;
+				if (headerName !== 'X-CSRF-TOKEN') {
+					event.detail.headers['X-CSRF-TOKEN'] = token;
+				}
+			});
+			window.htmx.on('htmx:afterSwap', updateForms);
+			window.htmx.on('htmx:afterRequest', function (event) {
+				extractTokenFromXhr(event && event.detail && event.detail.xhr);
+			});
+		}
+	}());
+</script>
+<script type="text/javascript" nonce="${cspNonce}">
+	window.APP_BASE_URL = '<c:out value="${base}" />';
+</script>
+<script type="module" nonce="${cspNonce}">
+	const DEBUG_LABEL = '[bolao:bundle-loader]';
+	const BASE_URL = window.APP_BASE_URL || '';
+
+	function debugInfo(message, detail) {
+		if (!window.console || !console.info) {
+			return;
+		}
+		if (detail !== undefined) {
+			console.info(DEBUG_LABEL + ' ' + message, detail);
+			return;
+		}
+		console.info(DEBUG_LABEL + ' ' + message);
+	}
+
+	function debugWarn(message, detail) {
+		if (!window.console || !console.warn) {
+			return;
+		}
+		if (detail !== undefined) {
+			console.warn(DEBUG_LABEL + ' ' + message, detail);
+			return;
+		}
+		console.warn(DEBUG_LABEL + ' ' + message);
+	}
+
+	function debugError(message, detail) {
+		if (!window.console || !console.error) {
+			return;
+		}
+		if (detail !== undefined) {
+			console.error(DEBUG_LABEL + ' ' + message, detail);
+			return;
+		}
+		console.error(DEBUG_LABEL + ' ' + message);
+	}
+
+	function buildAssetUrl(path) {
+		if (!path) {
+			return null;
+		}
+		if (path.startsWith('http://') || path.startsWith('https://')) {
+			return path;
+		}
+		if (path.startsWith(BASE_URL + '/')) {
+			return path;
+		}
+		if (path.startsWith('/')) {
+			return (BASE_URL || '') + path;
+		}
+		if (path.startsWith('assets/')) {
+			return (BASE_URL || '') + '/' + path;
+		}
+		return (BASE_URL || '') + '/assets/' + path;
+	}
+
+	const manifestUrl = buildAssetUrl('assets/.vite/manifest.json');
+	const fallbackModule = buildAssetUrl('assets/js/app-bundle.js');
+	const possibleEntries = [
+		'src/frontend/main.js',
+		'src/frontend/main.ts',
+		'src/frontend/main.jsx',
+		'main.js',
+		'main.ts',
+		'main.jsx'
+	];
+
+	async function importModule(moduleUrl, label) {
+		if (!moduleUrl) {
+			debugError(label + ' sem URL válido, import cancelado.');
+			return false;
+		}
+		try {
+			debugInfo('Importando ' + label, moduleUrl);
+			await import(moduleUrl);
+			return true;
+		} catch (error) {
+			debugError('Falha ao importar ' + label, error);
+			return false;
+		}
+	}
+
+	async function loadBundle() {
+		if (!manifestUrl) {
+			debugWarn('manifestUrl inválido, pulando fetch e usando fallback.');
+			return importModule(fallbackModule, 'bundle fallback');
+		}
+
+		debugInfo('Resolvendo manifest', manifestUrl);
+
+		try {
+			const response = await fetch(manifestUrl, { cache: 'no-store' });
+			debugInfo('Status do manifest', response.status);
+			if (response.ok) {
+				const manifest = await response.json();
+				const entryKey = possibleEntries.find((key) => manifest[key] && manifest[key].file);
+				const entry = entryKey ? manifest[entryKey] : null;
+
+				debugInfo('Entrada selecionada', { entryKey, entry });
+
+				if (entry && entry.file) {
+					const entryUrl = buildAssetUrl(entry.file);
+					const loaded = await importModule(entryUrl, 'bundle Vite');
+					if (loaded) {
+						return true;
+					}
+				} else {
+					debugWarn('Nenhum entrypoint válido encontrado no manifest.');
+				}
+			} else {
+				debugWarn('Manifest retornou status não OK, usando fallback.', response.status);
+			}
+		} catch (error) {
+			debugWarn('Manifest indisponível, usando bundle fallback.', error);
+		}
+
+		return importModule(fallbackModule, 'bundle fallback');
+	}
+
+	loadBundle();
+</script>
+
+
+<style type="text/css">
+	@IMPORT url("${base}/css/estilo.css");
+</style>
+</head>
+<body>
+	<a class="skip-link" href="#content">Ir para o conteúdo principal</a>
+	<div id="wrapper">
+	<div id="header" role="banner">
+	</div>
+	<main id="content" role="main" tabindex="-1">
+<%
+	}
+%>

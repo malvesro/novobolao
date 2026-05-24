@@ -1,0 +1,116 @@
+{
+  "skills": [
+    {
+      "name": "modernization-java-migration",
+      "version": "1.0.0",
+      "description": "Guia especializado para migração de aplicações Java legadas (J2EE) para stack moderno (Spring Boot 3, Jakarta EE, Struts 6, Hibernate 6).",
+      "tags": ["migration", "spring-boot-3", "jakarta-ee", "struts-6", "hibernate-6"],
+      "path": "modernization-java-migration/SKILL.md",
+      "active": true
+    },
+    {
+      "name": "senior-java-dev-legacy",
+      "version": "1.0.0",
+      "description": "Orientações de desenvolvimento para o stack legado Java do projeto: padrões por camada (Action/Service/DAO), logging, testes e checklist de entrega.",
+      "tags": ["coding-standards", "testing", "logging", "java", "legacy"],
+      "path": "senior-java-dev-legacy/SKILL.md",
+      "active": true
+    },
+    {
+      "name": "security-audit",
+      "version": "1.0.0",
+      "description": "Auditoria de segurança genérica baseada em OWASP: validação de entradas, injeção, XSS/CSRF, autenticação, CVEs e logging seguro.",
+      "tags": ["security", "owasp", "audit", "dependency", "cve"],
+      "path": "security-audit/SKILL.md",
+      "active": true
+    },
+    {
+      "name": "htmx",
+      "version": "1.0.0",
+      "description": "Desenvolvimento com HTMX: atributos de requisição, manipulação de DOM, fragmentos parciais, triggers, integração com CSS e boas práticas de acessibilidade.",
+      "tags": ["htmx", "frontend", "ajax", "html", "fragments"],
+      "path": "htmx/SKILL.md",
+      "active": true
+    },
+    {
+      "name": "vite",
+      "version": "2026.1.31",
+      "description": "Configuração e uso do Vite 8 (Rolldown): vite.config.ts, plugins, SSR, library mode, manifest, Environment API e migração Rolldown.",
+      "tags": ["vite", "bundler", "frontend", "build", "esm", "rolldown"],
+      "path": "vite/SKILL.md",
+      "active": true
+    },
+    {
+      "name": "docker-expert",
+      "version": "1.0.0",
+      "description": "Especialista em Docker: Dockerfiles otimizados, multi-stage builds, segurança de containers, Docker Compose, orquestração e boas práticas de produção.",
+      "tags": ["docker", "containers", "devops", "compose", "security"],
+      "path": "docker-expert/SKILL.md",
+      "active": true
+    },
+    {
+      "name": "architecture-guardian",
+      "version": "1.0.0",
+      "description": "Governança arquitetural: separação de camadas, regras de dependência, checklist de conformidade e detecção de violações de arquitetura.",
+      "tags": ["architecture", "layering", "boundaries", "governance"],
+      "path": "architecture-guardian/SKILL.md",
+      "active": true
+    },
+    {
+      "name": "modern-javascript-patterns",
+      "version": "1.0.0",
+      "description": "Padrões modernos de JavaScript ES6+: arrow functions, destructuring, spread/rest, async/await, módulos ESM, programação funcional e otimização de performance.",
+      "tags": ["javascript", "es6", "async", "modules", "functional", "patterns"],
+      "path": "modern-javascript-patterns/SKILL.md",
+      "active": true
+    },
+    {
+      "name": "nodejs-best-practices",
+      "version": "1.0.0",
+      "description": "Boas práticas Node.js 2025: seleção de frameworks (Hono/Fastify/Express/NestJS), arquitetura em camadas, async patterns, validação, segurança e testes.",
+      "tags": ["nodejs", "backend", "architecture", "security", "async"],
+      "path": "nodejs-best-practices/SKILL.md",
+      "active": true
+    },
+    {
+      "name": "ui-ux-pro-max",
+      "version": "1.0.0",
+      "description": "Design intelligence completo: 50+ estilos, 161 paletas de cores, 57 combinações tipográficas, 99 diretrizes UX, 25 tipos de gráficos. Cobre acessibilidade, animações, formulários, navegação e responsividade.",
+      "tags": ["ui", "ux", "design", "accessibility", "css", "responsive", "wcag"],
+      "path": "ui-ux-pro-max/SKILL.md",
+      "active": true
+    },
+    {
+      "name": "generate_code",
+      "version": "1.0.0",
+      "description": "Skill de geração de código: implementa o código físico com base na especificação técnica aprovada, respeitando a linguagem/framework definida e a estrutura de pastas do projeto.",
+      "tags": ["codegen", "fullstack", "implementation"],
+      "path": "generate_code.md",
+      "active": true
+    },
+    {
+      "name": "audit_code",
+      "version": "1.0.0",
+      "description": "Skill de auditoria de código (QA): avalia alinhamento com a especificação, busca bugs, incompatibilidades de dependências e erros de lógica.",
+      "tags": ["qa", "audit", "bugs", "quality"],
+      "path": "audit_code.md",
+      "active": true
+    },
+    {
+      "name": "deploy_app",
+      "version": "1.0.0",
+      "description": "Skill de deploy: detecta a stack de tecnologias, instala dependências, empacota e inicia o servidor/container local (Maven, Docker, etc.).",
+      "tags": ["deploy", "devops", "docker", "maven", "server"],
+      "path": "deploy_app.md",
+      "active": true
+    },
+    {
+      "name": "write_spec",
+      "version": "1.0.0",
+      "description": "Skill de especificação técnica (PM): transforma ideias brutas em especificações técnicas rigorosas com resumo executivo, requisitos, arquitetura e fluxo de dados. Aguarda aprovação do usuário antes de prosseguir.",
+      "tags": ["spec", "product-management", "requirements", "architecture", "documentation"],
+      "path": "write_spec.md",
+      "active": true
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+services:
+  db:
+    image: mysql:8.4
+    container_name: bolao-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE:-bolao}"
+      MYSQL_USER: "${MYSQL_USER:-user_bolao}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}"
+    ports:
+      - "127.0.0.1:3306:3306"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.8'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - bolao-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  app:
+    build: .
+    container_name: bolao-app
+    restart: always
+    ports:
+      - "127.0.0.1:7860:7860"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      DB_HOST: db
+      DB_NAME: "${MYSQL_DATABASE:-bolao}"
+      DB_USER: "${MYSQL_USER:-user_bolao}"
+      DB_PASSWORD: "${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}"
+      SMTP_HOST: "${SMTP_HOST:-}"
+      SMTP_PORT: "${SMTP_PORT:-587}"
+      SMTP_AUTH: "${SMTP_AUTH:-true}"
+      SMTP_USERNAME: "${SMTP_USERNAME:-}"
+      SMTP_PASSWORD: "${SMTP_PASSWORD:-}"
+      SMTP_TLS: "${SMTP_TLS:-true}"
+      SMTP_STARTTLS_REQUIRED: "${SMTP_STARTTLS_REQUIRED:-true}"
+      SMTP_SSL: "${SMTP_SSL:-false}"
+      SMTP_SSL_TRUST: "${SMTP_SSL_TRUST:-}"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - bolao-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7860/health.txt"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  bolao-net:
+    driver: bridge
+
+volumes:
+  db_data:
