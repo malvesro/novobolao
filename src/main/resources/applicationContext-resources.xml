@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="
            http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans.xsd">
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/jdbc
+           http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
 
 	<!-- Datasource configuration (alternatively you can use the JNDI way) -->
-	<!-- How to use JNDI DS:
-		<bean id="myDataSource1" class="org.springframework.jndi.JndiObjectFactoryBean">
-			<property name="jndiName value="java:comp/env/jdbc/myds"/>
-		</bean>
-	-->
 	<bean id="defaultDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
 		<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
 		<property name="jdbcUrl" value="jdbc:mysql://${DB_HOST:localhost}:3306/${DB_NAME:bolao}?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;useUnicode=true&amp;characterEncoding=UTF-8&amp;connectionCollation=utf8mb4_unicode_ci" />
 		<property name="username" value="${DB_USER:root}" />
-		<property name="password" value="${DB_PASS}" />
+		<property name="password" value="${DB_PASSWORD}" />
 		<property name="maximumPoolSize" value="10" />
 		<property name="minimumIdle" value="2" />
 		<property name="idleTimeout" value="30000" />
 		<property name="connectionTimeout" value="30000" />
 	</bean>
+	
+	<!-- Automatic Database Initialization (Cloud-friendly) -->
+	<jdbc:initialize-database data-source="defaultDataSource">
+		<jdbc:script location="classpath:database/schema.sql" />
+		<jdbc:script location="classpath:database/data.sql" />
+	</jdbc:initialize-database>
 
 </beans>

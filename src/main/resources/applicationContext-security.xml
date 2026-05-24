@@ -80,7 +80,7 @@
         
         <!-- Security Headers -->
         <security:headers>
-            <security:hsts include-subdomains="true" max-age-seconds="31536000" />
+            <security:hsts disabled="true" />
             <security:referrer-policy policy="strict-origin-when-cross-origin" />
             <security:frame-options policy="SAMEORIGIN" />
         </security:headers>

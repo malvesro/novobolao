@@ -238,6 +238,16 @@ wsl bash -c "docker-compose logs -f app"
 
 ⚠️ **IMPORTANTE:** Troque as senhas padrão após o primeiro acesso!
 
+### 13.2. Publicação em Nuvem (Custo Zero - Hugging Face & Aiven)
+
+Para implantar em um ambiente de produção gratuito com Hugging Face Spaces e Aiven MySQL, siga o guia especializado:
+
+📖 **[docs/deployment/HUGGING_FACE_AIVEN.md](docs/deployment/HUGGING_FACE_AIVEN.md)**
+
+Esta configuração utiliza a porta **7860** (obrigatória para o Hugging Face) e ajustes otimizados de JVM.
+
+---
+
 Para mais detalhes sobre:
 - Troubleshooting
 - Variáveis de ambiente

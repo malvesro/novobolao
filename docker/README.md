@@ -16,7 +16,7 @@ docker/
 
 ## Serviços
 
-### 1. MySQL 8.0 (db)
+### 1. MySQL 8.4 (db)
 - **Porta:** 3306
 - **Banco:** `${MYSQL_DATABASE}` (padrão: `bolao`)
 - **Usuário:** `${MYSQL_USER}` (padrão: `user_bolao`)
@@ -197,7 +197,7 @@ As seguintes variáveis podem ser customizadas no `docker-compose.yml`:
 - `DB_HOST` (opcional, padrão `db`) – Host do banco.
 - `DB_NAME` (opcional, padrão `bolao`) – Nome do banco utilizado pela aplicação.
 - `DB_USER` (opcional, padrão `user_bolao`) – Usuário do banco.
-- `DB_PASS` (obrigatório) – Senha do banco utilizada pela aplicação (deve espelhar `MYSQL_PASSWORD`).
+- `DB_PASSWORD` (obrigatório) – Senha do banco utilizada pela aplicação (deve espelhar `MYSQL_PASSWORD`).
 
 ## Desenvolvimento
 
