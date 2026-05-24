@@ -50,6 +50,7 @@ services:
         max-file: "3"
     environment:
       DB_HOST: db
+      DB_PORT: "3306"
       DB_NAME: "${MYSQL_DATABASE:-bolao}"
       DB_USER: "${MYSQL_USER:-user_bolao}"
       DB_PASSWORD: "${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}"

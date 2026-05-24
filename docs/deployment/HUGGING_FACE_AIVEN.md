@@ -38,10 +38,13 @@ Estas variáveis permitem que a aplicação conecte ao banco externo e realize a
 
 | Variável | Tipo | Exemplo / Valor |
 | :--- | :--- | :--- |
-| `DB_HOST` | Variable | `mysql-xxxx.aivencloud.com` |
+| `DB_HOST` | Variable | `mysql-xxxx-novobolaocopa.f.aivencloud.com` |
+| `DB_PORT` | Variable | `10865` *(porta não-padrão do Aiven — obrigatório!)* |
 | `DB_NAME` | Variable | `defaultdb` |
 | `DB_USER` | Variable | `avnadmin` |
 | `DB_PASSWORD`| **Secret** | (Sua senha do Aiven) |
+
+> ⚠️ **SSL Obrigatório:** O Aiven exige SSL. A aplicação já está configurada com `useSSL=true&requireSSL=true`. O hostname e a porta exatos estão disponíveis no console da Aiven em **Services > Overview > Connection information**.
 
 ### 2. Configuração de E-mail (Gmail)
 Para o Gmail, utilize uma **Senha de Aplicativo** (16 dígitos) gerada na sua conta Google.
