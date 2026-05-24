@@ -11,7 +11,7 @@
 	<!-- Datasource configuration (alternatively you can use the JNDI way) -->
 	<bean id="defaultDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
 		<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
-		<property name="jdbcUrl" value="jdbc:mysql://${DB_HOST:localhost}:3306/${DB_NAME:bolao}?useSSL=false&amp;allowPublicKeyRetrieval=true&amp;useUnicode=true&amp;characterEncoding=UTF-8&amp;connectionCollation=utf8mb4_unicode_ci" />
+		<property name="jdbcUrl" value="jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:bolao}?useSSL=true&amp;requireSSL=true&amp;verifyServerCertificate=false&amp;allowPublicKeyRetrieval=true&amp;useUnicode=true&amp;characterEncoding=UTF-8&amp;connectionCollation=utf8mb4_unicode_ci" />
 		<property name="username" value="${DB_USER:root}" />
 		<property name="password" value="${DB_PASSWORD}" />
 		<property name="maximumPoolSize" value="10" />
