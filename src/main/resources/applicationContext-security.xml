@@ -82,7 +82,7 @@
         <security:headers>
             <security:hsts disabled="true" />
             <security:referrer-policy policy="strict-origin-when-cross-origin" />
-            <security:frame-options policy="SAMEORIGIN" />
+            <security:frame-options policy="DISABLE" /><!-- HF Spaces embeds via iframe from different origin -->
         </security:headers>
 
         <security:custom-filter after="HEADERS_FILTER" ref="cspNonceFilter" />
