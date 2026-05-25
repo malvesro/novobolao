@@ -78,11 +78,14 @@
         <!-- CSRF Protection -->
         <security:csrf token-repository-ref="csrfTokenRepository" />
         
-        <!-- Security Headers -->
-        <security:headers>
+        <!-- Security Headers: defaults-disabled permite omitir frame-options para o iframe do HF Spaces -->
+        <security:headers defaults-disabled="true">
+            <security:cache-control />
+            <security:content-type-options />
+            <security:xss-protection />
             <security:hsts disabled="true" />
             <security:referrer-policy policy="strict-origin-when-cross-origin" />
-            <security:frame-options policy="DISABLE" /><!-- HF Spaces embeds via iframe from different origin -->
+            <!-- frame-options omitido intencionalmente: HF Spaces embute a app via iframe cross-origin -->
         </security:headers>
 
         <security:custom-filter after="HEADERS_FILTER" ref="cspNonceFilter" />
