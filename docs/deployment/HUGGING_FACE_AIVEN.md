@@ -79,3 +79,95 @@ Diferente de um ambiente local com Docker Compose, o Hugging Face Spaces (SDK Do
     -   Conecte ao seu repositório ou faça o upload dos arquivos.
     -   O Hugging Face detectará o `Dockerfile` e iniciará o build.
     -   Certifique-se de que o health check aponte para a porta 7860.
+
+---
+
+## 🐛 Troubleshooting: Erros Reais e Soluções
+
+Esta seção documenta todos os erros e armadilhas encontrados durante o **deploy real** do Bolão no Hugging Face + Aiven. Use como referência para diagnosticar problemas futuros.
+
+---
+
+### ❌ Erro 1: `UnknownHostException` — DNS não resolve o host do banco
+
+**Sintoma no log:**
+```
+Caused by: java.net.UnknownHostException: mysql-36ec9956-novobolaocopa.f.aivencloud.com
+```
+
+**Causa 1 — Porta hardcoded:** A URL JDBC usava a porta `3306` (padrão MySQL), mas o Aiven usa uma **porta não-padrão (ex: `10865`)**. Isso impede a conexão.
+
+| | Configuração em `applicationContext-resources.xml` |
+|---|---|
+| ❌ **Errado** | `jdbc:mysql://${DB_HOST:localhost}:3306/${DB_NAME}?useSSL=false` |
+| ✅ **Correto** | `jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME}?useSSL=true&requireSSL=true&verifyServerCertificate=false` |
+
+**Causa 2 — Serviço Aiven desligado:** O free tier da Aiven desliga o serviço por inatividade. Quando desligado, **a entrada DNS é removida**, causando `UnknownHostException` mesmo com o host correto.
+
+> ✅ **Solução:** Acesse o console da Aiven e clique em **"Power on"** no serviço. Aguarde ~2 minutos e force um **"Restart Space"** no Hugging Face.
+
+---
+
+### ❌ Erro 2: Variável de ambiente `DB_PORT` ausente
+
+**Sintoma:** Aplicação tenta conectar na porta `3306` mesmo com o Aiven configurado para `10865`.
+
+**Causa:** `DB_PORT` não estava nas variáveis de ambiente do HF Space.
+
+> ✅ **Solução:** Adicionar `DB_PORT = 10865` em **Settings > Variables and Secrets** no painel do HF Space.
+
+---
+
+### ❌ Erro 3: Tela em branco no iframe do Hugging Face (Space "Running" mas sem conteúdo)
+
+**Sintoma:** O badge do Space mostra "Running" (verde), mas a aba "App" exibe uma página completamente em branco.
+
+**Causa:** O Spring Security enviava o header `X-Frame-Options: SAMEORIGIN` por padrão. Como o HF embute a aplicação em um `<iframe>` servido de uma origem diferente (`huggingface.co` vs `hf.space`), o browser bloqueava silenciosamente o iframe.
+
+| | Configuração em `applicationContext-security.xml` |
+|---|---|
+| ❌ **Errado (SAMEORIGIN)** | `<security:frame-options policy="SAMEORIGIN" />` |
+| ❌ **Inválido no schema** | `<security:frame-options policy="DISABLE" />` ← o schema XML do Spring Security **não aceita** este valor |
+| ✅ **Correto** | Usar `defaults-disabled="true"` e **omitir** o elemento `frame-options` inteiramente |
+
+**Configuração correta:**
+```xml
+<!-- ✅ CORRETO: defaults-disabled omite o X-Frame-Options -->
+<security:headers defaults-disabled="true">
+    <security:cache-control />
+    <security:content-type-options />
+    <security:xss-protection />
+    <security:hsts disabled="true" />
+    <security:referrer-policy policy="strict-origin-when-cross-origin" />
+    <!-- frame-options omitido: HF Spaces embute a app via iframe cross-origin -->
+</security:headers>
+```
+
+> ⚠️ **Atenção:** O schema XML do Spring Security (`spring-security.xsd`) só aceita os valores `DENY`, `SAMEORIGIN` e `ALLOW-FROM` para o atributo `policy`. Tentar usar `DISABLE` causa falha crítica no startup (`XmlBeanDefinitionStoreException` na linha do arquivo XML).
+
+---
+
+### ❌ Erro 4: SSL desabilitado (`useSSL=false`) com Aiven
+
+**Causa:** A configuração padrão usava `useSSL=false`, mas o Aiven exige SSL (`ssl-mode=REQUIRED`).
+
+| | Parâmetro JDBC |
+|---|---|
+| ❌ **Errado** | `useSSL=false` |
+| ✅ **Correto** | `useSSL=true&requireSSL=true&verifyServerCertificate=false` |
+
+> `verifyServerCertificate=false` dispensa a instalação do CA certificate da Aiven no container, simplificando o deploy sem comprometer a criptografia do tráfego.
+
+---
+
+### 🔗 URLs de Teste
+
+Após o deploy, valide a aplicação pelos links diretos (sem iframe):
+
+| Propósito | URL |
+|---|---|
+| App (direto) | `https://novobolaodacopa-bolaocopa.hf.space/` |
+| Health check | `https://novobolaodacopa-bolaocopa.hf.space/health.txt` |
+| Tela de Login | `https://novobolaodacopa-bolaocopa.hf.space/login.action` |
+
+> 💡 A URL `*.hf.space` **não usa iframe** — sempre funciona independente do `X-Frame-Options`. Use-a para confirmar que a aplicação está respondendo antes de investigar o iframe.
