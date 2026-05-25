@@ -917,9 +917,9 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 2.  **[Concluído] Configuração do Banco Remoto:** Mapear variáveis de ambiente para Aiven MySQL.
 3.  **[Concluído] Inicialização Automática:** Criar scripts SQL de schema e carga inicial idempotente.
 4.  **[Concluído] Configuração de E-mail:** Mapear segredos SMTP para o `EmailConfiguration.java`.
-5.  **[Em Progresso] Migração para Git LFS (PLN-001):** Resolver rejeição de binários no Hugging Face.
-    *   **[Pendente]** Subtarefa 9.5.1: Preparação do Ambiente e Inicialização do LFS.
-    *   **[Pendente]** Subtarefa 9.5.2: Configuração de Tracking e .gitattributes.
-    *   **[Pendente]** Subtarefa 9.5.3: Reescrita de Histórico com `git lfs migrate`.
-    *   **[Pendente]** Subtarefa 9.5.4: Higienização Local (Reflog & GC).
-    *   **[Pendente]** Subtarefa 9.5.5: Push Final e Validação no Hugging Face.
+5.  **[Concluído] Migração para Git LFS (PLN-001):** Resolver rejeição de binários no Hugging Face.
+    *   **[Concluído]** Subtarefa 9.5.1: Preparação do Ambiente e Inicialização do LFS.
+    *   **[Concluído]** Subtarefa 9.5.2: Configuração de Tracking e .gitattributes.
+    *   **[Concluído]** Subtarefa 9.5.3: Reescrita de Histórico com `git lfs migrate`.
+    *   **[Concluído]** Subtarefa 9.5.4: Higienização Local (Reflog & GC).
+    *   **[Concluído]** Subtarefa 9.5.5: Push Final e Validação no Hugging Face.
