@@ -179,6 +179,14 @@ Para garantir estabilidade em conexões de longa distância (Hugging Face -> Aiv
 
 ---
 
+### 🕒 Fuso Horário (Timezone)
+
+Por padrão, os servidores do Hugging Face Spaces utilizam UTC. Para garantir que as regras de fechamento de palpites sigam o horário de Brasília, o fuso foi forçado no `Dockerfile`:
+- `ENV TZ=America/Sao_Paulo`
+- `CATALINA_OPTS=... -Duser.timezone=America/Sao_Paulo`
+
+---
+
 ### 🔗 URLs de Teste
 
 Após o deploy, valide a aplicação pelos links diretos (sem iframe):
