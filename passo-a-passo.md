@@ -927,3 +927,7 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     *   **[Concluído]** Subtarefa 9.6.1: Copiar script `03-copa-2026-data.sql` para o classpath da aplicação.
     *   **[Concluído]** Subtarefa 9.6.2: Atualizar `applicationContext-resources.xml` para incluir a carga de dados na inicialização do Spring.
     *   **[Concluído]** Subtarefa 9.6.3: Implementar controle via variável de ambiente `DB_INITIALIZE`.
+7.  **Refatoração do Contador de Usuários Online para sessões autenticadas:**
+    *   **[Concluído]** Subtarefa 9.7.1: Habilitar o `SessionRegistry` no modulo de segurança (`applicationContext-security.xml`).
+    *   **[Concluído]** Subtarefa 9.7.2: Refatorar `ContadorParticipantesOnline.java` para utilizar o registro de sessões autenticadas do Spring.
+    *   Subtarefa 9.7.3: Validar a precisão do contador em ambiente local e nuvem.

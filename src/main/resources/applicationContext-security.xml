@@ -73,7 +73,9 @@
         <security:anonymous key="anonymous" granted-authority="ROLE_ANONYMOUS" />
         
         <!-- Session Management -->
-        <security:session-management session-fixation-protection="migrateSession" />
+        <security:session-management session-fixation-protection="migrateSession">
+            <security:concurrency-control session-registry-ref="sessionRegistry" />
+        </security:session-management>
 
         <!-- CSRF Protection -->
         <security:csrf token-repository-ref="csrfTokenRepository" />
@@ -125,5 +127,7 @@
     </bean>
 
     <bean id="cspNonceFilter" class="com.opendev.bolao.security.CspNonceFilter" />
+
+    <bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
 
 </beans>

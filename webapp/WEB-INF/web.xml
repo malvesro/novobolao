@@ -124,6 +124,9 @@
 	<listener>
 		<listener-class>com.opendev.bolao.util.ContadorParticipantesOnline</listener-class>
 	</listener>
+	<listener>
+		<listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
+	</listener>
 
 	<security-constraint>
 		<web-resource-collection>

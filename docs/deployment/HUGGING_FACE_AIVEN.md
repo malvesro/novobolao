@@ -174,6 +174,7 @@ Para garantir estabilidade em conexões de longa distância (Hugging Face -> Aiv
 | `leakDetectionThreshold` | `60000` | Reporta no log se houver vazamento de conexão (thread presa > 1 min). |
 | `cachePrepStmts` | `true` | Habilita o cache de statements no lado do driver MySQL. |
 | `prepStmtCacheSize` | `250` | Define a quantidade de statements cacheados. |
+| `SessionRegistry` | Ativo | Garante contagem precisa apenas de usuários autenticados. |
 
 > 💡 **Dica de Debug:** Se você vir a mensagem `Apparent connection leak detected` nos logs do Hugging Face, isso indica um ponto no código que abriu uma conexão mas não a fechou.
 
