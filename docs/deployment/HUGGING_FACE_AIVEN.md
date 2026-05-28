@@ -164,6 +164,31 @@ Caused by: java.net.UnknownHostException: mysql-36ec9956-novobolaocopa.f.aivencl
 
 ---
 
+### ❌ Erro 5: `SocketTimeoutException` — SMTP bloqueado pelo Hugging Face
+
+**Sintoma no log:**
+```
+[EMAIL] Tentando enviar email via host=smtp.gmail.com:465 (SSL=true, TLS=false) para=...
+[EMAIL] Falha crítica ao enviar email... Erro: Couldn't connect to host, port: smtp.gmail.com, 465; timeout 10000
+Caused by: java.net.SocketTimeoutException: Connect timed out
+```
+
+**Causa:** O Hugging Face Spaces (free tier) **bloqueia todas as conexões SMTP de saída** (`TCP`) nas portas convencionais — tanto a porta **587** (TLS/STARTTLS) quanto a porta **465** (SSL). Isso é uma restrição de rede da infraestrutura AWS subjacente e **não é configurável** pelo usuário.
+
+**Impacto atual:** O cadastro de participantes é **salvo no banco normalmente**. Apenas o e-mail de notificação ao admin não é enviado. O sistema é tolerante a falha de e-mail (não lança exceção para o usuário).
+
+**Opções de Correção:**
+
+| Opção | Abordagem | Complexidade | Custo |
+| :--- | :--- | :--- | :--- |
+| **Brevo (API REST)** | Trocar Jakarta Mail por chamada HTTP à API do Brevo | Média | Grátis (300 e-mails/dia) |
+| **Mailgun / SendGrid** | Idem via API REST | Média | Grátis (tier limitado) |
+| **SMTP porta 2525** | Provedores alternativos usam porta não-convencional | Baixa | Grátis |
+
+> ✅ **Solução Planejada:** Migrar o módulo de e-mail para a **API REST do Brevo** (ver tarefas 9.8.x no `passo-a-passo.md`). A porta 443 (HTTPS) nunca é bloqueada, tornando APIs de e-mail a única opção confiável em provedores cloud com restrições SMTP.
+
+---
+
 ### 🛢️ Tuning do Banco de Dados e Pool (HikariCP)
 
 Para garantir estabilidade em conexões de longa distância (Hugging Face -> Aiven), as seguintes configurações foram aplicadas:
