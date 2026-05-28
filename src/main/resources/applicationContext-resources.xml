@@ -19,6 +19,7 @@
 		<property name="idleTimeout" value="30000" />
 		<property name="connectionTimeout" value="30000" />
 		<property name="maxLifetime" value="1800000" />
+		<property name="keepaliveTime" value="300000" />
 		<property name="initializationFailTimeout" value="0" />
 		<property name="leakDetectionThreshold" value="60000" />
 	</bean>

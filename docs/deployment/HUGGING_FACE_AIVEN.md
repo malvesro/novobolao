@@ -180,11 +180,22 @@ Para garantir estabilidade em conexões de longa distância (Hugging Face -> Aiv
 
 ---
 
-### 🕒 Fuso Horário (Timezone)
+### � Fuso Horário (Timezone)
 
 Por padrão, os servidores do Hugging Face Spaces utilizam UTC. Para garantir que as regras de fechamento de palpites sigam o horário de Brasília, o fuso foi forçado no `Dockerfile`:
 - `ENV TZ=America/Sao_Paulo`
 - `CATALINA_OPTS=... -Duser.timezone=America/Sao_Paulo`
+
+---
+
+### �💓 Manutenção da Aplicação Ativa (Keep-Alive)
+
+Para evitar que o Hugging Face coloque o Space em modo "Sleep" e para manter as conexões com o Aiven "frias", utilize as seguintes estratégias:
+
+1.  **Keep-Alive do Banco**: Configurado no `applicationContext-resources.xml` via `keepaliveTime=300000` (5 minutos). O pool enviará um sinal ao MySQL periodicamente.
+2.  **Keep-Alive do Space (Externo)**: Utilize um serviço gratuito de monitoramento para acessar sua URL a cada 15-20 minutos.
+    *   **Ferramentas Recomendadas**: [cron-job.org](https://cron-job.org/) ou [UptimeRobot](https://uptimerobot.com/).
+    *   **URL de Target**: `https://seu-space.hf.space/health.txt`.
 
 ---
 
