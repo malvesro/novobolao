@@ -923,3 +923,7 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     *   **[Concluído]** Subtarefa 9.5.3: Reescrita de Histórico com `git lfs migrate`.
     *   **[Concluído]** Subtarefa 9.5.4: Higienização Local (Reflog & GC).
     *   **[Concluído]** Subtarefa 9.5.5: Push Final e Validação no Hugging Face.
+6.  **[Concluído] Integração do Script da Copa 2026 na Inicialização Automática (Cloud Fix):**
+    *   **[Concluído]** Subtarefa 9.6.1: Copiar script `03-copa-2026-data.sql` para o classpath da aplicação.
+    *   **[Concluído]** Subtarefa 9.6.2: Atualizar `applicationContext-resources.xml` para incluir a carga de dados na inicialização do Spring.
+    *   **[Concluído]** Subtarefa 9.6.3: Implementar controle via variável de ambiente `DB_INITIALIZE`.

@@ -43,6 +43,7 @@ Estas variáveis permitem que a aplicação conecte ao banco externo e realize a
 | `DB_NAME` | Variable | `defaultdb` |
 | `DB_USER` | Variable | `avnadmin` |
 | `DB_PASSWORD`| **Secret** | (Sua senha do Aiven) |
+| `DB_INITIALIZE`| Variable | `true` (mude para `false` após a primeira carga) |
 
 > ⚠️ **SSL Obrigatório:** O Aiven exige SSL. A aplicação já está configurada com `useSSL=true&requireSSL=true`. O hostname e a porta exatos estão disponíveis no console da Aiven em **Services > Overview > Connection information**.
 

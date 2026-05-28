@@ -21,9 +21,10 @@
 	</bean>
 	
 	<!-- Automatic Database Initialization (Cloud-friendly) -->
-	<jdbc:initialize-database data-source="defaultDataSource">
+	<jdbc:initialize-database data-source="defaultDataSource" enabled="${DB_INITIALIZE:true}">
 		<jdbc:script location="classpath:database/schema.sql" />
 		<jdbc:script location="classpath:database/data.sql" />
+		<jdbc:script location="classpath:database/copa-2026-data.sql" encoding="UTF-8" />
 	</jdbc:initialize-database>
 
 </beans>
