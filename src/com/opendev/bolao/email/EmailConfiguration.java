@@ -36,6 +36,7 @@ final class EmailConfiguration {
         mapping.put("SMTP_FROM_ADDRESS", "mail.from.address");
         mapping.put("SMTP_FROM_NAME", "mail.from.name");
         mapping.put("SMTP_SYSTEM_URL", "mail.property.systemurl");
+        mapping.put("SMTP_ADMIN_EMAILS", "mail.admin.emails");
         ENVIRONMENT_MAPPING = Collections.unmodifiableMap(mapping);
     }
 
@@ -67,6 +68,27 @@ final class EmailConfiguration {
 
     String getProperty(String key) {
         return this.properties.getProperty(key);
+    }
+
+    /**
+     * Retorna a lista de e-mails dos administradores que devem receber
+     * notificações de novos cadastros. Lidos da variável SMTP_ADMIN_EMAILS
+     * (separados por vírgula).
+     */
+    String[] getAdminEmails() {
+        String value = this.properties.getProperty("mail.admin.emails", "").trim();
+        if (value.isEmpty()) {
+            return new String[0];
+        }
+        String[] emails = value.split(",");
+        java.util.List<String> result = new java.util.ArrayList<>();
+        for (String email : emails) {
+            String trimmed = email.trim();
+            if (!trimmed.isEmpty()) {
+                result.add(trimmed);
+            }
+        }
+        return result.toArray(new String[0]);
     }
 
     private static void overlayExternalFile(Properties properties) {

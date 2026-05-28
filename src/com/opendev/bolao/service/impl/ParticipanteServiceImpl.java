@@ -266,8 +266,14 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         participante.setEmail(participante.getEmail() == null ? null : participante.getEmail().trim());
         getParticipanteRepository().save(participante);
         Email email = criarEmail("novoCadastro.html", "Novo pedido de cadastro pendente");
-        email.adicionarEnderecoDestino("deinf.rochett@bc");
-        email.adicionarEnderecoDestino("rosner.suporte.deinf@bcb.gov.br");
+        String[] adminEmails = Email.getAdminEmails();
+        if (adminEmails.length == 0) {
+            LOGGER.warn("[CADASTRO] Nenhum e-mail de admin configurado em SMTP_ADMIN_EMAILS. Notificação de novo cadastro não será enviada.");
+        } else {
+            for (String adminEmail : adminEmails) {
+                email.adicionarEnderecoDestino(adminEmail);
+            }
+        }
         email.setPropriedade("nome", participante.getNome());
         try {
             email.enviar();

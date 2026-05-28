@@ -63,8 +63,11 @@ Para o Gmail, utilize uma **Senha de Aplicativo** (16 dígitos) gerada na sua co
 | `SMTP_AUTH` | Variable | `true` |
 | `SMTP_STARTTLS_REQUIRED`| Variable | `false` (se usar 465) ou `true` (se usar 587) |
 | `SMTP_SYSTEM_URL` | Variable | `https://novobolaodacopa-bolaocopa.hf.space/` |
+| `SMTP_ADMIN_EMAILS` | Variable | `admin1@gmail.com,admin2@gmail.com` *(separados por vírgula)* |
 
 > **Nota sobre Conectividade:** O Hugging Face Spaces pode bloquear a porta `587`. Se você encontrar erros de `Connection Timeout`, utilize a porta **465** com `SMTP_SSL=true` e `SMTP_TLS=false`.
+
+> **⚠️ SMTP_ADMIN_EMAILS obrigatório:** Sem esta variável configurada, nenhuma notificação de novo cadastro será enviada ao administrador. O sistema registrará um aviso `[CADASTRO] Nenhum e-mail de admin configurado` nos logs.
 
 > **Nota:** A `SMTP_SYSTEM_URL` é fundamental para que os links enviados por e-mail (como recuperação de senha) apontem para o endereço correto do seu Space.
 

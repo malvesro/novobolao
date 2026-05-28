@@ -75,6 +75,14 @@ public class Email {
         this(nomeTemplate, null, assunto, CONFIG.getProperty("mail.from.address"));
     }
 	
+    /**
+     * Retorna os endereços de e-mail dos administradores configurados via
+     * variável de ambiente SMTP_ADMIN_EMAILS (separados por vírgula).
+     */
+    public static String[] getAdminEmails() {
+        return CONFIG.getAdminEmails();
+    }
+
 	/**
 	 * 
 	 * @param chave
