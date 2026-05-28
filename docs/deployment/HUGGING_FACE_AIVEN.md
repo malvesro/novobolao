@@ -161,6 +161,21 @@ Caused by: java.net.UnknownHostException: mysql-36ec9956-novobolaocopa.f.aivencl
 
 ---
 
+### 🛢️ Tuning do Banco de Dados e Pool (HikariCP)
+
+Para garantir estabilidade em conexões de longa distância (Hugging Face -> Aiven), as seguintes configurações foram aplicadas:
+
+| Parâmetro | Valor | Motivação |
+| :--- | :--- | :--- |
+| `initializationFailTimeout` | `0` | Impede que a app falhe se o banco demorar a responder no boot. |
+| `leakDetectionThreshold` | `60000` | Reporta no log se houver vazamento de conexão (thread presa > 1 min). |
+| `cachePrepStmts` | `true` | Habilita o cache de statements no lado do driver MySQL. |
+| `prepStmtCacheSize` | `250` | Define a quantidade de statements cacheados. |
+
+> 💡 **Dica de Debug:** Se você vir a mensagem `Apparent connection leak detected` nos logs do Hugging Face, isso indica um ponto no código que abriu uma conexão mas não a fechou.
+
+---
+
 ### 🔗 URLs de Teste
 
 Após o deploy, valide a aplicação pelos links diretos (sem iframe):
