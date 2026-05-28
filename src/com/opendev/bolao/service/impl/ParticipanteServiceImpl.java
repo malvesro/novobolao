@@ -166,7 +166,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
                 try {
                     email.enviar();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LOGGER.error("[CADASTRO] Erro ao enviar email de aprovacao para o participante id={}", id, e);
                 }
             }
         });
@@ -272,7 +272,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         try {
             email.enviar();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("[CADASTRO] Erro ao enviar email de novo cadastro pendente para participante={}", participante.getLogin(), e);
         }
         return participante;
     }

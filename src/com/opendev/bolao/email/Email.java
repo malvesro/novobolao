@@ -18,9 +18,13 @@ import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class Email {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(Email.class);
 	
     private static final String TEMPLATE_DIR = "/com/opendev/bolao/email/templates/";
 	private static final String TEMPLATE_CABECALHO = "cabecalho.html";
@@ -131,12 +135,24 @@ public class Email {
                 }
             }
 			msg.setSubject(getAssunto());
-			msg.setHeader("X-Mailer", "BANCO CENTRAL DO BRASIL");
+			msg.setHeader("X-Mailer", "BOLAO DE PLACA");
 			msg.setSentDate(new Date());
 			msg.setContent(getConteudo(), "text/html; charset=UTF-8");
 
+			LOGGER.info("[EMAIL] Tentando enviar email via host={}:{} (SSL={}, TLS={}) para={}", 
+					smtpHost, 
+					mailContext.properties().getProperty("mail.smtp.port"),
+					mailContext.properties().getProperty("mail.smtp.ssl.enable", "false"),
+					mailContext.properties().getProperty("mail.smtp.starttls.enable", "false"),
+					destino);
+
 			Transport.send(msg);
+			LOGGER.info("[EMAIL] Email enviado com sucesso para={}", destino);
 		} catch (MessagingException | UnsupportedEncodingException e) {
+			LOGGER.error("[EMAIL] Falha crítica ao enviar email para={} via host={}. Erro: {}", 
+					getEnderecosDestino(), 
+					CONFIG.getProperty("mail.smtp.host"),
+					e.getMessage());
 			throw new EmailException("Erro ao enviar email! (" + getNomeTemplate() + ")", e);
 		}
 	}

@@ -53,15 +53,18 @@ Para o Gmail, utilize uma **Senha de Aplicativo** (16 dígitos) gerada na sua co
 | Variável | Tipo | Valor Recomendado |
 | :--- | :--- | :--- |
 | `SMTP_HOST` | Variable | `smtp.gmail.com` |
-| `SMTP_PORT` | Variable | `587` |
+| `SMTP_PORT` | Variable | `465` (Recomendado para HF) ou `587` |
 | `SMTP_USERNAME` | Variable | `novobolaocopa@gmail.com` |
 | `SMTP_PASSWORD` | **Secret** | (Sua Senha de Aplicativo) |
 | `SMTP_FROM_ADDRESS`| Variable | `novobolaocopa@gmail.com` |
 | `SMTP_FROM_NAME` | Variable | `Sistema Bolão 2026` |
-| `SMTP_TLS` | Variable | `true` |
+| `SMTP_TLS` | Variable | `false` (se usar 465) ou `true` (se usar 587) |
+| `SMTP_SSL` | Variable | `true` (se usar 465) ou `false` (se usar 587) |
 | `SMTP_AUTH` | Variable | `true` |
-| `SMTP_STARTTLS_REQUIRED`| Variable | `true` |
+| `SMTP_STARTTLS_REQUIRED`| Variable | `false` (se usar 465) ou `true` (se usar 587) |
 | `SMTP_SYSTEM_URL` | Variable | `https://novobolaodacopa-bolaocopa.hf.space/` |
+
+> **Nota sobre Conectividade:** O Hugging Face Spaces pode bloquear a porta `587`. Se você encontrar erros de `Connection Timeout`, utilize a porta **465** com `SMTP_SSL=true` e `SMTP_TLS=false`.
 
 > **Nota:** A `SMTP_SYSTEM_URL` é fundamental para que os links enviados por e-mail (como recuperação de senha) apontem para o endereço correto do seu Space.
 
