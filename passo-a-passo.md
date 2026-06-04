@@ -946,3 +946,10 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     *   **[Concluído]** Subtarefa 9.9.1: Corrigir o problema de encoding (caracteres especiais) nos e-mails enviados pelo Brevo (Garantir leitura e envio em UTF-8).
     *   **[Concluído]** Subtarefa 9.9.2: Corrigir bug no fluxo de cadastro: enviar e-mail de confirmação também para o usuário (além do admin).
     *   **[Concluído]** Subtarefa 9.9.3: Melhorar a granularidade dos logs no `BrevoEmailSender` para incluir Assunto e Remetente.
+
+10. **Reforço de Segurança: Validação de Cadastro via OTP (6 caracteres):**
+    *   **[Concluído]** Subtarefa 10.1: Implementar `OtpService` para geração de códigos alfanuméricos/gráficos aleatórios.
+    *   **[Concluído]** Subtarefa 10.2: Adaptar `ParticipanteAction` para armazenar cadastro temporário na Sessão em vez de persistir no banco imediatamente.
+    *   **[Concluído]** Subtarefa 10.3: Criar tela `validacaoCadastro.jsp` e `ValidacaoCadastroAction` para processamento do código.
+    *   **[Concluído]** Subtarefa 10.4: Implementar limite de 3 tentativas e lógica de reenvio/correção de e-mail.
+    *   **[Concluído]** Subtarefa 10.5: Disparar e-mails de Boas-vindas e Notificação de Admin apenas após validação do código.

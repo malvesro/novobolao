@@ -72,8 +72,27 @@
 		</action>
 		
 		<action name="cadastro" class="participanteAction" method="cadastrar">
+			<result name="otp" type="redirectAction">validacaoCadastro</result>
 			<result name="success">/WEB-INF/content/cadastro.jsp</result>
 			<result name="input">/WEB-INF/content/cadastro.jsp</result>
+		</action>
+
+		<action name="validacaoCadastro" class="validacaoCadastroAction" method="exibir">
+			<result name="success">/WEB-INF/content/validacaoCadastro.jsp</result>
+			<result name="redirectHome" type="redirectAction">index</result>
+		</action>
+
+		<action name="validarCodigo" class="validacaoCadastroAction" method="validar">
+			<result name="input">/WEB-INF/content/validacaoCadastro.jsp</result>
+			<result name="confirmado" type="redirectAction">login</result>
+			<result name="limiteExcedido">/WEB-INF/content/validacaoCadastro.jsp</result>
+			<result name="redirectHome" type="redirectAction">index</result>
+			<result name="error">/WEB-INF/content/validacaoCadastro.jsp</result>
+		</action>
+
+		<action name="reenviarCodigo" class="validacaoCadastroAction" method="reenviar">
+			<result name="reenviado" type="redirectAction">validacaoCadastro</result>
+			<result name="redirectHome" type="redirectAction">index</result>
 		</action>
 
 		<action name="regras" class="participanteAction" method="regras">

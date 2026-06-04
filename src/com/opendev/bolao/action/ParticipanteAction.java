@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import com.opendev.bolao.email.Email;
 import com.opendev.bolao.exception.ValidacaoException;
 import com.opendev.bolao.grafico.GraficoBarraLideres;
 import com.opendev.bolao.grafico.GraficoComparativoDesempenho;
@@ -23,6 +24,7 @@ import com.opendev.bolao.service.EquipeService;
 import com.opendev.bolao.service.JogoService;
 import com.opendev.bolao.service.PalpiteAuthorizationService;
 import com.opendev.bolao.service.PalpiteService;
+import com.opendev.bolao.service.OtpService;
 import com.opendev.bolao.service.ParticipanteService;
 import com.opendev.bolao.service.dto.PalpiteAuthorization;
 import com.opendev.bolao.util.ConversaoUtils;
@@ -54,6 +56,7 @@ public class ParticipanteAction extends ActionSupport {
     private ParticipanteService participanteService;
     private JogoService jogoService;
     private EquipeService equipeService;
+    private OtpService otpService;
     private boolean telaPalpites;
     private List jogos;
     private List palpites;
@@ -116,6 +119,11 @@ public class ParticipanteAction extends ActionSupport {
     }
 
     public String cadastroForm() {
+        HttpSession session = ServletActionContext.getRequest().getSession();
+        Participante p = (Participante) session.getAttribute("PENDING_REGISTRATION");
+        if (p != null) {
+            setTentativaInclusao(p);
+        }
         return SUCCESS;
     }
 
@@ -725,14 +733,30 @@ public class ParticipanteAction extends ActionSupport {
             return INPUT;
         }
         try {
-            getParticipanteService().criarNovo(p);
-            setSucessoCadastro(true);
-            return SUCCESS;
-        } catch (ValidacaoException e) {
+            // Fluxo OTP: Gerar código, enviar e-mail e redirecionar para validação
+            String codigo = otpService.gerarCodigo();
+            otpService.armazenar(p.getEmail(), codigo);
+            
+            Email emailEnvio = new Email("codigoValidacaoCadastro.html", "Código de verificação de cadastro");
+            emailEnvio.setPropriedade("nome", p.getNome());
+            emailEnvio.setPropriedade("codigo", codigo);
+            emailEnvio.adicionarEnderecoDestino(p.getEmail());
+            emailEnvio.enviar();
+            
+            HttpSession session = ServletActionContext.getRequest().getSession();
+            session.setAttribute("PENDING_REGISTRATION", p);
+            session.setAttribute("REGISTRATION_OTP_TRIES", 0);
+            
+            LOGGER.info("[CADASTRO][OTP] Codigo gerado e enviado para {}", p.getEmail());
+            return "otp";
+        } catch (Exception e) {
+            LOGGER.error("[CADASTRO] Erro ao iniciar fluxo de validacao OTP", e);
             setTentativaInclusao(p);
-            setErrosInclusao(e.getErros());
+            List erros = new ArrayList();
+            erros.add(new MensagemErro("Geral", "Erro ao processar o cadastro. Tente novamente mais tarde.", MensagemErro.SEVERIDADE_ERRO));
+            setErrosInclusao(erros);
+            return INPUT;
         }
-		return INPUT;
 	}
     
     public String buscarParticipantes() {
@@ -779,6 +803,10 @@ public class ParticipanteAction extends ActionSupport {
 	public void setJogoService(JogoService jogoService) {
 		this.jogoService = jogoService;
 	}
+
+    public void setOtpService(OtpService otpService) {
+        this.otpService = otpService;
+    }
 
     public List getJogos() {
         return jogos;

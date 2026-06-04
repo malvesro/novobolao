@@ -13,6 +13,7 @@
 		<constructor-arg ref="emailConfiguration" />
 	</bean>
 	<bean id="emailSenderFactory" class="com.opendev.bolao.email.EmailSenderFactory" />
+	<bean id="otpService" class="com.opendev.bolao.service.impl.OtpServiceImpl" />
 
 	<bean id="transactionProxyTemplate"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
