@@ -26,8 +26,8 @@ Documento executivo e técnico que consolida o estado da modernização do Siste
 3. **Ranking e dashboards:** serviços `ParticipanteService` e `RankingService` consolidam pontuação, alimentando gráficos (JFreeChart) e listas Struts.  
 4. **Administração:** telas `/admin/*.action` permitem criar/julgar partidas, ajustar participantes e reexecutar cálculos; interações assíncronas usam HTMX + endpoints Struts; uploads utilizam `commons-fileupload2`.  
 5. **Notificações e jobs:** Quartz agenda processos (ex.: lembretes de jogos, consolidação diária) e Angus Mail envia e-mails SMTP.  
-   - **Configuração SMTP moderna:** via `EmailConfiguration` é possível sobrepor `mail.smtp.*` com arquivo externo (`bolao.email.config` ou variável `BOLAO_EMAIL_CONFIG`) e/ou variáveis de ambiente (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_TLS`, `SMTP_SSL`, `SMTP_SSL_TRUST`).  
-   - **Docker Compose:** o serviço `app` aceita as variáveis acima; ajustar `SMTP_AUTH=true` para habilitar autenticação e utilizar TLS (`SMTP_TLS=true`) ou SMTPS (`SMTP_SSL=true`) conforme o servidor corporativo.  
+   - **Configuração de Provedor:** via `EmailConfiguration` o sistema alterna entre SMTP e Brevo REST API através da variável `EMAIL_PROVIDER`. Veja detalhes em [docs/architecture/EMAIL_SYSTEM.md](./docs/architecture/EMAIL_SYSTEM.md).
+   - **Docker Compose:** o serviço `app` aceita as variáveis para ambos os provedores (`SMTP_*` e `CHAVE_API_BREVO`).
    - **Timeouts padrão:** `mail.smtp.connectiontimeout`, `mail.smtp.timeout` e `mail.smtp.writetimeout` ficam em 10s e podem ser sobrepostos sem rebuild.  
 6. **Chat legacy:** recurso histórico foi desativado durante a migração; existe ADR para futura reimplementação com tecnologias modernas.
 
@@ -514,8 +514,10 @@ docker compose logs -f app   # acompanhar startup
 - **Arquivos padrão:** `src/main/resources/com/opendev/bolao/email/email.properties` (e réplica para compatibilidade) contêm defaults comentados.  
 - **Externalização:**  
   1. **Arquivo externo:** defina o caminho via variável `BOLAO_EMAIL_CONFIG` ou system property `bolao.email.config`.  
-  2. **Variáveis de ambiente:** `SMTP_HOST`, `SMTP_PORT`, `SMTP_AUTH`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_TLS`, `SMTP_STARTTLS_REQUIRED`, `SMTP_SSL`, `SMTP_SSL_TRUST`, `SMTP_CONNECTION_TIMEOUT`, `SMTP_TIMEOUT`, `SMTP_WRITE_TIMEOUT`, `SMTP_FROM_ADDRESS`, `SMTP_FROM_NAME`, `SMTP_SYSTEM_URL`.  
-  3. **System properties:** qualquer `mail.smtp.*` também pode ser passado em `JAVA_OPTS`.  
+  2. **Variáveis de ambiente (Provedor):** `EMAIL_PROVIDER` (`brevo` ou `smtp`), `CHAVE_API_BREVO`.
+  3. **Variáveis de ambiente (SMTP):** `SMTP_HOST`, `SMTP_PORT`, `SMTP_AUTH`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_TLS`, `SMTP_STARTTLS_REQUIRED`, `SMTP_SSL`, `SMTP_SSL_TRUST`, `SMTP_CONNECTION_TIMEOUT`, `SMTP_TIMEOUT`, `SMTP_WRITE_TIMEOUT`.
+  4. **Variáveis de ambiente (Comuns):** `SMTP_FROM_ADDRESS`, `SMTP_FROM_NAME`, `SMTP_SYSTEM_URL`.
+  5. **System properties:** qualquer `mail.smtp.*` também pode ser passado em `JAVA_OPTS`.  
 - **Exemplos práticos:**  
   - *Arquivo externo (`/etc/bolao/email.properties`):*  
     ```properties

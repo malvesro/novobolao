@@ -47,29 +47,39 @@ Estas variáveis permitem que a aplicação conecte ao banco externo e realize a
 
 > ⚠️ **SSL Obrigatório:** O Aiven exige SSL. A aplicação já está configurada com `useSSL=true&requireSSL=true`. O hostname e a porta exatos estão disponíveis no console da Aiven em **Services > Overview > Connection information**.
 
-### 2. Configuração de E-mail (Gmail)
-Para o Gmail, utilize uma **Senha de Aplicativo** (16 dígitos) gerada na sua conta Google.
+### 2. Configuração de E-mail (Recomendado: Brevo API REST)
+Esta é a forma mais confiável de envio no Hugging Face, pois utiliza a porta 443 (HTTPS) que nunca é bloqueada.
+
+| Variável | Tipo | Valor / Exemplo |
+| :--- | :--- | :--- |
+| `EMAIL_PROVIDER` | Variable | `brevo` |
+| `CHAVE_API_BREVO`| **Secret** | (Sua API Key v3 do Brevo) |
+| `SMTP_FROM_ADDRESS`| Variable | `seu-email-validado@dominio.com` |
+| `SMTP_FROM_NAME` | Variable | `Sistema Bolão 2026` |
+| `SMTP_SYSTEM_URL` | Variable | `https://seu-space.hf.space/` |
+| `SMTP_ADMIN_EMAILS` | Variable | `admin@gmail.com` |
+
+> 💡 **Dica Crucial:** Ao definir `EMAIL_PROVIDER=brevo`, o sistema ignora completamente o SMTP do Google ou qualquer outro. O envio passa a ser feito via **API REST (HTTPS)**. Não esqueça de configurar esta variável!
+
+#### Como Validar o Remetente no Brevo:
+Para que o Brevo aceite enviar seus e-mails, você deve validar o endereço usado em `SMTP_FROM_ADDRESS`:
+1. No Brevo, clique no nome da conta (topo direito) > **"Senders, Domains & Dedicated IPs"**.
+2. Vá em **"Senders"** > **"Add a sender"**.
+3. Adicione o e-mail e confirme o link que chegará na sua caixa de entrada.
+
+### 3. Configuração de E-mail Legada (SMTP / Gmail)
+> ⚠️ **Atenção:** O Hugging Face bloqueia as portas 465/587 em muitos casos. Utilize apenas se o provedor REST não estiver disponível.
 
 | Variável | Tipo | Valor Recomendado |
 | :--- | :--- | :--- |
+| `EMAIL_PROVIDER` | Variable | `smtp` |
 | `SMTP_HOST` | Variable | `smtp.gmail.com` |
-| `SMTP_PORT` | Variable | `465` (Recomendado para HF) ou `587` |
+| `SMTP_PORT` | Variable | `465` |
 | `SMTP_USERNAME` | Variable | `novobolaocopa@gmail.com` |
 | `SMTP_PASSWORD` | **Secret** | (Sua Senha de Aplicativo) |
-| `SMTP_FROM_ADDRESS`| Variable | `novobolaocopa@gmail.com` |
-| `SMTP_FROM_NAME` | Variable | `Sistema Bolão 2026` |
-| `SMTP_TLS` | Variable | `false` (se usar 465) ou `true` (se usar 587) |
-| `SMTP_SSL` | Variable | `true` (se usar 465) ou `false` (se usar 587) |
+| `SMTP_TLS` | Variable | `false` |
+| `SMTP_SSL` | Variable | `true` |
 | `SMTP_AUTH` | Variable | `true` |
-| `SMTP_STARTTLS_REQUIRED`| Variable | `false` (se usar 465) ou `true` (se usar 587) |
-| `SMTP_SYSTEM_URL` | Variable | `https://novobolaodacopa-bolaocopa.hf.space/` |
-| `SMTP_ADMIN_EMAILS` | Variable | `admin1@gmail.com,admin2@gmail.com` *(separados por vírgula)* |
-
-> **Nota sobre Conectividade:** O Hugging Face Spaces pode bloquear a porta `587`. Se você encontrar erros de `Connection Timeout`, utilize a porta **465** com `SMTP_SSL=true` e `SMTP_TLS=false`.
-
-> **⚠️ SMTP_ADMIN_EMAILS obrigatório:** Sem esta variável configurada, nenhuma notificação de novo cadastro será enviada ao administrador. O sistema registrará um aviso `[CADASTRO] Nenhum e-mail de admin configurado` nos logs.
-
-> **Nota:** A `SMTP_SYSTEM_URL` é fundamental para que os links enviados por e-mail (como recuperação de senha) apontem para o endereço correto do seu Space.
 
 ## Importante: Comportamento do Hugging Face
 

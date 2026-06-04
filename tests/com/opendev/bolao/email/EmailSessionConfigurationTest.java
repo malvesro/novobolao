@@ -20,13 +20,13 @@ class EmailSessionConfigurationTest {
         settings.setProperty("mail.smtp.auth.password", "segredo");
         settings.setProperty("mail.smtp.auth.mechanisms", "PLAIN");
 
-        Email.MailContext context = Email.mailContextForTests(settings);
+        SmtpEmailSender.MailContext context = SmtpEmailSender.createMailContextForTests(settings);
 
-        assertThat(context.properties().getProperty("mail.smtp.host")).isEqualTo("smtp.local");
-        assertThat(context.properties().getProperty("mail.smtp.port")).isEqualTo("2525");
-        assertThat(context.properties().getProperty("mail.smtp.auth")).isEqualTo("true");
-        assertThat(context.properties().getProperty("mail.smtp.auth.mechanisms")).isEqualTo("PLAIN");
-        assertThat(context.authenticator()).isNotNull();
+        assertThat(context.properties.getProperty("mail.smtp.host")).isEqualTo("smtp.local");
+        assertThat(context.properties.getProperty("mail.smtp.port")).isEqualTo("2525");
+        assertThat(context.properties.getProperty("mail.smtp.auth")).isEqualTo("true");
+        assertThat(context.properties.getProperty("mail.smtp.auth.mechanisms")).isEqualTo("PLAIN");
+        assertThat(context.authenticator).isNotNull();
     }
 
     @Test
@@ -36,9 +36,9 @@ class EmailSessionConfigurationTest {
         settings.setProperty("mail.smtp.port", "2525");
         settings.setProperty("mail.smtp.auth", "false");
 
-        Email.MailContext context = Email.mailContextForTests(settings);
+        SmtpEmailSender.MailContext context = SmtpEmailSender.createMailContextForTests(settings);
 
-        assertThat(context.properties().getProperty("mail.smtp.auth")).isEqualTo("false");
-        assertThat(context.authenticator()).isNull();
+        assertThat(context.properties.getProperty("mail.smtp.auth")).isEqualTo("false");
+        assertThat(context.authenticator).isNull();
     }
 }

@@ -10,14 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import jakarta.mail.Authenticator;
-import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
-import jakarta.mail.PasswordAuthentication;
-import jakarta.mail.Session;
-import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,68 +93,29 @@ public class Email {
 		generateData();
 		populateData();
 
+		String fromAddress = getDe();
+		String fromName = CONFIG.getProperty("mail.from.name");
+
+		if (fromAddress == null || fromAddress.trim().isEmpty()) {
+			fromAddress = CONFIG.getProperty("mail.from.address");
+		}
+
+		EmailMessage message = new EmailMessage(
+			fromAddress,
+			fromName,
+			getAssunto(),
+			getConteudo(),
+			getEnderecosDestino(),
+			getEnderecosCopia(),
+			getEnderecosCopiaOculta()
+		);
+
 		try {
-            EmailConfiguration configuration = CONFIG;
-            Properties settings = configuration.asProperties();
-            String smtpHost = settings.getProperty("mail.smtp.host");
-            if (smtpHost == null || smtpHost.trim().isEmpty()) {
-                throw new EmailException("Servidor SMTP não configurado (mail.smtp.host).");
-            }
-
-            MailContext mailContext = createMailContext(settings);
-			Session session = Session.getInstance(mailContext.properties(), mailContext.authenticator());
-			Message msg = new MimeMessage(session);
-			
-			// Definindo os destinatários
-			String destino = converterParaValoresSeparadosPorVirgula(getEnderecosDestino());
-			if (destino != null) {
-				msg.addRecipients(Message.RecipientType.TO, InternetAddress.parse(destino, false));
-			} else {
-				throw new EmailException("Pelo menos um destinatário deve ser informado!");
-			}
-			String copias = converterParaValoresSeparadosPorVirgula(getEnderecosCopia());
-			if (copias != null) {
-				msg.addRecipients(Message.RecipientType.CC, InternetAddress.parse(copias, false));
-			}			
-			String copiasOcultas = converterParaValoresSeparadosPorVirgula(getEnderecosCopiaOculta());
-			if (copiasOcultas != null) {
-				msg.addRecipients(Message.RecipientType.BCC, InternetAddress.parse(copiasOcultas, false));
-			}
-			
-			// Propriedades da mensagem
-			if (this.de != null && !this.de.trim().isEmpty()) {
-				msg.setFrom(new InternetAddress(this.de));
-			} else {
-                String fromAddress = settings.getProperty("mail.from.address");
-                if (fromAddress != null && !fromAddress.trim().isEmpty()) {
-                    String fromName = settings.getProperty("mail.from.name");
-                    if (fromName != null && !fromName.trim().isEmpty()) {
-                        msg.setFrom(new InternetAddress(fromAddress, fromName, StandardCharsets.UTF_8.name()));
-                    } else {
-                        msg.setFrom(new InternetAddress(fromAddress));
-                    }
-                }
-            }
-			msg.setSubject(getAssunto());
-			msg.setHeader("X-Mailer", "BOLAO DE PLACA");
-			msg.setSentDate(new Date());
-			msg.setContent(getConteudo(), "text/html; charset=UTF-8");
-
-			LOGGER.info("[EMAIL] Tentando enviar email via host={}:{} (SSL={}, TLS={}) para={}", 
-					smtpHost, 
-					mailContext.properties().getProperty("mail.smtp.port"),
-					mailContext.properties().getProperty("mail.smtp.ssl.enable", "false"),
-					mailContext.properties().getProperty("mail.smtp.starttls.enable", "false"),
-					destino);
-
-			Transport.send(msg);
-			LOGGER.info("[EMAIL] Email enviado com sucesso para={}", destino);
-		} catch (MessagingException | UnsupportedEncodingException e) {
-			LOGGER.error("[EMAIL] Falha crítica ao enviar email para={} via host={}. Erro: {}", 
-					getEnderecosDestino(), 
-					CONFIG.getProperty("mail.smtp.host"),
-					e.getMessage());
-			throw new EmailException("Erro ao enviar email! (" + getNomeTemplate() + ")", e);
+			EmailSender sender = EmailSenderFactory.getSender();
+			sender.enviar(message);
+		} catch (Exception e) {
+			LOGGER.error("[EMAIL] Erro ao enviar e-mail para {}: {}", getEnderecosDestino(), e.getMessage());
+			throw new EmailException("Erro ao enviar e-mail! (" + getNomeTemplate() + ")", e);
 		}
 	}
 	
@@ -331,76 +285,4 @@ public class Email {
 		return buffer.toString();
 	}
 
-    private static MailContext createMailContext(Properties settings) throws EmailException {
-        Properties propriedadesDeEnvio = new Properties();
-        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.host");
-        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.port");
-        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.starttls.enable");
-        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.starttls.required");
-        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.ssl.enable");
-        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.ssl.trust");
-        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.connectiontimeout");
-        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.timeout");
-        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.writetimeout");
-        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.auth.mechanisms");
-        copyIfPresent(settings, propriedadesDeEnvio, "mail.smtp.sasl.enable");
-
-        boolean usarAutenticacao = Boolean.parseBoolean(settings.getProperty("mail.smtp.auth", "false"));
-        Authenticator auth = null;
-        if (usarAutenticacao) {
-            String usuario = settings.getProperty("mail.smtp.auth.user");
-            String senha = settings.getProperty("mail.smtp.auth.password");
-            if (usuario == null || usuario.trim().isEmpty()) {
-                throw new EmailException("Usuário SMTP não informado (mail.smtp.auth.user).");
-            }
-            propriedadesDeEnvio.setProperty("mail.smtp.auth", "true");
-            String senhaNormalizada = senha == null ? "" : senha;
-            auth = new Authenticator() {
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(usuario, senhaNormalizada);
-                }
-            };
-        } else {
-            propriedadesDeEnvio.setProperty("mail.smtp.auth", "false");
-        }
-
-        return new MailContext(propriedadesDeEnvio, auth);
-    }
-
-    private static void copyIfPresent(Properties source, Properties target, String key) {
-        String value = source.getProperty(key);
-        if (value != null && !value.trim().isEmpty()) {
-            target.setProperty(key, value.trim());
-        }
-    }
-
-    static void reloadConfiguration() {
-        CONFIG = EmailConfiguration.load();
-    }
-
-    static EmailConfiguration configuration() {
-        return CONFIG;
-    }
-
-    static MailContext mailContextForTests(Properties settings) throws EmailException {
-        return createMailContext(settings);
-    }
-
-    static final class MailContext {
-        private final Properties properties;
-        private final Authenticator authenticator;
-
-        private MailContext(Properties properties, Authenticator authenticator) {
-            this.properties = properties;
-            this.authenticator = authenticator;
-        }
-
-        Properties properties() {
-            return properties;
-        }
-
-        Authenticator authenticator() {
-            return authenticator;
-        }
-    }
 }

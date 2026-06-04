@@ -24,7 +24,6 @@ class EmailConfigurationTest {
         System.clearProperty("SMTP_PORT");
         System.clearProperty("SMTP_TLS");
         System.clearProperty("mail.smtp.timeout");
-        Email.reloadConfiguration();
     }
 
     @Test
@@ -45,8 +44,7 @@ class EmailConfigurationTest {
         System.setProperty("SMTP_TIMEOUT", "15000");
         System.setProperty("mail.smtp.timeout", "15000");
 
-        Email.reloadConfiguration();
-        EmailConfiguration configuration = Email.configuration();
+        EmailConfiguration configuration = EmailConfiguration.load();
 
         assertThat(configuration.getProperty("mail.smtp.host")).isEqualTo("env.local");
         assertThat(configuration.getProperty("mail.smtp.port")).isEqualTo("2525");

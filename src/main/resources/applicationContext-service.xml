@@ -7,6 +7,13 @@
 
 	<bean id="buildInfoProvider" class="com.opendev.bolao.infrastructure.BuildInfoProvider" />
 
+	<!-- Email Infrastructure -->
+	<bean id="emailConfiguration" class="com.opendev.bolao.email.EmailConfiguration" factory-method="load" />
+	<bean id="emailSender" class="com.opendev.bolao.email.DelegatingEmailSender">
+		<constructor-arg ref="emailConfiguration" />
+	</bean>
+	<bean id="emailSenderFactory" class="com.opendev.bolao.email.EmailSenderFactory" />
+
 	<bean id="transactionProxyTemplate"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
 		abstract="true" scope="singleton" depends-on="entityManagerFactory">

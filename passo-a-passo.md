@@ -933,11 +933,12 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     *   Subtarefa 9.7.3: Validar a precisão do contador em ambiente local e nuvem.
 8.  **Migração do módulo de e-mail de SMTP para API REST (Brevo):**
     > **Motivação:** O Hugging Face Spaces (free tier) bloqueia todas as conexões SMTP de saída (portas 465 e 587). A única alternativa confiável é usar uma API de e-mail transacional via HTTPS (porta 443).
-    *   Subtarefa 9.8.1: Criar conta gratuita no Brevo (https://brevo.com) e obter a API Key. (Limit: 300 e-mails/dia - suficiente para o projeto.)
-    *   Subtarefa 9.8.2: Criar classe `BrevoEmailSender.java` que encapsula o envio de e-mail via HTTP POST para `https://api.brevo.com/v3/smtp/email` usando `HttpClient` (Java 11+), sem dependências externas de SDK.
-    *   Subtarefa 9.8.3: Criar interface `EmailSender.java` com método `enviar(EmailMessage)` para abstrair o mecanismo de transporte (SMTP vs API REST).
-    *   Subtarefa 9.8.4: Refatorar a classe `Email.java` para delegar o envio ao `EmailSender` injetado via Spring, em vez de chamar `Transport.send()` diretamente.
-    *   Subtarefa 9.8.5: Adicionar variável de ambiente `EMAIL_PROVIDER` (valores: `smtp` | `brevo`) para alternar o provider sem rebuild.
-    *   Subtarefa 9.8.6: Adicionar a variável `BREVO_API_KEY` como **Secret** no Hugging Face e atualizar o `EmailConfiguration.java` para lê-la.
-    *   Subtarefa 9.8.7: Atualizar `docs/deployment/HUGGING_FACE_AIVEN.md` com as novas variáveis de ambiente do Brevo.
-    *   Subtarefa 9.8.8: Validar o envio de e-mail em produção com o Brevo (novo cadastro de participante).
+    *   **[Concluído]** Subtarefa 9.8.1: Obter a API Key do Brevo (Disponibilizada como secret `CHAVE_API_BREVO`).
+    *   **[Concluído]** Subtarefa 9.8.2: Criar classe `BrevoEmailSender.java` que encapsula o envio de e-mail via HTTP POST para `https://api.brevo.com/v3/smtp/email` usando `HttpClient` (Java 11+), sem dependências externas de SDK.
+    *   **[Concluído]** Subtarefa 9.8.3: Criar interface `EmailSender.java` com método `enviar(EmailMessage)` para abstrair o mecanismo de transporte (SMTP vs API REST).
+    *   **[Concluído]** Subtarefa 9.8.4: Refatorar a classe `Email.java` para delegar o envio ao `EmailSender` injetado via Spring, em vez de chamar `Transport.send()` diretamente.
+    *   **[Concluído]** Subtarefa 9.8.5: Adicionar variável de ambiente `EMAIL_PROVIDER` (valores: `smtp` | `brevo`) para alternar o provider sem rebuild.
+    *   **[Concluído]** Subtarefa 9.8.6: Adicionar a variável `CHAVE_API_BREVO` como **Secret** no Hugging Face e atualizar o `EmailConfiguration.java` para lê-la.
+    *   **[Concluído]** Subtarefa 9.8.7: Atualizar `docs/deployment/HUGGING_FACE_AIVEN.md` com as novas variáveis de ambiente do Brevo.
+    *   **[Pronto para Validação]** Subtarefa 9.8.8: Validar o envio de e-mail em produção com o Brevo (novo cadastro de participante).
+    *   **[Concluído]** Subtarefa 9.8.9: Criar documentação técnica detalhada sobre o módulo de e-mail com diagramas Mermaid (`docs/architecture/EMAIL_SYSTEM.md`).

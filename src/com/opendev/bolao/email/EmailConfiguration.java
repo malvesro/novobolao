@@ -37,6 +37,8 @@ final class EmailConfiguration {
         mapping.put("SMTP_FROM_NAME", "mail.from.name");
         mapping.put("SMTP_SYSTEM_URL", "mail.property.systemurl");
         mapping.put("SMTP_ADMIN_EMAILS", "mail.admin.emails");
+        mapping.put("EMAIL_PROVIDER", "mail.provider");
+        mapping.put("CHAVE_API_BREVO", "mail.brevo.api.key");
         ENVIRONMENT_MAPPING = Collections.unmodifiableMap(mapping);
     }
 
