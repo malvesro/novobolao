@@ -162,8 +162,10 @@ public class Email {
 	}
 
 	/**
-	 * 
-	 *
+	 * Substitui os placeholders ${chave} no conteúdo do template pelos valores
+	 * definidos via setPropriedade(). Usa replace() literal em vez de replaceAll()
+	 * para evitar IllegalArgumentException quando o valor contém '$' ou '\',
+	 * caracteres com significado especial no segundo argumento de replaceAll/Matcher.
 	 */
 	protected void populateData() {
         Iterator iter = this.property.keySet().iterator();
@@ -172,7 +174,7 @@ public class Email {
         while (iter.hasNext()) {
 			chave = (String) iter.next();
 			valor = this.property.getProperty(chave);
-			this.conteudo = this.conteudo.replaceAll("\\$\\{" + chave + "\\}", valor);
+			this.conteudo = this.conteudo.replace("${" + chave + "}", valor);
 		}
 	}
 	

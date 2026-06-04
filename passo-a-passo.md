@@ -119,6 +119,18 @@ Premissas de compatibilidade (críticas):
 
 10. **[Concluído] 26/02/2026 Correção de autorização na tela de palpites:** Ajustadas as diretivas da página `webapp/WEB-INF/content/seguro/jogos.jsp` para usar `<sec:authorize>` com `ROLE_USER`/`ROLE_ADMIN`, restaurando o dataset `data-palpite-allowed` e mantendo a edição administrativa de resultados via Spring Security. Validação com `mvn test -Dfrontend.skip=true` e log `.ia/logs/session-20260226-correcao-palpites.md`. (Skill: `modernization-java-migration v1.0.0`)
 
+11. **[Concluído] 05/04/2026 Correção da barra de progresso de palpites (sempre 0/0) — abordagem server-driven:** Substituída a lógica frágil de inspeção de DOM por valores autoritativos do servidor. `ParticipanteAction` expõe `totalJogos` e `totalPalpitesRealizados`; o JSP injeta esses valores como `data-*` no container da barra. Após salvar um palpite, o servidor emite `HX-Trigger: bolao:progressUpdate` com o `filled` real (`palpitesUsuario.size()`), garantindo que edições de palpites existentes não impactem o contador. `ux-helper.js` reescrito e limpo. Referências Log: `.ia/logs/session-20260404-correcao-barra-progresso.md`, `.ia/logs/session-20260405-barra-progresso-server-driven.md`. (Skills: `modern-javascript-patterns v1.0.0`, `modernization-java-migration v1.0.0`)
+
+12. **[Pendente] Correção de `IllegalArgumentException` no envio de e-mail OTP/cadastro:** O método `Email.populateData()` usa `String.replaceAll(regex, replacement)` onde o segundo argumento (valor do placeholder) pode conter `$` ou `\`, que são interpretados como referências a grupos de captura pelo `Matcher`, lançando `IllegalArgumentException: Illegal group reference`. Identificado em produção (04/06/2026) ao enviar e-mail OTP para `malvesro@gmail.com`. Impacto: fluxo de cadastro com OTP falha completamente.
+   * **[Pendente]** Corrigir `Email.populateData()` substituindo `replaceAll` por `replace` (literal) ou aplicar `Matcher.quoteReplacement(valor)` antes de passar ao `replaceAll` para escapar `$` e `\` nos valores.
+   * **[Pendente]** Adicionar teste unitário em `EmailConfigurationTest` ou similar cobrindo valores de substituição com caracteres especiais (`$`, `\`, `{`, `}`).
+   * **[Pendente]** Validar fluxo completo de cadastro com OTP em ambiente de staging após a correção.
+   * **[Pendente]** Rebuild e redeploy em produção (`novobolaodacopa-bolaocopa.hf.space`).
+   * Referência Log: `.ia/logs/session-20260604-erro-email-otp.md`
+   * Skill: `modernization-java-migration v1.0.0`, `security-audit v1.0.0`
+
+13. **[Concluído] Carga inicial de dados no banco de produção (Aiven):** Dados da Copa 2026 já carregados no banco remoto Aiven — 104 jogos e 48 equipes presentes. O script `data/sql/03-copa-2026-data.sql` é idempotente e deve ser executado apenas uma vez em bancos sem dados. Referência Log: `.ia/logs/session-20260604-banco-producao-vazio.md`.
+
 ### Fase 2.5: Auditoria e Ajuste do Frontend (ALTA PRIORIDADE)
 
 1. **[Concluído] Auditoria Visual Completa:** Testar renderização e funcionalidade de todas as telas principais (login, dashboard, formulários, gráficos, admin) em navegadores modernos e múltiplas resoluções. Concluir esta etapa antes de iniciar novas otimizações.
@@ -953,3 +965,59 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     *   **[Concluído]** Subtarefa 10.3: Criar tela `validacaoCadastro.jsp` e `ValidacaoCadastroAction` para processamento do código.
     *   **[Concluído]** Subtarefa 10.4: Implementar limite de 3 tentativas e lógica de reenvio/correção de e-mail.
     *   **[Concluído]** Subtarefa 10.5: Disparar e-mails de Boas-vindas e Notificação de Admin apenas após validação do código.
+
+---
+
+11. **Otimização do Git LFS — Eliminar Lentidão nos Commits Locais:**
+
+    **Diagnóstico (2026-06-04):**
+    O `git commit` ficou suspenso por vários minutos. A causa identificada é o
+    conjunto de hooks do Git LFS nos eventos `post-commit`, `post-checkout` e
+    `post-merge`. Embora o `git lfs post-commit` em si leve apenas ~24ms, o
+    pipeline apresenta lentidão durante o processamento do filtro LFS
+    (`git-lfs filter-process`) sobre os 159 arquivos binários rastreados, pois
+    cada `git add` ou `git commit` passa **todos** os arquivos pelo filtro para
+    calcular hashes e verificar ponteiros.
+
+    **Causas Identificadas:**
+    - 159 arquivos LFS rastreados (imagens PNG/GIF de bandeiras, wavs) — todos
+      passam pelo `filter-process` mesmo quando não foram alterados.
+    - Dois endpoints LFS configurados (`origin` = GitHub, `nuvem` = Hugging Face)
+      ambos com `auth=none`. O LFS pode tentar verificar o estado remoto em
+      operações locais quando mal configurado.
+    - Os hooks `pre-push`, `post-checkout`, `post-merge` e `post-commit` estão
+      todos ativos e invocam o daemon LFS a cada operação git.
+
+    **Subtarefas de Otimização:**
+
+    *   Subtarefa 11.1: **[Diagnóstico]** Verificar o `.gitattributes` e listar os
+        tipos de arquivos LFS. Avaliar quais extensões realmente precisam do LFS
+        (ex.: `.jar` pode ser removido; imagens pequenas < 1 MB podem ser
+        rastreadas pelo Git normal sem LFS).
+
+    *   Subtarefa 11.2: **[Limpeza de Rastreamento]** Remover do LFS os arquivos
+        que não necessitam dele. Mover arquivos pequenos (imagens e WAVs < 100 KB)
+        de volta ao rastreamento Git normal usando `git lfs untrack` e
+        `git rm --cached`. Avaliar manter LFS apenas para arquivos ≥ 500 KB ou
+        binários maiores que o Hugging Face não aceita via Git normal.
+
+    *   Subtarefa 11.3: **[Configuração de Filtro]** Ativar o processamento
+        paralelo e skip de arquivos não modificados. Configurar:
+        ```
+        git config lfs.concurrenttransfers 8
+        git config lfs.fetchrecentalways false
+        git config lfs.pruneoffsetdays 3
+        ```
+
+    *   Subtarefa 11.4: **[Hooks]** Revisar o hook `pre-push` para garantir que
+        ele só transfira objetos novos, não re-verifique os existentes. Considerar
+        desativar temporariamente `post-checkout` e `post-merge` caso não usem
+        funcionalidades específicas do LFS no desenvolvimento local.
+
+    *   Subtarefa 11.5: **[Validação]** Medir o tempo de `git add .` e
+        `git commit` antes e após as mudanças usando `time git commit`. O objetivo
+        é que o ciclo de commit local fique abaixo de **5 segundos**.
+
+    *   Subtarefa 11.6: **[Documentação]** Atualizar `docs/deployment/HUGGING_FACE_AIVEN.md`
+        com a configuração final do LFS e instruções para novos contribuidores
+        configurarem o LFS corretamente em clones frescos.
