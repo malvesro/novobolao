@@ -30,6 +30,9 @@
         <security:intercept-url pattern="/login.action*" access="permitAll" />
         <security:intercept-url pattern="/cadastroForm.action*" access="permitAll" />
         <security:intercept-url pattern="/cadastro.action*" access="permitAll" />
+        <security:intercept-url pattern="/validacaoCadastro.action*" access="permitAll" />
+        <security:intercept-url pattern="/validarCodigo.action*" access="permitAll" />
+        <security:intercept-url pattern="/reenviarCodigo.action*" access="permitAll" />
         <security:intercept-url pattern="/index.action*" access="permitAll" />
         <security:intercept-url pattern="/regras.action*" access="permitAll" />
         <security:intercept-url pattern="/recuperarSenhaForm.action*" access="permitAll" />

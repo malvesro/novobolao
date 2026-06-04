@@ -121,15 +121,37 @@ Premissas de compatibilidade (críticas):
 
 11. **[Concluído] 05/04/2026 Correção da barra de progresso de palpites (sempre 0/0) — abordagem server-driven:** Substituída a lógica frágil de inspeção de DOM por valores autoritativos do servidor. `ParticipanteAction` expõe `totalJogos` e `totalPalpitesRealizados`; o JSP injeta esses valores como `data-*` no container da barra. Após salvar um palpite, o servidor emite `HX-Trigger: bolao:progressUpdate` com o `filled` real (`palpitesUsuario.size()`), garantindo que edições de palpites existentes não impactem o contador. `ux-helper.js` reescrito e limpo. Referências Log: `.ia/logs/session-20260404-correcao-barra-progresso.md`, `.ia/logs/session-20260405-barra-progresso-server-driven.md`. (Skills: `modern-javascript-patterns v1.0.0`, `modernization-java-migration v1.0.0`)
 
-12. **[Pendente] Correção de `IllegalArgumentException` no envio de e-mail OTP/cadastro:** O método `Email.populateData()` usa `String.replaceAll(regex, replacement)` onde o segundo argumento (valor do placeholder) pode conter `$` ou `\`, que são interpretados como referências a grupos de captura pelo `Matcher`, lançando `IllegalArgumentException: Illegal group reference`. Identificado em produção (04/06/2026) ao enviar e-mail OTP para `malvesro@gmail.com`. Impacto: fluxo de cadastro com OTP falha completamente.
-   * **[Pendente]** Corrigir `Email.populateData()` substituindo `replaceAll` por `replace` (literal) ou aplicar `Matcher.quoteReplacement(valor)` antes de passar ao `replaceAll` para escapar `$` e `\` nos valores.
-   * **[Pendente]** Adicionar teste unitário em `EmailConfigurationTest` ou similar cobrindo valores de substituição com caracteres especiais (`$`, `\`, `{`, `}`).
-   * **[Pendente]** Validar fluxo completo de cadastro com OTP em ambiente de staging após a correção.
-   * **[Pendente]** Rebuild e redeploy em produção (`novobolaodacopa-bolaocopa.hf.space`).
-   * Referência Log: `.ia/logs/session-20260604-erro-email-otp.md`
-   * Skill: `modernization-java-migration v1.0.0`, `security-audit v1.0.0`
+12. **[Concluído] 04/06/2026 Correção de `IllegalArgumentException` no envio de e-mail OTP/cadastro:** O método `Email.populateData()` usava `String.replaceAll(regex, replacement)` onde o segundo argumento (valor do placeholder) pode conter `$` ou `\`, que são interpretados como referências a grupos de captura pelo `Matcher`. Corrigido trocando para `String.replace()` (substituição literal). Adicionados 5 testes unitários em `EmailPopulateDataTest`. Referência Log: `.ia/logs/session-20260604-erro-email-otp.md`. (Skills: `modernization-java-migration v1.0.0`, `security-audit v1.0.0`)
 
 13. **[Concluído] Carga inicial de dados no banco de produção (Aiven):** Dados da Copa 2026 já carregados no banco remoto Aiven — 104 jogos e 48 equipes presentes. O script `data/sql/03-copa-2026-data.sql` é idempotente e deve ser executado apenas uma vez em bancos sem dados. Referência Log: `.ia/logs/session-20260604-banco-producao-vazio.md`.
+
+14. **[Pendente] Fluxo OTP de cadastro incompleto — tela de validação não exibida após envio do e-mail:**
+    Após a correção do `Email.populateData()`, o e-mail com o código OTP passou a ser enviado com sucesso. Porém, o usuário permanece na tela de cadastro em vez de ser redirecionado para a tela de validação do código. A causa raiz é que as URLs do fluxo OTP não estão liberadas no Spring Security — o redirect para `/validacaoCadastro.action` é bloqueado e o usuário é redirecionado para `/login.action`.
+
+    **Infraestrutura já implementada (não criar novamente):**
+    - `ValidacaoCadastroAction` com métodos `exibir()`, `validar()` e `reenviar()`
+    - `webapp/WEB-INF/content/validacaoCadastro.jsp` com formulário de entrada do código
+    - `struts.xml` com mapeamentos `validacaoCadastro`, `validarCodigo` e `reenviarCodigo`
+    - Bean `validacaoCadastroAction` registrado em `applicationContext-action.xml`
+
+    **Subtarefas (executar em sequência):**
+
+    * **[Pendente] 14.1 — Liberar URLs do fluxo OTP no Spring Security:** Adicionar em `applicationContext-security.xml` as regras `permitAll` para:
+      - `/validacaoCadastro.action*`
+      - `/validarCodigo.action*`
+      - `/reenviarCodigo.action*`
+      Arquivo: `src/main/resources/applicationContext-security.xml`
+
+    * **[Pendente] 14.2 — Validar o fluxo completo localmente:** Executar `mvn -Dfrontend.skip=true test` para garantir que nenhum teste foi quebrado pela mudança de segurança.
+
+    * **[Pendente] 14.3 — Build e redeploy local (Docker):** Executar pipeline completo (`mvn clean package -Dfrontend.skip=true`, `docker compose build app`, `docker compose up -d app`) e validar manualmente o fluxo: cadastro → recebimento do e-mail → entrada do código → confirmação.
+
+    * **[Pendente] 14.4 — Atualizar produção (HuggingFace Spaces):** Fazer commit, push e atualizar o ambiente de produção. Validar o fluxo completo em `novobolaodacopa-bolaocopa.hf.space`.
+
+    * **[Pendente] 14.5 — Criar log de sessão e atualizar rastreabilidade:** Registrar em `.ia/logs/session-20260604-otp-cadastro-urls-security.md`.
+
+    Referência: `src/main/resources/applicationContext-security.xml`, `struts.xml`, `ValidacaoCadastroAction.java`
+    Skill: `modernization-java-migration v1.0.0`, `security-audit v1.0.0`
 
 ### Fase 2.5: Auditoria e Ajuste do Frontend (ALTA PRIORIDADE)
 
