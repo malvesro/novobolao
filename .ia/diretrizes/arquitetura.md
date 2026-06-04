@@ -13,12 +13,14 @@ Estas diretrizes definem padroes obrigatorios para evolucao do sistema, garantin
 
 > NOTE: Descreva o tipo de sistema, dominio de negocio e metas de evolucao.
 
-## 2. Stack Atual e Alvo (Opcional)
+## 2. Stack Atual
 
-- **Atual:** Java 1.8, Spring 1.2.8, Hibernate 3.2.6.ga, WebWork 2.2.2, Acegi Security 1.0.0, JSP/Servlet 2.4, MySQL, Prototype.js, DWR 2.0.1
-- **Alvo:** [A ser definido com base no `passo-a-passo.md`]
+- **Backend:** Java 17+, Spring Framework 6.1.x, Hibernate 6.4.x (JPA 3.1), Struts 7.1.x (Jakarta EE 10 compatible).
+- **Frontend:** JSP (Jakarta), HTMX, Vite (para empacotamento de assets modernos), Vanilla CSS.
+- **Segurança:** Spring Security 6.2.x (BCrypt, CSRF protection, CSP).
+- **Build/Infra:** Maven 3.9+, Docker (Distroless), GitHub Actions/Hugging Face Spaces.
 
-**Regra central:** enquanto a migracao nao for concluida, todo novo codigo deve permanecer compativel com o stack atual.
+**Regra central:** Todo novo código deve seguir os padrões de Jakarta EE 10 e as melhores práticas de Spring 6/Struts 7. O uso de HTMX é mandatório para novas interações dinâmicas, evitando o retorno ao DWR ou Prototype.js legados.
 
 > NOTE: Preencha com versoes reais e restricoes do ambiente.
 

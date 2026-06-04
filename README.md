@@ -160,67 +160,30 @@ Resultado: build reproduzível, sem reescrever código.
 
 Resultado: segurança e compatibilidade modernas sem refatoração pesada.
 
-### Passo 3 – Atualizar Segurança
+## 11. Modernização Concluída (Stack 2026)
 
-- Substituir **Acegi** por **Spring Security**.
-- Manter a URL de login `/j_security_check` (compatibilidade).
-- Implementar **password rehash**: validar SHA-1 legado e salvar BCrypt na próxima autenticação.
+O projeto passou por uma migração profunda para garantir segurança e longevidade:
 
-Resultado: segurança atualizada sem alterar UI.
+- **Build Moderno**: Migrado para **Maven 3.9** com pipeline de CI/CD para Hugging Face.
+- **Runtime Atualizado**: Executando em **Java 17/21** com **Tomcat 10.1+** (Jakarta EE 10).
+- **Segurança**: Acegi substituído por **Spring Security 6.2**. Hashing migrado para **BCrypt**.
+- **Web Framework**: WebWork substituído por **Struts 7.1** (totalmente Jakarta-compatible).
+- **Persistência**: Hibernate 3 migrado para **Hibernate 6.4** com suporte a JPA 3.1.
+- **Frontend**: Introdução de **HTMX** para interações dinâmicas e **Vite** para assets modernos.
 
-### Passo 4 – Atualizar WebWork
+## 12. Fluxos e Arquitetura Detalhada
 
-- Migrar **WebWork → Struts 7**.
-- Converter `xwork.xml` para `struts.xml` com mínimas mudanças.
+Para detalhes sobre fluxos específicos do sistema, consulte:
 
-Resultado: elimina framework obsoleto mantendo Actions.
+- 📖 **[Fluxo de Recuperação de Senha (OTP)](docs/architecture/password-recovery-flow.md)**: Detalhamento técnico do processo de recuperação com diagrama Mermaid.
+- 📖 **[Arquitetura Frontend (HTMX)](docs/adr/001-htmx-direct-inline-palpites.md)**: Princípios da modernização da UI.
+- 📖 **[Sistema de E-mail](docs/architecture/EMAIL_SYSTEM.md)**: Integração com Brevo via REST API.
 
-### Passo 5 – Atualizar Persistência
-
-- Migrar Hibernate 3 → Hibernate 6.x (mantendo HBM no início).
-- Em um segundo momento, converter para **JPA annotations**.
-
-Resultado: compatibilidade com versões atuais do Spring.
-
-### Passo 6 – Evoluir APIs Ajax
-
-- Manter DWR no curto prazo.
-- Criar endpoints REST paralelos para novas telas.
-
-Resultado: coexistência gradual, sem reescrita total.
-
-### Passo 7 – UI Opcional
-
-- Manter JSP no início.
-- Modernizar aos poucos (ex: substituir Prototype/Scriptaculous por libs atuais).
-
-Resultado: UX evolui sem quebrar a base.
-
-## 12. Roadmap de Modernização (Sugerido)
-
-1. **Curto prazo** (1–2 sprints): build + externalização de configs + segurança.
-2. **Médio prazo** (3–5 sprints): Spring Security + Struts 2 + Hibernate atualizado.
-3. **Longo prazo**: evolucao para Struts 7 consolidado + REST + UI moderna (mantendo WAR).
-
-## 13. Como Rodar (Legado)
-
-Dependências esperadas:
-
-- Java 1.4–1.6 (original)
-- Tomcat 5.5
-- MySQL 5.x
-
-Processo (legado):
-
-1. Ajustar `build.properties` com path do Tomcat.
-2. Garantir classes compiladas em `webapp/WEB-INF/classes/`.
-3. Executar `ant deploy` (gera WAR).
-
-## 13.1. Como Rodar (Moderno - Docker)
+## 13. Como Rodar (Moderno - Docker)
 
 **Recomendado para desenvolvimento e testes.**
 
-A aplicação modernizada pode ser executada facilmente usando Docker Compose. Consulte a documentação completa em:
+A aplicação pode ser executada facilmente usando Docker Compose. Consulte a documentação completa em:
 
 📖 **[docker/README.md](docker/README.md)**
 
@@ -228,54 +191,28 @@ A aplicação modernizada pode ser executada facilmente usando Docker Compose. C
 
 ```bash
 # Setup de ambiente e build
-wsl bash -c "cp .env.example .env"
-wsl bash -c "docker-compose up --build -d"
-
-# Verificar logs
-wsl bash -c "docker-compose logs -f app"
-
-# Acessar aplicação
-# http://localhost:8080
+cp .env.example .env
+docker compose up --build -d
 ```
 
-### Credenciais Padrão
+### 13.1. Publicação em Nuvem (Custo Zero - Hugging Face & Aiven)
 
-| Login | Senha | Papel |
-|-------|-------|-------|
-| admin | admin123 | ADMIN |
-| user | user123 | USER |
-
-⚠️ **IMPORTANTE:** Troque as senhas padrão após o primeiro acesso!
-
-### 13.2. Publicação em Nuvem (Custo Zero - Hugging Face & Aiven)
-
-Para implantar em um ambiente de produção gratuito com Hugging Face Spaces e Aiven MySQL, siga o guia especializado:
+Para implantar em um ambiente de produção gratuito:
 
 📖 **[docs/deployment/HUGGING_FACE_AIVEN.md](docs/deployment/HUGGING_FACE_AIVEN.md)**
 
-Esta configuração utiliza a porta **7860** (obrigatória para o Hugging Face) e ajustes otimizados de JVM.
+---
+
+## 14. Próximos Passos (Evolução Contínua)
+
+1. **Refatoração JPA**: Converter mapeamentos residuais `.hbm.xml` para anotações `@Entity`.
+2. **Remoção de DWR**: Migrar as últimas funcionalidades de Chat e popups para HTMX.
+3. **Auditoria de Acessibilidade**: Implementar melhorias baseadas em relatórios do `axe-core`.
+4. **Otimização de Assets**: Expandir o uso do Vite para todos os componentes CSS/JS legados.
 
 ---
 
-Para mais detalhes sobre:
-- Troubleshooting
-- Variáveis de ambiente
-- Comandos de desenvolvimento
-- Health checks
-- Estrutura do banco de dados
-
-Consulte: **[docker/README.md](docker/README.md)**
-
-## 14. Próximos Passos Recomendados
-
-1. Criar build moderno (Maven/Gradle).
-2. Testar aplicação em Java 17 + Tomcat 8.5.
-3. Migrar Acegi → Spring Security com rehash de senha.
-4. Remover configs duplicadas e segredos hardcoded.
-
----
-
-Este README serve como base para tomada de decisão técnica e execução incremental, preservando o comportamento atual e reduzindo risco de regressão.
+Este README serve como base para tomada de decisão técnica e execução incremental.
 
 ## 15. Manutenção de Dados (Copa 2026)
 
