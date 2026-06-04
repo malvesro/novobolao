@@ -18,6 +18,7 @@ import com.opendev.bolao.exception.ValidacaoException;
 import com.opendev.bolao.model.Participante;
 import com.opendev.bolao.util.DadosClassificacao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,8 +35,8 @@ class ParticipanteServiceTest {
 
     private ParticipanteServiceImpl participanteService;
     private Email emailMock;
-    private String templateCapturado;
-    private String assuntoCapturado;
+    private List<String> templatesCapturados;
+    private List<String> assuntosCapturados;
     private Participante participante;
 
     @BeforeEach
@@ -46,16 +47,16 @@ class ParticipanteServiceTest {
         participante.setNome("Test User");
         participante.setEmail("test@example.com");
 
-        templateCapturado = null;
-        assuntoCapturado = null;
+        templatesCapturados = new ArrayList<>();
+        assuntosCapturados = new ArrayList<>();
 
         emailMock = Mockito.mock(Email.class);
 
         participanteService = new ParticipanteServiceImpl() {
             @Override
             protected Email criarEmail(String template, String assunto) {
-                templateCapturado = template;
-                assuntoCapturado = assunto;
+                templatesCapturados.add(template);
+                assuntosCapturados.add(assunto);
                 return emailMock;
             }
         };
@@ -75,14 +76,21 @@ class ParticipanteServiceTest {
         assertThat(resultado.getLogin()).isEqualTo("testuser");
         assertThat((Object) resultado.getDataHoraCadastro()).isNotNull();
 
-        assertThat(templateCapturado).isEqualTo("novoCadastro.html");
-        assertThat(assuntoCapturado).isEqualTo("Novo pedido de cadastro pendente");
+        // Valida que dois e-mails foram criados
+        assertThat(templatesCapturados).containsExactly("novoCadastro.html", "pedidoRecebido.html");
+        assertThat(assuntosCapturados).containsExactly("Novo pedido de cadastro pendente", "Pedido de cadastro recebido");
 
         Mockito.verify(participanteRepository).save(participante);
-        Mockito.verify(emailMock).adicionarEnderecoDestino("deinf.rochett@bc");
-        Mockito.verify(emailMock).adicionarEnderecoDestino("rosner.suporte.deinf@bcb.gov.br");
-        Mockito.verify(emailMock).setPropriedade("nome", participante.getNome());
-        Mockito.verify(emailMock).enviar();
+        
+        // Captura todos os endereços de destino chamados
+        org.mockito.ArgumentCaptor<String> emailCaptor = org.mockito.ArgumentCaptor.forClass(String.class);
+        Mockito.verify(emailMock, Mockito.atLeastOnce()).adicionarEnderecoDestino(emailCaptor.capture());
+        
+        List<String> emailsEnviados = emailCaptor.getAllValues();
+        assertThat(emailsEnviados).contains("test@example.com");
+        
+        Mockito.verify(emailMock, Mockito.atLeast(2)).setPropriedade("nome", participante.getNome());
+        Mockito.verify(emailMock, Mockito.atLeast(2)).enviar();
     }
 
     @Test

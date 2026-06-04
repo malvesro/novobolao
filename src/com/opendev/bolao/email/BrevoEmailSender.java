@@ -44,8 +44,10 @@ public class BrevoEmailSender implements EmailSender {
                 .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                 .build();
 
-        LOGGER.info("[BREVO] Enviando e-mail via API REST para: {}", 
-                message.getPara().stream().collect(Collectors.joining(", ")));
+        LOGGER.info("[BREVO] Enviando e-mail via API REST - de: {} | para: {} | assunto: {}", 
+                message.getDe(),
+                message.getPara().stream().collect(Collectors.joining(", ")),
+                message.getAssunto());
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 

@@ -146,7 +146,7 @@ public class Email {
 		try {
 			byte[] buffer = new byte[stream.available()];
 			stream.read(buffer);
-			conteudo.append(new String(buffer).trim());
+			conteudo.append(new String(buffer, StandardCharsets.UTF_8).trim());
 		} catch (IOException e) {
 			throw new EmailException("Erro ao ler template de email. Nome do template: " + getNomeTemplate(), e);
 		} finally {

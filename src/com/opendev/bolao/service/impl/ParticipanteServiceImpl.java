@@ -278,8 +278,19 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         try {
             email.enviar();
         } catch (Exception e) {
-            LOGGER.error("[CADASTRO] Erro ao enviar email de novo cadastro pendente para participante={}", participante.getLogin(), e);
+            LOGGER.error("[CADASTRO] Erro ao enviar email de novo cadastro pendente para admins: {}", e.getMessage());
         }
+
+        // Notificar o participante que o pedido foi recebido
+        Email emailParticipante = criarEmail("pedidoRecebido.html", "Pedido de cadastro recebido");
+        emailParticipante.adicionarEnderecoDestino(participante.getEmail());
+        emailParticipante.setPropriedade("nome", participante.getNome());
+        try {
+            emailParticipante.enviar();
+        } catch (Exception e) {
+            LOGGER.error("[CADASTRO] Erro ao enviar email de pedido recebido para participante={}: {}", participante.getLogin(), e.getMessage());
+        }
+
         return participante;
     }
 

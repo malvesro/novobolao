@@ -942,3 +942,7 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     *   **[Concluído]** Subtarefa 9.8.7: Atualizar `docs/deployment/HUGGING_FACE_AIVEN.md` com as novas variáveis de ambiente do Brevo.
     *   **[Pronto para Validação]** Subtarefa 9.8.8: Validar o envio de e-mail em produção com o Brevo (novo cadastro de participante).
     *   **[Concluído]** Subtarefa 9.8.9: Criar documentação técnica detalhada sobre o módulo de e-mail com diagramas Mermaid (`docs/architecture/EMAIL_SYSTEM.md`).
+9.9. **Melhoria e Correção de Bugs no Módulo de E-mail:**
+    *   **[Concluído]** Subtarefa 9.9.1: Corrigir o problema de encoding (caracteres especiais) nos e-mails enviados pelo Brevo (Garantir leitura e envio em UTF-8).
+    *   **[Concluído]** Subtarefa 9.9.2: Corrigir bug no fluxo de cadastro: enviar e-mail de confirmação também para o usuário (além do admin).
+    *   **[Concluído]** Subtarefa 9.9.3: Melhorar a granularidade dos logs no `BrevoEmailSender` para incluir Assunto e Remetente.
