@@ -150,6 +150,8 @@ Premissas de compatibilidade (críticas):
 
     * **[Pendente] 14.5 — Criar log de sessão e atualizar rastreabilidade:** Registrar em `.ia/logs/session-20260604-otp-cadastro-urls-security.md`.
 
+    * **[Concluído] 14.6 — Corrigir conflito de prefixo [opendev] em validacaoCadastro.jsp:** Remover declarações redundantes de taglibs que já constam no `cabecalho.jspf` (prelude).
+
     Referência: `src/main/resources/applicationContext-security.xml`, `struts.xml`, `ValidacaoCadastroAction.java`
     Skill: `modernization-java-migration v1.0.0`, `security-audit v1.0.0`
 

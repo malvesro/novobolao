@@ -1,13 +1,9 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-    <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-        <%@ taglib prefix="opendev" uri="/WEB-INF/tld/opendev.tld" %>
+<div class="spacer-lg"></div>
 
-            <div class="spacer-lg"></div>
+<%-- Exibe erros de validação do código --%>
+<opendev:mensagensErro nomeAtributo="errosValidacao" />
 
-            <%-- Exibe erros de validação do código --%>
-                <opendev:mensagensErro nomeAtributo="errosValidacao" />
-
-                <opendev:portlet id="validacao_portlet" icon="/img/cadastro.png" title="Verificação de E-mail">
+<opendev:portlet id="validacao_portlet" icon="/img/cadastro.png" title="Verificação de E-mail">
                     <c:choose>
                         <%-- Cenário: Limite de tentativas atingido --%>
                             <c:when test="${tentativasRestantes <= 0}">

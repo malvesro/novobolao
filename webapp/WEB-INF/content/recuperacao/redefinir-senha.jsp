@@ -1,8 +1,3 @@
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@taglib prefix="opendev" uri="http://www.opendev.com.br/tld" %>
-<%@taglib prefix="s" uri="/struts-tags" %>
-
 <div class="spacer-xl"></div>
 <s:if test="%{errosRecuperacao != null && !errosRecuperacao.isEmpty()}">
     <div style="height: 10px;"></div>
