@@ -12,13 +12,15 @@ COPY webapp ./webapp
 COPY src/frontend ./src/frontend
 RUN npm run build
 
-# Stage 2: Maven Dependencies (Apenas baixar deps)
+# Stage 2: Maven Dependencies (Pre-warm de dependências e PLUGINS)
 FROM maven:3.8-openjdk-17-slim AS deps
 WORKDIR /app
 COPY pom.xml .
-# Cache mount para o repositório Maven (.m2)
+# O comando 'go-offline' do Maven é incompleto. 
+# Rodamos um 'verify' ignorando erros (pela falta de src) para baixar plugins e deps de build.
 RUN --mount=type=cache,target=/root/.m2 \
-    mvn dependency:go-offline -B
+    mvn dependency:go-offline -B && \
+    mvn verify -DskipTests -Dfrontend.skip=true -B || true
 
 # Stage 3: Backend Build & Assembly
 FROM deps AS builder
@@ -28,10 +30,12 @@ COPY src ./src
 COPY webapp ./webapp
 # Copia os assets buildados no Stage 1 para o local que o Maven espera
 COPY --from=frontend-builder /app/webapp/assets ./webapp/assets
-# Build do WAR pulando o plugin de frontend (pois já buildamos acima)
-# E pulando testes para velocidade no container de build
+# Otimizações:
+# -T 1C: Usa 1 thread por core da CPU para build paralelo
+# -Dmaven.test.skip=true: Pula compilação e execução de testes (mais rápido que -DskipTests)
+# Sem 'clean': Redundante em uma camada de build fresca
 RUN --mount=type=cache,target=/root/.m2 \
-    mvn clean package -DskipTests -Dfrontend.skip=true
+    mvn package -T 1C -Dmaven.test.skip=true -Dfrontend.skip=true -B
 
 # Stage 4: Runtime
 FROM tomcat:10.1-jdk17-temurin
