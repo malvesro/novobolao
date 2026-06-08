@@ -60,7 +60,32 @@ Fluxo típico:
 
 JSP → WebWork Action → Service (transação) → DAO (Hibernate) → Banco
 
-## 5. Estrutura de Pastas
+## 5. Estratégia de Build e Segurança
+
+O projeto utiliza uma arquitetura de build moderna baseada em **Docker Multi-stage** para garantir performance e segurança.
+
+### 5.1 Build Otimizado (Docker)
+O build é dividido em estágios independentes:
+1. **Frontend Builder (Node.js):** Compila assets via Vite.
+2. **Maven Deps:** Pré-aquece o cache de dependências e plugins.
+3. **Backend Builder (Maven):** Gera o arquivo WAR final integrando os assets do frontend.
+4. **Runtime (Tomcat 10):** Imagem final enxuta para execução.
+
+Utilizamos **Docker BuildKit Cache Mounts** para persistir o repositório Maven (`.m2`) e o cache do NPM entre builds, acelerando significativamente o ciclo de desenvolvimento.
+
+### 5.2 Segurança e Auditoria (NVD API Key)
+Para garantir a integridade das dependências, utilizamos o plugin **OWASP Dependency Check**.
+
+- **NVD API Key:** Essencial para evitar lentidão e bloqueios durante a consulta à base de vulnerabilidades da NVD.
+- **Segredos (Docker Secrets):** A chave **nunca** é gravada na imagem final. Ela é injetada apenas em tempo de build via `--mount=type=secret`.
+- **Ambiente Local:** Crie um arquivo `.nvd_api_key` na raiz do projeto com sua chave. O Docker Compose o carregará automaticamente.
+- **Hugging Face Spaces:** Configure um **Secret** chamado `NVD_API_KEY` nas configurações do Space.
+- **Auditoria Manual:** Para não impactar a velocidade do deploy, o check automático é ignorado no estágio final. Execute manualmente via:
+  ```bash
+  ./scripts/run-audit.sh
+  ```
+
+## 6. Estrutura de Pastas
 
 - `src/` código Java e configurações Spring/XWork.
 - `webapp/` páginas JSP, JS, CSS e libs (WAR root).
