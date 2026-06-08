@@ -162,6 +162,22 @@ Premissas de compatibilidade (críticas):
     * **[Concluído]** Liberar acesso anônimo ao `/health.txt` no `applicationContext-security.xml` para corrigir o Docker Health Check.
     * **[Concluído]** Validar árvore de dependências e criar log de sessão (`session-20260608-correcao-startup-hikari-logging.md`).
 
+### Fase 2.6: Otimização de Infraestrutura e Build (ALTA PRIORIDADE)
+
+1. **[Concluído] Registro e Planejamento:** Formalizar a nova estratégia de build.
+   * **[Concluído]** Registrar `ADR-20260608-otimizacao-build-docker-multi-stage.md`.
+   * **[Concluído]** Criar tarefas detalhadas no plano de evolução.
+
+2. **[Concluído] Iteração 1: Otimização do Contexto:**
+   * **[Concluído]** Criar `.dockerignore` rigoroso para evitar envio de `target/` e `node_modules/`.
+
+3. **[Concluído] Iteração 2: Refatoração do Dockerfile:**
+   * **[Concluído]** Implementar Multi-stage Build (Frontend vs Backend).
+   * **[Concluído]** Adicionar BuildKit Cache Mounts para `.m2` e `.npm`.
+
+4. **[Concluído] Iteração 3: Ajustes no Maven:**
+   * **[Concluído]** Garantir que o `pom.xml` suporte a propriedade `frontend.skip`.
+
 ### Fase 2.5: Auditoria e Ajuste do Frontend (ALTA PRIORIDADE)
 
 1. **[Concluído] Auditoria Visual Completa:** Testar renderização e funcionalidade de todas as telas principais (login, dashboard, formulários, gráficos, admin) em navegadores modernos e múltiplas resoluções. Concluir esta etapa antes de iniciar novas otimizações.

@@ -1,46 +1,60 @@
-# Stage 1: Build
-FROM maven:3.8-openjdk-17-slim AS build
+# syntax=docker/dockerfile:1.4
+
+# Stage 1: Frontend Build (Isolado e Cacheável)
+FROM node:20-slim AS frontend-builder
+WORKDIR /app
+COPY package*.json ./
+COPY vite.config.js ./
+# Cache mount para npm para acelerar re-builds
+RUN --mount=type=cache,target=/root/.npm \
+    npm install
+COPY webapp ./webapp
+COPY src/frontend ./src/frontend
+RUN npm run build
+
+# Stage 2: Maven Dependencies (Apenas baixar deps)
+FROM maven:3.8-openjdk-17-slim AS deps
 WORKDIR /app
 COPY pom.xml .
-COPY package.json package-lock.json ./
-COPY vite.config.js ./
-RUN mvn dependency:go-offline -B
+# Cache mount para o repositório Maven (.m2)
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn dependency:go-offline -B
+
+# Stage 3: Backend Build & Assembly
+FROM deps AS builder
+WORKDIR /app
+# Copia o código fonte e webapp
 COPY src ./src
 COPY webapp ./webapp
-RUN mvn clean package -DskipTests
+# Copia os assets buildados no Stage 1 para o local que o Maven espera
+COPY --from=frontend-builder /app/webapp/assets ./webapp/assets
+# Build do WAR pulando o plugin de frontend (pois já buildamos acima)
+# E pulando testes para velocidade no container de build
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn clean package -DskipTests -Dfrontend.skip=true
 
-# Stage 2: Runtime
-# Usamos Tomcat 10 (Jakarta EE 10) com JDK 17 (Temurin)
+# Stage 4: Runtime
 FROM tomcat:10.1-jdk17-temurin
 WORKDIR /usr/local/tomcat/webapps/
 
-# Remover apps padrão do Tomcat para segurança e economia de memória
-RUN rm -rf ROOT docs examples host-manager manager
+# Remover apps padrão do Tomcat
+RUN rm -rf ROOT docs examples host-manager manager && \
+    apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-# Instalar curl para health check
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
-
-# Configuração de Fuso Horário (Brasília)
+# Configuração de Fuso Horário
 ENV TZ=America/Sao_Paulo
 
-# Configuração de Memória e JVM para Koyeb (Limitado a 512MB RAM, 0.1 vCPU)
-# -Xmx256m: Heap máximo reduzido para 256MB para dar espaço ao Metaspace
-# -Xms256m: Heap inicial fixo
-# -XX:MaxMetaspaceSize=160m: Aumentado para 160MB (estava em 96MB, causando OOM)
-# -XX:+UseSerialGC: GC mais eficiente para sistemas com pouca CPU e RAM
-# -Xss256k: Redução do tamanho da stack de threads
+# Configuração de Memória e JVM
 ENV CATALINA_OPTS="-Xmx256m -Xms256m -XX:MaxMetaspaceSize=160m -XX:+UseSerialGC -Xss256k -Djava.awt.headless=true -Duser.timezone=America/Sao_Paulo"
 
-# Alterar porta padrão do Tomcat de 8080 para 7860 (Requisito Hugging Face)
+# Alterar porta para 7860
 RUN sed -i 's/port="8080"/port="7860"/g' /usr/local/tomcat/conf/server.xml
 
-# Copiar o WAR gerado no stage 1
-COPY --from=build /app/target/sistema-bolao.war ./ROOT.war
+# Copiar o WAR gerado no stage 3
+COPY --from=builder /app/target/sistema-bolao.war ./ROOT.war
 
-# Porta obrigatória para Hugging Face Spaces
 EXPOSE 7860
 
-# Health check ajustado para a nova porta
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=60s \
   CMD curl -f http://localhost:7860/health.txt || exit 1
 

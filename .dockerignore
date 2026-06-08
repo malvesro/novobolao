@@ -1,40 +1,35 @@
+# Maven
+target/
+*.war
+*.ear
+*.jar
+
+# Node.js
+node_modules/
+dist/
+build/
+.npm/
+
+# Logs
+*.log
+logs/
+
 # Git
 .git
 .gitignore
 
-# IDE
-.idea
-.vscode
+# IDEs
+.idea/
+.vscode/
 *.iml
-
-# Build
-target/
-*.class
-
-# Logs
-*.log
-
-# Documentation
-*.md
-!docker/README.md
-
-# Docker
-docker-compose.yml
-Dockerfile
-
-# Tests
-tests/
-
-# CI/CD
-.github/
-
-# IA
-.ia/
-
-# Backup
-*.bak
-pom.xml.bak
+*.swp
+*.swo
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Project Specific
+webapp/assets/
+!webapp/assets/.gitkeep
+docker/mysql/data/
