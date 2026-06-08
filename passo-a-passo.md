@@ -159,6 +159,7 @@ Premissas de compatibilidade (críticas):
     * **[Concluído]** Excluir `HikariCP-java7` e `c3p0` da dependência do Quartz 2.3.2 para evitar conflito com HikariCP 5.1.0 e permitir a propriedade `keepaliveTime`.
     * **[Concluído]** Adicionar `log4j-to-slf4j` para bridge de logs do Struts 7/Log4j 2 para SLF4J/Logback.
     * **[Concluído]** Excluir `commons-logging` de `batik-all` para resolver aviso de conflito com `spring-jcl`.
+    * **[Concluído]** Liberar acesso anônimo ao `/health.txt` no `applicationContext-security.xml` para corrigir o Docker Health Check.
     * **[Concluído]** Validar árvore de dependências e criar log de sessão (`session-20260608-correcao-startup-hikari-logging.md`).
 
 ### Fase 2.5: Auditoria e Ajuste do Frontend (ALTA PRIORIDADE)

@@ -28,6 +28,7 @@
         <!-- Intercept URLs -->
         <!-- Note: patterns are matched in order, most specific first -->
         <security:intercept-url pattern="/login.action*" access="permitAll" />
+        <security:intercept-url pattern="/health.txt*" access="permitAll" />
         <security:intercept-url pattern="/cadastroForm.action*" access="permitAll" />
         <security:intercept-url pattern="/cadastro.action*" access="permitAll" />
         <security:intercept-url pattern="/validacaoCadastro.action*" access="permitAll" />
