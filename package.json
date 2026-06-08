@@ -14,9 +14,16 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@axe-core/cli": "^4.11.1",
+    "@axe-core/cli": "^4.11.3",
     "autoprefixer": "^10.4.17",
     "postcss": "^8.4.35",
     "vite": "^5.4.21"
+  },
+  "overrides": {
+    "axios": "1.17.0",
+    "basic-ftp": "5.3.1",
+    "follow-redirects": "1.16.0",
+    "tmp": "0.2.6",
+    "ws": "8.21.0"
   }
 }
