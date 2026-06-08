@@ -178,6 +178,12 @@ Premissas de compatibilidade (críticas):
 4. **[Concluído] Iteração 3: Ajustes no Maven:**
    * **[Concluído]** Garantir que o `pom.xml` suporte a propriedade `frontend.skip`.
 
+5. **[Pendente] Iteração 4: Gestão de Segredos (NVD API Key):**
+   * **[Concluído]** Registrar `ADR-20260608-gestao-segredos-nvd-api-key.md`.
+   * **[Concluído]** Atualizar `Dockerfile` para usar `--mount=type=secret`.
+   * **[Concluído]** Configurar `docker-compose.yml` com segredos locais.
+   * **[Pendente]** Instruir criação do arquivo `.nvd_api_key` localmente.
+
 ### Fase 2.5: Auditoria e Ajuste do Frontend (ALTA PRIORIDADE)
 
 1. **[Concluído] Auditoria Visual Completa:** Testar renderização e funcionalidade de todas as telas principais (login, dashboard, formulários, gráficos, admin) em navegadores modernos e múltiplas resoluções. Concluir esta etapa antes de iniciar novas otimizações.

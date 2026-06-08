@@ -33,7 +33,11 @@ services:
       start_period: 30s
 
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      secrets:
+        - NVD_API_KEY
     container_name: bolao-app
     restart: always
     ports:
@@ -81,3 +85,7 @@ networks:
 
 volumes:
   db_data:
+
+secrets:
+  NVD_API_KEY:
+    file: .nvd_api_key

@@ -18,7 +18,9 @@ WORKDIR /app
 COPY pom.xml .
 # O comando 'go-offline' do Maven é incompleto. 
 # Rodamos um 'verify' ignorando erros (pela falta de src) para baixar plugins e deps de build.
+# Injetamos a NVD_API_KEY via secret para o plugin dependency-check.
 RUN --mount=type=cache,target=/root/.m2 \
+    --mount=type=secret,id=NVD_API_KEY,env=NVD_API_KEY \
     mvn dependency:go-offline -B && \
     mvn verify -DskipTests -Dfrontend.skip=true -B || true
 
@@ -33,8 +35,9 @@ COPY --from=frontend-builder /app/webapp/assets ./webapp/assets
 # Otimizações:
 # -T 1C: Usa 1 thread por core da CPU para build paralelo
 # -Dmaven.test.skip=true: Pula compilação e execução de testes (mais rápido que -DskipTests)
-# Sem 'clean': Redundante em uma camada de build fresca
+# Injetamos a NVD_API_KEY via secret para o plugin dependency-check.
 RUN --mount=type=cache,target=/root/.m2 \
+    --mount=type=secret,id=NVD_API_KEY,env=NVD_API_KEY \
     mvn package -T 1C -Dmaven.test.skip=true -Dfrontend.skip=true -B
 
 # Stage 4: Runtime

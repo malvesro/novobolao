@@ -37,6 +37,7 @@ webapp/WEB-INF/classes/**/*.class
 
 # Variáveis de ambiente locais
 .env
+.nvd_api_key
 
 # Anotações locais (.ia)
 .ia/*.txt

@@ -30,6 +30,7 @@ logs/
 Thumbs.db
 
 # Project Specific
+.nvd_api_key
 webapp/assets/
 !webapp/assets/.gitkeep
 docker/mysql/data/
