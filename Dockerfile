@@ -18,9 +18,11 @@ WORKDIR /app
 COPY pom.xml .
 # O comando 'go-offline' do Maven é incompleto. 
 # Rodamos um 'verify' ignorando erros (|| true) para baixar plugins e deps de build.
-# A NVD_API_KEY é usada aqui para aquecer o cache do dependency-check sem quebrar o build.
+# A NVD_API_KEY é mapeada do arquivo de segredo para variável de ambiente.
+# Usamos o caminho padrão /run/secrets/ para compatibilidade.
 RUN --mount=type=cache,target=/root/.m2 \
-    --mount=type=secret,id=NVD_API_KEY,env=NVD_API_KEY \
+    --mount=type=secret,id=NVD_API_KEY,required=false \
+    if [ -f /run/secrets/NVD_API_KEY ]; then export NVD_API_KEY=$(cat /run/secrets/NVD_API_KEY); fi && \
     mvn dependency:go-offline -B && \
     mvn verify -DskipTests -Dfrontend.skip=true -B || true
 
@@ -36,7 +38,6 @@ COPY --from=frontend-builder /app/webapp/assets ./webapp/assets
 # -T 1C: Usa 1 thread por core da CPU para build paralelo
 # -Dmaven.test.skip=true: Pula compilação e execução de testes
 # -Ddependency-check.skip=true: Evita falha no deploy por novos CVEs ou lentidão da NVD.
-#  A auditoria deve ser feita em CI ou localmente, não no build de produção.
 RUN --mount=type=cache,target=/root/.m2 \
     mvn package -T 1C -Dmaven.test.skip=true -Dfrontend.skip=true -Ddependency-check.skip=true -B
 
