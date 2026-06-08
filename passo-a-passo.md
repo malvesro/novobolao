@@ -150,10 +150,16 @@ Premissas de compatibilidade (críticas):
 
     * **[Pendente] 14.5 — Criar log de sessão e atualizar rastreabilidade:** Registrar em `.ia/logs/session-20260604-otp-cadastro-urls-security.md`.
 
-    * **[Concluído] 14.6 — Corrigir conflito de prefixo [opendev] em validacaoCadastro.jsp:** Remover declarações redundantes de taglibs que já constam no `cabecalho.jspf` (prelude).
+    * **[Pendente] 14.6 — Corrigir conflito de prefixo [opendev] em validacaoCadastro.jsp:** Remover declarações redundantes de taglibs que já constam no `cabecalho.jspf` (prelude).
 
     Referência: `src/main/resources/applicationContext-security.xml`, `struts.xml`, `ValidacaoCadastroAction.java`
     Skill: `modernization-java-migration v1.0.0`, `security-audit v1.0.0`
+
+31. **[Concluído] Correção de Erro de Startup e Conflitos de Log (08/06/2026):** Resolver falha na inicialização do `HikariDataSource` e erros de Log4j.
+    * **[Concluído]** Excluir `HikariCP-java7` e `c3p0` da dependência do Quartz 2.3.2 para evitar conflito com HikariCP 5.1.0 e permitir a propriedade `keepaliveTime`.
+    * **[Concluído]** Adicionar `log4j-to-slf4j` para bridge de logs do Struts 7/Log4j 2 para SLF4J/Logback.
+    * **[Concluído]** Excluir `commons-logging` de `batik-all` para resolver aviso de conflito com `spring-jcl`.
+    * **[Concluído]** Validar árvore de dependências e criar log de sessão (`session-20260608-correcao-startup-hikari-logging.md`).
 
 ### Fase 2.5: Auditoria e Ajuste do Frontend (ALTA PRIORIDADE)
 
