@@ -12,19 +12,14 @@ COPY webapp ./webapp
 COPY src/frontend ./src/frontend
 RUN npm run build
 
-# Stage 2: Maven Dependencies (Pre-warm de dependências e PLUGINS)
+# Stage 2: Maven Dependencies (Apenas baixar dependências)
 FROM maven:3.8-openjdk-17-slim AS deps
 WORKDIR /app
 COPY pom.xml .
-# O comando 'go-offline' do Maven é incompleto. 
-# Rodamos um 'verify' ignorando erros (|| true) para baixar plugins e deps de build.
-# A NVD_API_KEY é mapeada do arquivo de segredo para variável de ambiente.
-# Usamos o caminho padrão /run/secrets/ para compatibilidade.
+# Baixa apenas as dependências do projeto. 
+# Removido 'mvn verify' para evitar execução lenta do dependency-check no build.
 RUN --mount=type=cache,target=/root/.m2 \
-    --mount=type=secret,id=NVD_API_KEY,required=false \
-    if [ -f /run/secrets/NVD_API_KEY ]; then export NVD_API_KEY=$(cat /run/secrets/NVD_API_KEY); fi && \
-    mvn dependency:go-offline -B && \
-    mvn verify -DskipTests -Dfrontend.skip=true -B || true
+    mvn dependency:go-offline -B
 
 # Stage 3: Backend Build & Assembly
 FROM deps AS builder
@@ -37,7 +32,7 @@ COPY --from=frontend-builder /app/webapp/assets ./webapp/assets
 # Otimizações:
 # -T 1C: Usa 1 thread por core da CPU para build paralelo
 # -Dmaven.test.skip=true: Pula compilação e execução de testes
-# -Ddependency-check.skip=true: Evita falha no deploy por novos CVEs ou lentidão da NVD.
+# -Ddependency-check.skip=true: Auditoria deve ser feita manualmente via ./scripts/run-audit.sh
 RUN --mount=type=cache,target=/root/.m2 \
     mvn package -T 1C -Dmaven.test.skip=true -Dfrontend.skip=true -Ddependency-check.skip=true -B
 

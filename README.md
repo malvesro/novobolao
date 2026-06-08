@@ -74,16 +74,15 @@ O build é dividido em estágios independentes:
 Utilizamos **Docker BuildKit Cache Mounts** para persistir o repositório Maven (`.m2`) e o cache do NPM entre builds, acelerando significativamente o ciclo de desenvolvimento.
 
 ### 5.2 Segurança e Auditoria (NVD API Key)
-Para garantir a integridade das dependências, utilizamos o plugin **OWASP Dependency Check**.
+Para garantir a integridade das dependências, o projeto está preparado para o plugin **OWASP Dependency Check**, mas sua execução foi **removida do build do Docker** para garantir performance e previsibilidade no deploy.
 
 - **NVD API Key:** Essencial para evitar lentidão e bloqueios durante a consulta à base de vulnerabilidades da NVD.
-- **Segredos (Docker Secrets):** A chave **nunca** é gravada na imagem final. Ela é injetada apenas em tempo de build via `--mount=type=secret`.
-- **Ambiente Local:** Crie um arquivo `.nvd_api_key` na raiz do projeto com sua chave. O Docker Compose o carregará automaticamente.
-- **Hugging Face Spaces:** Configure um **Secret** chamado `NVD_API_KEY` nas configurações do Space.
-- **Auditoria Manual:** Para não impactar a velocidade do deploy, o check automático é ignorado no estágio final. Execute manualmente via:
+- **Ambiente Local:** Crie um arquivo `.nvd_api_key` na raiz do projeto com sua chave.
+- **Auditoria Manual (Recomendado):** A auditoria deve ser executada manualmente para não impactar o tempo de deploy. Utilize o script utilitário:
   ```bash
   ./scripts/run-audit.sh
   ```
+  O script carregará automaticamente sua chave local e gerará o relatório em `target/dependency-check-report.html`.
 
 ## 6. Estrutura de Pastas
 
