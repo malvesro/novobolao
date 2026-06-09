@@ -78,6 +78,6 @@
     
     <div class="footer">
         <fmt:message var="redefinirLabel" key="recuperacao.redefinir.acao" />
-        <input type="submit" class="button" value="${redefinirLabel}" onclick="document.getElementById('formRedefinir').submit(); return false;" />
+        <input type="submit" class="button" value="${redefinirLabel}" form="formRedefinir" />
     </div>
 </opendev:portlet>

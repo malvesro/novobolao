@@ -8,8 +8,7 @@
 
 <div class="drawer-header">
     <h2>Gerenciar Jogo #${jogo.id}</h2>
-    <button type="button" class="drawer-close-btn" 
-            onclick="closeDrawer()">&times;</button>
+    <button type="button" class="drawer-close-btn" data-js="close-drawer">&times;</button>
 </div>
 
 <div class="drawer-body">
@@ -17,7 +16,6 @@
           hx-target="#jogoTr_${jogo.id}" 
           hx-swap="outerHTML" 
           hx-indicator="#drawer-save-indicator"
-          hx-on::after-request="if(event.detail.successful) closeDrawer()"
           class="admin-edit-form-vertical">
 
         <input type="hidden" name="id" value="${jogo.id}" />
@@ -88,8 +86,7 @@
             <button type="submit" class="button button--primary button--large">
                 <fmt:message key="general.save" />
             </button>
-            <button type="button" class="button button--ghost"
-                    onclick="closeDrawer()">
+            <button type="button" class="button button--ghost" data-js="close-drawer">
                 <fmt:message key="general.cancel" />
             </button>
             <div id="drawer-save-indicator" class="htmx-indicator progress-spinner"></div>

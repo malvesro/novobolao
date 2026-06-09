@@ -82,12 +82,23 @@
 			destacarPortlet("cadastrojogo_portet_content", "row-highlight--error");
 		});
 	}
+
+	document.addEventListener("DOMContentLoaded", function() {
+		const formCadastroJogo = document.getElementById("formCadastroJogo");
+		if (!formCadastroJogo) {
+			return;
+		}
+		formCadastroJogo.addEventListener("submit", function(event) {
+			event.preventDefault();
+			submeterNovoJogo();
+		});
+	});
 </script>
 <div class="dashboard-section">
 <span class="error hidden mb-md" id="errorSpan">
 </span>
 <opendev:portlet id="cadastrojogo_portet" title="Cadastro de Jogo">
-<form action="#">
+<form id="formCadastroJogo" action="#">
 		<div class="inner">
 			<div class="form-grid form-grid--auto">
 				<div class="form-row">
@@ -163,7 +174,7 @@
 		</div>
 	<div class="footer">
 		<fmt:message var="loginSubmitLabel" key="match.submit" />
-		<input type="button" name="submit" class="button" value="${loginSubmitLabel}" onclick="submeterNovoJogo();"; />
+		<input type="submit" name="submit" class="button" value="${loginSubmitLabel}" />
 	</div>
 </form>
 </opendev:portlet>

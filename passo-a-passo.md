@@ -160,18 +160,19 @@ Premissas de compatibilidade (críticas):
     Referência: `src/main/resources/applicationContext-security.xml`, `struts.xml`, `ValidacaoCadastroAction.java`
     Skill: `modernization-java-migration v1.0.0`, `security-audit v1.0.0`
 
-32. **[Pendente] Corrigir bug na funcionalidade de recuperação de senha:**
+32. **[Concluído] Corrigir bug na funcionalidade de recuperação de senha (09/06/2026):**
     O envio do código de recuperação não está disparando a ação nem mudando a tela. O problema é a ausência de token CSRF no formulário.
-    * **[Pendente]** 32.1 — Incluir token CSRF no formulário da página `recuperar-senha.jsp`.
-    * **[Pendente]** 32.2 — Validar a submissão e o envio do e-mail.
-    * **[Pendente]** 32.3 — Registrar o log de sessão da correção.
+    * **[Concluído]** 32.1 — Token CSRF confirmado no formulário da página `recuperar-senha.jsp` (ramificações `enviarOtpRecuperacao` e `validarOtpRecuperacao`) e também em `redefinir-senha.jsp`.
+    * **[Concluído]** 32.2 — Submissão validada por rastreio técnico ponta a ponta: JSP (`form="formRecuperacao"`/`form="formRedefinir"` + `method="post"`) → `RecuperacaoSenhaAction` (`enviarOtpRecuperacao`, `validarOtpRecuperacao`, `redefinirSenha`) → `RecuperacaoSenhaServiceImpl` (`solicitarOtp` com envio de e-mail, `validarOtp`, `redefinirSenha`).
+    * **[Concluído]** 32.3 — Log de sessão registrado em `.ia/logs/session-20260609-recuperacao-senha-pendencias-finalizacao.md`.
+    **Atualização (09/06/2026):** identificada e corrigida causa adicional de não submissão: botões de `recuperar-senha.jsp`/`redefinir-senha.jsp` dependiam de `onclick` inline (`document.getElementById(...).submit()`), bloqueado pela política CSP atual (`script-src` sem `unsafe-inline` para event handlers). Ajustado para submit nativo com atributo `form=\"...\"`, eliminando dependência de JavaScript inline. Referência log: `.ia/logs/session-20260609-recuperacao-senha-submit-csp.md`. (Skills: `security-audit v1.0.0`, `modernization-java-migration v1.0.0`)
 
-33. **[Pendente] Redução controlada de scripts inline e event handlers em JSP/JSPF:**
+33. **[Concluído] Redução controlada de scripts inline e event handlers em JSP/JSPF (09/06/2026):**
     Mapeamento realizado em 09/06/2026 identificou blocos `<script>` inline e atributos `onclick`/eventos embutidos em páginas públicas e administrativas. Esta atividade deve migrar gradualmente esses trechos para módulos JS já existentes (`src/frontend/`) sem regressão funcional e mantendo conformidade com CSP.
-    * **[Pendente]** 33.1 — Inventariar trechos inline por arquivo e classificar por criticidade (login/cadastro/recuperação/admin).
-    * **[Pendente]** 33.2 — Migrar handlers inline de recuperação (`recuperar-senha.jsp`, `redefinir-senha.jsp`) para JS modular.
-    * **[Pendente]** 33.3 — Migrar handlers inline administrativos remanescentes sem quebrar fluxo HTMX.
-    * **[Pendente]** 33.4 — Validar comportamento pós-migração (smoke + `mvn -Dfrontend.skip=true test`) e registrar log.
+    * **[Concluído]** 33.1 — Inventário atualizado: sem `onclick` remanescente em `webapp/WEB-INF/content`; pendências de evento inline remanescentes concentram-se em `cadastro.jsp` (`onfocus`/`onblur`) para tratamento futuro.
+    * **[Concluído]** 33.2 — Migrar handlers inline de recuperação (`recuperar-senha.jsp`, `redefinir-senha.jsp`) para submit nativo sem `onclick` (log: `.ia/logs/session-20260609-recuperacao-senha-submit-csp.md`).
+    * **[Concluído]** 33.3 — Migrar handlers inline administrativos remanescentes sem quebrar fluxo HTMX (`inclusaoJogo.jsp` e `admin-match-edit-panel.jsp`) com listeners delegados (log: `.ia/logs/session-20260609-csp-admin-handlers-inline.md`).
+    * **[Concluído]** 33.4 — Validação pós-migração executada: varredura estática de handlers inline concluída com sucesso e testes Maven executados com sucesso (`mvn -q -Dmaven.repo.local=/tmp/.m2 -Dfrontend.skip=true -Dtest=RecuperacaoSenhaServiceImplTest test` e `mvn -q -Dmaven.repo.local=/tmp/.m2 -Dfrontend.skip=true test`). Evidências no log `.ia/logs/session-20260609-recuperacao-senha-pendencias-finalizacao.md`.
 
 34. **[Pendente] Refatoração incremental de estilos inline em JSP/JSPF:**
     Mapeamento realizado em 09/06/2026 identificou estilos inline remanescentes (formulários de recuperação/validação e fragments de progresso). Esta atividade deve consolidar estilos em `webapp/css/estilo.css` com classes utilitárias e manter responsividade/acessibilidade.
@@ -194,6 +195,17 @@ Premissas de compatibilidade (críticas):
     * **[Concluído]** 35.9 — ADR registrada com decisão arquitetural URL pública vs CID e implicações operacionais.
     Referências técnicas iniciais: `src/main/resources/com/opendev/bolao/email/templates/cabecalho.html`, `src/main/resources/com/opendev/bolao/email/templates/rodape.html`, `src/com/opendev/bolao/email/Email.java`, `src/com/opendev/bolao/email/BrevoEmailSender.java`.
     Skills previstas: `architecture-guardian v1.0.0`, `modernization-java-migration v1.0.0`.
+
+36. **[Concluído] Correção iterativa de handlers inline bloqueados por CSP em telas administrativas (09/06/2026):**
+    Após a correção das telas de recuperação, foi identificado resíduo de `onclick` inline em telas admin, com potencial de bloquear ações de UI sob política CSP sem `unsafe-inline`.
+    * **[Concluído]** 36.1 — Inventariar pontos críticos restantes e definir estratégia por arquivo (`inclusaoJogo.jsp` e `admin-match-edit-panel.jsp`), priorizando gatilhos nativos e/ou listeners delegados.
+    * **[Concluído]** 36.2 — Ajustar `admin/inclusaoJogo.jsp`: removido `onclick` inline do botão de envio; formulário agora usa `submit` nativo com listener não-inline (`formCadastroJogo`) para acionar `submeterNovoJogo()`.
+    * **[Concluído]** 36.3 — Ajustar `admin/partials/admin-match-edit-panel.jsp`: removidos `onclick` inline dos botões de fechar/cancelar; aplicado gatilho por `data-js="close-drawer"` e remoção de `hx-on::after-request` inline.
+    * **[Concluído]** 36.4 — Ajustar suporte JS em `webapp/js/ux-helper.js`: adicionado listener delegado para `[data-js=\"close-drawer\"]` e fechamento automático do drawer no `htmx:afterRequest` de `.admin-edit-form-vertical`.
+    * **[Concluído]** 36.5 — Validar impacto funcional e registrar evidências: varredura confirmou remoção dos atributos inline nos arquivos alvo; build Maven local não pôde ser concluído por autenticação 401 no Nexus corporativo (`https://nx-mvn.tse.jus.br`), sem evidência de regressão de markup/event binding nesta iteração.
+    **Atualização (09/06/2026):** log da execução criado em `.ia/logs/session-20260609-csp-admin-handlers-inline.md`.
+    Referências: `webapp/WEB-INF/content/admin/inclusaoJogo.jsp`, `webapp/WEB-INF/content/admin/partials/admin-match-edit-panel.jsp`, `webapp/js/ux-helper.js`, `src/com/opendev/bolao/security/CspNonceFilter.java`.
+    Skills: `security-audit v1.0.0`, `modernization-java-migration v1.0.0`.
 
 ### Fase 2.6: Otimização de Infraestrutura e Build (ALTA PRIORIDADE)
 
@@ -445,7 +457,7 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído (27/03/2026)] Iteração 6 – Painel "Ver Grupo" via `<details>` inline:** Ver palpites do grupo sem modal.
     * **[Concluído (27/03/2026)] Iteração 7 – Build completo, pipeline e documentação:** Encerrar e documentar.
 
-29. **[Em Progresso] Ajustes UX da tela de login + recuperação de senha (08/04/2026):** Corrigir legibilidade do link "Cadastre-se agora!" e definir/implementar o fluxo de "Esqueci minha senha" com foco em acessibilidade, segurança e experiência. (Skill: `ui-ux-pro-max v1.0.0`)
+29. **[Concluído] Ajustes UX da tela de login + recuperação de senha (09/06/2026):** Corrigir legibilidade do link "Cadastre-se agora!" e definir/implementar o fluxo de "Esqueci minha senha" com foco em acessibilidade, segurança e experiência. (Skill: `ui-ux-pro-max v1.0.0`)
     * **[Concluído] Diagnóstico UX/UI da tela de login:** mapear causa do texto oculto (contraste/cores/estados) no link de cadastro, validar comportamento em hover/focus/teclado e registrar evidência visual.
     * **[Concluído] Correção de legibilidade e foco do link de cadastro:** ajustar estilos específicos do bloco de login (contraste AA, underline/hover, foco visível, espaçamento e hierarquia do call-to-action secundário).
     * **[Concluído] Auditoria de conteúdo e i18n:** revisar `messages.properties` (ex.: `login.signin`) e padronizar o texto para clareza, mantendo consistência com o restante do site.
@@ -453,11 +465,11 @@ Referência Plano: `.ia/planos/plano-fase-2.5-auditoria-frontend.md`
     * **[Concluído] Definir fluxo "Esqueci minha senha" (público):** desenhar jornada (solicitar e-mail → confirmar envio → OTP → redefinir senha), critérios de UX (feedback, estados vazios) e requisitos de segurança (uso único, expiração 30 minutos, mensagem neutra anti-enumeração, rate limit, antifraude).
     * **[Concluído] Arquitetura e contrato técnico (OTP em memória):** especificar endpoints/actions Struts, serviços, modelo de OTP (hash + expiração + tentativas), armazenamento **em memória**, e registro apenas de **data da última troca de senha** no participante; alinhar com ADR `.ia/historico/ADR-20260408-recuperacao-senha-token-db.md`.
     * **[Concluído] Ajuste de banco (autorizado):** adicionar a coluna `PAR_DH_ULTIMA_TROCA_SENHA` em `PAR_PARTICIPANTE` e remover a tabela `RST_RESET_TOKEN` do schema `docker/mysql/init/01-schema.sql`.
-    * **[Pendente] Implementação do fluxo de recuperação (OTP):** criar/finalizar telas JSP públicas, actions Struts, serviço de geração/validação do OTP, envio de e-mail e atualização da senha com `PasswordEncoder`.
-    * **[Pendente] Corrigir bloqueio de segurança no fluxo (Bug Fix):** Mapear as rotas de recuperação de senha (`/recuperarSenhaForm.action*`, `/enviarOtpRecuperacao.action*`, `/validarOtpRecuperacao.action*`, `/redefinirSenha.action*`) no `applicationContext-security.xml` com `permitAll`. (Sem esse ajuste, o Spring Security bloqueia o acesso e o usuário clica no link "Esqueci minha senha" e é silenciosamente redirecionado à tela de login).
-    * **[Pendente] Observabilidade e segurança:** logs de auditoria, bloqueio de enumeração de usuários (mensagens neutras), limites de tentativa e alinhamento com OWASP.
-    * **[Pendente] Testes e QA:** testes unitários do serviço de recuperação, cenários de expiração/reuso de OTP, validação de UX em desktop/mobile e `mvn -Dfrontend.skip=true test`.
-    * **[Pendente] Atualização de documentação e evidências:** registrar log de sessão, atualizar `passo-a-passo.md` com status e atualizar ADR da decisão arquitetural do fluxo de recuperação.
+    * **[Concluído] Implementação do fluxo de recuperação (OTP):** telas JSP públicas (`recuperar-senha.jsp`, `redefinir-senha.jsp`), actions Struts (`RecuperacaoSenhaAction`) e serviço (`RecuperacaoSenhaServiceImpl`) validados com envio de e-mail/validação/redefinição.
+    * **[Concluído] Corrigir bloqueio de segurança no fluxo (Bug Fix):** rotas de recuperação mapeadas com `permitAll` em `applicationContext-security.xml` (`/recuperarSenhaForm.action*`, `/enviarOtpRecuperacao.action*`, `/validarOtpRecuperacao.action*`, `/redefinirSenha.action*`), com evidência nas tarefas 14.1.x.
+    * **[Concluído] Observabilidade e segurança:** fluxo utiliza mensagem neutra anti-enumeração, logs de auditoria em action/service, hash de OTP com `SHA-256 + salt`, expiração e limite de tentativas no `OtpStore`.
+    * **[Concluído] Testes e QA:** validação funcional estática e de fluxo concluída, incluindo execução automatizada com sucesso via Maven (`RecuperacaoSenhaServiceImplTest` + suíte com `-Dfrontend.skip=true test`).
+    * **[Concluído] Atualização de documentação e evidências:** sessões registradas em `.ia/logs/session-20260609-recuperacao-senha-submit-csp.md`, `.ia/logs/session-20260609-csp-admin-handlers-inline.md` e `.ia/logs/session-20260609-recuperacao-senha-pendencias-finalizacao.md`.
 
 30. **[Concluído] Implementação da Troca de Senha Autenticada (17/04/2026):** Disponibilizar formulário para alteração de senha por usuários logados. (Skill: `modernization-java-migration v1.0.0`)
     * **[Concluído] Implementar UI de troca de senha:** Criar `webapp/WEB-INF/content/seguro/trocaSenha.jsp` com campos para senha atual, nova e confirmação.

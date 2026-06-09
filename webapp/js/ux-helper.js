@@ -58,6 +58,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 target.classList.add('hidden');
             }
         }
+
+        const drawerCloseBtn = e.target.closest('[data-js="close-drawer"]');
+        if (drawerCloseBtn) {
+            closeDrawer();
+        }
     });
 
     function updateProgress() {
@@ -145,6 +150,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Feedback de Auto-Save para Administração
     document.body.addEventListener('htmx:afterRequest', (e) => {
         const target = e.detail.elt;
+        const isAdminDrawerSave = target.classList && target.classList.contains('admin-edit-form-vertical');
+
+        if (isAdminDrawerSave && e.detail.successful) {
+            closeDrawer();
+        }
+
         if (target.classList.contains('form-control-inline') || target.classList.contains('score-input')) {
             if (e.detail.successful) {
                 target.classList.add('save-flash');

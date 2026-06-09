@@ -87,11 +87,11 @@
     <div class="footer">
         <s:if test="otpEnviado">
                 <fmt:message var="validarOtpLabel" key="recuperacao.otp.validar" />
-                <input type="submit" class="button" value="${validarOtpLabel}" onclick="document.getElementById('formRecuperacao').submit(); return false;" />
+                <input type="submit" class="button" value="${validarOtpLabel}" form="formRecuperacao" />
         </s:if>
         <s:else>
                 <fmt:message var="enviarOtpLabel" key="recuperacao.otp.enviar" />
-                <input type="submit" class="button" value="${enviarOtpLabel}" onclick="document.getElementById('formRecuperacao').submit(); return false;" />
+                <input type="submit" class="button" value="${enviarOtpLabel}" form="formRecuperacao" />
         </s:else>
     </div>
 </opendev:portlet>
