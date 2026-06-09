@@ -2,15 +2,15 @@ package com.opendev.bolao.email;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Date;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import jakarta.mail.internet.InternetAddress;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +22,7 @@ public class Email {
     private static final String TEMPLATE_DIR = "/com/opendev/bolao/email/templates/";
 	private static final String TEMPLATE_CABECALHO = "cabecalho.html";
 	private static final String TEMPLATE_RODAPE = "rodape.html";
-    private static final String EMAIL_BACKGROUND_IMAGE_PATH = "/img/brasao-fundo-email.png";
+    private static final String EMAIL_BACKGROUND_IMAGE_PATH = "/img/brasao-fundo-email.jpg";
     private static final String TITULO_PADRAO = "Bolão de Placa - TV Cipó na Copa 2006";
     private static volatile EmailConfiguration CONFIG = EmailConfiguration.load();
 	

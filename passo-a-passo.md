@@ -207,6 +207,16 @@ Premissas de compatibilidade (críticas):
     Referências: `webapp/WEB-INF/content/admin/inclusaoJogo.jsp`, `webapp/WEB-INF/content/admin/partials/admin-match-edit-panel.jsp`, `webapp/js/ux-helper.js`, `src/com/opendev/bolao/security/CspNonceFilter.java`.
     Skills: `security-audit v1.0.0`, `modernization-java-migration v1.0.0`.
 
+37. **[Concluído] Migração UX do fundo de e-mail para versão otimizada `.jpg` + layout natural sem caixa branca (09/06/2026):**
+    Evolução do visual dos e-mails para melhorar legibilidade e desempenho: substituir o asset legado pesado por imagem otimizada, remover o bloco branco sólido e adotar painel escuro translúcido com tipografia clara.
+    * **[Concluído]** 37.1 — Inventariar impacto da troca de asset (`.png` -> `.jpg`) e confirmar presença da nova imagem otimizada em `webapp/img/brasao-fundo-email.jpg`.
+    * **[Concluído]** 37.2 — Ajustar backend de composição de e-mail (`Email.java`) para publicar `${emailBgUrl}` apontando para `/img/brasao-fundo-email.jpg`.
+    * **[Concluído]** 37.3 — Atualizar `cabecalho.html` para layout “fundo natural”: manter imagem única no body, reforçar overlay escuro, substituir caixa branca por painel translúcido e padronizar texto claro.
+    * **[Concluído]** 37.4 — Garantir contraste mínimo e fallback seguro (cor de fundo sólida quando imagem não carregar), preservando legibilidade em clientes de e-mail.
+    * **[Concluído]** 37.5 — Registrar log da sessão com decisões de UX, justificativas e evidências técnicas da migração.
+    Referências: `webapp/img/brasao-fundo-email.jpg`, `src/com/opendev/bolao/email/Email.java`, `src/main/resources/com/opendev/bolao/email/templates/cabecalho.html`.
+    Skills: `ui-ux-pro-max v1.0.0`, `modernization-java-migration v1.0.0`.
+
 ### Fase 2.6: Otimização de Infraestrutura e Build (ALTA PRIORIDADE)
 
 1. **[Concluído] Registro e Planejamento:** Formalizar a nova estratégia de build.
