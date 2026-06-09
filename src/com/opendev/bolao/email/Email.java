@@ -23,8 +23,11 @@ public class Email {
 	private static final String TEMPLATE_CABECALHO = "cabecalho.html";
 	private static final String TEMPLATE_RODAPE = "rodape.html";
     private static final String EMAIL_BACKGROUND_IMAGE_PATH = "/img/brasao-fundo-email.jpg";
+    private static final String VERSION_PROPERTIES_RESOURCE = "/version.properties";
+    private static final String EMAIL_BACKGROUND_CACHE_BUSTER_PROPERTY = "mail.property.emailbg.cachebuster";
     private static final String TITULO_PADRAO = "Bolão de Placa - TV Cipó na Copa 2006";
     private static volatile EmailConfiguration CONFIG = EmailConfiguration.load();
+    private static final String EMAIL_BACKGROUND_VERSION = resolveEmailBackgroundVersion();
 	
 	private Properties property;
 	private String conteudo;
@@ -66,7 +69,47 @@ public class Email {
         if (base.endsWith("/")) {
             base = base.substring(0, base.length() - 1);
         }
-        return base + EMAIL_BACKGROUND_IMAGE_PATH;
+        String imageUrl = base + EMAIL_BACKGROUND_IMAGE_PATH;
+        if (EMAIL_BACKGROUND_VERSION == null || EMAIL_BACKGROUND_VERSION.isEmpty()) {
+            return imageUrl;
+        }
+        return imageUrl + "?v=" + EMAIL_BACKGROUND_VERSION;
+    }
+
+    private static String resolveEmailBackgroundVersion() {
+        String configuredVersion = sanitizeCacheBuster(CONFIG.getProperty(EMAIL_BACKGROUND_CACHE_BUSTER_PROPERTY));
+        if (configuredVersion != null) {
+            return configuredVersion;
+        }
+
+        try (InputStream stream = Email.class.getResourceAsStream(VERSION_PROPERTIES_RESOURCE)) {
+            if (stream == null) {
+                return null;
+            }
+            Properties versionProperties = new Properties();
+            versionProperties.load(stream);
+
+            String buildTimestamp = sanitizeCacheBuster(versionProperties.getProperty("build.timestamp"));
+            if (buildTimestamp != null) {
+                return buildTimestamp;
+            }
+
+            return sanitizeCacheBuster(versionProperties.getProperty("app.version"));
+        } catch (IOException ex) {
+            LOGGER.debug("[EMAIL] Não foi possível carregar version.properties para cache-buster do fundo: {}", ex.getMessage());
+            return null;
+        }
+    }
+
+    private static String sanitizeCacheBuster(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        return trimmed.replaceAll("[^A-Za-z0-9._-]", "_");
     }
 	
 	/**

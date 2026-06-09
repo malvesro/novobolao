@@ -220,6 +220,7 @@ Premissas de compatibilidade (críticas):
     * **[Concluído]** 37.7 — Ajuste de previsibilidade cross-client: fundo configurado com escala fixa (`background-size: 960px auto`), posição `center top` e área mínima visual via `padding-bottom` no overlay, reduzindo cortes agressivos do brasão em e-mails curtos.
     * **[Concluído]** 37.8 — Alinhamento com arte enquadrada em canvas fixo: confirmada resolução real `900x1405` de `brasao-fundo-email.jpg` e template ajustado para `background-size: 900px auto` com `padding-bottom: 160px`, priorizando exibição mais completa do brasão em e-mails curtos.
     * **[Concluído]** 37.9 — Ajuste para arte horizontal redimensionada (`900x604`): `background-size` alterado para `100% auto`, overlay calibrado para `rgba(7,13,24,0.38)` e `padding-bottom` ajustado para `130px`, melhorando encaixe visual no Gmail sem perder legibilidade.
+    * **[Concluído]** 37.10 — Cache-busting do fundo no envio de e-mail: `Email.java` passou a anexar `?v=<versao>` em `${emailBgUrl}` (prioriza `mail.property.emailbg.cachebuster`; fallback em `version.properties` com `build.timestamp`/`app.version`), mitigando reuso de imagem antiga por cache do Gmail/CDN.
     Referências: `webapp/img/brasao-fundo-email.jpg`, `src/com/opendev/bolao/email/Email.java`, `src/main/resources/com/opendev/bolao/email/templates/cabecalho.html`.
     Skills: `ui-ux-pro-max v1.0.0`, `modernization-java-migration v1.0.0`.
 
