@@ -9,6 +9,7 @@ Desktop.ini
 
 # IDEs
 .idea/
+.vscode/settings.json
 *.iml
 *.ipr
 *.iws
