@@ -155,12 +155,11 @@ Premissas de compatibilidade (críticas):
     Referência: `src/main/resources/applicationContext-security.xml`, `struts.xml`, `ValidacaoCadastroAction.java`
     Skill: `modernization-java-migration v1.0.0`, `security-audit v1.0.0`
 
-31. **[Concluído] Correção de Erro de Startup e Conflitos de Log (08/06/2026):** Resolver falha na inicialização do `HikariDataSource` e erros de Log4j.
-    * **[Concluído]** Excluir `HikariCP-java7` e `c3p0` da dependência do Quartz 2.3.2 para evitar conflito com HikariCP 5.1.0 e permitir a propriedade `keepaliveTime`.
-    * **[Concluído]** Adicionar `log4j-to-slf4j` para bridge de logs do Struts 7/Log4j 2 para SLF4J/Logback.
-    * **[Concluído]** Excluir `commons-logging` de `batik-all` para resolver aviso de conflito com `spring-jcl`.
-    * **[Concluído]** Liberar acesso anônimo ao `/health.txt` no `applicationContext-security.xml` para corrigir o Docker Health Check.
-    * **[Concluído]** Validar árvore de dependências e criar log de sessão (`session-20260608-correcao-startup-hikari-logging.md`).
+32. **[Pendente] Corrigir bug na funcionalidade de recuperação de senha:**
+    O envio do código de recuperação não está disparando a ação nem mudando a tela. O problema é a ausência de token CSRF no formulário.
+    * **[Pendente]** 32.1 — Incluir token CSRF no formulário da página `recuperar-senha.jsp`.
+    * **[Pendente]** 32.2 — Validar a submissão e o envio do e-mail.
+    * **[Pendente]** 32.3 — Registrar o log de sessão da correção.
 
 ### Fase 2.6: Otimização de Infraestrutura e Build (ALTA PRIORIDADE)
 

@@ -45,6 +45,9 @@
                 </p>
                 <c:url var="validarOtpURL" value="/validarOtpRecuperacao.action" />
                 <form id="formRecuperacao" action="${validarOtpURL}" method="post">
+                    <c:if test="${not empty _csrf}">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                    </c:if>
                     <div class="form-grid">
                         <div class="form-row" style="display: none;">
                             <label for="rec_email_validacao"><fmt:message key="recuperacao.email.label" /></label>
@@ -63,6 +66,9 @@
                 </p>
                 <c:url var="enviarOtpURL" value="/enviarOtpRecuperacao.action" />
                 <form id="formRecuperacao" action="${enviarOtpURL}" method="post">
+                    <c:if test="${not empty _csrf}">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                    </c:if>
                     <div class="form-grid">
                         <div class="form-row">
                             <label for="rec_email"><fmt:message key="recuperacao.email.label" /></label>
