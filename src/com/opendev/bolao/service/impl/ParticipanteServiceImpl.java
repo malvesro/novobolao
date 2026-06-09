@@ -160,7 +160,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
             getParticipanteRepository().save(participante);
             Set privilegios = participante.getPrivilegios();
             if (autorizado == true && (privilegios != null && !privilegios.isEmpty())) {
-                Email email = new Email("notificacaoCadastroAprovado.html", "Confirmação de cadastro");
+                Email email = new Email("notificacaoCadastroAprovado.html", "📜 Pergaminho Validado: Vossa conta no Grande Bolão de Refactória está ativa!");
                 email.setPropriedade("nome", participante.getNome());
                 email.adicionarEnderecoDestino(participante.getEmail());
                 try {

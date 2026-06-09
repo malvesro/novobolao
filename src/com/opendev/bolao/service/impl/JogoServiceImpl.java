@@ -141,7 +141,7 @@ public class JogoServiceImpl implements JogoService {
                 jogosHtml.append("</td>");
                 jogosHtml.append("</tr>");
             }
-            Email email = new Email("proximosJogos.html", "Atenção aos próximos jogos!");
+            Email email = new Email("proximosJogos.html", "Atenção às próximas batalhas: o momento de selar seus palpites está se aproximando!");
             email.setPropriedade("jogos", jogosHtml.toString());
             List<Participante> participantes = getParticipanteRepository().findAll();
             for (Participante participante : participantes) {

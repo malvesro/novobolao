@@ -737,7 +737,7 @@ public class ParticipanteAction extends ActionSupport {
             String codigo = otpService.gerarCodigo();
             otpService.armazenar(p.getEmail(), codigo);
             
-            Email emailEnvio = new Email("codigoValidacaoCadastro.html", "Código de verificação de cadastro");
+            Email emailEnvio = new Email("codigoValidacaoCadastro.html", "🜲 Chave de Ativação: O Selo do Vosso Cadastro");
             emailEnvio.setPropriedade("nome", p.getNome());
             emailEnvio.setPropriedade("codigo", codigo);
             emailEnvio.adicionarEnderecoDestino(p.getEmail());

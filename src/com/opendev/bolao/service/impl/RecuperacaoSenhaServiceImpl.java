@@ -66,7 +66,7 @@ public class RecuperacaoSenhaServiceImpl implements RecuperacaoSenhaService {
 
         Participante participante = participanteOpt.get();
         try {
-            Email emailSender = new Email("recuperacao-senha-otp.html", "Recuperação de senha");
+            Email emailSender = new Email("recuperacao-senha-otp.html", "🜲 O Oráculo da Memória: Redefinição de Vossa Chave");
             emailSender.setPropriedade("nome", participante.getNome());
             emailSender.setPropriedade("otp", otp);
             emailSender.setPropriedade("expiracaoMinutos", Long.toString(EXPIRACAO_OTP.toMinutes()));

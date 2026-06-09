@@ -24,7 +24,7 @@ public class ValidacaoCadastroAction extends ActionSupport {
     private ParticipanteService participanteService;
 
     private String codigo;
-    private List errosValidacao;
+    private List<MensagemErro> errosValidacao;
     private int tentativasRestantes;
     private String novoEmail;
 
@@ -76,7 +76,7 @@ public class ValidacaoCadastroAction extends ActionSupport {
             session.setAttribute("REGISTRATION_OTP_TRIES", tentativas);
             this.tentativasRestantes = MAX_TENTATIVAS - tentativas;
             
-            List erros = new ArrayList();
+            List<MensagemErro> erros = new ArrayList<>();
             erros.add(new MensagemErro("Codigo", "Código inválido ou expirado.", MensagemErro.SEVERIDADE_ERRO));
             setErrosValidacao(erros);
             
@@ -98,7 +98,7 @@ public class ValidacaoCadastroAction extends ActionSupport {
             otpService.armazenar(p.getEmail(), novoCodigo);
             
             // Envia e-mail
-            Email emailEnvio = new Email("codigoValidacaoCadastro.html", "Novo código de verificação de cadastro");
+            Email emailEnvio = new Email("codigoValidacaoCadastro.html", "🜲 Nova Chave de Ativação: O Reforço do vosso Selo");
             emailEnvio.setPropriedade("nome", p.getNome());
             emailEnvio.setPropriedade("codigo", novoCodigo);
             emailEnvio.adicionarEnderecoDestino(p.getEmail());
@@ -121,8 +121,8 @@ public class ValidacaoCadastroAction extends ActionSupport {
     @StrutsParameter
     public void setCodigo(String codigo) { this.codigo = codigo; }
 
-    public List getErrosValidacao() { return errosValidacao; }
-    public void setErrosValidacao(List errosValidacao) { this.errosValidacao = errosValidacao; }
+    public List<MensagemErro> getErrosValidacao() { return errosValidacao; }
+    public void setErrosValidacao(List<MensagemErro> errosValidacao) { this.errosValidacao = errosValidacao; }
 
     public int getTentativasRestantes() { return tentativasRestantes; }
 

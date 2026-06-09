@@ -116,6 +116,9 @@ Premissas de compatibilidade (críticas):
 
 9. **[Concluído] Modernização da Estrutura de Recursos Maven:** Migrar recursos de configuração de `webapp/WEB-INF/classes/` para a estrutura padrão Maven `src/main/resources/`. Atualizar `pom.xml` para copiar recursos automaticamente durante o build. Remover duplicação de arquivos de configuração entre `src/` e `webapp/WEB-INF/classes/`.
    **Justificativa:** O projeto utiliza `webapp/WEB-INF/classes/` como diretório de recursos, uma prática antiga que não segue os padrões modernos do Maven. A estrutura correta é manter os recursos em `src/main/resources/` e deixar o Maven gerenciar a cópia durante o build, eliminando duplicação e facilitando manutenção.
+   **Atualização (09/06/2026):** Limpeza residual concluída para templates de e-mail HTML duplicados entre `src/com/.../templates` e `src/main/resources/.../templates`; removidas as cópias legadas e mantida `src/main/resources` como fonte canônica. Referência log: `.ia/logs/session-20260609-limpeza-templates-html-duplicados.md`. (Skills: `modernization-java-migration v1.0.0`, `architecture-guardian v1.0.0`)
+   **Atualização (09/06/2026):** Template `cabecalho.html` modernizado para e-mail HTML responsivo (doctype atual, `meta charset`, `meta viewport`, container com `max-width`) preservando compatibilidade com `rodape.html` e placeholders existentes. Referência log: `.ia/logs/session-20260609-atualizacao-cabecalho-email-template.md`. (Skills: `modernization-java-migration v1.0.0`, `architecture-guardian v1.0.0`)
+   **Atualização (09/06/2026):** Ajustes prioritários aplicados em templates e fragments: correção de encoding no template `recuperacao-senha-otp.html`, padronização de copy em templates de notificação (`notificacaoCadastroAprovado.html`, `auditoriaPalpiteAlterado.html`, `proximosJogos.html`) e remoção de diretivas `<%@taglib%>` em `jspf` de partials (`palpite-status.jspf`, `palpites-jogo-rows.jspf`) para alinhamento com diretriz HTMX/JSPF. Referência log: `.ia/logs/session-20260609-ajustes-prioritarios-templates-jsp.md`. (Skills: `modernization-java-migration v1.0.0`, `architecture-guardian v1.0.0`)
 
 10. **[Concluído] 26/02/2026 Correção de autorização na tela de palpites:** Ajustadas as diretivas da página `webapp/WEB-INF/content/seguro/jogos.jsp` para usar `<sec:authorize>` com `ROLE_USER`/`ROLE_ADMIN`, restaurando o dataset `data-palpite-allowed` e mantendo a edição administrativa de resultados via Spring Security. Validação com `mvn test -Dfrontend.skip=true` e log `.ia/logs/session-20260226-correcao-palpites.md`. (Skill: `modernization-java-migration v1.0.0`)
 
@@ -162,6 +165,35 @@ Premissas de compatibilidade (críticas):
     * **[Pendente]** 32.1 — Incluir token CSRF no formulário da página `recuperar-senha.jsp`.
     * **[Pendente]** 32.2 — Validar a submissão e o envio do e-mail.
     * **[Pendente]** 32.3 — Registrar o log de sessão da correção.
+
+33. **[Pendente] Redução controlada de scripts inline e event handlers em JSP/JSPF:**
+    Mapeamento realizado em 09/06/2026 identificou blocos `<script>` inline e atributos `onclick`/eventos embutidos em páginas públicas e administrativas. Esta atividade deve migrar gradualmente esses trechos para módulos JS já existentes (`src/frontend/`) sem regressão funcional e mantendo conformidade com CSP.
+    * **[Pendente]** 33.1 — Inventariar trechos inline por arquivo e classificar por criticidade (login/cadastro/recuperação/admin).
+    * **[Pendente]** 33.2 — Migrar handlers inline de recuperação (`recuperar-senha.jsp`, `redefinir-senha.jsp`) para JS modular.
+    * **[Pendente]** 33.3 — Migrar handlers inline administrativos remanescentes sem quebrar fluxo HTMX.
+    * **[Pendente]** 33.4 — Validar comportamento pós-migração (smoke + `mvn -Dfrontend.skip=true test`) e registrar log.
+
+34. **[Pendente] Refatoração incremental de estilos inline em JSP/JSPF:**
+    Mapeamento realizado em 09/06/2026 identificou estilos inline remanescentes (formulários de recuperação/validação e fragments de progresso). Esta atividade deve consolidar estilos em `webapp/css/estilo.css` com classes utilitárias e manter responsividade/acessibilidade.
+    * **[Pendente]** 34.1 — Inventariar padrões repetidos de `style=\"...\"` e definir classes alvo.
+    * **[Pendente]** 34.2 — Migrar telas de recuperação e validação de cadastro para classes CSS.
+    * **[Pendente]** 34.3 — Migrar inline styles remanescentes em fragments HTMX (`palpite-progress-bar.jspf` e correlatos).
+    * **[Pendente]** 34.4 — Validar regressões visuais (desktop/mobile) e registrar log de sessão.
+
+35. **[Concluído] Estratégia UX para fundo com `brasao-fundo-email.png` em todos os e-mails (09/06/2026):**
+    Como iniciativa de UX sênior, aplicar imagem de fundo comum aos e-mails com escurecimento leve para preservar legibilidade em clientes desktop/mobile, sem quebrar compatibilidade de renderização.
+    **Regra de ouro (não regressão):** cada e-mail deve renderizar **apenas uma ocorrência** do fundo `brasao-fundo-email.png`, centralizada no template base (`cabecalho.html`). É proibido repetir o fundo nos templates de conteúdo para evitar duplicidade visual no mesmo envio.
+    * **[Concluído]** 35.1 — Inventário e fonte da imagem: `webapp/img/brasao-fundo-email.png` localizado; validado tamanho 1660x2592 e peso 7,7 MB, definido como asset canônico inicial para fundo de e-mail.
+    * **[Concluído]** 35.2 — Estratégia de entrega definida: uso de URL pública (`${emailBgUrl}`) em vez de CID/attachment, considerando pipeline atual (`BrevoEmailSender` com `htmlContent`) e menor acoplamento de backend.
+    * **[Concluído]** 35.3 — Técnica de escurecimento aplicada: overlay semitransparente (`rgba(10, 18, 30, 0.42)`) sobre o fundo, com fallback por `background-color` sólido para clientes sem suporte a imagem.
+    * **[Concluído]** 35.4 — Template base ajustado: `cabecalho.html` atualizado para fundo global + overlay e `rodape.html` compatibilizado com fechamento estrutural.
+    * **[Concluído]** 35.5 — Revisão dos templates de conteúdo concluída: legibilidade preservada em bloco principal com fundo branco e placeholders funcionais mantidos sem alteração de contrato.
+    * **[Concluído]** 35.6 — Ajuste backend aplicado: `Email.java` passou a expor `${emailBgUrl}` com normalização de `mail.property.systemurl`.
+    * **[Concluído]** 35.7 — Checklist cross-client registrado no log da sessão (Gmail Web/Mobile, Outlook Web/Desktop, Apple Mail) com critérios de fallback visual.
+    * **[Concluído]** 35.8 — Testes funcionais estáticos executados: validação de templates referenciados, disponibilidade pública de `/img/**`, e integridade de placeholders/markup sem regressão estrutural.
+    * **[Concluído]** 35.9 — ADR registrada com decisão arquitetural URL pública vs CID e implicações operacionais.
+    Referências técnicas iniciais: `src/main/resources/com/opendev/bolao/email/templates/cabecalho.html`, `src/main/resources/com/opendev/bolao/email/templates/rodape.html`, `src/com/opendev/bolao/email/Email.java`, `src/com/opendev/bolao/email/BrevoEmailSender.java`.
+    Skills previstas: `architecture-guardian v1.0.0`, `modernization-java-migration v1.0.0`.
 
 ### Fase 2.6: Otimização de Infraestrutura e Build (ALTA PRIORIDADE)
 

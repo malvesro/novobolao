@@ -22,6 +22,7 @@ public class Email {
     private static final String TEMPLATE_DIR = "/com/opendev/bolao/email/templates/";
 	private static final String TEMPLATE_CABECALHO = "cabecalho.html";
 	private static final String TEMPLATE_RODAPE = "rodape.html";
+    private static final String EMAIL_BACKGROUND_IMAGE_PATH = "/img/brasao-fundo-email.png";
     private static final String TITULO_PADRAO = "Bolão de Placa - TV Cipó na Copa 2006";
     private static volatile EmailConfiguration CONFIG = EmailConfiguration.load();
 	
@@ -52,8 +53,21 @@ public class Email {
 			titulo = TITULO_PADRAO;
 		}
 		setPropriedade("titulo", titulo);
-        setPropriedade("sistema", CONFIG.getProperty("mail.property.systemurl"));
+        String systemUrl = CONFIG.getProperty("mail.property.systemurl");
+        setPropriedade("sistema", systemUrl);
+        setPropriedade("emailBgUrl", buildEmailBackgroundUrl(systemUrl));
 	}
+
+    private String buildEmailBackgroundUrl(String systemUrl) {
+        if (systemUrl == null || systemUrl.trim().isEmpty()) {
+            return "";
+        }
+        String base = systemUrl.trim();
+        if (base.endsWith("/")) {
+            base = base.substring(0, base.length() - 1);
+        }
+        return base + EMAIL_BACKGROUND_IMAGE_PATH;
+    }
 	
 	/**
 	 * 
