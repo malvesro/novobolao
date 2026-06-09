@@ -214,6 +214,9 @@ Premissas de compatibilidade (críticas):
     * **[Concluído]** 37.3 — Atualizar `cabecalho.html` para layout “fundo natural”: manter imagem única no body, reforçar overlay escuro, substituir caixa branca por painel translúcido e padronizar texto claro.
     * **[Concluído]** 37.4 — Garantir contraste mínimo e fallback seguro (cor de fundo sólida quando imagem não carregar), preservando legibilidade em clientes de e-mail.
     * **[Concluído]** 37.5 — Registrar log da sessão com decisões de UX, justificativas e evidências técnicas da migração.
+    * **[Concluído]** 37.6 — Ajuste fino de visibilidade do fundo (pós-validação visual): `background-size` alterado para `contain`, reposicionamento para `center bottom` e redução do overlay para `rgba(7,13,24,0.46)` em `cabecalho.html`, melhorando a percepção do brasão sem perder legibilidade.
+    * **[Concluído]** 37.7 — Ajuste de previsibilidade cross-client: fundo configurado com escala fixa (`background-size: 960px auto`), posição `center top` e área mínima visual via `padding-bottom` no overlay, reduzindo cortes agressivos do brasão em e-mails curtos.
+    * **[Concluído]** 37.8 — Alinhamento com arte enquadrada em canvas fixo: confirmada resolução real `900x1405` de `brasao-fundo-email.jpg` e template ajustado para `background-size: 900px auto` com `padding-bottom: 160px`, priorizando exibição mais completa do brasão em e-mails curtos.
     Referências: `webapp/img/brasao-fundo-email.jpg`, `src/com/opendev/bolao/email/Email.java`, `src/main/resources/com/opendev/bolao/email/templates/cabecalho.html`.
     Skills: `ui-ux-pro-max v1.0.0`, `modernization-java-migration v1.0.0`.
 
