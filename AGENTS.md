@@ -199,6 +199,37 @@ Sugira a criação de commits frequentes para não perder conteúdo relevante, o
 
 * Sempre que concluir uma tarefa registrada no passo-a-passo.md, atualize a versão exposta pelo sistema antes de prosseguir para a próxima atividade.
 
+#### 6.1 Padrão obrigatório de mensagem de commit (Conventional Commits + Emoji)
+
+Para padronizar rastreabilidade e facilitar revisão, toda mensagem de commit deve seguir este formato:
+
+`<emoji> <tipo>(<escopo>): <resumo objetivo em pt-BR>`
+
+Regras obrigatórias:
+
+* Use **Conventional Commits** no `tipo`: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `build`, `ci`.
+* Use **emoji coerente** com o tipo (ex.: `✨ feat`, `🐛 fix`, `♻️ refactor`, `📝 docs`, `✅ test`, `🔧 chore`).
+* Escreva o resumo em **português do Brasil**, com verbo no infinitivo e foco no resultado da mudança.
+* Inclua corpo do commit com bullets curtos explicando: **contexto**, **alterações principais** e **impacto esperado**.
+* Cada bullet deve ser didático, claro, conciso e tecnicamente verificável.
+* Evite mensagens genéricas como “ajustes”, “correções” ou “update”.
+
+Template recomendado:
+
+* Primeira linha:
+  * `<emoji> <tipo>(<escopo>): <resumo objetivo em pt-BR>`
+* Corpo:
+  * `Contexto: <problema/necessidade que motivou a alteração>`
+  * `Alterações: <o que foi modificado, em linguagem objetiva>`
+  * `Impacto: <efeito técnico/funcional esperado>`
+
+Exemplo:
+
+* `🐛 fix(security): corrigir envio de token CSRF no fluxo de redefinição de senha`
+* `Contexto: o POST de redefinição podia falhar por ausência do token em cenário protegido por Spring Security.`
+* `Alterações: inclusão de campo hidden com ${_csrf.parameterName}/${_csrf.token} no formulário de redefinição e atualização de rastreabilidade no passo-a-passo/log.`
+* `Impacto: reduz falhas de submissão e mantém conformidade de segurança no fluxo OTP.`
+
 ### 7. Seguir as tarefas do documento passo-a-passo.md
 
 * Sempre trabalhar seguindo o fluxo do documenbto passo-a-passo.md: O conteúdo do arquivo template deve ser personalizado para esse projeto passo a passo conforme as recomendações para o projeto e a aprovação do usuário.
