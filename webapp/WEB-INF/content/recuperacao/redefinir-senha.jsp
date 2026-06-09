@@ -53,6 +53,9 @@
 
         <c:url var="redefinirSenhaURL" value="/redefinirSenha.action" />
         <form id="formRedefinir" action="${redefinirSenhaURL}" method="post">
+            <c:if test="${not empty _csrf}">
+                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+            </c:if>
             <input type="hidden" name="email" value="${email}" />
             <input type="hidden" name="otp" value="${otp}" />
             <div class="form-grid">

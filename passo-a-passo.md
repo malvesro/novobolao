@@ -136,11 +136,13 @@ Premissas de compatibilidade (críticas):
 
     **Subtarefas (executar em sequência):**
 
-    * **[Pendente] 14.1 — Liberar URLs do fluxo OTP no Spring Security:** Adicionar em `applicationContext-security.xml` as regras `permitAll` para:
+    * **[Concluído] 14.1 — Liberar URLs do fluxo OTP no Spring Security (09/06/2026):** Regras `permitAll` confirmadas em `applicationContext-security.xml` para o fluxo OTP de cadastro e recuperação.
       - `/validacaoCadastro.action*`
       - `/validarCodigo.action*`
       - `/reenviarCodigo.action*`
-      Arquivo: `src/main/resources/applicationContext-security.xml`
+      - **[Concluído] 14.1.1 — Verificar e liberar URLs do fluxo OTP de recuperação de senha (iniciado no commit `7bbb307`):** `permitAll` confirmado para `/recuperarSenhaForm.action*`, `/enviarOtpRecuperacao.action*`, `/validarOtpRecuperacao.action*` e `/redefinirSenha.action*`, com aderência validada entre `applicationContext-security.xml`, `struts.xml` e JSPs.
+      - **[Concluído] 14.1.2 — Verificação completa do fluxo de recuperação de senha (incluindo injeção do token):** validado o fluxo `/recuperarSenhaForm.action` → `/enviarOtpRecuperacao.action` → `/validarOtpRecuperacao.action` → `/redefinirSenha.action`; adicionada injeção de token CSRF em `redefinir-senha.jsp` e confirmada a presença em `recuperar-senha.jsp` (`${_csrf.parameterName}` / `${_csrf.token}`).
+    Arquivo: `src/main/resources/applicationContext-security.xml`
 
     * **[Pendente] 14.2 — Validar o fluxo completo localmente:** Executar `mvn -Dfrontend.skip=true test` para garantir que nenhum teste foi quebrado pela mudança de segurança.
 
