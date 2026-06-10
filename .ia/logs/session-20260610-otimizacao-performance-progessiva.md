@@ -15,6 +15,7 @@ Implementada a Fase 15 do plano de evolução para resolver a lentidão no Huggi
 **Mudanças Principais:**
 - **Infraestrutura:** Tuning de JVM no `Dockerfile` (`-Xmx384m`, limits de threads) para estabilidade no plano gratuito.
 - **Backend:** Nova lógica em `ParticipanteAction` para carga inicial reduzida (apenas a próxima data com jogos). Adicionada action `palpitesMaisJogosPartial` para carregamento progressivo.
+- **Globalização do Progresso:** Refatorada a lógica de cálculo da barra de progresso em `ParticipanteAction.atualizarProgressoPalpites()`. O cálculo agora ignora filtros de exibição, garantindo que o usuário veja seu progresso real no campeonato completo (ex: 10 / 104 jogos) mesmo visualizando apenas um dia por vez. Isso evita a falsa percepção de conclusão (ex: 3/3 - 100%) que ocorreria com o carregamento parcial.
 - **Frontend:** Refatoração do `jogos.jsp` para usar fragmentos (`jogos-lista-fragmento.jsp`) e inclusão do botão **"Carregar Próxima Data"** via HTMX, evitando o processamento síncrono de 104 jogos.
 
 **Arquivos impactados:**

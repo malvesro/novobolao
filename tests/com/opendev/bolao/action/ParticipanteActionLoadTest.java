@@ -47,6 +47,7 @@ class ParticipanteActionLoadTest {
         
         when(jogoService.buscarPrimeiraDataComJogosApos(any(Date.class))).thenReturn(amanha);
         when(jogoService.buscarUsandoFiltro(any(FiltroBuscaJogos.class))).thenReturn(new ArrayList<>());
+        when(jogoService.contarJogosUsandoFiltro(null)).thenReturn(104L);
         when(equipeService.buscarApenasPaisesReais()).thenReturn(new ArrayList<>());
 
         action.prepararInfoPalpites();
@@ -54,6 +55,10 @@ class ParticipanteActionLoadTest {
         assertThat(action.getFiltro()).isNotNull();
         assertThat(action.getFiltro().getDataInicial()).isEqualTo(amanha);
         assertThat(action.getFiltro().getDataFinal()).isEqualTo(amanha);
+        assertThat(action.getProgressoPalpitesTotal()).isEqualTo(104);
+        
+        // Verifica que busca o total global para o progresso
+        verify(jogoService).contarJogosUsandoFiltro(null);
         verify(jogoService).buscarUsandoFiltro(any(FiltroBuscaJogos.class));
     }
 }

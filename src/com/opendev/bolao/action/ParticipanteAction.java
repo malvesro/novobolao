@@ -726,17 +726,22 @@ public class ParticipanteAction extends ActionSupport {
         if (this.palpitesUsuario == null) {
             prepararMapaPalpitesUsuario();
         }
-        long totalJogos = getJogoService().contarJogosUsandoFiltro(filtro);
+        
+        // O progresso deve ser GLOBAL para o torneio, ignorando o filtro de exibição da tela.
+        // Isso motiva o usuário a preencher todos os jogos da Copa.
+        long totalJogos = getJogoService().contarJogosUsandoFiltro(null);
         this.progressoPalpitesTotal = Math.max(0, totalJogos);
+        
         if (this.palpitesUsuario == null || this.palpitesUsuario.isEmpty() || totalJogos == 0) {
             this.progressoPalpitesPreenchidos = 0;
             this.progressoPalpitesPercentual = 0;
             return;
         }
+        
         long preenchidos = 0;
-        List jogosFiltrados = filtro == null ? getJogoService().buscarTodos() : getJogoService().buscarUsandoFiltro(filtro);
-        if (jogosFiltrados != null) {
-            for (Object item : jogosFiltrados) {
+        List todosOsJogos = getJogoService().buscarTodos();
+        if (todosOsJogos != null) {
+            for (Object item : todosOsJogos) {
                 Jogo jogo = (Jogo) item;
                 if (jogo == null || jogo.getId() == null) {
                     continue;

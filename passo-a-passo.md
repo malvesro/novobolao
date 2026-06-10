@@ -186,10 +186,10 @@ Premissas de compatibilidade (críticas):
         - Configurar `hx-get`, `hx-target` e `hx-swap="outerHTML"` para anexar novos jogos e substituir o botão.
         - Ajustar CSS para o estado de carregamento do botão.
 
-    * **[Pendente] 15.5 — Validação de Regressão e Performance:**
-        - Garantir que a Barra de Progresso global continue funcionando corretamente.
-        - Validar compatibilidade dos novos fragmentos com os inputs de palpites inline (HTMX).
-        - Registrar log de sessão com ganhos de TTFB (Time to First Byte).
+    * **[Concluído] 15.5 — Validação de Regressão e Performance (10/06/2026):** 
+        - Garantido que a Barra de Progresso global continue funcionando corretamente através da **globalização do cálculo** (ignora filtros de data para mostrar o progresso real no torneio, ex: 10/104).
+        - Validada a compatibilidade dos novos fragmentos com os palpites inline.
+        - Registrado log de sessão com os ganhos de arquitetura e UX.
 
 ---
 
