@@ -145,6 +145,10 @@
 			<result name="success">/WEB-INF/content/seguro/partials/palpite-progress-bar.jsp</result>
 		</action>
 
+		<action name="palpitesMaisJogosPartial" class="participanteAction" method="buscarMaisJogosHtmx">
+			<result name="success">/WEB-INF/content/seguro/partials/jogos-lista-fragmento.jsp</result>
+		</action>
+
 		<action name="graficoDesempenho" class="participanteAction" method="gerarGraficoDesempenho">
 			<result name="success">/WEB-INF/content/seguro/graficoDesempenho.jsp</result>
 		</action>

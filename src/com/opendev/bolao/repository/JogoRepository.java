@@ -41,6 +41,16 @@ public interface JogoRepository extends JpaRepository<Jogo, Long> {
     List<Jogo> findByDataAndHora(Date data, Date hora);
 
     /**
+     * Busca a primeira data que possui jogos a partir da data informada.
+     * Útil para o filtro padrão de "Próxima Data com Jogos".
+     * 
+     * @param data Data de referência.
+     * @return A primeira data encontrada ou null.
+     */
+    @Query("SELECT MIN(j.data) FROM Jogo j WHERE j.data >= :data")
+    Date findFirstDateWithGamesOnOrAfter(Date data);
+
+    /**
      * Retorna a quantidade de jogos que já possuem resultado.
      * 
      * @return Quantidade de jogos.

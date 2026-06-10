@@ -113,6 +113,10 @@ public class JogoServiceImpl implements JogoService {
         }
         return 0L;
     }
+
+    public Date buscarPrimeiraDataComJogosApos(Date data) {
+        return getJogoRepository().findFirstDateWithGamesOnOrAfter(data);
+    }
     
     public void avisarSobreProximoJogo() {
         Calendar calendar = Calendar.getInstance();

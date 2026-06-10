@@ -47,8 +47,15 @@ RUN rm -rf ROOT docs examples host-manager manager && \
 # Configuração de Fuso Horário
 ENV TZ=America/Sao_Paulo
 
-# Configuração de Memória e JVM
-ENV CATALINA_OPTS="-Xmx256m -Xms256m -XX:MaxMetaspaceSize=160m -XX:+UseSerialGC -Xss256k -Djava.awt.headless=true -Duser.timezone=America/Sao_Paulo"
+# Configuração de Memória e JVM Otimizada para Ambientes Restritos (HF Free Tier)
+ENV CATALINA_OPTS="-Xmx384m -Xms128m \
+    -XX:MaxMetaspaceSize=128m \
+    -XX:+UseSerialGC \
+    -XX:MinHeapFreeRatio=20 \
+    -XX:MaxHeapFreeRatio=40 \
+    -Djava.awt.headless=true \
+    -Duser.timezone=America/Sao_Paulo \
+    -Dserver.tomcat.max-threads=50"
 
 # Alterar porta para 7860
 RUN sed -i 's/port="8080"/port="7860"/g' /usr/local/tomcat/conf/server.xml

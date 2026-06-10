@@ -160,6 +160,39 @@ Premissas de compatibilidade (críticas):
     Referência: `src/main/resources/applicationContext-security.xml`, `struts.xml`, `ValidacaoCadastroAction.java`
     Skill: `modernization-java-migration v1.0.0`, `security-audit v1.0.0`
 
+---
+
+15. **[Pendente] Otimização de Performance para Ambientes Restritos (Hugging Face Spaces):**
+    
+    **Diagnóstico:** Lentidão causada por processamento síncrono de 104 jogos em CPU limitada.
+    **Estratégia:** Carga inicial mínima (Hoje/Próxima Data) + Carregamento progressivo via HTMX.
+
+    * **[Pendente] 15.1 — Tuning de Infraestrutura (Dockerfile):**
+        - Atualizar `CATALINA_OPTS` com limites de memória realistas (`-Xmx384m`) e redução de threads do Tomcat (`max-threads=50`).
+        - Validar build local e startup time.
+
+    * **[Pendente] 15.2 — Lógica de Carga Inicial Mínima:**
+        - Criar método no `JogoService` para encontrar a "Próxima Data com Jogos" a partir de hoje.
+        - Ajustar `ParticipanteAction.prepararInfoPalpites` para aplicar este filtro por padrão se `usarFiltro == false`.
+        - Adicionar testes unitários para a nova lógica de filtro.
+
+    * **[Pendente] 15.3 — Implementação do Botão "Mais Jogos" (Backend):**
+        - Criar action `palpitesMaisJogos.action` que recebe uma data de referência.
+        - Implementar busca dos jogos da data imediatamente posterior à informada.
+        - Criar fragmento JSP (`jogos-lista-fragmento.jsp`) para renderizar apenas os portlets das novas datas.
+
+    * **[Pendente] 15.4 — Integração UI com HTMX (Frontend):**
+        - Injetar o botão "Mais Jogos" ao final da lista no `jogos.jsp`.
+        - Configurar `hx-get`, `hx-target` e `hx-swap="outerHTML"` para anexar novos jogos e substituir o botão.
+        - Ajustar CSS para o estado de carregamento do botão.
+
+    * **[Pendente] 15.5 — Validação de Regressão e Performance:**
+        - Garantir que a Barra de Progresso global continue funcionando corretamente.
+        - Validar compatibilidade dos novos fragmentos com os inputs de palpites inline (HTMX).
+        - Registrar log de sessão com ganhos de TTFB (Time to First Byte).
+
+---
+
 32. **[Concluído] Corrigir bug na funcionalidade de recuperação de senha (09/06/2026):**
     O envio do código de recuperação não está disparando a ação nem mudando a tela. O problema é a ausência de token CSRF no formulário.
     * **[Concluído]** 32.1 — Token CSRF confirmado no formulário da página `recuperar-senha.jsp` (ramificações `enviarOtpRecuperacao` e `validarOtpRecuperacao`) e também em `redefinir-senha.jsp`.

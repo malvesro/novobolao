@@ -223,127 +223,23 @@
 								</div>
 								<span class="spacer spacer-sm"></span>
 							</c:if>
-							<c:forEach var="jogo" items="${jogos}" varStatus="loop">
-								<fmt:formatDate var="dataJogoFormatada" value="${jogo.data}" pattern="dd/MM/yyyy" />
-								<fmt:formatDate var="horaJogoFormatada" value="${jogo.hora}" pattern="HH:mm" />
-								<c:if test="${not empty dataJogo and dataJogo ne jogo.data}">
-									<c:set var="rowIndex" value="0" />
-									</table>
-					</div>
-					</div>
-					</div>
-					<span class="spacer spacer-sm"></span>
-					</c:if>
-					<c:if test="${empty dataJogo or dataJogo ne jogo.data}">
-						<div id="jogos_${dataJogoFormatada}_portlet" class="portlet collapsible-portlet">
-							<div class="title collapsible-portlet__header">
-								<img alt="Alternar exibição do filtro" src="${base}/img/arrow_down.png"
-									class="collapse-toggle icon-inline-top icon-button"
-									data-target="jogos_${dataJogoFormatada}_portlet" />
-								<fmt:message key="matchs.day">
-									<fmt:param value="${dataJogoFormatada}" />
-								</fmt:message>
-							</div>
-							<div class="content collapsible-portlet__content"
-								id="jogos_${dataJogoFormatada}_portlet_content">
-								<div class="table-responsive">
-									<table class="table conteudo match-table">
-										<thead>
-											<tr>
-												<th scope="col">
-													<fmt:message key="match.hour" />
-												</th>
-												<th scope="col">
-													<fmt:message key="match.where" />
-												</th>
-												<th scope="col">
-													<fmt:message key="match.group" />
-												</th>
-												<th scope="colgroup" colspan="3">
-													<fmt:message key="match.teams" />
-												</th>
-												<c:if test="${telaPalpites}">
-													<th scope="col">
-														<fmt:message key="match.tip.mine" />
-													</th>
-													<th scope="col"></th>
-												</c:if>
-												<sec:authorize access="hasRole('ADMIN')">
-													<th scope="col" style="width: 40px;"></th>
-												</sec:authorize>
-											</tr>
-										</thead>
-					</c:if>
-					<c:choose>
-						<c:when test="${jogo.equipe1.nomePais eq 'Brasil' or jogo.equipe2.nomePais eq 'Brasil'}">
-							<c:set var="rowStyleClass" value="brasil" />
-						</c:when>
-						<c:when test="${rowIndex mod 2 eq 0}">
-							<c:set var="rowStyleClass" value="impar" />
-						</c:when>
-						<c:otherwise>
-							<c:set var="rowStyleClass" value="par" />
-						</c:otherwise>
-					</c:choose>
-					<c:choose>
-						<c:when test="${telaPalpites}">
-							<c:set var="palpiteUsuario" value="${palpitesUsuario[jogo.id]}" />
-							<c:set var="palpiteGols1Attr" value="" />
-							<c:set var="palpiteGols2Attr" value="" />
-							<c:if test="${not empty palpiteUsuario}">
-								<c:set var="palpiteGols1Attr" value="${palpiteUsuario.golsEquipe1}" />
-								<c:set var="palpiteGols2Attr" value="${palpiteUsuario.golsEquipe2}" />
-							</c:if>
-							<c:set var="podeRegistrarPalpite" value="false" />
-							<sec:authorize access="hasAnyRole('USER', 'ADMIN')">
-								<c:set var="podeRegistrarPalpite" value="true" />
-							</sec:authorize>
-							<c:set var="palpitePermitido" value="${podeRegistrarPalpite and jogo.podeDarPalpite}" />
-							<c:set var="palpiteStatus" value="locked" />
-							<c:if test="${not empty palpiteUsuario}">
-								<c:set var="palpiteStatus" value="registered" />
-							</c:if>
-							<c:if test="${empty palpiteUsuario and palpitePermitido}">
-								<c:set var="palpiteStatus" value="pending" />
-							</c:if>
-							<c:set var="palpiteBloqueioMotivo" value="" />
-							<c:choose>
-								<c:when test="${palpitePermitido}">
-									<c:set var="palpiteBloqueioMotivo" value="" />
-								</c:when>
-								<c:when test="${not podeRegistrarPalpite}">
-									<c:set var="palpiteBloqueioMotivo" value="roleMissing" />
-								</c:when>
-								<c:when test="${not jogo.podeDarPalpite}">
-									<c:set var="palpiteBloqueioMotivo" value="timeWindow" />
-								</c:when>
-								<c:otherwise>
-									<c:set var="palpiteBloqueioMotivo" value="unknown" />
-								</c:otherwise>
-							</c:choose>
-							<c:set var="palpiteStatusKey">match.tip.status.${palpiteStatus}</c:set>
-							<fmt:message key="${palpiteStatusKey}" var="palpiteStatusLabel" />
-							<fmt:message key="match.tip.none" var="palpiteSemRegistro" />
 
-							<tbody>
-								<%@include file="/WEB-INF/content/seguro/partials/match-row.jspf" %>
-							</tbody>
-						</c:when>
-						<c:otherwise>
-							<tbody>
-								<%@include file="/WEB-INF/content/admin/partials/admin-match-row.jsp" %>
-							</tbody>
-						</c:otherwise>
-					</c:choose>
-					<c:set var="dataJogo" value="${jogo.data}" />
-					<c:if test="${loop.count eq fn:length(jogos)}">
-						</table>
-						</div>
-						</div>
-						</div>
-					</c:if>
-					<c:set var="rowIndex" value="${rowIndex + 1}" />
-					</c:forEach>
+							<c:if test="${not usarFiltro and empty param.dataInicial}">
+								<div class="info-banner performance-notice">
+									<p>
+										<img src="${base}/img/information.gif" class="icon-inline" alt="" />
+										Exibindo carga inicial reduzida para melhor performance.
+										<a href="${pageContext.request.contextPath}/seguro/palpites.action?usarFiltro=true" class="link-action">Ver Calendário Completo</a>
+									</p>
+								</div>
+								<span class="spacer spacer-sm"></span>
+							</c:if>
+
+							<div id="jogos-lista-container">
+								<%@include file="/WEB-INF/content/seguro/partials/jogos-lista-fragmento.jsp" %>
+							</div>
+
+							<%-- Removido loop antigo que renderizava todos os jogos de uma vez --%>
 					<%-- Removido fechamento do form externo --%>
 						<div class="sticky-header"></div>
 						<span class="spacer spacer-sm"></span>

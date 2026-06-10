@@ -24,6 +24,8 @@ public interface JogoService {
 
     public long contarJogosUsandoFiltro(FiltroBuscaJogos filtro);
     
+    public Date buscarPrimeiraDataComJogosApos(Date data);
+    
     public List buscarJogosDeHoje();
     
     public void atualizarDadosEstruturaisJogo(Long idJogo, Date data, Time hora, String local, int fase, Long idEquipe1, Long idEquipe2);

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Date;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -204,6 +205,20 @@ public class ParticipanteAction extends ActionSupport {
 	           this.login = RequestUtils.getLoginParticipanteAutenticado();
 	       }
 	       FiltroBuscaJogos filtro = obterFiltro();
+	       
+	       // Se não houver filtro explícito, aplica carga mínima (Próxima Data com Jogos)
+	       if (filtro == null) {
+	           Date dataReferencia = new Date();
+	           Date proximaData = getJogoService().buscarPrimeiraDataComJogosApos(dataReferencia);
+	           
+	           if (proximaData != null) {
+	               filtro = new FiltroBuscaJogos();
+	               filtro.setDataInicial(proximaData);
+	               filtro.setDataFinal(proximaData);
+	               setFiltro(filtro);
+	           }
+	       }
+
 	       if (filtro == null) {
 	           setJogos(getJogoService().buscarTodos());
 	       } else {
@@ -216,6 +231,39 @@ public class ParticipanteAction extends ActionSupport {
 	       atualizarProgressoPalpites(filtro);
 	       return SUCCESS;
 	   }
+
+    public String buscarMaisJogosHtmx() {
+        marcarRespostaParcial();
+        if (this.dataInicial == null) {
+            return SUCCESS;
+        }
+        
+        try {
+            Date dataReferencia = ConversaoUtils.converterParaData(this.dataInicial);
+            // Incrementamos 1 dia para buscar a partir do próximo dia
+            Date diaSeguinte = new Date(dataReferencia.getTime() + 86400000);
+            
+            Date proximaDataDisponivel = getJogoService().buscarPrimeiraDataComJogosApos(diaSeguinte);
+            
+            if (proximaDataDisponivel != null) {
+                FiltroBuscaJogos novoFiltro = new FiltroBuscaJogos();
+                novoFiltro.setDataInicial(proximaDataDisponivel);
+                novoFiltro.setDataFinal(proximaDataDisponivel);
+                
+                setFiltro(novoFiltro);
+                setJogos(getJogoService().buscarUsandoFiltro(novoFiltro));
+                setTelaPalpites(true);
+                prepararMapaPalpitesUsuario();
+            } else {
+                setJogos(Collections.emptyList());
+            }
+        } catch (Exception e) {
+            LOGGER.error("Erro ao buscar mais jogos via HTMX", e);
+            setJogos(Collections.emptyList());
+        }
+        
+        return SUCCESS;
+    }
 
     private void prepararMapaPalpitesUsuario() {
         String loginLocal = this.login;
