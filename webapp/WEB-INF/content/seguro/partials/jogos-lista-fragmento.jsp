@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
-<%@ taglib prefix="opendev" uri="/opendev-tags" %>
+<%@ taglib prefix="opendev" uri="http://www.opendev.com.br/tld" %>
 
 <c:forEach var="jogo" items="${jogos}" varStatus="loop">
     <fmt:formatDate var="dataJogoFormatada" value="${jogo.data}" pattern="dd/MM/yyyy" />
