@@ -679,6 +679,13 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     * Subtarefa 3: Recompilação do projeto com as novas configurações e verificação de integridade.
   Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
   Referência Log: `.ia/logs/session-20260610-correcao-jpa-exception.md`
+
+* 2026-06-10: **[Concluído]** Ajustar fuso horário do timestamp de compilação para America/São_Paulo.
+    * Subtarefa 1: Adicionado `build-helper-maven-plugin` ao `pom.xml` para gerar timestamp customizado.
+    * Subtarefa 2: Configurado o plugin para fuso horário `America/Sao_Paulo`.
+    * Subtarefa 3: Atualizado `src/main/resources/version.properties` para utilizar a nova propriedade `build.timestamp.sp`.
+    * Subtarefa 4: Verificação local confirmou `build.timestamp=2026-06-10T16:17:16-03:00` no arquivo gerado.
+  Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
 * 2026-02-19: **[Concluído]** Consolidação do plano de migração DWR → HTMX (Fase 2.5 - Tarefa 2, subtarefa 2). Documento criado (`.ia/planos/plano-migracao-dwr-htmx.md`) com estratégia por camadas, cronograma e próximos passos para substituir DWR/Prototype por REST + HTMX.
   Auto-Analise: [Risco: Medio] | [Compatibilidade: Atenção] | [Veredito: Revisar]
   Referência Log: `.ia/logs/session-20260219-plano-migracao-dwr-htmx.md`
