@@ -95,9 +95,9 @@ final class EmailConfiguration {
 
     private static void overlayExternalFile(Properties properties) {
         String path = firstNonBlank(
-                System.getenv(EXTERNAL_CONFIG_ENV),
                 System.getProperty(EXTERNAL_CONFIG_ENV),
-                System.getProperty(EXTERNAL_CONFIG_PROPERTY)
+                System.getProperty(EXTERNAL_CONFIG_PROPERTY),
+                System.getenv(EXTERNAL_CONFIG_ENV)
         );
 
         if (path == null) {
@@ -128,8 +128,8 @@ final class EmailConfiguration {
     private static void overlayEnvironment(Properties properties) {
         for (Map.Entry<String, String> entry : ENVIRONMENT_MAPPING.entrySet()) {
             String value = firstNonBlank(
-                    System.getenv(entry.getKey()),
-                    System.getProperty(entry.getKey())
+                    System.getProperty(entry.getKey()),
+                    System.getenv(entry.getKey())
             );
             if (value != null) {
                 properties.setProperty(entry.getValue(), value.trim());

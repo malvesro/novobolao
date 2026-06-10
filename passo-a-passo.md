@@ -147,15 +147,15 @@ Premissas de compatibilidade (críticas):
       - **[Concluído] 14.1.2 — Verificação completa do fluxo de recuperação de senha (incluindo injeção do token):** validado o fluxo `/recuperarSenhaForm.action` → `/enviarOtpRecuperacao.action` → `/validarOtpRecuperacao.action` → `/redefinirSenha.action`; adicionada injeção de token CSRF em `redefinir-senha.jsp` e confirmada a presença em `recuperar-senha.jsp` (`${_csrf.parameterName}` / `${_csrf.token}`).
     Arquivo: `src/main/resources/applicationContext-security.xml`
 
-    * **[Pendente] 14.2 — Validar o fluxo completo localmente:** Executar `mvn -Dfrontend.skip=true test` para garantir que nenhum teste foi quebrado pela mudança de segurança.
+    * **[Concluído] 14.2 — Validar o fluxo completo localmente (10/06/2026):** Executado `mvn -Dfrontend.skip=true test` com sucesso (50 testes, 0 falhas). Corrigida prioridade de propriedades em `EmailConfiguration.java` para permitir overrides via System Properties (necessário para testes em ambiente com variáveis globais).
 
-    * **[Pendente] 14.3 — Build e redeploy local (Docker):** Executar pipeline completo (`mvn clean package -Dfrontend.skip=true`, `docker compose build app`, `docker compose up -d app`) e validar manualmente o fluxo: cadastro → recebimento do e-mail → entrada do código → confirmação.
+    * **[Concluído] 14.3 — Build e redeploy local (Docker) (10/06/2026):** Pipeline completo executado (`mvn clean package`, `docker compose build`, `docker compose up`). Configurado `.env` local com credenciais de banco e validado startup saudável do Tomcat.
 
     * **[Pendente] 14.4 — Atualizar produção (HuggingFace Spaces):** Fazer commit, push e atualizar o ambiente de produção. Validar o fluxo completo em `novobolaodacopa-bolaocopa.hf.space`.
 
-    * **[Pendente] 14.5 — Criar log de sessão e atualizar rastreabilidade:** Registrar em `.ia/logs/session-20260604-otp-cadastro-urls-security.md`.
+    * **[Pendente] 14.5 — Criar log de sessão e atualizar rastreabilidade:** Registrar em `.ia/logs/session-20260610-validacao-otp-config-fix.md`.
 
-    * **[Pendente] 14.6 — Corrigir conflito de prefixo [opendev] em validacaoCadastro.jsp:** Remover declarações redundantes de taglibs que já constam no `cabecalho.jspf` (prelude).
+    * **[Concluído] 14.6 — Corrigir conflito de prefixo [opendev] em validacaoCadastro.jsp (10/06/2026):** Verificado que o arquivo já se encontra limpo de declarações redundantes, utilizando corretamente o prelude definido no `web.xml`.
 
     Referência: `src/main/resources/applicationContext-security.xml`, `struts.xml`, `ValidacaoCadastroAction.java`
     Skill: `modernization-java-migration v1.0.0`, `security-audit v1.0.0`
