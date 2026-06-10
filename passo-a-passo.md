@@ -673,10 +673,12 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
   Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
   Referência Log: `.ia/logs/session-20260219-migracao-cewolf-continuacao.md`, `.ia/logs/session-20260219-validacao-graficos-jfreechart-v2.md`
   Skill: `modernization-java-migration v1.0.0`
-* 2026-02-19: **[Em Progresso]** Inventário e análise de scripts front-end (Fase 2.5 - Tarefa 2). Catalogadas bibliotecas legadas (Prototype/Scriptaculous, DWR, Overlib, BrowserDetector) e recomendadas substituições modernas (HTMX/fetch, tooltips com Tippy.js, remoção de sniffers, uso de tags HTML5/Struts atualizadas).
-  Auto-Analise: [Risco: Medio] | [Compatibilidade: Atenção] | [Veredito: Revisar]
-  Referência Log: `.ia/logs/session-20260219-inventario-scripts-fase-2-5.md`
-  Skill: N/A (nenhuma skill aplicável)
+* 2026-06-10: **[Concluído]** Correção de `InvalidDataAccessApiUsageException` no `JogoRepository`.
+    * Subtarefa 1: Adicionado `-parameters` ao `maven-compiler-plugin` no `pom.xml` para garantir preservação de nomes de parâmetros em tempo de execução (requisito Spring 6/JPA 3).
+    * Subtarefa 2: Refatorado `JogoRepository.findFirstDateWithGamesOnOrAfter` para usar nome de parâmetro explícito (`:dataReferencia`) com a anotação `@Param`.
+    * Subtarefa 3: Recompilação do projeto com as novas configurações e verificação de integridade.
+  Auto-Analise: [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+  Referência Log: `.ia/logs/session-20260610-correcao-jpa-exception.md`
 * 2026-02-19: **[Concluído]** Consolidação do plano de migração DWR → HTMX (Fase 2.5 - Tarefa 2, subtarefa 2). Documento criado (`.ia/planos/plano-migracao-dwr-htmx.md`) com estratégia por camadas, cronograma e próximos passos para substituir DWR/Prototype por REST + HTMX.
   Auto-Analise: [Risco: Medio] | [Compatibilidade: Atenção] | [Veredito: Revisar]
   Referência Log: `.ia/logs/session-20260219-plano-migracao-dwr-htmx.md`

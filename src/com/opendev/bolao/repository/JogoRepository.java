@@ -2,6 +2,7 @@ package com.opendev.bolao.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.opendev.bolao.model.Jogo;
@@ -47,8 +48,8 @@ public interface JogoRepository extends JpaRepository<Jogo, Long> {
      * @param data Data de referência.
      * @return A primeira data encontrada ou null.
      */
-    @Query("SELECT MIN(j.data) FROM Jogo j WHERE j.data >= :data")
-    Date findFirstDateWithGamesOnOrAfter(Date data);
+    @Query("SELECT MIN(j.data) FROM Jogo j WHERE j.data >= :dataReferencia")
+    Date findFirstDateWithGamesOnOrAfter(@Param("dataReferencia") Date dataReferencia);
 
     /**
      * Retorna a quantidade de jogos que já possuem resultado.
