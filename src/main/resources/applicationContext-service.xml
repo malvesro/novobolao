@@ -14,6 +14,12 @@
 	</bean>
 	<bean id="emailSenderFactory" class="com.opendev.bolao.email.EmailSenderFactory" />
 	<bean id="otpService" class="com.opendev.bolao.service.impl.OtpServiceImpl" />
+	<!--
+		Registro explícito para ambientes que usam configuração majoritariamente XML
+		(como o deploy do Hugging Face), garantindo injeção em interceptors Struts
+		autowirados pelo SpringObjectFactory.
+	-->
+	<bean id="errorNotificationService" class="com.opendev.bolao.service.ErrorNotificationService" />
 
 	<bean id="transactionProxyTemplate"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"

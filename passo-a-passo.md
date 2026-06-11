@@ -283,6 +283,14 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 39.5 — Compatibilidade legada sem rota dedicada:** validado que `GET /j_security_check` retorna `302` para `/login.action` pelo fluxo padrão de segurança, eliminando 404 sem necessidade de `action` adicional no Struts.
     * **[Concluído] 39.6 — Validação técnica:** smoke runtime e validações HTTP (login GET 200, login POST 302 para `/seguro/principal.action`, acesso autenticado a `/seguro/palpites.action` com 200) documentados em `.ia/logs/session-20260611-login-jsecuritycheck-404.md`.
 
+40. **[Concluído] Correção de inicialização no Hugging Face por bean ausente no Spring (11/06/2026):**
+    Objetivo: eliminar falha de startup causada por `UnsatisfiedDependencyException` no interceptor de exceções quando executado no ambiente de produção do Hugging Face.
+    Skills aplicadas: `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`.
+    * **[Concluído] 40.1 — Análise de causa raiz:** log de produção mostrou ausência de bean `ErrorNotificationService` no contexto Spring durante construção do `ExceptionLoggingInterceptor`.
+    * **[Concluído] 40.2 — Correção de configuração:** registrado bean explícito `errorNotificationService` em `applicationContext-service.xml`, garantindo injeção em runtime para ambientes baseados em configuração XML.
+    * **[Concluído] 40.3 — Documentação inline:** incluído comentário técnico no XML explicando o motivo do registro explícito para o cenário HF/Struts `SpringObjectFactory`.
+    * **[Concluído] 40.4 — Validação técnica:** rebuild em container e verificação de logs sem `NoSuchBeanDefinitionException`; `health.txt` retornando HTTP 200 e suíte `mvn -Dfrontend.skip=true test` com 52 testes e 0 falhas. Evidência: `.ia/logs/session-20260611-hf-startup-missing-errornotification-bean.md`.
+
 ### Fase 2.6: Otimização de Infraestrutura e Build (ALTA PRIORIDADE)
 
 1. **[Concluído] Registro e Planejamento:** Formalizar a nova estratégia de build.
