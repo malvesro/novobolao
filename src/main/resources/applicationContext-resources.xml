@@ -11,7 +11,13 @@
 	<!-- Datasource configuration (alternatively you can use the JNDI way) -->
 	<bean id="defaultDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
 		<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
-		<property name="jdbcUrl" value="jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:bolao}?useSSL=true&amp;requireSSL=true&amp;verifyServerCertificate=false&amp;allowPublicKeyRetrieval=true&amp;useUnicode=true&amp;characterEncoding=UTF-8&amp;connectionCollation=utf8mb4_unicode_ci&amp;cachePrepStmts=true&amp;prepStmtCacheSize=250&amp;prepStmtCacheSqlLimit=2048&amp;useServerPrepStmts=true" />
+		<!--
+		  Timezone explícito na sessão JDBC:
+		  - os dados de jogos (data/hora) já são cadastrados no referencial São Paulo;
+		  - em produção (HF), host/container pode operar com outro fuso.
+		  Assim evitamos drift em colunas TIMESTAMP/CURRENT_TIMESTAMP.
+		-->
+		<property name="jdbcUrl" value="jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:bolao}?useSSL=true&amp;requireSSL=true&amp;verifyServerCertificate=false&amp;allowPublicKeyRetrieval=true&amp;useUnicode=true&amp;characterEncoding=UTF-8&amp;connectionCollation=utf8mb4_unicode_ci&amp;cachePrepStmts=true&amp;prepStmtCacheSize=250&amp;prepStmtCacheSqlLimit=2048&amp;useServerPrepStmts=true&amp;connectionTimeZone=America/Sao_Paulo&amp;forceConnectionTimeZoneToSession=true" />
 		<property name="username" value="${DB_USER:root}" />
 		<property name="password" value="${DB_PASSWORD}" />
 		<property name="maximumPoolSize" value="10" />

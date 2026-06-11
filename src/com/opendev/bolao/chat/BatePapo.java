@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.opendev.bolao.service.ParticipanteService;
+import com.opendev.bolao.util.BolaoTime;
 import com.opendev.bolao.util.RequestUtils;
 import com.opendev.bolao.util.ValidacaoUtils;
 
@@ -33,10 +34,12 @@ public class BatePapo implements Serializable {
 	
 	public BatePapo() {
 		this.proximoId = new Long(0);
-		this.mensagens = Collections.synchronizedMap(new LinkedHashMap());
-		this.apelidos = new HashMap();
+        this.mensagens = Collections.synchronizedMap(new LinkedHashMap());
+        this.apelidos = new HashMap();
         this.participantes = Collections.synchronizedList(new ArrayList(28));
         this.formatadorData = new SimpleDateFormat("HH:mm:ss");
+        // Carimbo de horário do chat alinhado ao fuso oficial do domínio.
+        this.formatadorData.setTimeZone(BolaoTime.getTimeZone());
         this.tempoUltimaMsg = System.currentTimeMillis();
 	}
 

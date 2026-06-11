@@ -19,19 +19,41 @@ import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.model.Palpite;
 import com.opendev.bolao.service.PalpiteAuthorizationService;
 import com.opendev.bolao.service.dto.PalpiteAuthorization;
+import com.opendev.bolao.util.BolaoTime;
 
+/**
+ * Serviço de autorização de palpites.
+ *
+ * <p>Decisão arquitetural: todo cálculo temporal desta regra usa o tempo canônico
+ * do domínio ({@code America/Sao_Paulo}) via {@link BolaoTime}.
+ *
+ * <p>Motivação operacional: em produção (Hugging Face), o host/container pode
+ * operar com timezone diferente. Sem essa fixação explícita, o limite de palpite
+ * poderia variar indevidamente.
+ */
 public class PalpiteAuthorizationServiceImpl implements PalpiteAuthorizationService {
 
     private final Clock clock;
     private final ZoneId zoneId;
 
+    /**
+     * Construtor padrão para runtime da aplicação.
+     * Usa relógio fixado no timezone oficial do domínio.
+     */
     public PalpiteAuthorizationServiceImpl() {
-        this(Clock.systemDefaultZone());
+        this(Clock.system(BolaoTime.getZoneId()), BolaoTime.getZoneId());
     }
 
+    /**
+     * Construtor para testes, mantendo a zona canônica do domínio.
+     */
     public PalpiteAuthorizationServiceImpl(Clock clock) {
-        this.clock = Objects.requireNonNull(clock, "clock");
-        this.zoneId = clock.getZone();
+        this(clock, BolaoTime.getZoneId());
+    }
+
+    PalpiteAuthorizationServiceImpl(Clock clock, ZoneId zoneId) {
+        this.zoneId = Objects.requireNonNull(zoneId, "zoneId");
+        this.clock = Objects.requireNonNull(clock, "clock").withZone(this.zoneId);
     }
 
     @Override

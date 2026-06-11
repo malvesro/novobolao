@@ -3,6 +3,8 @@ package com.opendev.bolao.action;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
@@ -15,7 +17,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import com.opendev.bolao.email.Email;
-import com.opendev.bolao.exception.ValidacaoException;
 import com.opendev.bolao.grafico.GraficoBarraLideres;
 import com.opendev.bolao.grafico.GraficoComparativoDesempenho;
 import com.opendev.bolao.model.Jogo;
@@ -28,6 +29,7 @@ import com.opendev.bolao.service.PalpiteService;
 import com.opendev.bolao.service.OtpService;
 import com.opendev.bolao.service.ParticipanteService;
 import com.opendev.bolao.service.dto.PalpiteAuthorization;
+import com.opendev.bolao.util.BolaoTime;
 import com.opendev.bolao.util.ConversaoUtils;
 import com.opendev.bolao.util.MensagemErro;
 import com.opendev.bolao.util.FiltroBuscaJogos;
@@ -240,8 +242,14 @@ public class ParticipanteAction extends ActionSupport {
         
         try {
             Date dataReferencia = ConversaoUtils.converterParaData(this.dataInicial);
-            // Incrementamos 1 dia para buscar a partir do próximo dia
-            Date diaSeguinte = new Date(dataReferencia.getTime() + 86400000);
+            // Evita aritmética fixa em milissegundos (+86400000), que pode gerar
+            // deriva em ambientes com timezone diferente (ex.: produção no HF).
+            // O avanço de dia é feito por calendário na zona canônica do domínio.
+            LocalDate dataLocalReferencia = Instant.ofEpochMilli(dataReferencia.getTime())
+                    .atZone(BolaoTime.getZoneId())
+                    .toLocalDate();
+            LocalDate diaSeguinteLocal = dataLocalReferencia.plusDays(1);
+            Date diaSeguinte = Date.from(diaSeguinteLocal.atStartOfDay(BolaoTime.getZoneId()).toInstant());
             
             Date proximaDataDisponivel = getJogoService().buscarPrimeiraDataComJogosApos(diaSeguinte);
             

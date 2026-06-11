@@ -1,7 +1,8 @@
 package com.opendev.bolao.service.impl;
 
 import java.sql.Time;
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -23,6 +24,7 @@ import com.opendev.bolao.model.Equipe;
 import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.model.Participante;
 import com.opendev.bolao.service.JogoService;
+import com.opendev.bolao.util.BolaoTime;
 import com.opendev.bolao.util.ConversaoUtils;
 import com.opendev.bolao.util.FiltroBuscaJogos;
 
@@ -119,11 +121,15 @@ public class JogoServiceImpl implements JogoService {
     }
     
     public void avisarSobreProximoJogo() {
-        Calendar calendar = Calendar.getInstance();
-        logger.info(getClass() + ".avisarSobreProximoJogo() - " + calendar);
-        calendar.add(Calendar.HOUR_OF_DAY, 2);
-        Date data = calendar.getTime();
-        Date hora = ConversaoUtils.converterParaTempo(calendar.get(Calendar.HOUR_OF_DAY));
+        // Regra de negócio temporal em timezone canônico (São Paulo).
+        // Importante para manter consistência quando o host de execução (HF)
+        // estiver em timezone diferente.
+        ZonedDateTime referencia = ZonedDateTime.now(BolaoTime.getZoneId());
+        logger.info(getClass() + ".avisarSobreProximoJogo() - " + referencia);
+        ZonedDateTime dataHoraAlvo = referencia.plusHours(2);
+        LocalDate diaAlvo = dataHoraAlvo.toLocalDate();
+        Date data = Date.from(diaAlvo.atStartOfDay(BolaoTime.getZoneId()).toInstant());
+        Date hora = ConversaoUtils.converterParaTempo(dataHoraAlvo.getHour());
         logger.info("Buscando jogos da data = " + data + ", hora = " + hora);
         List<Jogo> jogos = getJogoRepository().findByDataAndHora(data, hora);
         logger.info("Quantidade de jogos encontrados = " + jogos.size());
@@ -160,7 +166,10 @@ public class JogoServiceImpl implements JogoService {
     }
     
     public List<Jogo> buscarJogosDeHoje() {
-        Date dataHoje = new Date();
+        // O domínio considera "hoje" na zona oficial do bolão (São Paulo),
+        // independentemente do timezone do host.
+        LocalDate hoje = LocalDate.now(BolaoTime.getZoneId());
+        Date dataHoje = Date.from(hoje.atStartOfDay(BolaoTime.getZoneId()).toInstant());
         return getJogoRepository().findByData(dataHoje);
     }
 

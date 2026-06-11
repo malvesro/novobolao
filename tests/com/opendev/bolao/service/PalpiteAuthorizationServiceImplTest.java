@@ -22,6 +22,7 @@ import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.model.Palpite;
 import com.opendev.bolao.service.dto.PalpiteAuthorization;
 import com.opendev.bolao.service.impl.PalpiteAuthorizationServiceImpl;
+import com.opendev.bolao.util.BolaoTime;
 
 class PalpiteAuthorizationServiceImplTest {
 
@@ -31,8 +32,10 @@ class PalpiteAuthorizationServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        zoneId = ZoneId.of("UTC");
-        clock = Clock.fixed(Instant.parse("2026-03-01T12:00:00Z"), zoneId);
+        // Os testes seguem o timezone canônico do domínio para evitar suposições
+        // implícitas de UTC após a padronização temporal.
+        zoneId = BolaoTime.getZoneId();
+        clock = Clock.fixed(Instant.parse("2026-03-01T15:00:00Z"), zoneId);
         service = new PalpiteAuthorizationServiceImpl(clock);
     }
 

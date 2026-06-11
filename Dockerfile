@@ -44,7 +44,9 @@ WORKDIR /usr/local/tomcat/webapps/
 RUN rm -rf ROOT docs examples host-manager manager && \
     apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-# Configuração de Fuso Horário
+# Configuração de fuso horário canônico do domínio.
+# Observação: no Hugging Face o host pode rodar com outro timezone; por isso
+# fixamos tanto o TZ do processo quanto o user.timezone da JVM.
 ENV TZ=America/Sao_Paulo
 
 # Configuração de Memória e JVM Otimizada para Ambientes Restritos (HF Free Tier)

@@ -1,6 +1,7 @@
 package com.opendev.bolao.service;
 
 import com.opendev.bolao.email.Email;
+import com.opendev.bolao.util.BolaoTime;
 import com.opendev.bolao.util.RequestUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.MessageSource;
@@ -11,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.ZonedDateTime;
 import java.util.Locale;
 
 @Service
@@ -28,7 +29,10 @@ public class ErrorNotificationService {
             String adminEmail = messageSource.getMessage("admin.email.notificacao", null, "novobolaocopa@gmail.com", Locale.getDefault());
             HttpServletRequest request = RequestUtils.getRequest();
 
-            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            // Mantém o timestamp de auditoria no mesmo fuso do domínio (São Paulo),
+            // evitando divergência de interpretação entre ambientes.
+            String timestamp = ZonedDateTime.now(BolaoTime.getZoneId())
+                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssXXX"));
             String usuario = RequestUtils.getLoginParticipanteAutenticado();
             String url = (request != null) ? request.getRequestURL().toString() : "N/A";
             String stackTrace = getStackTraceAsString(ex);
