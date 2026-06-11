@@ -144,17 +144,14 @@
                             <c:choose>
                                 <c:when test="${loop.count eq 1}">
                                     <fmt:message key="home.leaders.medal.gold" var="medalLabel" />
-                                    <fmt:message key="home.leaders.medal.short.gold" var="medalShortLabel" />
                                     <c:set var="medalClass" value="leaders-summary__medal--gold" />
                                 </c:when>
                                 <c:when test="${loop.count eq 2}">
                                     <fmt:message key="home.leaders.medal.silver" var="medalLabel" />
-                                    <fmt:message key="home.leaders.medal.short.silver" var="medalShortLabel" />
                                     <c:set var="medalClass" value="leaders-summary__medal--silver" />
                                 </c:when>
                                 <c:otherwise>
                                     <fmt:message key="home.leaders.medal.bronze" var="medalLabel" />
-                                    <fmt:message key="home.leaders.medal.short.bronze" var="medalShortLabel" />
                                     <c:set var="medalClass" value="leaders-summary__medal--bronze" />
                                 </c:otherwise>
                             </c:choose>
@@ -165,9 +162,15 @@
                                 <fmt:param value="${medalLabel}" />
                             </fmt:message>
                             <li class="leaders-summary__item" aria-label="${leadersItemAria}">
-                                <span class="leaders-summary__medal ${medalClass}" aria-hidden="true"></span>
-                                <span class="leaders-summary__medal-label">${medalShortLabel}</span>
-                                <span class="leaders-summary__position">${loop.count}º</span>
+                                <span class="leaders-summary__position">
+                                    <svg class="leaders-summary__position-icon ${medalClass}" viewBox="0 0 24 24" width="12" height="12" preserveAspectRatio="xMidYMid meet" focusable="false" aria-hidden="true">
+                                        <path class="leaders-summary__medal-ribbon" d="M7 2h4v6l-2-1.4L7 8z"></path>
+                                        <path class="leaders-summary__medal-ribbon" d="M13 2h4v6l-2-1.4L13 8z"></path>
+                                        <circle class="leaders-summary__medal-disc" cx="12" cy="14" r="7"></circle>
+                                        <path class="leaders-summary__medal-star" d="M12 9.8l1.25 2.54 2.8.41-2.03 1.98.48 2.79L12 16.2l-2.5 1.31.48-2.79-2.03-1.98 2.8-.41L12 9.8z"></path>
+                                    </svg>
+                                    ${loop.count}º
+                                </span>
                                 <span class="leaders-summary__name"><c:out value="${lider.pontuacaoTotal.nomeParticipante}" /></span>
                                 <span class="leaders-summary__points">
                                     <c:out value="${lider.pontuacaoTotal.pontuacao}" /> ${leadersPointsLabel}

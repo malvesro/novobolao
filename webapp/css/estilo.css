@@ -1940,7 +1940,7 @@ div.legenda span.abrev {
 
 .leaders-summary__item {
 	display: grid;
-	grid-template-columns: auto auto auto 1fr auto;
+	grid-template-columns: auto 1fr auto;
 	align-items: center;
 	gap: 0.5rem;
 	padding: 0.45rem 0.6rem;
@@ -1949,34 +1949,53 @@ div.legenda span.abrev {
 	background: rgba(255, 255, 255, 0.7);
 }
 
-.leaders-summary__medal {
-	width: 0.85rem;
-	height: 0.85rem;
-	border-radius: 999px;
-	border: 1px solid rgba(9, 15, 27, 0.25);
+.leaders-summary__position-icon {
+	width: 0.75rem !important;
+	height: 0.75rem !important;
+	min-width: 0.75rem;
+	min-height: 0.75rem;
+	max-width: 0.75rem;
+	max-height: 0.75rem;
+	display: inline-block;
+	flex: 0 0 0.75rem;
+	--medal-ribbon-color: #6b7280;
+	--medal-disc-color: #9ca3af;
+	vertical-align: middle;
 }
 
-.leaders-summary__medal-label {
-	font-size: 0.72rem;
-	font-weight: 700;
-	color: var(--color-text-muted);
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
+.leaders-summary__medal-ribbon {
+	fill: var(--medal-ribbon-color);
+}
+
+.leaders-summary__medal-disc {
+	fill: var(--medal-disc-color);
+	stroke: rgba(9, 15, 27, 0.25);
+	stroke-width: 0.8;
+}
+
+.leaders-summary__medal-star {
+	fill: rgba(255, 255, 255, 0.95);
 }
 
 .leaders-summary__medal--gold {
-	background: #d4af37;
+	--medal-ribbon-color: #8b6f18;
+	--medal-disc-color: #d4af37;
 }
 
 .leaders-summary__medal--silver {
-	background: #c0c0c0;
+	--medal-ribbon-color: #6f7680;
+	--medal-disc-color: #c0c0c0;
 }
 
 .leaders-summary__medal--bronze {
-	background: #cd7f32;
+	--medal-ribbon-color: #7a4b1f;
+	--medal-disc-color: #cd7f32;
 }
 
 .leaders-summary__position {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25rem;
 	font-weight: 700;
 	min-width: 1.8rem;
 }

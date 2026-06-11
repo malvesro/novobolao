@@ -360,6 +360,7 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 45.4.1 — Semântica e rotulagem acessível do Top 3 (11/06/2026):** resumo da liderança passou a usar `aria-labelledby`, `aria-label` por item com posição/nome/pontos/medalha e texto de pontos via i18n (sem abreviação ambígua); `alt` do gráfico atualizado para descrição funcional.
     * **[Concluído] 45.4.2 — Não depender somente de cor/ícone para medalhas (11/06/2026):** resumo passou a exibir rótulo textual visível (`Ouro`, `Prata`, `Bronze`) por item, mantendo bolha visual de medalha como apoio.
     * **[Concluído] 45.5 — Validação funcional e rastreabilidade (11/06/2026):** suíte `mvn -Dfrontend.skip=true test` executada com sucesso (64 testes) e smoke autenticado da home validando presença de `Top 3 da liderança`, regra textual de medalhas e rótulos visíveis de medalha após rebuild Docker.
+    * **[Concluído] 45.6 — Inserir ícones gráficos de medalhas no Top 3 da home (11/06/2026):** substituída a bolha visual simples por ícone SVG de medalha (ouro/prata/bronze) discreto ao lado da posição (`1º`, `2º`, `3º`), mantendo semântica acessível e sem ocupar espaço excessivo no card.
 
 46. **[Pendente] Reavaliar melhorias de médio impacto/ideais na tela de Classificação Geral (11/06/2026):**
     Objetivo: concentrar na tela de Classificação Geral os recursos analíticos e de exploração (filtros, evolução, insights), mantendo a home enxuta.
