@@ -53,13 +53,18 @@
         <security:intercept-url pattern="/favicon.ico*" access="permitAll" />
         <security:intercept-url pattern="/" access="permitAll" />
 
-        <!-- Form Login Configuration -->
+        <!--
+            Form Login Configuration:
+            padroniza o endpoint de autenticação em /login.action para evitar dependência do
+            endpoint legado j_security_check (que não possui representação GET e pode gerar 404
+            em tentativas de reuso de URL pelo navegador).
+        -->
         <security:form-login 
             login-page="/login.action" 
             authentication-failure-url="/login.action?status=invalido"
             default-target-url="/seguro/principal.action"
             always-use-default-target="true"
-            login-processing-url="/j_security_check"
+            login-processing-url="/login.action"
             username-parameter="j_username"
             password-parameter="j_password" />
 

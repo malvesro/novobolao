@@ -40,7 +40,13 @@
 	<br />
 </c:if>
 <opendev:portlet id="loginportlet" icon="/img/lock.png" title="Login">
-	<form action="j_security_check" method="post">
+	<%-- Usa URL absoluta com contexto para manter o POST estável em qualquer namespace --%>
+	<c:url var="loginProcessUrl" value="/login.action" />
+	<form action="${loginProcessUrl}" method="post">
+		<%-- Token CSRF explícito para ambientes com proteção estrita no Spring Security --%>
+		<c:if test="${not empty _csrf}">
+			<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+		</c:if>
 			<div class="inner">
 				<div class="form-grid">
 					<div class="form-row">

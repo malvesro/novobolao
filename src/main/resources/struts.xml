@@ -31,12 +31,13 @@
 
 		<default-interceptor-ref name="bolaoStack" />
 
+		<!-- Ordem exigida pelo DTD: default-action-ref deve vir antes de global-exception-mappings -->
+		<default-action-ref name="index" />
+
 		<global-exception-mappings>
 			<exception-mapping exception="com.opendev.bolao.exception.BaseBolaoException" result="error" />
 			<exception-mapping exception="java.lang.Exception" result="error" />
 		</global-exception-mappings>
-
-		<default-action-ref name="index" />
 
 		<!-- Action raiz para garantir que acessos a `/` e `/index.action` sejam tratados -->
 		<action name="" class="participanteAction" method="index">

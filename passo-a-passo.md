@@ -273,6 +273,16 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 38.10 — Documentação e ADR de decisão temporal (11/06/2026):** ADR registrada em `.ia/historico/ADR-20260611-timezone-canonico-sao-paulo.md` consolidando a decisão de tempo canônico do domínio e respectivos guardrails. Evidência: `.ia/logs/session-20260611-timezone-tarefa38-7-8-10.md`. Skills aplicadas: `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`.
     * **[Concluído] 38.10.1 — Documentação inline das alterações (11/06/2026):** adicionados comentários explicativos/JavaDoc nos pontos alterados de código e configuração para explicitar a decisão temporal, incluindo o cenário de produção no Hugging Face (host com possível timezone diferente) e a premissa de dados de jogos no referencial São Paulo. Evidência: `.ia/logs/session-20260611-timezone-documentacao-inline.md`.
 
+39. **[Concluído] Estabilização do endpoint de login para eliminar 404 em `j_security_check` (11/06/2026):**
+    Objetivo: remover intermitência de erro HTTP 404 no fluxo de autenticação, tornando o endpoint de login consistente com Spring Security 6 e resiliente a acessos legados.
+    Skills aplicadas: `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`.
+    * **[Concluído] 39.1 — Análise de causa:** reproduzido `GET /j_security_check` com 404 em runtime (Tomcat), confirmando fragilidade do endpoint legado quando acessado fora do POST esperado.
+    * **[Concluído] 39.2 — Ajuste do processamento de autenticação:** `login-processing-url` migrado de `/j_security_check` para `/login.action`, mantendo o mesmo fluxo visual e reduzindo risco de rota órfã.
+    * **[Concluído] 39.3 — Endurecimento do formulário de login:** `login.jsp` atualizado para action absoluta/context-aware (`/login.action`) com campo CSRF explícito no markup.
+    * **[Concluído] 39.4 — Correção estrutural do Struts:** ajustada a ordem dos elementos (`default-action-ref` antes de `global-exception-mappings`) no pacote `bolao-default` para conformidade com DTD e inicialização estável do filtro Struts.
+    * **[Concluído] 39.5 — Compatibilidade legada sem rota dedicada:** validado que `GET /j_security_check` retorna `302` para `/login.action` pelo fluxo padrão de segurança, eliminando 404 sem necessidade de `action` adicional no Struts.
+    * **[Concluído] 39.6 — Validação técnica:** smoke runtime e validações HTTP (login GET 200, login POST 302 para `/seguro/principal.action`, acesso autenticado a `/seguro/palpites.action` com 200) documentados em `.ia/logs/session-20260611-login-jsecuritycheck-404.md`.
+
 ### Fase 2.6: Otimização de Infraestrutura e Build (ALTA PRIORIDADE)
 
 1. **[Concluído] Registro e Planejamento:** Formalizar a nova estratégia de build.
