@@ -224,20 +224,44 @@
 								<span class="spacer spacer-sm"></span>
 							</c:if>
 
-							<c:if test="${not usarFiltro and empty param.dataInicial}">
-								<div class="info-banner performance-notice">
-									<p>
-										<img src="${base}/img/information.gif" class="icon-inline" alt="" />
+								<c:if test="${not usarFiltro and empty param.dataInicial}">
+									<div class="info-banner performance-notice">
+										<p>
+											<img src="${base}/img/information.gif" class="icon-inline" alt="" />
 										Exibindo carga inicial reduzida para melhor performance.
 										<a href="${pageContext.request.contextPath}/seguro/palpites.action?usarFiltro=true" class="link-action">Ver Calendário Completo</a>
 									</p>
 								</div>
-								<span class="spacer spacer-sm"></span>
-							</c:if>
+									<span class="spacer spacer-sm"></span>
+								</c:if>
 
-							<div id="jogos-lista-container">
-								<%@include file="/WEB-INF/content/seguro/partials/jogos-lista-fragmento.jsp" %>
-							</div>
+								<c:if test="${adminResultadoView}">
+									<c:if test="${adminFiltroAteHojeAtivo}">
+										<fmt:formatDate var="adminDataLimiteFormatada" value="${adminFiltroDataLimite}" pattern="dd/MM/yyyy" />
+										<div class="info-banner performance-notice">
+											<p>
+												<img src="${base}/img/information.gif" class="icon-inline" alt="" />
+												Exibindo por padrão os jogos do início da Copa até hoje (${adminDataLimiteFormatada}) para facilitar correções de resultados.
+												<a href="${pageContext.request.contextPath}/admin/jogos.action?mostrarTodos=true" class="link-action">Ver todos os jogos</a>
+											</p>
+										</div>
+										<span class="spacer spacer-sm"></span>
+									</c:if>
+									<c:if test="${adminMostrandoTodos}">
+										<div class="info-banner performance-notice">
+											<p>
+												<img src="${base}/img/information.gif" class="icon-inline" alt="" />
+												Exibindo todos os jogos.
+												<a href="${pageContext.request.contextPath}/admin/jogos.action" class="link-action">Voltar para jogos até hoje</a>
+											</p>
+										</div>
+										<span class="spacer spacer-sm"></span>
+									</c:if>
+								</c:if>
+
+								<div id="jogos-lista-container">
+									<%@include file="/WEB-INF/content/seguro/partials/jogos-lista-fragmento.jsp" %>
+								</div>
 
 							<%-- Removido loop antigo que renderizava todos os jogos de uma vez --%>
 					<%-- Removido fechamento do form externo --%>

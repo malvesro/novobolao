@@ -33,6 +33,10 @@
                                     <th scope="col"><fmt:message key="match.tip.mine" /></th>
                                     <th scope="col"></th>
                                 </c:if>
+                                <c:if test="${adminResultadoView}">
+                                    <%-- Coluna de ações/spinner da linha administrativa. --%>
+                                    <th scope="col"></th>
+                                </c:if>
                             </tr>
                         </thead>
     </c:if>
@@ -61,7 +65,20 @@
     <fmt:message key="match.tip.none" var="palpiteSemRegistro" />
 
     <tbody>
-        <%@include file="/WEB-INF/content/seguro/partials/match-row.jspf" %>
+        <%-- 
+            Contexto compartilhado: /seguro usa `match-row.jspf` (palpite) e
+            /admin/jogos.action precisa da linha administrativa com inputs de placar.
+            A flag `adminResultadoView` é definida pela AdminAction para eliminar
+            ambiguidade de renderização.
+        --%>
+        <c:choose>
+            <c:when test="${adminResultadoView}">
+                <%@include file="/WEB-INF/content/admin/partials/admin-match-row.jsp" %>
+            </c:when>
+            <c:otherwise>
+                <%@include file="/WEB-INF/content/seguro/partials/match-row.jspf" %>
+            </c:otherwise>
+        </c:choose>
     </tbody>
 
     <c:set var="dataJogo" value="${jogo.data}" />
@@ -71,17 +88,23 @@
             </div>
         </div>
         
-        <%-- Container para a próxima carga --%>
-        <div id="load-more-container" class="load-more-section">
-            <fmt:formatDate var="ultimaData" value="${jogo.data}" pattern="dd/MM/yyyy" />
-            <button class="button button--secondary button--full-width"
-                    hx-get="${base}/seguro/palpitesMaisJogosPartial.action?dataInicial=${ultimaData}"
-                    hx-target="#load-more-container"
-                    hx-swap="outerHTML"
-                    hx-indicator="#loading-more-indicator">
-                <img id="loading-more-indicator" src="${base}/img/loading.gif" class="htmx-indicator icon-inline" alt="" />
-                Carregar Próxima Data
-            </button>
-        </div>
+        <%-- 
+            A paginação incremental ("Carregar Próxima Data") é exclusiva da tela
+            de palpites (/seguro). No admin, manter oculto evita chamada ao endpoint
+            de palpites e regressão para linha não administrativa.
+        --%>
+        <c:if test="${telaPalpites}">
+            <div id="load-more-container" class="load-more-section">
+                <fmt:formatDate var="ultimaData" value="${jogo.data}" pattern="dd/MM/yyyy" />
+                <button class="button button--secondary button--full-width"
+                        hx-get="${base}/seguro/palpitesMaisJogosPartial.action?dataInicial=${ultimaData}"
+                        hx-target="#load-more-container"
+                        hx-swap="outerHTML"
+                        hx-indicator="#loading-more-indicator">
+                    <img id="loading-more-indicator" src="${base}/img/loading.gif" class="htmx-indicator icon-inline" alt="" />
+                    Carregar Próxima Data
+                </button>
+            </div>
+        </c:if>
     </c:if>
 </c:forEach>

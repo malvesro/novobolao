@@ -291,6 +291,39 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 40.3 — Documentação inline:** incluído comentário técnico no XML explicando o motivo do registro explícito para o cenário HF/Struts `SpringObjectFactory`.
     * **[Concluído] 40.4 — Validação técnica:** rebuild em container e verificação de logs sem `NoSuchBeanDefinitionException`; `health.txt` retornando HTTP 200 e suíte `mvn -Dfrontend.skip=true test` com 52 testes e 0 falhas. Evidência: `.ia/logs/session-20260611-hf-startup-missing-errornotification-bean.md`.
 
+41. **[Em Progresso] Correção da atualização de resultados na tela administrativa de jogos (11/06/2026):**
+    Objetivo: restabelecer o fluxo de atualização de resultado pelo admin, garantindo exibição dos campos de placar e persistência correta no banco.
+    Skills previstas: `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`.
+    * **[Concluído] 41.1 — Diagnóstico funcional ponta a ponta (11/06/2026):** reproduzido cenário em `/admin/jogos.action`; evidências mostram renderização do fragmento de palpites (`match-row.jspf`) no contexto admin, sem inputs `golsEquipe1/golsEquipe2`.
+    * **[Concluído] 41.2 — Auditoria de renderização do fragmento admin (11/06/2026):** validado que `admin-match-row.jsp` já contém os campos de resultado e `hx-post` correto para `/admin/atualizarResultadoJogo.action`; bloqueio estava na seleção do include na lista compartilhada.
+    * **[Concluído] 41.3 — Auditoria do fluxo HTMX/Struts (11/06/2026):** confirmado mapeamento em `struts.xml` e método `AdminAction.atualizarResultadoDoJogoHtmx`; endpoint e binding de parâmetros estão corretos quando a linha admin é renderizada.
+    * **[Concluído] 41.4 — Correção incremental backend/frontend (11/06/2026):** implementada flag explícita de contexto admin (`adminResultadoView`) em `AdminAction.carregarJogos` e include condicional em `jogos-lista-fragmento.jsp` para usar `admin-match-row.jsp` no admin e `match-row.jspf` no seguro.
+    * **[Concluído] 41.4.1 — Correção de curto prazo para efeitos colaterais de JSP compartilhada (11/06/2026):** ajustado `jogos-lista-fragmento.jsp` para (a) exibir coluna de cabeçalho de ações quando `adminResultadoView=true` e (b) renderizar o botão `Carregar Próxima Data` apenas em `telaPalpites=true`, evitando que o admin acione endpoint `/seguro/palpitesMaisJogosPartial.action` e perca a linha administrativa. Evidência: `.ia/logs/session-20260611-admin-jsp-compartilhada-curto-medio-prazo.md`.
+    * **[Pendente] 41.5 — Validação de persistência em banco:** executar cenário real com admin, salvar resultado e confirmar atualização nas colunas de resultado do jogo e reflexos em consultas subsequentes. (Tentativa automatizada via `curl` no container retornou HTTP 403 no login por proteção de segurança; manter validação final via navegador autenticado ou teste E2E dedicado.)
+    * **[Concluído] 41.6 — Testes e rastreabilidade (11/06/2026):** adicionado teste unitário em `AdminActionTest` para garantir marcação de contexto admin (`adminResultadoView`) no carregamento da tela; suíte executada com sucesso (`mvn -Dfrontend.skip=true test`: 53 testes, 0 falhas) e log registrado em `.ia/logs/session-20260611-admin-jogos-resultado-renderizacao.md`.
+
+42. **[Concluído] Aplicar filtro de jogos pendentes na tela administrativa de resultados (11/06/2026):**
+    Objetivo: evitar carga de todos os jogos na tela admin e priorizar um recorte operacional útil ao operador para correções de resultados.
+    Regra alvo (revisada em 11/06/2026): por padrão, listar todos os jogos do início da Copa até a data atual (fuso oficial São Paulo), mantendo opção explícita para exibir o calendário completo.
+    Skills previstas: `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`.
+    * **[Concluído] 42.1 — Definição formal da regra de filtro (11/06/2026):** filtro padrão revisado para `início da Copa -> hoje` (não apenas pendências), preservando uso do fuso oficial São Paulo.
+    * **[Concluído] 42.2 — Consulta de domínio para recorte até hoje (11/06/2026):** aplicado `FiltroBuscaJogos` com `dataFinal=hoje` no backend admin, sem depender de consulta dedicada por pendências.
+    * **[Concluído] 42.3 — Ajuste de carregamento inicial da tela admin (11/06/2026):** `AdminAction.carregarJogos` agora aplica automaticamente o recorte até hoje e mantém opção explícita de listagem completa (`mostrarTodos=true`).
+    * **[Concluído] 42.4 — UX de filtro alinhada à operação (11/06/2026):** banner da `jogos.jsp` revisado para comunicar o modo padrão “até hoje” e link rápido para “ver todos”.
+    * **[Concluído] 42.5 — Fallback e observabilidade (11/06/2026):** atributos de request simplificados para estado da tela (`adminFiltroAteHojeAtivo`, `adminFiltroDataLimite`, `adminMostrandoTodos`), reduzindo ambiguidade operacional.
+    * **[Concluído] 42.6 — Testes e validação final (11/06/2026):** `AdminActionTest` atualizado para cobrir fluxo padrão “até hoje” e modo `mostrarTodos`; suíte executada com sucesso (`mvn -Dfrontend.skip=true test`: 55 testes, 0 falhas). Evidência: `.ia/logs/session-20260611-admin-filtro-pendencias-tarefa42.md` e `.ia/logs/session-20260611-admin-filtro-ate-hoje-revisao.md`.
+
+43. **[Pendente] Desacoplar a tela administrativa de jogos da JSP compartilhada (médio prazo) (11/06/2026):**
+    Objetivo: reduzir regressões cruzadas entre os fluxos `/seguro` (palpites) e `/admin` (atualização de resultados), removendo dependência de contexto implícito em view compartilhada.
+    Skills previstas: `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`.
+    * **[Pendente] 43.1 — Definir contrato da nova view admin:** mapear dados, colunas e ações obrigatórias da tela de admin e documentar diferenças em relação ao fluxo de palpites.
+    * **[Pendente] 43.2 — Criar JSP raiz dedicada para admin:** introduzir `WEB-INF/content/admin/jogos-admin.jsp` com includes próprios e sem dependências de variáveis de palpites.
+    * **[Pendente] 43.3 — Criar fragmento de lista dedicado ao admin:** extrair `admin-jogos-lista-fragmento.jsp` com tabela e paginação/filtros específicos do operador administrativo.
+    * **[Pendente] 43.4 — Ajustar mapeamento Struts/admin action:** apontar `/admin/jogos.action` para a nova JSP dedicada e remover condicionais de contexto admin no fragmento compartilhado.
+    * **[Pendente] 43.5 — Preservar componentes reaproveitáveis neutros:** manter apenas componentes realmente compartilháveis (ex.: renderização de seleção/bandeira) sem acoplamento de regra de negócio.
+    * **[Pendente] 43.6 — Validar regressão cruzada:** executar smoke completo em `/seguro/palpites.action` e `/admin/jogos.action` + suíte `mvn -Dfrontend.skip=true test`.
+    * **[Pendente] 43.7 — Rastreabilidade arquitetural:** criar ADR de desacoplamento da view admin (trade-offs e impacto em manutenção) e log de sessão com evidências.
+
 ### Fase 2.6: Otimização de Infraestrutura e Build (ALTA PRIORIDADE)
 
 1. **[Concluído] Registro e Planejamento:** Formalizar a nova estratégia de build.

@@ -3,12 +3,16 @@ package com.opendev.bolao.action;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Date;
+import java.time.LocalDate;
 
 import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.service.EquipeService;
 import com.opendev.bolao.service.JogoService;
 import com.opendev.bolao.service.ParticipanteService;
+import com.opendev.bolao.util.BolaoTime;
 import com.opendev.bolao.util.ConversaoUtils;
+import com.opendev.bolao.util.FiltroBuscaJogos;
 import com.opendev.bolao.util.SanitizationUtils;
 import org.apache.struts2.ActionSupport;
 import org.apache.struts2.action.ServletRequestAware;
@@ -24,6 +28,12 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 
 	private static final long serialVersionUID = 1L;
 	private static final String PARTICIPANTES_FRAGMENT_RESULT = "fragment";
+	/**
+	 * Flag de request para forçar a renderização da linha administrativa na tela
+	 * compartilhada de jogos. Evita que a view de admin reutilize, por engano, o
+	 * fragmento de palpites do participante.
+	 */
+	private static final String ADMIN_RESULTADO_VIEW_ATTRIBUTE = "adminResultadoView";
 	private static final Logger LOGGER = LoggerFactory.getLogger(AdminAction.class);
 	
 	private EquipeService equipeService;
@@ -47,6 +57,7 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 	private Long equipe2Id;
 	private String local;
 	private Integer fase;
+	private boolean mostrarTodos;
 
 	
 	public String carregarInfoEquipes() {
@@ -200,9 +211,33 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 	}
 	
 	public String carregarJogos() {
-		this.jogos = getJogoService().buscarTodos();
 		this.equipes = getEquipeService().buscarApenasPaisesReais(); // Necessário para os combos de edição direta
+		// A JSP de jogos é compartilhada entre /seguro e /admin.
+		// Marcamos explicitamente o contexto administrativo para o include correto
+		// (`admin-match-row.jsp`) e para manter os inputs de resultado ativos.
+		markAdminResultadoView();
+		carregarJogosComFiltroPadraoAteHoje();
 		return SUCCESS;
+	}
+
+	/**
+	 * Regra padrão da tela administrativa de resultados:
+	 * 1) Exibir jogos desde o início da Copa até "hoje" (São Paulo);
+	 * 2) Manter opção explícita para listar calendário completo (`mostrarTodos=true`).
+	 */
+	private void carregarJogosComFiltroPadraoAteHoje() {
+		if (this.mostrarTodos) {
+			this.jogos = getJogoService().buscarTodos();
+			markAdminFiltroContext(false, null, true);
+			return;
+		}
+
+		Date hoje = Date.from(LocalDate.now(BolaoTime.getZoneId())
+				.atStartOfDay(BolaoTime.getZoneId()).toInstant());
+		FiltroBuscaJogos filtroAteHoje = new FiltroBuscaJogos();
+		filtroAteHoje.setDataFinal(hoje);
+		this.jogos = getJogoService().buscarUsandoFiltro(filtroAteHoje);
+		markAdminFiltroContext(true, hoje, false);
 	}
     
 	public String carregarParticipantes() {
@@ -357,6 +392,11 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 		this.fase = fase;
 	}
 
+	@StrutsParameter
+	public void setMostrarTodos(boolean mostrarTodos) {
+		this.mostrarTodos = mostrarTodos;
+	}
+
 	private boolean isHtmxRequest() {
 		HttpServletRequest request = getHttpRequest();
 		if (request == null) {
@@ -410,6 +450,23 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 		if (request != null) {
 			request.setAttribute("skipTemplate", Boolean.TRUE);
 		}
+	}
+
+	private void markAdminResultadoView() {
+		HttpServletRequest request = getHttpRequest();
+		if (request != null) {
+			request.setAttribute(ADMIN_RESULTADO_VIEW_ATTRIBUTE, Boolean.TRUE);
+		}
+	}
+
+	private void markAdminFiltroContext(boolean filtroAteHojeAtivo, Date dataLimite, boolean mostrandoTodos) {
+		HttpServletRequest request = getHttpRequest();
+		if (request == null) {
+			return;
+		}
+		request.setAttribute("adminFiltroAteHojeAtivo", Boolean.valueOf(filtroAteHojeAtivo));
+		request.setAttribute("adminMostrandoTodos", Boolean.valueOf(mostrandoTodos));
+		request.setAttribute("adminFiltroDataLimite", dataLimite);
 	}
 
 	@Override

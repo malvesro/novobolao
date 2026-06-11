@@ -3,6 +3,8 @@ package com.opendev.bolao.action;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.Optional;
 
 import org.apache.struts2.ActionSupport;
@@ -16,7 +18,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.service.EquipeService;
 import com.opendev.bolao.service.JogoService;
+import com.opendev.bolao.util.BolaoTime;
+import com.opendev.bolao.util.FiltroBuscaJogos;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,11 +36,15 @@ class AdminActionTest {
     @Mock
     private HttpServletResponse httpResponse;
 
+    @Mock
+    private HttpServletRequest httpRequest;
+
     @InjectMocks
     private AdminAction adminAction;
 
     @BeforeEach
     void setUp() {
+        adminAction.withServletRequest(httpRequest);
         adminAction.withServletResponse(httpResponse);
     }
 
@@ -86,5 +95,52 @@ class AdminActionTest {
         assertThat(result).isEqualTo(ActionSupport.SUCCESS);
         verify(jogoService).atualizarDadosEstruturaisJogo(any(), any(), any(), any(), anyInt(), any(), any());
         verify(jogoService).buscarPorId(1L);
+    }
+
+    @Test
+    void deveMarcarContextoAdminAoCarregarJogos() {
+        when(jogoService.buscarUsandoFiltro(any(FiltroBuscaJogos.class))).thenReturn(java.util.List.of());
+        when(equipeService.buscarApenasPaisesReais()).thenReturn(java.util.List.of());
+
+        String result = adminAction.carregarJogos();
+
+        assertThat(result).isEqualTo(ActionSupport.SUCCESS);
+        verify(httpRequest).setAttribute("adminResultadoView", Boolean.TRUE);
+        verify(httpRequest).setAttribute("adminFiltroAteHojeAtivo", Boolean.TRUE);
+        verify(jogoService).buscarUsandoFiltro(any(FiltroBuscaJogos.class));
+        verify(equipeService).buscarApenasPaisesReais();
+    }
+
+    @Test
+    void deveAplicarFiltroPadraoAteHoje() {
+        Date dataLimiteEsperada = Date.from(LocalDate.of(2026, 6, 11)
+                .atStartOfDay(BolaoTime.getZoneId()).toInstant());
+        when(jogoService.buscarUsandoFiltro(any(FiltroBuscaJogos.class))).thenReturn(java.util.List.of());
+        when(equipeService.buscarApenasPaisesReais()).thenReturn(java.util.List.of());
+
+        String result = adminAction.carregarJogos();
+
+        assertThat(result).isEqualTo(ActionSupport.SUCCESS);
+        verify(jogoService).buscarUsandoFiltro(argThat(filtro -> filtro != null
+                && filtro.getDataInicial() == null
+                && filtro.getDataFinal() != null
+                && !filtro.isSoJogosQueNaoOcorreram()));
+        verify(httpRequest).setAttribute(eq("adminFiltroDataLimite"),
+                argThat((Date d) -> d != null && d.equals(dataLimiteEsperada)));
+        verify(httpRequest).setAttribute("adminFiltroAteHojeAtivo", Boolean.TRUE);
+    }
+
+    @Test
+    void devePermitirListagemCompletaQuandoMostrarTodosAtivo() {
+        adminAction.setMostrarTodos(true);
+        when(jogoService.buscarTodos()).thenReturn(java.util.List.of());
+        when(equipeService.buscarApenasPaisesReais()).thenReturn(java.util.List.of());
+
+        String result = adminAction.carregarJogos();
+
+        assertThat(result).isEqualTo(ActionSupport.SUCCESS);
+        verify(jogoService).buscarTodos();
+        verify(jogoService, never()).buscarUsandoFiltro(any(FiltroBuscaJogos.class));
+        verify(httpRequest).setAttribute("adminMostrandoTodos", Boolean.TRUE);
     }
 }
