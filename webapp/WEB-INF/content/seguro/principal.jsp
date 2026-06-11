@@ -108,9 +108,78 @@
     <span class="spacer-sm"></span>
     </c:if>
     <opendev:portlet id="grafico_lideres_portlet" title="Lideranca">
+        <fmt:message key="home.leaders.summary.title" var="leadersSummaryTitle" />
+        <fmt:message key="home.leaders.summary.empty" var="leadersSummaryEmpty" />
+        <fmt:message key="home.leaders.points.label" var="leadersPointsLabel" />
+        <fmt:message key="home.leaders.summary.chartAlt" var="leadersChartAlt" />
+        <fmt:message key="home.leaders.summary.ctaFullRanking" var="leadersCtaFullRanking" />
         <c:url var="graficoLideresUrl" value="/seguro/graficoLiderancaImagem.action" />
+        <c:url var="rankingActionUrl" value="/seguro/ranking.action" />
+        <div class="leaders-summary" role="region" aria-labelledby="leadersSummaryTitle">
+            <h3 id="leadersSummaryTitle" class="leaders-summary__title">${leadersSummaryTitle}</h3>
+            <p class="leaders-summary__note"><fmt:message key="home.leaders.summary.medalRule" /></p>
+            <c:if test="${liderancaDesempateAplicado}">
+                <p class="leaders-summary__note"><fmt:message key="home.leaders.summary.tieApplied" /></p>
+            </c:if>
+            <c:if test="${liderancaEmpatadosMesmoPontosRestantes gt 0}">
+                <p class="leaders-summary__note">
+                    <fmt:message key="home.leaders.summary.samePointsMore">
+                        <fmt:param value="${liderancaEmpatadosMesmoPontosRestantes}" />
+                        <fmt:param value="${lideresResumo[0].pontuacaoTotal.pontuacao}" />
+                    </fmt:message>
+                </p>
+                <p class="leaders-summary__cta-wrap">
+                    <a class="leaders-summary__cta" href="${rankingActionUrl}">
+                        ${leadersCtaFullRanking}
+                    </a>
+                </p>
+            </c:if>
+            <c:choose>
+                <c:when test="${empty lideresResumo}">
+                    <p class="leaders-summary__empty">${leadersSummaryEmpty}</p>
+                </c:when>
+                <c:otherwise>
+                    <ol class="leaders-summary__list">
+                        <c:forEach var="lider" items="${lideresResumo}" varStatus="loop">
+                            <c:choose>
+                                <c:when test="${loop.count eq 1}">
+                                    <fmt:message key="home.leaders.medal.gold" var="medalLabel" />
+                                    <fmt:message key="home.leaders.medal.short.gold" var="medalShortLabel" />
+                                    <c:set var="medalClass" value="leaders-summary__medal--gold" />
+                                </c:when>
+                                <c:when test="${loop.count eq 2}">
+                                    <fmt:message key="home.leaders.medal.silver" var="medalLabel" />
+                                    <fmt:message key="home.leaders.medal.short.silver" var="medalShortLabel" />
+                                    <c:set var="medalClass" value="leaders-summary__medal--silver" />
+                                </c:when>
+                                <c:otherwise>
+                                    <fmt:message key="home.leaders.medal.bronze" var="medalLabel" />
+                                    <fmt:message key="home.leaders.medal.short.bronze" var="medalShortLabel" />
+                                    <c:set var="medalClass" value="leaders-summary__medal--bronze" />
+                                </c:otherwise>
+                            </c:choose>
+                            <fmt:message key="home.leaders.summary.itemLabel" var="leadersItemAria">
+                                <fmt:param value="${loop.count}" />
+                                <fmt:param value="${lider.pontuacaoTotal.nomeParticipante}" />
+                                <fmt:param value="${lider.pontuacaoTotal.pontuacao}" />
+                                <fmt:param value="${medalLabel}" />
+                            </fmt:message>
+                            <li class="leaders-summary__item" aria-label="${leadersItemAria}">
+                                <span class="leaders-summary__medal ${medalClass}" aria-hidden="true"></span>
+                                <span class="leaders-summary__medal-label">${medalShortLabel}</span>
+                                <span class="leaders-summary__position">${loop.count}º</span>
+                                <span class="leaders-summary__name"><c:out value="${lider.pontuacaoTotal.nomeParticipante}" /></span>
+                                <span class="leaders-summary__points">
+                                    <c:out value="${lider.pontuacaoTotal.pontuacao}" /> ${leadersPointsLabel}
+                                </span>
+                            </li>
+                        </c:forEach>
+                    </ol>
+                </c:otherwise>
+            </c:choose>
+        </div>
         <div class="chart-wrapper">
-            <img src="${graficoLideresUrl}" alt="Grafico de lideranca" />
+            <img src="${graficoLideresUrl}" alt="${leadersChartAlt}" />
         </div>
     </opendev:portlet>
 </div>

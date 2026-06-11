@@ -1882,6 +1882,116 @@ div.legenda span.abrev {
 	gap: 1.5rem;
 }
 
+.leaders-summary {
+	padding: 0.5rem 1rem 0;
+}
+
+.leaders-summary__title {
+	margin: 0 0 0.75rem;
+	font-size: 1rem;
+	font-weight: 700;
+	color: var(--color-text-primary);
+}
+
+.leaders-summary__empty {
+	margin: 0;
+	color: var(--color-text-muted);
+	font-size: 0.9rem;
+}
+
+.leaders-summary__note {
+	margin: 0 0 0.65rem;
+	color: var(--color-text-muted);
+	font-size: 0.85rem;
+}
+
+.leaders-summary__cta-wrap {
+	margin: 0 0 0.75rem;
+}
+
+.leaders-summary__cta {
+	display: inline-block;
+	font-size: 0.85rem;
+	font-weight: 700;
+	color: var(--color-primary-accent);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.leaders-summary__cta:hover,
+.leaders-summary__cta:focus {
+	color: var(--color-primary);
+}
+
+.leaders-summary__cta:focus-visible {
+	outline: 2px solid var(--color-primary);
+	outline-offset: 2px;
+	border-radius: 4px;
+}
+
+.leaders-summary__list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.leaders-summary__item {
+	display: grid;
+	grid-template-columns: auto auto auto 1fr auto;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.45rem 0.6rem;
+	border: 1px solid rgba(15, 34, 66, 0.12);
+	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.7);
+}
+
+.leaders-summary__medal {
+	width: 0.85rem;
+	height: 0.85rem;
+	border-radius: 999px;
+	border: 1px solid rgba(9, 15, 27, 0.25);
+}
+
+.leaders-summary__medal-label {
+	font-size: 0.72rem;
+	font-weight: 700;
+	color: var(--color-text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.leaders-summary__medal--gold {
+	background: #d4af37;
+}
+
+.leaders-summary__medal--silver {
+	background: #c0c0c0;
+}
+
+.leaders-summary__medal--bronze {
+	background: #cd7f32;
+}
+
+.leaders-summary__position {
+	font-weight: 700;
+	min-width: 1.8rem;
+}
+
+.leaders-summary__name {
+	font-weight: 600;
+	color: var(--color-text-primary);
+}
+
+.leaders-summary__points {
+	font-weight: 700;
+	color: var(--color-accent);
+	white-space: nowrap;
+}
+
 .balao-visible {
 	visibility: visible !important;
 	opacity: 1;

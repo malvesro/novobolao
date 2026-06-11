@@ -88,6 +88,9 @@ public class ParticipanteAction extends ActionSupport {
     
     // Dados página principal
     private List jogosDeHoje;
+    private List lideresResumo;
+    private boolean liderancaDesempateAplicado;
+    private int liderancaEmpatadosMesmoPontosRestantes;
     private InputStream graficoStream;
     private String rival;
 
@@ -321,7 +324,57 @@ public class ParticipanteAction extends ActionSupport {
     
     public String obterDadosPaginaPrincipal() {
         setJogosDeHoje(getJogoService().buscarJogosDeHoje());
+        List classificacao = getParticipanteService().buscarClassificacao();
+        if (classificacao == null || classificacao.isEmpty()) {
+            setLideresResumo(Collections.emptyList());
+            setLiderancaDesempateAplicado(false);
+            setLiderancaEmpatadosMesmoPontosRestantes(0);
+            return SUCCESS;
+        }
+        Collections.sort(classificacao);
+        setLiderancaDesempateAplicado(isDesempateAplicadoNoTopo(classificacao));
+        int limiteLideres = Math.min(3, classificacao.size());
+        setLideresResumo(new ArrayList(classificacao.subList(0, limiteLideres)));
+        setLiderancaEmpatadosMesmoPontosRestantes(calcularEmpatadosDoTopoNaoExibidos(classificacao, limiteLideres));
         return SUCCESS;
+    }
+
+    private boolean isDesempateAplicadoNoTopo(List classificacao) {
+        if (classificacao == null || classificacao.size() < 2) {
+            return false;
+        }
+        Participante primeiro = (Participante) classificacao.get(0);
+        Participante segundo = (Participante) classificacao.get(1);
+        if (primeiro == null || segundo == null) {
+            return false;
+        }
+        return primeiro.getPontuacaoTotal().getPontuacao() == segundo.getPontuacaoTotal().getPontuacao();
+    }
+
+    private int calcularEmpatadosDoTopoNaoExibidos(List classificacao, int limiteExibicao) {
+        if (classificacao == null || classificacao.isEmpty() || limiteExibicao <= 0) {
+            return 0;
+        }
+        Participante primeiro = (Participante) classificacao.get(0);
+        if (primeiro == null || primeiro.getPontuacaoTotal() == null) {
+            return 0;
+        }
+        int pontuacaoTopo = primeiro.getPontuacaoTotal().getPontuacao();
+        int totalEmpatadosNoTopo = 0;
+        for (Object item : classificacao) {
+            Participante participante = (Participante) item;
+            if (participante == null || participante.getPontuacaoTotal() == null) {
+                continue;
+            }
+            if (participante.getPontuacaoTotal().getPontuacao() == pontuacaoTopo) {
+                totalEmpatadosNoTopo++;
+            } else {
+                // Lista já está ordenada por pontuação desc, então podemos encerrar.
+                break;
+            }
+        }
+        int exibidosComPontuacaoTopo = Math.min(limiteExibicao, totalEmpatadosNoTopo);
+        return Math.max(0, totalEmpatadosNoTopo - exibidosComPontuacaoTopo);
     }
 
     public String gerarGraficoLiderancaImagem() {
@@ -1161,6 +1214,30 @@ public class ParticipanteAction extends ActionSupport {
 
     public void setJogosDeHoje(List jogosDeHoje) {
         this.jogosDeHoje = jogosDeHoje;
+    }
+
+    public List getLideresResumo() {
+        return lideresResumo;
+    }
+
+    public void setLideresResumo(List lideresResumo) {
+        this.lideresResumo = lideresResumo;
+    }
+
+    public boolean isLiderancaDesempateAplicado() {
+        return liderancaDesempateAplicado;
+    }
+
+    public void setLiderancaDesempateAplicado(boolean liderancaDesempateAplicado) {
+        this.liderancaDesempateAplicado = liderancaDesempateAplicado;
+    }
+
+    public int getLiderancaEmpatadosMesmoPontosRestantes() {
+        return liderancaEmpatadosMesmoPontosRestantes;
+    }
+
+    public void setLiderancaEmpatadosMesmoPontosRestantes(int liderancaEmpatadosMesmoPontosRestantes) {
+        this.liderancaEmpatadosMesmoPontosRestantes = liderancaEmpatadosMesmoPontosRestantes;
     }
 
 }

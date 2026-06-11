@@ -292,10 +292,28 @@ public class Participante implements Serializable, Comparable {
         Participante outro = (Participante) o;
         DadosClassificacao minhaPontuacao = this.getPontuacaoTotal();
         DadosClassificacao outraPontuacao = outro.getPontuacaoTotal();
+
+        // Ordem oficial de desempate do ranking (conforme regras públicas):
+        // 1) Pontuação total (desc)
+        // 2) Quantidade de acertos totais - 6 pontos (desc)
+        // 3) Quantidade de acertos parciais com bônus - 3 pontos (desc)
+        // 4) Nome formatado (asc, case-insensitive)
         int comparacaoPontuacao = outraPontuacao.getPontuacao() - minhaPontuacao.getPontuacao();
         if (comparacaoPontuacao != 0) {
             return comparacaoPontuacao;
         }
+
+        int comparacaoAcertosTotais = outraPontuacao.getQuantidadeDeAcertosTotais() - minhaPontuacao.getQuantidadeDeAcertosTotais();
+        if (comparacaoAcertosTotais != 0) {
+            return comparacaoAcertosTotais;
+        }
+
+        int comparacaoAcertosParciaisBonus = outraPontuacao.getQuantidadeDeAcertosParciaisComBonus()
+                - minhaPontuacao.getQuantidadeDeAcertosParciaisComBonus();
+        if (comparacaoAcertosParciaisBonus != 0) {
+            return comparacaoAcertosParciaisBonus;
+        }
+
         return this.getNomeFormatado().compareToIgnoreCase(outro.getNomeFormatado());
     }
     

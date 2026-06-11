@@ -332,6 +332,44 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 44.3 — Documentação inline das decisões:** adicionados comentários técnicos no próprio `logback.xml` explicando o cenário do Hugging Face, o trade-off de observabilidade e a razão de negócio da mudança.
     * **[Concluído] 44.4 — Rastreabilidade da execução:** log da sessão registrado em `.ia/logs/session-20260611-hf-logback-ruido-namedquery.md`.
 
+45. **[Concluído] Evolução UX da Liderança na página principal como resumo operacional (11/06/2026):**
+    Objetivo: manter o painel da home compacto, amigável e imediatamente útil, sem competir com a tela de Classificação Geral.
+    Diretriz aprovada: exibir Top 3 com medalhas (ouro/prata/bronze) e nomes dos líderes, respeitando critérios oficiais de desempate já definidos em `regras.jsp`.
+    Regra mandatória da tarefa: qualquer ordenação exibida na home (bloco textual, medalhas e/ou gráfico de liderança) deve seguir exatamente a mesma regra textual oficial de classificação/desempate, sem lógica alternativa local.
+    Diretriz UX para empates amplos (início do bolão): a home deve priorizar síntese (Top 3 + contexto agregado de empate), enquanto o detalhamento de todos os empatados/posições fica centralizado na tela de Classificação Geral.
+    Skills previstas: `ui-ux-pro-max v1.0.0`, `senior-java-dev-legacy v1.0.0`.
+    * **[Concluído] 45.1 — Definir contrato de dados do resumo Top 3 (11/06/2026):** contrato estabilizado com ordenação/desempate oficial unificada entre home e classificação geral, sem regra alternativa local.
+    * **[Concluído] 45.1.1 — Verificação de consistência Home x Classificação Geral (11/06/2026):** validação estática confirmou que `principal.jsp` (via `graficoLiderancaImagem.action`) e `classificacao.jsp` consomem a mesma origem de ordenação (`ParticipanteService.buscarClassificacao()` + `Collections.sort(...)`), reduzindo risco de divergência entre telas por implementação separada.
+    * **[Concluído] 45.1.2 — Validação contra Regras de desempate (11/06/2026):** identificado gap de aderência: `Participante.compareTo(...)` considera hoje apenas `pontuação total` e, em empate, `ordem alfabética`, enquanto `regras.jsp` descreve critérios intermediários (`acertos totais` e `acertos parciais com bônus`) antes do critério alfabético. Ajuste funcional pendente para alinhar implementação e regra oficial.
+    * **[Concluído] 45.1.3 — Correção de aderência de desempate (11/06/2026):** `Participante.compareTo(...)` atualizado para aplicar a ordem textual oficial de desempate (`pontuação total` → `acertos totais (6 pts)` → `acertos parciais com bônus (3 pts)` → `ordem alfabética`). Cobertura adicionada em `ParticipanteTest` para cenários de empate.
+    * **[Concluído] 45.1.4 — Ajuste das regras textuais de ordenação/desempate (11/06/2026):** validado que, após a correção da 45.1.3, o comportamento do sistema passou a aderir ao texto vigente de `regras.jsp`/`messages.properties`, sem necessidade de alteração textual adicional nesta iteração.
+    * **[Concluído] 45.2 — Ajustar rendering da home (`principal.jsp`) (11/06/2026):** bloco textual Top 3 com medalhas ativo, gráfico mantido como apoio secundário e sem reordenação no frontend.
+    * **[Concluído] 45.2.1 — Iteração inicial do resumo Top 3 na home (11/06/2026):** `ParticipanteAction.obterDadosPaginaPrincipal()` passou a carregar `lideresResumo` (top 3 já ordenado pela regra oficial) e `principal.jsp` ganhou bloco textual com posição/nome/pontos e marcador visual de medalha (ouro/prata/bronze), preservando o gráfico de liderança como apoio secundário.
+    * **[Concluído] 45.2.2 — Cobertura inicial de regressão (11/06/2026):** adicionado teste em `ParticipanteActionLoadTest` validando limite top 3 e ordenação oficial no resumo da home.
+    * **[Concluído] 45.3 — Estados de empate e ausência de dados (11/06/2026):** cenários de empate no topo, empate massivo e ausência de pontuação tratados com síntese na home e direcionamento ao detalhamento na Classificação Geral.
+    * **[Concluído] 45.3.1 — Verificação de cenário inicial (todos com 0 pontos) (11/06/2026):** adicionado teste automatizado em `ParticipanteActionLoadTest` cobrindo cenário com todos os participantes zerados; validação confirma `success`, resumo estável com top 3 e fallback alfabético sem erro em runtime.
+    * **[Concluído] 45.3.2 — Sinalização de desempate aplicado no topo (11/06/2026):** home passou a exibir aviso discreto quando os dois primeiros empatam por pontuação e o ranking depende dos critérios oficiais de desempate; cobertura adicionada em teste de action.
+    * **[Concluído] 45.3.3 — Empate massivo por pontuação no início do bolão (11/06/2026):** home passou a calcular e expor `+N` participantes adicionais com a mesma pontuação do topo quando o empate excede o Top 3 exibido, reduzindo leitura enganosa no início do bolão.
+    * **[Concluído] 45.3.4 — Critério de medalhas em cenários de empate (11/06/2026):** regra formalizada na home com texto explicativo explícito de que medalhas seguem a posição oficial do ranking (com desempate), e não apenas a pontuação isolada.
+    * **[Concluído] 45.3.6 — Otimização de espaço da home em empate amplo (11/06/2026):** seção mantida compacta com Top 3 + indicadores agregados (`+N`) e sem expansão da lista de empatados na home; detalhamento ficou direcionado para a Classificação Geral.
+    * **[Concluído] 45.3.7 — CTA explícito para detalhes na Classificação Geral (11/06/2026):** adicionada chamada curta na home (`Ver classificação completa`) quando houver empate massivo, orientando o usuário para o detalhamento oficial em `/seguro/ranking.action`.
+    * **[Concluído] 45.3.5 — Testes de regressão para empates amplos (11/06/2026):** cobertura automatizada concluída para os cenários `todos empatados`, `empate do 1º ao 5º` e `empate parcial no pódio`, validando estabilidade do resumo e indicadores de contexto.
+    * **[Concluído] 45.3.5.1 — Cobertura inicial de empate massivo (11/06/2026):** `ParticipanteActionLoadTest` passou a validar cenário com empate do 1º ao 5º e cálculo correto de `liderancaEmpatadosMesmoPontosRestantes`.
+    * **[Concluído] 45.3.5.2 — Cobertura complementar de empate no pódio (11/06/2026):** adicionados testes para `todos empatados` dentro do Top 3 e `empate parcial no pódio`, assegurando ordenação oficial, sinalização de desempate e ausência de contagem `+N` indevida.
+    * **[Concluído] 45.4 — Acessibilidade e legibilidade (11/06/2026):** ajustes de semântica, foco visível e reforço textual de medalhas concluídos, evitando dependência exclusiva de cor/ícone.
+    * **[Concluído] 45.4.1 — Semântica e rotulagem acessível do Top 3 (11/06/2026):** resumo da liderança passou a usar `aria-labelledby`, `aria-label` por item com posição/nome/pontos/medalha e texto de pontos via i18n (sem abreviação ambígua); `alt` do gráfico atualizado para descrição funcional.
+    * **[Concluído] 45.4.2 — Não depender somente de cor/ícone para medalhas (11/06/2026):** resumo passou a exibir rótulo textual visível (`Ouro`, `Prata`, `Bronze`) por item, mantendo bolha visual de medalha como apoio.
+    * **[Concluído] 45.5 — Validação funcional e rastreabilidade (11/06/2026):** suíte `mvn -Dfrontend.skip=true test` executada com sucesso (64 testes) e smoke autenticado da home validando presença de `Top 3 da liderança`, regra textual de medalhas e rótulos visíveis de medalha após rebuild Docker.
+
+46. **[Pendente] Reavaliar melhorias de médio impacto/ideais na tela de Classificação Geral (11/06/2026):**
+    Objetivo: concentrar na tela de Classificação Geral os recursos analíticos e de exploração (filtros, evolução, insights), mantendo a home enxuta.
+    Skills previstas: `ui-ux-pro-max v1.0.0`, `architecture-guardian v1.0.0`.
+    * **[Pendente] 46.1 — Revisão de escopo UX da Classificação Geral:** mapear quais melhorias migram da proposta original da home (variação de posição, filtros de período/fase, microinsights).
+    * **[Pendente] 46.1.1 — Estratégia de detalhamento de empatados:** projetar visualização dedicada para blocos de empate (mesma pontuação em múltiplas posições), mantendo clareza de ordem oficial de desempate.
+    * **[Pendente] 46.2 — Definir backlog incremental da classificação:** quebrar implementação em subtarefas pequenas (backend, JSP, estilos, testes), com prioridade por valor ao usuário.
+    * **[Pendente] 46.3 — Proposta de layout e navegação:** estruturar hierarquia da classificação (resumo + tabela completa + informações de desempate) para desktop e mobile.
+    * **[Pendente] 46.4 — Critérios de aceite e métricas UX:** definir indicadores objetivos (tempo de compreensão, clareza de posição, consistência com regras) antes da implementação.
+
 ### Fase 2.6: Otimização de Infraestrutura e Build (ALTA PRIORIDADE)
 
 1. **[Concluído] Registro e Planejamento:** Formalizar a nova estratégia de build.
