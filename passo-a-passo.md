@@ -324,6 +324,14 @@ Premissas de compatibilidade (críticas):
     * **[Pendente] 43.6 — Validar regressão cruzada:** executar smoke completo em `/seguro/palpites.action` e `/admin/jogos.action` + suíte `mvn -Dfrontend.skip=true test`.
     * **[Pendente] 43.7 — Rastreabilidade arquitetural:** criar ADR de desacoplamento da view admin (trade-offs e impacto em manutenção) e log de sessão com evidências.
 
+44. **[Concluído] Reduzir ruído de logs no Hugging Face (NamedQuery DEBUG) sem mascarar falhas reais (11/06/2026):**
+    Objetivo: eliminar stack traces diagnósticos repetitivos no startup/runtime (`exception just for purpose of providing stack trace`) e melhorar a triagem operacional no ambiente Hugging Face.
+    Skills aplicadas: `senior-java-dev-legacy v1.0.0`, `docker-expert v1.0.0`.
+    * **[Concluído] 44.1 — Diagnóstico da origem do ruído:** confirmado que a aplicação não possuía `logback.xml` explícito em `src/main/resources`, permitindo inicialização com perfil de logging padrão verboso.
+    * **[Concluído] 44.2 — Configuração canônica de logging:** criado `src/main/resources/logback.xml` com `root=INFO` e ajustes direcionados para categorias de query (`org.springframework.data.jpa.repository.query.NamedQuery`, `org.hibernate.SQL`, `org.hibernate.orm.query`) para reduzir ruído não-fatal.
+    * **[Concluído] 44.3 — Documentação inline das decisões:** adicionados comentários técnicos no próprio `logback.xml` explicando o cenário do Hugging Face, o trade-off de observabilidade e a razão de negócio da mudança.
+    * **[Concluído] 44.4 — Rastreabilidade da execução:** log da sessão registrado em `.ia/logs/session-20260611-hf-logback-ruido-namedquery.md`.
+
 ### Fase 2.6: Otimização de Infraestrutura e Build (ALTA PRIORIDADE)
 
 1. **[Concluído] Registro e Planejamento:** Formalizar a nova estratégia de build.

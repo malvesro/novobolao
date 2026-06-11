@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!--
+      Política de logging canônica do projeto.
+      Motivo:
+      - Sem arquivo logback.xml explícito, o Logback pode inicializar em modo padrão
+        (root logger em DEBUG), gerando alto ruído no Hugging Face.
+      - O ruído mais recorrente observado foi o stacktrace "exception just for purpose..."
+        durante o lookup de named queries do Spring Data JPA/Hibernate.
+      Objetivo:
+      - manter observabilidade útil em produção;
+      - reduzir logs diagnósticos não-fatais que mascaram erros reais.
+    -->
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS XXX} %-5level [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--
+      NamedQuery em DEBUG pode imprimir stacktrace de diagnóstico para queries não nomeadas.
+      Em produção, elevamos para WARN para registrar apenas cenários realmente relevantes.
+    -->
+    <logger name="org.springframework.data.jpa.repository.query.NamedQuery" level="WARN"/>
+
+    <!--
+      SQL em INFO/DEBUG produz volume excessivo no ambiente HF (limite de recursos/logs).
+      Mantemos WARN para reduzir ruído sem esconder problemas importantes.
+    -->
+    <logger name="org.hibernate.SQL" level="WARN"/>
+    <logger name="org.hibernate.orm.query" level="WARN"/>
+    <logger name="org.hibernate.type.descriptor.sql" level="WARN"/>
+
+    <!--
+      Nível padrão do sistema:
+      INFO preserva eventos operacionais (startup, health, jobs) e reduz verbosidade.
+    -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>
