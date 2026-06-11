@@ -173,13 +173,13 @@ public class ParticipanteAction extends ActionSupport {
             exporFeedbackParaRequest();
             LOGGER.info("[PERFIL][SENHA] Senha alterada com sucesso para usuario={}", loginLocal);
             return SUCCESS;
-        } catch (ValidacaoException e) {
-            setErrosInclusao(e.getErros());
+        } catch (com.opendev.bolao.exception.BusinessException e) {
+            List erroNegocio = new ArrayList();
+            erroNegocio.add(new MensagemErro("Senha", e.getMessage(), MensagemErro.SEVERIDADE_ERRO));
+            setErrosInclusao(erroNegocio);
         } catch (Exception e) {
             LOGGER.error("[PERFIL][SENHA] Erro inesperado ao trocar senha para usuario={}", loginLocal, e);
-            List erroInesperado = new ArrayList();
-            erroInesperado.add(new MensagemErro("Geral", "Erro inesperado ao processar a troca de senha.", MensagemErro.SEVERIDADE_ERRO));
-            setErrosInclusao(erroInesperado);
+            throw new com.opendev.bolao.exception.SystemException("Erro inesperado ao processar a troca de senha.", e);
         }
 
         exporFeedbackParaRequest();
@@ -548,16 +548,15 @@ public class ParticipanteAction extends ActionSupport {
             prepararMapaPalpitesUsuario();
             prepararConteudoPalpite();
             resultado = SUCCESS;
-        } catch (Exception ex) {
-            LOGGER.error("atualizarPalpiteHtmx: falha ao atualizar palpite (login={}, jogoId={})", login, this.jogoId, ex);
+        } catch (com.opendev.bolao.exception.BusinessException ex) {
+            LOGGER.warn("atualizarPalpiteHtmx: erro de regra ao atualizar palpite (login={}, jogoId={}): {}", login, this.jogoId, ex.getMessage());
             this.palpiteAtualizado = false;
-            if (ex instanceof IllegalStateException) {
-                this.palpiteErro = getText("match.tip.locked.timeWindow");
-            } else {
-                this.palpiteErro = getText("match.tip.error.unavailable");
-            }
+            this.palpiteErro = ex.getMessage();
             prepararConteudoPalpite();
             resultado = ERROR;
+        } catch (Exception ex) {
+            LOGGER.error("atualizarPalpiteHtmx: falha ao atualizar palpite (login={}, jogoId={})", login, this.jogoId, ex);
+            throw new com.opendev.bolao.exception.SystemException("Erro interno ao atualizar palpite", ex);
         }
         atualizarProgressoPalpites(obterFiltro());
         if (SUCCESS.equals(resultado) && this.palpiteAtualizado && request != null

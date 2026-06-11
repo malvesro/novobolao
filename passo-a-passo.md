@@ -1178,3 +1178,13 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     *   Subtarefa 11.6: **[Documentação]** Atualizar `docs/deployment/HUGGING_FACE_AIVEN.md`
         com a configuração final do LFS e instruções para novos contribuidores
         configurarem o LFS corretamente em clones frescos.
+
+### Fase 11: Remediação de Vulnerabilidades Críticas (CRÍTICO)
+
+> **Objetivo:** Atualizar dependências vulneráveis para garantir a segurança da aplicação, conforme apontado pelo OWASP Dependency Check.
+
+* **[Pendente] 11.1 - Atualizar Dependências Spring Framework:** Atualizar `spring-core`, `spring-web`, `spring-security-core`, `spring-security-web` para versões corrigidas (versões que não possuam CVE-2026-418xx).
+* **[Pendente] 11.2 - Atualizar Protobuf:** Atualizar `com.google.protobuf:protobuf-java` para a versão segura (CVE-2026-0994).
+* **[Pendente] 11.3 - Atualizar Log4j API:** Atualizar `org.apache.logging.log4j:log4j-api` para a versão segura.
+* **[Pendente] 11.4 - Atualizar Outras Dependências Menores:** Avaliar e atualizar `org.eclipse.angus:angus-activation` e dependências NPM citadas (`esbuild`, `postcss`, `vite`).
+* **[Pendente] 11.5 - Validação Pós-Atualização:** Rodar `mvn clean install` para garantir que as atualizações não introduziram regressões funcionais e que o Dependency Check passe.

@@ -84,7 +84,7 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 			atualizarResultadoDoJogo(this.id, this.golsEquipe1, this.golsEquipe2);
 
 			// Recarregar dados para retorno do fragmento
-			this.jogo = getJogoService().buscarPorId(this.id).orElseThrow(() -> new IllegalArgumentException("Jogo não encontrado"));
+			this.jogo = getJogoService().buscarPorId(this.id).orElseThrow(() -> new com.opendev.bolao.exception.BusinessException("Jogo não encontrado"));
 			this.jogos = List.of(this.jogo);
 			this.equipes = getEquipeService().buscarApenasPaisesReais();
 			markSkipTemplate();
@@ -92,10 +92,13 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 		} catch (IllegalArgumentException ex) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return NONE;
+		} catch (com.opendev.bolao.exception.BusinessException ex) {
+			LOGGER.warn("[HTMX-ADMIN][RESULTADO] Erro de negócio para ID={}: {}", this.id, ex.getMessage());
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return NONE;
 		} catch (Exception ex) {
 			LOGGER.error("[HTMX-ADMIN][RESULTADO] Erro ao atualizar ID={}", this.id, ex);
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			return NONE;
+			throw new com.opendev.bolao.exception.SystemException("Erro interno ao atualizar resultado", ex);
 		}
 	}
 

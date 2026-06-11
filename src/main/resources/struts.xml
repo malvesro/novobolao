@@ -17,8 +17,10 @@
 		
 		<interceptors>
 			<interceptor name="htmxDebug" class="com.opendev.bolao.interceptor.HtmxDebugInterceptor" />
+			<interceptor name="exceptionLogger" class="com.opendev.bolao.interceptor.ExceptionLoggingInterceptor" />
 			<interceptor-stack name="bolaoStack">
 				<interceptor-ref name="htmxDebug" />
+				<interceptor-ref name="exceptionLogger" />
 				<!-- Proteções Cross-Origin modernas -->
 				<interceptor-ref name="coop" />
 				<interceptor-ref name="coep" />
@@ -29,19 +31,27 @@
 
 		<default-interceptor-ref name="bolaoStack" />
 
+		<global-exception-mappings>
+			<exception-mapping exception="com.opendev.bolao.exception.BaseBolaoException" result="error" />
+			<exception-mapping exception="java.lang.Exception" result="error" />
+		</global-exception-mappings>
+
 		<default-action-ref name="index" />
 
 		<!-- Action raiz para garantir que acessos a `/` e `/index.action` sejam tratados -->
 		<action name="" class="participanteAction" method="index">
 			<result name="success">/WEB-INF/content/index.jsp</result>
+			<result name="error">/WEB-INF/content/error.jsp</result>
 		</action>
 
 		<action name="index" class="participanteAction" method="index">
 			<result name="success">/WEB-INF/content/index.jsp</result>
+			<result name="error">/WEB-INF/content/error.jsp</result>
 		</action>
 
 		<action name="login" class="participanteAction" method="login">
 			<result name="success">/WEB-INF/content/login.jsp</result>
+			<result name="error">/WEB-INF/content/error.jsp</result>
 		</action>
 
 		<action name="recuperarSenhaForm" class="recuperacaoSenhaAction" method="recuperarSenhaForm">
