@@ -1179,12 +1179,12 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
         com a configuração final do LFS e instruções para novos contribuidores
         configurarem o LFS corretamente em clones frescos.
 
-### Fase 11: Remediação de Vulnerabilidades Críticas (CRÍTICO)
+### Fase 11: Análise Detalhada e Remediação de Vulnerabilidades (CRÍTICO)
 
-> **Objetivo:** Atualizar dependências vulneráveis para garantir a segurança da aplicação, conforme apontado pelo OWASP Dependency Check.
+> **Objetivo:** Analisar sistematicamente o relatório do OWASP Dependency Check e definir um plano de atualização seguro e compatível.
 
-* **[Pendente] 11.1 - Atualizar Dependências Spring Framework:** Atualizar `spring-core`, `spring-web`, `spring-security-core`, `spring-security-web` para versões corrigidas (versões que não possuam CVE-2026-418xx).
-* **[Pendente] 11.2 - Atualizar Protobuf:** Atualizar `com.google.protobuf:protobuf-java` para a versão segura (CVE-2026-0994).
-* **[Pendente] 11.3 - Atualizar Log4j API:** Atualizar `org.apache.logging.log4j:log4j-api` para a versão segura.
-* **[Pendente] 11.4 - Atualizar Outras Dependências Menores:** Avaliar e atualizar `org.eclipse.angus:angus-activation` e dependências NPM citadas (`esbuild`, `postcss`, `vite`).
-* **[Pendente] 11.5 - Validação Pós-Atualização:** Rodar `mvn clean install` para garantir que as atualizações não introduziram regressões funcionais e que o Dependency Check passe.
+* **[Pendente] 11.1 - Extração e Análise do Relatório:** Analisar o relatório gerado (`target/dependency-check-report.html` ou `target/dependency-check-report.json`) para listar todas as dependências vulneráveis, CVEs relacionados e CVSS scores.
+* **[Pendente] 11.2 - Pesquisa de Versões Seguras:** Pesquisar no Maven Central, Spring Framework Advisor e outras fontes confiáveis as versões seguras e compatíveis para cada dependência identificada, priorizando a compatibilidade com Java 17 e Spring 6.
+* **[Pendente] 11.3 - Plano de Atualização:** Documentar a estratégia de atualização, definindo versões alvo, justificando a escolha e avaliando riscos de quebra de compatibilidade.
+* **[Pendente] 11.4 - Execução da Remediação:** Aplicar as atualizações no `pom.xml` de forma incremental, compilando e testando o sistema após cada grupo de dependências atualizado.
+* **[Pendente] 11.5 - Validação Final:** Executar build completo (`mvn clean install`) e suíte de testes unitários/integração para garantir a integridade do sistema e a ausência de vulnerabilidades críticas.

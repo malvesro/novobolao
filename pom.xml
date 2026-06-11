@@ -453,6 +453,7 @@
           <nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
           <!-- (Opcional) delay entre chamadas à API NVD (ms) -->
           <nvdApiDelay>3000</nvdApiDelay>
+          <suppressionFile>dependency-check-suppression.xml</suppressionFile>
         </configuration>
       </plugin>
     </plugins>
