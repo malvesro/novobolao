@@ -49,18 +49,22 @@ RUN rm -rf ROOT docs examples host-manager manager && \
 # fixamos tanto o TZ do processo quanto o user.timezone da JVM.
 ENV TZ=America/Sao_Paulo
 
-# Configuração de Memória e JVM Otimizada para Ambientes Restritos (HF Free Tier)
-ENV CATALINA_OPTS="-Xmx384m -Xms128m \
-    -XX:MaxMetaspaceSize=128m \
-    -XX:+UseSerialGC \
-    -XX:MinHeapFreeRatio=20 \
-    -XX:MaxHeapFreeRatio=40 \
+# Configuração de memória/JVM para reduzir pausas e melhorar latência no HF.
+# Nota importante:
+# - A propriedade `server.tomcat.max-threads` não se aplica a Tomcat standalone (WAR),
+#   então o ajuste de threads é feito diretamente no `server.xml` mais abaixo.
+ENV CATALINA_OPTS="-Xms256m -Xmx512m \
+    -XX:MaxMetaspaceSize=192m \
+    -XX:+UseG1GC \
+    -XX:MaxGCPauseMillis=200 \
+    -XX:+ExitOnOutOfMemoryError \
     -Djava.awt.headless=true \
-    -Duser.timezone=America/Sao_Paulo \
-    -Dserver.tomcat.max-threads=50"
+    -Duser.timezone=America/Sao_Paulo"
 
-# Alterar porta para 7860
-RUN sed -i 's/port="8080"/port="7860"/g' /usr/local/tomcat/conf/server.xml
+# Alterar porta para 7860 e aplicar tuning de concorrência no Connector HTTP.
+# Esses parâmetros têm efeito real no Tomcat standalone utilizado pelo projeto.
+RUN sed -i 's/port="8080"/port="7860"/g' /usr/local/tomcat/conf/server.xml && \
+    sed -i 's/protocol="HTTP\/1.1"/protocol="HTTP\/1.1" maxThreads="60" minSpareThreads="10" acceptCount="100" keepAliveTimeout="15000"/g' /usr/local/tomcat/conf/server.xml
 
 # Copiar o WAR gerado no stage 3
 COPY --from=builder /app/target/sistema-bolao.war ./ROOT.war

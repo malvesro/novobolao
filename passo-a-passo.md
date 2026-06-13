@@ -167,9 +167,11 @@ Premissas de compatibilidade (críticas):
     **Diagnóstico:** Lentidão causada por processamento síncrono de 104 jogos em CPU limitada.
     **Estratégia:** Carga inicial mínima (Hoje/Próxima Data) + Carregamento progressivo via HTMX.
 
-    * **[Pendente] 15.1 — Tuning de Infraestrutura (Dockerfile):**
-        - Atualizar `CATALINA_OPTS` com limites de memória realistas (`-Xmx384m`) e redução de threads do Tomcat (`max-threads=50`).
-        - Validar build local e startup time.
+    * **[Concluído] 15.1 — Tuning de Infraestrutura (Dockerfile) (13/06/2026):**
+        - `CATALINA_OPTS` atualizado para reduzir pausas de GC em carga (`G1GC`, `-Xms256m`, `-Xmx512m`, `MaxMetaspace=192m`, `MaxGCPauseMillis=200`), mantendo timezone canônico do domínio.
+        - Removida propriedade inefetiva para Tomcat standalone (`server.tomcat.max-threads`) e aplicado tuning real de concorrência no `server.xml` (`maxThreads=60`, `minSpareThreads=10`, `acceptCount=100`, `keepAliveTimeout=15000`).
+        - Build local do container validado com sucesso (`docker compose build app`).
+        - Smoke pós-tuning executado no runtime local (`/health.txt` e `/login.action`) com respostas sub-milisegundo no container; registrar comparação externa em produção HF como próxima etapa de calibração fina.
 
     * **[Pendente] 15.2 — Lógica de Carga Inicial Mínima:**
         - Criar método no `JogoService` para encontrar a "Próxima Data com Jogos" a partir de hoje.
