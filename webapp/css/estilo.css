@@ -1642,6 +1642,20 @@ div.legenda span.abrev {
 	text-align: center;
 }
 
+/* Mantem data/hora compactos na edição inline administrativa de resultados. */
+.admin-inline-datetime {
+	display: inline-flex;
+	flex-direction: column;
+	gap: 0.2rem;
+	align-items: center;
+}
+
+.admin-inline-datetime .form-control-inline {
+	width: auto;
+	max-width: 118px;
+	font-size: 0.85rem;
+}
+
 .collapsible-portlet {
 	width: 100%;
 	max-width: 1000px;

@@ -13,8 +13,21 @@
 <tr class="${jogo.rowStyleClass} match-row--admin-direct" id="jogoTr_${jogo.id}" data-jogo-id="${jogo.id}">
     <td class="match-table__time">
         <input type="hidden" name="id" value="${jogo.id}" />
-        <input type="hidden" name="data" value="${dataJogoFormatada}" />
         <sec:authorize access="hasRole('ADMIN')">
+            <div class="admin-inline-datetime">
+            <%-- 
+                A data precisa ser ajustável também na edição inline administrativa.
+                Mantemos o mesmo contrato HTMX da edição estrutural para salvar de forma
+                incremental sem refresh completo da página.
+            --%>
+            <select name="data" class="form-control-inline"
+                    hx-post="${base}/admin/salvarEdicaoEstrutural.action"
+                    hx-trigger="change" hx-include="closest tr" hx-swap="outerHTML" hx-target="#jogoTr_${jogo.id}">
+                <c:forTokens var="d" delims="," items="${initParam.datas}">
+                    <c:set var="dTrim" value="${fn:trim(d)}" />
+                    <option value="${dTrim}" ${dTrim eq dataJogoFormatada ? 'selected' : ''}>${dTrim}</option>
+                </c:forTokens>
+            </select>
             <select name="hora" class="form-control-inline" 
                     hx-post="${base}/admin/salvarEdicaoEstrutural.action" 
                     hx-trigger="change" hx-include="closest tr" hx-swap="outerHTML" hx-target="#jogoTr_${jogo.id}">
@@ -23,8 +36,9 @@
                     <option value="${hTrim}" ${hTrim eq horaJogoFormatada ? 'selected' : ''}>${hTrim}</option>
                 </c:forTokens>
             </select>
+            </div>
         </sec:authorize>
-        <sec:authorize access="!hasRole('ADMIN')">${horaJogoFormatada}</sec:authorize>
+        <sec:authorize access="!hasRole('ADMIN')">${dataJogoFormatada} ${horaJogoFormatada}</sec:authorize>
     </td>
 
     <td class="match-table__location">

@@ -78,7 +78,8 @@ class AdminActionTest {
     @Test
     void deveSalvarEdicaoEstruturalComSucesso() {
         adminAction.setId(1L);
-        adminAction.setData("2026-06-11");
+        // Contrato da UI administrativa envia data no formato brasileiro (dd/MM/yyyy).
+        adminAction.setData("11/06/2026");
         adminAction.setHora("15:00");
         adminAction.setEquipe1Id(10L);
         adminAction.setEquipe2Id(20L);
@@ -98,6 +99,40 @@ class AdminActionTest {
     }
 
     @Test
+    void deveRetornarBadRequestAoSalvarEdicaoEstruturalSemData() {
+        adminAction.setId(1L);
+        adminAction.setData(null);
+        adminAction.setHora("15:00");
+        adminAction.setEquipe1Id(10L);
+        adminAction.setEquipe2Id(20L);
+        adminAction.setLocal("Estádio");
+        adminAction.setFase(1);
+
+        String result = adminAction.salvarEdicaoEstruturalHtmx();
+
+        assertThat(result).isEqualTo(ActionSupport.NONE);
+        verify(httpResponse).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        verify(jogoService, never()).atualizarDadosEstruturaisJogo(any(), any(), any(), any(), anyInt(), any(), any());
+    }
+
+    @Test
+    void deveRetornarBadRequestAoSalvarEdicaoEstruturalComDataInvalida() {
+        adminAction.setId(1L);
+        adminAction.setData("99/99/2026");
+        adminAction.setHora("15:00");
+        adminAction.setEquipe1Id(10L);
+        adminAction.setEquipe2Id(20L);
+        adminAction.setLocal("Estádio");
+        adminAction.setFase(1);
+
+        String result = adminAction.salvarEdicaoEstruturalHtmx();
+
+        assertThat(result).isEqualTo(ActionSupport.NONE);
+        verify(httpResponse).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        verify(jogoService, never()).atualizarDadosEstruturaisJogo(any(), any(), any(), any(), anyInt(), any(), any());
+    }
+
+    @Test
     void deveMarcarContextoAdminAoCarregarJogos() {
         when(jogoService.buscarUsandoFiltro(any(FiltroBuscaJogos.class))).thenReturn(java.util.List.of());
         when(equipeService.buscarApenasPaisesReais()).thenReturn(java.util.List.of());
@@ -113,7 +148,7 @@ class AdminActionTest {
 
     @Test
     void deveAplicarFiltroPadraoAteHoje() {
-        Date dataLimiteEsperada = Date.from(LocalDate.of(2026, 6, 11)
+        Date dataLimiteEsperada = Date.from(LocalDate.now(BolaoTime.getZoneId())
                 .atStartOfDay(BolaoTime.getZoneId()).toInstant());
         when(jogoService.buscarUsandoFiltro(any(FiltroBuscaJogos.class))).thenReturn(java.util.List.of());
         when(equipeService.buscarApenasPaisesReais()).thenReturn(java.util.List.of());

@@ -373,6 +373,18 @@ Premissas de compatibilidade (críticas):
     * **[Pendente] 46.3 — Proposta de layout e navegação:** estruturar hierarquia da classificação (resumo + tabela completa + informações de desempate) para desktop e mobile.
     * **[Pendente] 46.4 — Critérios de aceite e métricas UX:** definir indicadores objetivos (tempo de compreensão, clareza de posição, consistência com regras) antes da implementação.
 
+47. **[Concluído] Incluir campo de data na edição administrativa da tela de atualização de resultados (13/06/2026):**
+    Objetivo: permitir que o administrador ajuste também a **data** do jogo na mesma tela em que já ajusta hora, local e equipes, mantendo consistência com o fuso oficial São Paulo e sem regressão no fluxo HTMX de atualização.
+    Skills previstas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`, `ui-ux-pro-max v1.0.0`.
+    * **[Concluído] 47.1 — Diagnóstico de contrato atual da edição admin:** mapeamento concluído em `AdminAction`/`JogoServiceImpl`/JSPs; backend já persiste `data` na edição estrutural e o gap identificado estava na linha administrativa compartilhada (`admin-match-row.jsp`), onde o campo era enviado como `hidden` e não editável visualmente.
+    * **[Concluído] 47.2 — Definir contrato de entrada para data (backend):** validação explícita aplicada em `AdminAction.salvarEdicaoEstruturalHtmx()` para `data` (`dd/MM/yyyy`) e `hora` (`HH:mm`) via parse + round-trip canônico, retornando HTTP 400 quando formato for inválido, sem quebrar payload existente.
+    * **[Concluído] 47.3 — Ajustar persistência da data no serviço de jogos:** validado que `JogoServiceImpl.atualizarDadosEstruturaisJogo(...)` já persiste `jogo.setData(data)` e `jogo.setHora(hora)`; com a validação de formato adicionada na action, o serviço passa a receber apenas valores canônicos, preservando consistência temporal do domínio em São Paulo.
+    * **[Concluído] 47.4 — Atualizar UI administrativa da linha editável:** campo de data adicionado à linha administrativa (`admin-match-row.jsp`) com envio HTMX incremental para `salvarEdicaoEstrutural.action`; aplicado ajuste visual discreto em `estilo.css` para manter data/hora compactos na célula de horário.
+    * **[Concluído] 47.5 — Atualizar fragmento HTMX de retorno da linha:** confirmado em runtime que o fragmento retornado por `salvarEdicaoEstrutural.action` renderiza `select name="data"` na própria linha (`admin-match-row.jsp`) com `hx-swap="outerHTML"`, refletindo a data atualizada sem refresh completo.
+    * **[Concluído] 47.6 — Cobertura de testes unitários (action/service):** `AdminActionTest` atualizado para formato real da UI (`dd/MM/yyyy`) e cenários de erro 400 (data ausente e data inválida), além de validação de data dinâmica em timezone São Paulo; `JogoServiceImplTest` já cobre persistência de `data`/`hora` em `atualizarDadosEstruturaisJogo`.
+    * **[Concluído] 47.7 — Validação funcional e regressão cruzada:** suíte completa `mvn -Dfrontend.skip=true test` executada com sucesso (`66` testes, `0` falhas) e smoke autenticado em `/admin/jogos.action` após rebuild Docker confirmando presença do campo de data inline e contratos HTMX ativos.
+    * **[Concluído] 47.8 — Rastreabilidade da execução:** logs registrados em `.ia/logs/session-20260613-tarefa47-iteracao1-data-inline-admin.md` e `.ia/logs/session-20260613-tarefa47-finalizacao.md` com evidências de build, testes e validação funcional.
+
 ### Fase 2.6: Otimização de Infraestrutura e Build (ALTA PRIORIDADE)
 
 1. **[Concluído] Registro e Planejamento:** Formalizar a nova estratégia de build.

@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Date;
+import java.sql.Time;
 import java.time.LocalDate;
 
 import com.opendev.bolao.model.Jogo;
@@ -167,10 +168,25 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 				LOGGER.warn("[HTMX-ADMIN][EDICAO-ESTRUTURAL] Parâmetros obrigatórios ausentes para ID={}", this.id);
 				throw new IllegalArgumentException("Parâmetros obrigatórios ausentes");
 			}
+
+			// Validação explícita do contrato de entrada (dd/MM/yyyy e HH:mm).
+			// Evita persistir valores nulos quando o parse falha e retorna erro 400 amigável.
+			Date dataConvertida = ConversaoUtils.converterParaData(this.data);
+			Time horaConvertida = ConversaoUtils.converterParaTempo(this.hora);
+			boolean dataInvalida = dataConvertida == null
+					|| !this.data.equals(ConversaoUtils.converterParaString(dataConvertida));
+			boolean horaInvalida = horaConvertida == null
+					|| !this.hora.equals(ConversaoUtils.converterParaString(horaConvertida));
+			if (dataInvalida || horaInvalida) {
+				LOGGER.warn("[HTMX-ADMIN][EDICAO-ESTRUTURAL] Formato inválido para data/hora (ID={}): data='{}', hora='{}'",
+						this.id, this.data, this.hora);
+				throw new IllegalArgumentException("Formato inválido para data/hora");
+			}
+
 			getJogoService().atualizarDadosEstruturaisJogo(
 					this.id, 
-					ConversaoUtils.converterParaData(this.data), 
-					ConversaoUtils.converterParaTempo(this.hora), 
+					dataConvertida, 
+					horaConvertida, 
 					this.local, 
 					this.fase, 
 					this.equipe1Id, 
