@@ -3,6 +3,7 @@ package com.opendev.bolao.service.impl;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +43,11 @@ public class JogoServiceImpl implements JogoService {
 
 	   @PersistenceContext
 	   private EntityManager entityManager;
+
+    // Cache dos jogos de hoje com TTL baseado em data calendária.
+    // Padrão de Bolão: todos os participantes acessam a mesma lista diariamente.
+    private List<Jogo> cacheJogosDeHoje = null;
+    private LocalDate cacheDateJogosDeHoje = null;
 
 	public Long criarNovoJogo(Jogo jogo, Long equipe1Id, Long equipe2Id) {
 		Equipe equipe1 = getEquipeRepository().findById(equipe1Id)
@@ -165,12 +171,23 @@ public class JogoServiceImpl implements JogoService {
         }
     }
     
-    public List<Jogo> buscarJogosDeHoje() {
+    public synchronized List<Jogo> buscarJogosDeHoje() {
         // O domínio considera "hoje" na zona oficial do bolão (São Paulo),
         // independentemente do timezone do host.
         LocalDate hoje = LocalDate.now(BolaoTime.getZoneId());
+
+        // Cache com TTL de 1 dia calendário: invalida automaticamente ao mudar o dia.
+        // Estratégia de Bolão: todos os participantes acessam os mesmos dados no mesmo dia.
+        if (cacheJogosDeHoje != null && hoje.equals(cacheDateJogosDeHoje)) {
+            return cacheJogosDeHoje;
+        }
+
+        logger.info("[CACHE][JOGOS-HOJE] Atualizando cache de jogos do dia: " + hoje);
         Date dataHoje = Date.from(hoje.atStartOfDay(BolaoTime.getZoneId()).toInstant());
-        return getJogoRepository().findByData(dataHoje);
+        List<Jogo> jogos = getJogoRepository().findByData(dataHoje);
+        cacheJogosDeHoje = Collections.unmodifiableList(jogos);
+        cacheDateJogosDeHoje = hoje;
+        return cacheJogosDeHoje;
     }
 
 	public JogoRepository getJogoRepository() {

@@ -229,6 +229,10 @@ public class Participante implements Serializable, Comparable {
 		CACHE_DADOS_CLASSIFICACAO.setExpirado(true);
 	}
     
+    public static boolean isCacheExpirado() {
+        return CACHE_DADOS_CLASSIFICACAO.isExpirado();
+    }
+    
     public static void notificarCacheAtualizado() {
         CACHE_DADOS_CLASSIFICACAO.setExpirado(false);
     }

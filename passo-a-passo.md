@@ -410,6 +410,24 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 49.3 — Teste de regressão visual:**
         - Suíte de testes aprovada e integridade do fragmento validada para ambos os perfis (usuário/admin).
 
+50. **[Concluído] Hardening de Performance: Otimização de Runtime e Latência (14/06/2026):**
+    Objetivo: Reduzir tempo de resposta (TTFB) e latência percebida no Hugging Face Spaces para < 800ms, otimizando cache para padrões de acesso de um bolão (dados compartilhados).
+    Skills: `performance-wizard v1.0.0`, `architecture-guardian v1.0.0`, `docker-master v1.0.0`.
+
+    * **[Concluído] 50.1 — Tuning de JVM e Dockerfile**:
+        - Heap fixo 1024M + G1GC MaxGCPauseMillis=100 + StringDeduplication + IOHP=35.
+        - GZIP ativado no Connector Tomcat com compressionMinSize=1024 para fragmentos HTMX.
+        - maxThreads=150, minSpareThreads=25 para maior throughput paralelo.
+    * **[Concluído] 50.2 — Ativar GZIP e Tuning no Tomcat (`server.xml`)**:
+        - Incorporado no 50.1 (sed direto no Dockerfile).
+    * **[Concluído] 50.3 — Otimização de Persistência e Pool**:
+        - HikariCP `minimumIdle` aumentado de 2 para 5 para manter conexões aquecidas com Aiven.
+    * **[Concluído] 50.4 — Cache Local para Dados de Alta Leitura**:
+        - `JogoServiceImpl.buscarJogosDeHoje()`: cache com TTL de 1 dia calendário (São Paulo).
+        - `ParticipanteServiceImpl.buscarClassificacao()`: cache global de ranking invalidado por `Participante.expirarCacheDeClassificacao()`.
+        - `EquipeServiceImpl.buscarApenasPaisesReais()`: cache permanente (lista estática durante o torneio).
+        - Teste unitário adicionado: `deveRetornarJogosDeHojeSemChamadaRepetidaAoBanco` (68 testes).
+
 ---
 
 1. **[Concluído] Registro e Planejamento:** Formalizar a nova estratégia de build.

@@ -53,7 +53,21 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 	private PalpiteRepository palpiteRepository;
 	private PasswordEncoder passwordEncoder;
 
+	// Cache Global de Classificação (Estratégia de Arquiteto para Bolão de alta escala)
+	private List<Participante> cacheRanking = null;
+
 	public synchronized List buscarClassificacao() {
+		// Se o cache de dados individuais de pontuação estiver expirado, 
+		// devemos invalidar o nosso cache global de ranking também.
+		if (Participante.isCacheExpirado()) {
+			this.cacheRanking = null;
+		}
+
+		if (this.cacheRanking != null) {
+			return this.cacheRanking;
+		}
+
+		LOGGER.info("[CACHE][RANKING] Reconstruindo ranking global...");
 		List<Participante> participantesAll = getParticipanteRepository().findAll();
 		List<Participante> participantes = new ArrayList<>();
 		
@@ -69,8 +83,14 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 			DadosClassificacao totais = participante.getPontuacaoTotal();
 			totais.setTotalDeJogos(qtdeDeJogos);
 		}
+		
+		// Ordenação oficial (Comparable implementado em Participante)
+		Collections.sort(participantes);
+
 		Participante.notificarCacheAtualizado();
-		return participantes;
+		this.cacheRanking = Collections.unmodifiableList(participantes);
+		
+		return this.cacheRanking;
 	}
 
 	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {

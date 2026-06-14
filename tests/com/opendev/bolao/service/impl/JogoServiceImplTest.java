@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.sql.Time;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -70,5 +71,21 @@ class JogoServiceImplTest {
         assertThat(jogo.getEquipe2()).isEqualTo(equipe2);
 
         verify(jogoRepository).save(jogo);
+    }
+
+    @Test
+    void deveRetornarJogosDeHojeSemChamadaRepetidaAoBanco() {
+        // Primeira chamada: miss de cache → deve ir ao banco
+        when(jogoRepository.findByData(any(Date.class))).thenReturn(List.of(jogo));
+
+        @SuppressWarnings("unchecked")
+        List<Jogo> resultado1 = (List<Jogo>) jogoService.buscarJogosDeHoje();
+        @SuppressWarnings("unchecked")
+        List<Jogo> resultado2 = (List<Jogo>) jogoService.buscarJogosDeHoje();
+
+        assertThat(resultado1).containsExactly(jogo);
+        assertThat(resultado2).isSameAs(resultado1); // Deve ser a MESMA referência de cache
+        // Banco consultado apenas uma vez graças ao cache
+        verify(jogoRepository, times(1)).findByData(any(Date.class));
     }
 }

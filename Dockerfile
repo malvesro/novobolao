@@ -50,21 +50,26 @@ RUN rm -rf ROOT docs examples host-manager manager && \
 ENV TZ=America/Sao_Paulo
 
 # Configuração de memória/JVM para reduzir pausas e melhorar latência no HF.
-# Nota importante:
-# - A propriedade `server.tomcat.max-threads` não se aplica a Tomcat standalone (WAR),
-#   então o ajuste de threads é feito diretamente no `server.xml` mais abaixo.
-ENV CATALINA_OPTS="-Xms256m -Xmx512m \
-    -XX:MaxMetaspaceSize=192m \
+# Estratégia de Arquiteto: 
+# 1. Heap fixo em 1024m para evitar redimensionamento agressivo em runtime.
+# 2. String Deduplication para reduzir footprint de memória de objetos JSTL/Hibernate.
+# 3. G1GC tunado para latência agressiva (MaxGCPauseMillis=100).
+ENV CATALINA_OPTS="-Xms1024m -Xmx1024m \
+    -XX:MaxMetaspaceSize=256m \
     -XX:+UseG1GC \
-    -XX:MaxGCPauseMillis=200 \
+    -XX:MaxGCPauseMillis=100 \
+    -XX:InitiatingHeapOccupancyPercent=35 \
+    -XX:+UseStringDeduplication \
     -XX:+ExitOnOutOfMemoryError \
     -Djava.awt.headless=true \
     -Duser.timezone=America/Sao_Paulo"
 
-# Alterar porta para 7860 e aplicar tuning de concorrência no Connector HTTP.
-# Esses parâmetros têm efeito real no Tomcat standalone utilizado pelo projeto.
+# Otimização do server.xml:
+# 1. Alterar porta para 7860.
+# 2. Tuning de concorrência (threads e backlog).
+# 3. Ativar compressão GZIP para reduzir payload de fragmentos HTMX e assets.
 RUN sed -i 's/port="8080"/port="7860"/g' /usr/local/tomcat/conf/server.xml && \
-    sed -i 's/protocol="HTTP\/1.1"/protocol="HTTP\/1.1" maxThreads="60" minSpareThreads="10" acceptCount="100" keepAliveTimeout="15000"/g' /usr/local/tomcat/conf/server.xml
+    sed -i 's/protocol="HTTP\/1.1"/protocol="HTTP\/1.1" maxThreads="150" minSpareThreads="25" acceptCount="100" keepAliveTimeout="15000" maxKeepAliveRequests="100" compression="on" compressionMinSize="1024" compressableMimeType="text\/html,text\/xml,text\/plain,text\/css,application\/javascript,application\/json"/g' /usr/local/tomcat/conf/server.xml
 
 # Copiar o WAR gerado no stage 3
 COPY --from=builder /app/target/sistema-bolao.war ./ROOT.war
