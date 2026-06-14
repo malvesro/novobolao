@@ -6,7 +6,7 @@
   <groupId>com.opendev</groupId>
   <artifactId>sistema-bolao</artifactId>
   <version>1.1.0</version>
-  <packaging>war</artifactId>
+  <packaging>war</packaging>
   <name>Sistema Bolao - Spring 6 Migration</name>
 
   <properties>
