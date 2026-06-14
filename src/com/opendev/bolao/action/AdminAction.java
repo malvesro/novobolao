@@ -1,11 +1,13 @@
 package com.opendev.bolao.action;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Date;
 import java.sql.Time;
-import java.time.LocalDate;
 
 import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.service.EquipeService;
@@ -233,6 +235,45 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 		// (`admin-match-row.jsp`) e para manter os inputs de resultado ativos.
 		markAdminResultadoView();
 		carregarJogosComFiltroPadraoAteHoje();
+		return SUCCESS;
+	}
+
+	public String buscarMaisJogosHtmx() {
+		LOGGER.info("[HTMX-ADMIN][LOAD-MORE] Buscando mais jogos a partir da data: {}", this.data);
+		markSkipTemplate();
+		markAdminResultadoView();
+		if (this.data == null) {
+			return SUCCESS;
+		}
+
+		try {
+			Date dataReferencia = ConversaoUtils.converterParaData(this.data);
+			// Avanço de dia feito por calendário na zona canônica do domínio.
+			LocalDate dataLocalReferencia = Instant.ofEpochMilli(dataReferencia.getTime())
+					.atZone(BolaoTime.getZoneId())
+					.toLocalDate();
+			LocalDate diaSeguinteLocal = dataLocalReferencia.plusDays(1);
+			Date diaSeguinte = Date.from(diaSeguinteLocal.atStartOfDay(BolaoTime.getZoneId()).toInstant());
+
+			Date proximaDataDisponivel = getJogoService().buscarPrimeiraDataComJogosApos(diaSeguinte);
+
+			if (proximaDataDisponivel != null) {
+				FiltroBuscaJogos novoFiltro = new FiltroBuscaJogos();
+				novoFiltro.setDataInicial(proximaDataDisponivel);
+				novoFiltro.setDataFinal(proximaDataDisponivel);
+
+				this.jogos = getJogoService().buscarUsandoFiltro(novoFiltro);
+				this.equipes = getEquipeService().buscarApenasPaisesReais();
+				LOGGER.info("[HTMX-ADMIN][LOAD-MORE] Encontrados {} jogos para a data {}", this.jogos.size(), proximaDataDisponivel);
+			} else {
+				this.jogos = Collections.emptyList();
+				LOGGER.info("[HTMX-ADMIN][LOAD-MORE] Nenhuma data futura com jogos encontrada.");
+			}
+		} catch (Exception e) {
+			LOGGER.error("[HTMX-ADMIN][LOAD-MORE] Erro ao buscar mais jogos via HTMX", e);
+			this.jogos = Collections.emptyList();
+		}
+
 		return SUCCESS;
 	}
 

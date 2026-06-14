@@ -385,7 +385,20 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 47.7 — Validação funcional e regressão cruzada:** suíte completa `mvn -Dfrontend.skip=true test` executada com sucesso (`66` testes, `0` falhas) e smoke autenticado em `/admin/jogos.action` após rebuild Docker confirmando presença do campo de data inline e contratos HTMX ativos.
     * **[Concluído] 47.8 — Rastreabilidade da execução:** logs registrados em `.ia/logs/session-20260613-tarefa47-iteracao1-data-inline-admin.md` e `.ia/logs/session-20260613-tarefa47-finalizacao.md` com evidências de build, testes e validação funcional.
 
-### Fase 2.6: Otimização de Infraestrutura e Build (ALTA PRIORIDADE)
+48. **[Concluído] Adicionar botão "Carregar Próxima Data" na tela administrativa de resultados (14/06/2026):**
+    Objetivo: permitir que o administrador carregue as próximas datas de jogos progressivamente via HTMX, mantendo a consistência com a tela de palpites.
+    Skills previstas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`, `ui-ux-pro-max v1.0.0`.
+
+    * **[Concluído] 48.1 — Implementar método `buscarMaisJogosHtmx` em `AdminAction`:** 
+        Adicionado o método que recebe `data` (String dd/MM/yyyy), encontra a próxima data com jogos e carrega os dados marcando `adminResultadoView=true`.
+    * **[Concluído] 48.2 — Mapear action no `struts.xml`:** 
+        Registrada a action `jogosMaisJogosPartial` no package `admin` apontando para o fragmento de lista compartilhado.
+    * **[Concluído] 48.3 — Ajustar `jogos-lista-fragmento.jsp` para exibição condicional:**
+        A lógica do botão foi atualizada para suportar o contexto administrativo e alternar endpoints HTMX dinamicamente.
+    * **[Concluído] 48.4 — Testes e Validação:**
+        Validado via testes unitários em `AdminActionTest` e verificado via build Maven.
+
+---
 
 1. **[Concluído] Registro e Planejamento:** Formalizar a nova estratégia de build.
    * **[Concluído]** Registrar `ADR-20260608-otimizacao-build-docker-multi-stage.md`.

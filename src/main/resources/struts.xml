@@ -234,6 +234,10 @@
 		<action name="carregarLinhaJogoAdmin" class="adminAction" method="carregarLinhaJogoHtmx">
 			<result name="success">/WEB-INF/content/admin/partials/admin-match-row.jsp</result>
 		</action>
+
+		<action name="jogosMaisJogosPartial" class="adminAction" method="buscarMaisJogosHtmx">
+			<result name="success">/WEB-INF/content/seguro/partials/jogos-lista-fragmento.jsp</result>
+		</action>
 	
 	</package>
 

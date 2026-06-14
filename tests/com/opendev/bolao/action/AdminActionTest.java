@@ -178,4 +178,24 @@ class AdminActionTest {
         verify(jogoService, never()).buscarUsandoFiltro(any(FiltroBuscaJogos.class));
         verify(httpRequest).setAttribute("adminMostrandoTodos", Boolean.TRUE);
     }
+
+    @Test
+    void deveBuscarMaisJogosComSucesso() {
+        adminAction.setData("14/06/2026");
+        Date proximaData = new Date(); 
+        Jogo jogo = new Jogo();
+        
+        when(jogoService.buscarPrimeiraDataComJogosApos(any(Date.class))).thenReturn(proximaData);
+        when(jogoService.buscarUsandoFiltro(any(FiltroBuscaJogos.class))).thenReturn(java.util.List.of(jogo));
+        when(equipeService.buscarApenasPaisesReais()).thenReturn(java.util.List.of());
+
+        String result = adminAction.buscarMaisJogosHtmx();
+
+        assertThat(result).isEqualTo(ActionSupport.SUCCESS);
+        assertThat(adminAction.getJogos()).containsExactly(jogo);
+        verify(httpRequest).setAttribute("skipTemplate", Boolean.TRUE);
+        verify(httpRequest).setAttribute("adminResultadoView", Boolean.TRUE);
+        verify(jogoService).buscarPrimeiraDataComJogosApos(any(Date.class));
+        verify(jogoService).buscarUsandoFiltro(any(FiltroBuscaJogos.class));
+    }
 }
