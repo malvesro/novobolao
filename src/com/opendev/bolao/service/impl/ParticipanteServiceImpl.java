@@ -64,7 +64,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 		}
 
 		if (this.cacheRanking != null) {
-			return this.cacheRanking;
+			return new ArrayList<>(this.cacheRanking);
 		}
 
 		LOGGER.info("[CACHE][RANKING] Reconstruindo ranking global...");

@@ -155,12 +155,10 @@
 			<url-pattern>/WEB-INF/content/seguro/partials/*</url-pattern>
 			<url-pattern>/WEB-INF/content/admin/partials/*</url-pattern>
 			<page-encoding>UTF-8</page-encoding>
-			<content-type>text/html; charset=UTF-8</content-type>
 		</jsp-property-group>
 		<jsp-property-group>
 			<url-pattern>*.jsp</url-pattern>
 			<page-encoding>UTF-8</page-encoding>
-			<content-type>text/html; charset=UTF-8</content-type>
 			<include-prelude>/WEB-INF/content/template/cabecalho.jspf</include-prelude>
 			<include-coda>/WEB-INF/content/template/rodape.jspf</include-coda>
 		</jsp-property-group>

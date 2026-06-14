@@ -5,6 +5,7 @@
 
 <struts>
 	<constant name="struts.devMode" value="false" />
+	<constant name="struts.i18n.encoding" value="UTF-8" />
 	<constant name="struts.objectFactory" value="spring" />
 
 	<!-- Endurecimento de Segurança (Struts 7) -->

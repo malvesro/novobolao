@@ -302,24 +302,38 @@ public class ParticipanteAction extends ActionSupport {
     }
 	
     public String gerarGraficoDesempenho() {
-        String login = RequestUtils.getLoginParticipanteAutenticado();
-        Participante participante = getParticipanteService().buscarPorLogin(login).orElse(null);
-        setParticipanteLogado(participante);
-        List participantes = getParticipanteService().buscarClassificacao();
-        participantes.remove(participante);
-        Collections.sort(participantes, Participante.COMPARADOR_NOME);
-        setParticipantes(participantes);
-        return SUCCESS;
+        try {
+            String login = RequestUtils.getLoginParticipanteAutenticado();
+            Participante participante = getParticipanteService().buscarPorLogin(login).orElse(null);
+            setParticipanteLogado(participante);
+            
+            List<Participante> participantes = getParticipanteService().buscarClassificacao();
+            if (participantes != null && participante != null) {
+                // remove o próprio participante da lista de rivais
+                participantes.remove(participante);
+                Collections.sort(participantes, Participante.COMPARADOR_NOME);
+            }
+            setParticipantes(participantes);
+            return SUCCESS;
+        } catch (Exception e) {
+            LOGGER.error("[GRAFICO] Erro ao carregar dados do grafico de desempenho", e);
+            return ERROR;
+        }
     }
 
     public String gerarGraficoDesempenhoImagem() {
-        String login = RequestUtils.getLoginParticipanteAutenticado();
-        Participante participante = getParticipanteService().buscarPorLogin(login).orElse(null);
-        Long idRival = obterIdRival();
-        GraficoComparativoDesempenho grafico = getParticipanteService().construirGraficoDesempenho(participante, idRival);
-        JFreeChart chart = grafico.criarChart();
-        this.graficoStream = renderizarChart(chart, 560, 240);
-        return SUCCESS;
+        try {
+            String login = RequestUtils.getLoginParticipanteAutenticado();
+            Participante participante = getParticipanteService().buscarPorLogin(login).orElse(null);
+            Long idRival = obterIdRival();
+            GraficoComparativoDesempenho grafico = getParticipanteService().construirGraficoDesempenho(participante, idRival);
+            JFreeChart chart = grafico.criarChart();
+            this.graficoStream = renderizarChart(chart, 560, 240);
+            return SUCCESS;
+        } catch (Exception e) {
+            LOGGER.error("[GRAFICO] Erro ao gerar imagem do grafico de desempenho", e);
+            return ERROR;
+        }
     }
     
     public String obterDadosPaginaPrincipal() {
