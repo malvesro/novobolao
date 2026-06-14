@@ -31,12 +31,12 @@
 
 		<default-interceptor-ref name="bolaoStack" />
 
+		<!-- Ordem exigida pelo DTD: default-action-ref deve vir antes de global-results -->
+		<default-action-ref name="index" />
+
 		<global-results>
 			<result name="error">/WEB-INF/content/error.jsp</result>
 		</global-results>
-
-		<!-- Ordem exigida pelo DTD: default-action-ref deve vir antes de global-exception-mappings -->
-		<default-action-ref name="index" />
 
 		<global-exception-mappings>
 			<exception-mapping exception="com.opendev.bolao.exception.BaseBolaoException" result="error" />
