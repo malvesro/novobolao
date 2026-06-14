@@ -398,6 +398,18 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 48.4 — Testes e Validação:**
         Validado via testes unitários em `AdminActionTest` e verificado via build Maven.
 
+49. **[Concluído] Corrigir agrupamento replicado de datas na listagem de jogos (14/06/2026):**
+    Objetivo: garantir que jogos da mesma data fiquem sob um único cabeçalho e corrigir o aninhamento de tags HTML no fragmento de lista.
+    Skills previstas: `ui-ux-pro-max v1.0.0`, `architecture-guardian v1.0.0`.
+
+    * **[Concluído] 49.1 — Refatorar lógica de agrupamento no `jogos-lista-fragmento.jsp`:**
+        - Substituída a comparação de objetos `Date` (`ne`) por comparação de strings formatadas (`dataJogoFormatada`).
+        - Implementado o fechamento sistemático de tags HTML do bloco anterior.
+    * **[Concluído] 49.2 — Validar exibição da data 11/06/2026 no Admin:**
+        - Lógica de agrupamento testada via análise de paridade de strings, eliminando duplicidade por componentes de milissegundos.
+    * **[Concluído] 49.3 — Teste de regressão visual:**
+        - Suíte de testes aprovada e integridade do fragmento validada para ambos os perfis (usuário/admin).
+
 ---
 
 1. **[Concluído] Registro e Planejamento:** Formalizar a nova estratégia de build.
