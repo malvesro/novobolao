@@ -439,7 +439,18 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 51.3 — Limpeza de Actions**:
         - Removida ordenação redundante em `ParticipanteAction`.
 
----
+    52. **[Pendente] Ajuste Fino na Invalidação de Cache de Ranking:**
+    Objetivo: Garantir consistência absoluta do ranking global, invalidando o cache sempre que palpites forem salvos ou atualizados.
+    * **[Pendente] 52.1 — Instrumentar PalpiteService:** Incluir `Participante.expirarCacheDeClassificacao()` em métodos de persistência de palpites.
+    * **[Pendente] 52.2 — Teste de Consistência:** Criar teste de integração para validar a atualização imediata do ranking após submissão de palpite.
+
+    53. **[Pendente] Auditoria e Correção da Tabela de Jogos:**
+    Objetivo: Garantir que todos os jogos da Copa 2026 estejam cadastrados com horários e datas corretos.
+    * **[Pendente] 53.1 — Auditoria de Dados:** Comparar o dataset `Copa_do_Mundo_2026_Fase_de_Grupos_Completa_Brasilia.xlsx` com o site oficial da FIFA e identificar discrepâncias.
+    * **[Pendente] 53.2 — Correção de Insumos:** Atualizar `src/main/resources/database/copa-2026-data.sql` e tabelas do banco com horários corretos (ex: 21:30).
+    * **[Pendente] 53.3 — Validação de UI:** Confirmar que a opção '21:30' aparece nos dropdowns de inclusão/edição de jogos.
+
+    ---
 
 1. **[Concluído] Registro e Planejamento:** Formalizar a nova estratégia de build.
    * **[Concluído]** Registrar `ADR-20260608-otimizacao-build-docker-multi-stage.md`.

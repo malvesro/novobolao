@@ -17,7 +17,7 @@
 
 	<context-param>
 		<param-name>horarios</param-name>
-		<param-value>00:00,01:00,13:00,14:00,15:00,16:00,17:00,17:30,18:00,19:00,20:00,20:30,21:00,22:00,22:30,23:00</param-value>
+		<param-value>00:00,01:00,13:00,14:00,15:00,16:00,17:00,17:30,18:00,19:00,20:00,20:30,21:00,21:30,22:00,22:30,23:00</param-value>
 	</context-param>
 	<context-param>
 		<param-name>datas</param-name>
