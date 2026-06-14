@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Erro Grave no Sistema</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; color: #333; }
+        .header { background: #d32f2f; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; border: 1px solid #eee; }
+        .stack-trace { background: #f5f5f5; padding: 10px; border-left: 5px solid #d32f2f; font-family: monospace; white-space: pre-wrap; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚠️ Alerta de Erro</h1>
+    </div>
+    <div class="content">
+        <p>Olá Administrador,</p>
+        <p>O sistema Bolão 2026 capturou um erro grave que requer sua atenção.</p>
+        <p><strong>Mensagem:</strong> ${mensagem}</p>
+        <p><strong>Detalhes técnicos:</strong></p>
+        <div class="stack-trace">
+            ${stackTrace}
+        </div>
+        <p>Este alerta foi gerado automaticamente pelo ExceptionLoggingInterceptor.</p>
+    </div>
+</body>
+</html>
