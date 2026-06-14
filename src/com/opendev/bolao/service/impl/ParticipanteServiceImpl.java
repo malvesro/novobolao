@@ -90,7 +90,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 		Participante.notificarCacheAtualizado();
 		this.cacheRanking = Collections.unmodifiableList(participantes);
 		
-		return this.cacheRanking;
+		return new ArrayList<>(this.cacheRanking);
 	}
 
 	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {

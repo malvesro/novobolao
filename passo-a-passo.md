@@ -428,6 +428,17 @@ Premissas de compatibilidade (críticas):
         - `EquipeServiceImpl.buscarApenasPaisesReais()`: cache permanente (lista estática durante o torneio).
         - Teste unitário adicionado: `deveRetornarJogosDeHojeSemChamadaRepetidaAoBanco` (68 testes).
 
+51. **[Concluído] Correção Crítica: Estabilização de Cache e Struts (14/06/2026):**
+    Objetivo: Resolver erro de login causado por lista imutável e falta de mapeamento de erro no Struts.
+    Skills: `architecture-guardian v1.1.0`.
+
+    * **[Concluído] 51.1 — Robustez no Struts**:
+        - Adicionado `<global-results>` para `error` em `struts.xml`.
+    * **[Concluído] 51.2 — Defesa de Cache**:
+        - `ParticipanteServiceImpl` agora retorna cópia mutável da lista de ranking.
+    * **[Concluído] 51.3 — Limpeza de Actions**:
+        - Removida ordenação redundante em `ParticipanteAction`.
+
 ---
 
 1. **[Concluído] Registro e Planejamento:** Formalizar a nova estratégia de build.

@@ -331,7 +331,6 @@ public class ParticipanteAction extends ActionSupport {
             setLiderancaEmpatadosMesmoPontosRestantes(0);
             return SUCCESS;
         }
-        Collections.sort(classificacao);
         setLiderancaDesempateAplicado(isDesempateAplicadoNoTopo(classificacao));
         int limiteLideres = Math.min(3, classificacao.size());
         setLideresResumo(new ArrayList(classificacao.subList(0, limiteLideres)));
@@ -874,7 +873,6 @@ public class ParticipanteAction extends ActionSupport {
     
     public String buscarParticipantes() {
         this.participantes = getParticipanteService().buscarClassificacao();
-        Collections.sort(this.participantes);
         return SUCCESS;
     }
 	
