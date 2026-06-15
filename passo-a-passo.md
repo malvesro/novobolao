@@ -180,6 +180,66 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 56.4 — Visual Temático:** Aplicar paleta de cores Copa 2026 e estilos no ApexCharts.
     * **[Concluído] 56.5 — Cleanup Legado:** Remover `gerarGraficoDesempenhoImagem` e classes de suporte JFreeChart.
 
+57. **[Pendente] Hardening UX + Performance do Gráfico de Desempenho (HF Spaces + Aiven) (15/06/2026):**
+    Objetivo: consolidar a modernização do gráfico com foco em robustez operacional, acessibilidade, menor latência percebida e aderência às diretrizes de frontend/CSP em ambiente restrito (Hugging Face Spaces + banco Aiven).
+    Skills planejadas: `ui-ux-pro-max v1.0.0`, `modern-javascript-patterns v1.0.0`, `modern-css v1.0.0`, `security-audit v1.0.0`, `architecture-guardian v1.0.0`.
+
+    **Subtarefas (iterações pequenas e sequenciais):**
+
+    * **[Pendente] 57.1 — Diagnóstico objetivo e linha de base (UX + runtime):**
+      Levantar tempo de carregamento do gráfico, payload JSON, custo de troca de rival e comportamento em rede lenta para estabelecer baseline antes de otimizações.
+      Entregável: tabela comparativa "antes/depois" no log de sessão.
+
+    * **[Pendente] 57.2 — Correção de ciclo de vida do gráfico no front-end:**
+      Garantir instância única do ApexCharts por tela (destroy/update), evitando acúmulo de instâncias/listeners a cada mudança de rival.
+      Entregável: implementação com evidência de ausência de vazamento em múltiplas trocas.
+
+    * **[Pendente] 57.3 — Controle de concorrência de requests:**
+      Adicionar `AbortController` (ou mecanismo equivalente) para cancelar requisições anteriores quando o usuário altera o rival rapidamente.
+      Entregável: apenas a última seleção deve refletir no gráfico.
+
+    * **[Pendente] 57.4 — Cache client-side por rival (redução de round-trip no Aiven):**
+      Implementar cache em memória por `rivalId` com TTL curto (ex.: 30–60s) para evitar refetch desnecessário ao alternar rival já consultado.
+      Entregável: redução mensurável de requisições ao endpoint JSON.
+
+    * **[Pendente] 57.5 — Acessibilidade dos estados dinâmicos do gráfico:**
+      Evoluir feedback de "carregando/erro/sem dados" com `aria-live`, `role="status"` e mensagens claras para navegação por teclado/leitor de tela.
+      Entregável: checklist WCAG 2.1 AA básico aplicado na tela de gráfico.
+
+    * **[Pendente] 57.6 — Estabilidade visual e responsividade:**
+      Remover layout shift com altura mínima/reserva de espaço para o chart e revisar comportamento em mobile (largura reduzida e textos longos).
+      Entregável: validação visual desktop/mobile sem saltos perceptíveis.
+
+    * **[Pendente] 57.7 — Remoção de inline script/style e migração para assets versionados:**
+      Extrair JavaScript inline do `graficoDesempenho.jsp` para módulo em `src/frontend/` e mover estilos inline para `webapp/css/estilo.css`.
+      Entregável: JSP sem `<script>` inline e sem `style="..."`, em conformidade com `.ia/diretrizes/frontend.md`.
+
+    * **[Pendente] 57.8 — Remoção de CDN do ApexCharts e empacotamento local (Vite):**
+      Empacotar a dependência no bundle local versionado, eliminando dependência de `cdn.jsdelivr.net` para reduzir risco externo e latência.
+      Entregável: gráfico carregado com assets locais e CSP compatível.
+
+    * **[Pendente] 57.9 — Hardening de segurança/observabilidade do filtro CSP:**
+      Remover `System.out.println` de debug no `CspNonceFilter`, mantendo logging estruturado com nível apropriado.
+      Entregável: logs limpos em produção sem perda de rastreabilidade.
+
+    * **[Pendente] 57.10 — Otimizações leves no endpoint JSON (sem quebra de contrato):**
+      Revisar retorno e serialização para manter payload enxuto e estável; avaliar cache-control privado de curto prazo quando aplicável.
+      Entregável: contrato do endpoint preservado + evidência de ganho de tempo/resposta.
+
+    * **[Pendente] 57.11 — Testes e validação de regressão:**
+      Executar validação funcional (troca de rival, sem dados, erro de backend), regressão Maven e smoke em container local.
+      Entregável: checklist de cenários + comandos executados e resultados.
+
+    * **[Pendente] 57.12 — Rastreabilidade final (log + atualização do plano):**
+      Registrar sessão completa em `.ia/logs/` e atualizar status da tarefa/subtarefas no `passo-a-passo.md`.
+      Entregável: evidências fechadas para auditoria técnica.
+
+    **Cobertura das recomendações sugeridas (verificação):**
+    * Recomendações de UX/performance contempladas por: `57.2`, `57.3`, `57.4`, `57.6`, `57.10`.
+    * Recomendações visuais/acessibilidade contempladas por: `57.5`, `57.6`, `57.7`.
+    * Recomendações de segurança/CSP contempladas por: `57.7`, `57.8`, `57.9`.
+    * Recomendações de operação em HF Spaces + Aiven contempladas por: `57.1`, `57.4`, `57.8`, `57.11`.
+
 ---
 
 15. **[Concluído] Otimização de Performance para Ambientes Restritos (Hugging Face Spaces):**
