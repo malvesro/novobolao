@@ -29,8 +29,7 @@ public class CspNonceFilter extends OncePerRequestFilter {
         String nonce = generateNonce();
         request.setAttribute(CSP_NONCE_ATTRIBUTE, nonce);
         
-        // Log para depuração do nonce gerado
-        // System.out.println("DEBUG: Generated nonce: " + nonce);
+        System.out.println("DEBUG: Generated nonce: " + nonce);
 
         String policy = buildPolicy(nonce);
         response.setHeader("Content-Security-Policy", policy);
@@ -46,14 +45,14 @@ public class CspNonceFilter extends OncePerRequestFilter {
     }
 
     private static String buildPolicy(String nonce) {
-        return "default-src 'self'; "
-            + "script-src 'self' 'nonce-" + nonce + "' 'strict-dynamic'; "
-            + "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-            + "font-src 'self' data: https://fonts.gstatic.com; "
-            + "img-src 'self' data:; "
-            + "connect-src 'self'; "
-            + "form-action 'self'; "
-            + "frame-ancestors 'self'; "
+        return "default-src 'self' https://novobolaodacopa-bolaocopa.hf.space; "
+            + "script-src 'self' 'nonce-" + nonce + "' 'strict-dynamic' https://novobolaodacopa-bolaocopa.hf.space; "
+            + "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://novobolaodacopa-bolaocopa.hf.space; "
+            + "font-src 'self' data: https://fonts.gstatic.com https://novobolaodacopa-bolaocopa.hf.space; "
+            + "img-src 'self' data: https://novobolaodacopa-bolaocopa.hf.space; "
+            + "connect-src 'self' https://novobolaodacopa-bolaocopa.hf.space; "
+            + "form-action 'self' https://novobolaodacopa-bolaocopa.hf.space; "
+            + "frame-ancestors 'self' https://novobolaodacopa-bolaocopa.hf.space; "
             + "base-uri 'self'";
     }
 }
