@@ -301,6 +301,26 @@ public class ParticipanteAction extends ActionSupport {
         setPalpitesUsuario(mapa);
     }
 	
+    private Map<String, Object> graficoData;
+
+    public Map<String, Object> getGraficoData() {
+        return graficoData;
+    }
+
+    public String obterDadosGraficoJson() {
+        String login = RequestUtils.getLoginParticipanteAutenticado();
+        Participante participante = getParticipanteService().buscarPorLogin(login).orElse(null);
+        Long idRival = obterIdRival();
+        
+        GraficoComparativoDesempenho grafico = getParticipanteService().construirGraficoDesempenho(participante, idRival);
+        
+        this.graficoData = new HashMap<>();
+        this.graficoData.put("series", grafico.getSeriesData()); // Assumindo método para extrair dados da série
+        this.graficoData.put("categories", grafico.getCategories());
+        
+        return SUCCESS;
+    }
+
     public String gerarGraficoDesempenho() {
         try {
             String login = RequestUtils.getLoginParticipanteAutenticado();

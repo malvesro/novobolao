@@ -1,6 +1,11 @@
 package com.opendev.bolao.grafico;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -51,5 +56,28 @@ public class GraficoComparativoDesempenho {
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
         return chart;
+    }
+
+    public List<Map<String, Object>> getSeriesData() {
+        List<Map<String, Object>> series = new ArrayList<>();
+        for (int i = 0; i < dataset.getSeriesCount(); i++) {
+            Map<String, Object> serie = new HashMap<>();
+            serie.put("name", dataset.getSeries(i).getKey());
+            List<Map<String, Object>> data = new ArrayList<>();
+            for (Object item : dataset.getSeries(i).getItems()) {
+                org.jfree.data.time.TimeSeriesDataItem dataItem = (org.jfree.data.time.TimeSeriesDataItem) item;
+                Map<String, Object> point = new HashMap<>();
+                point.put("x", dataItem.getPeriod().getStart().getTime());
+                point.put("y", dataItem.getValue());
+                data.add(point);
+            }
+            serie.put("data", data);
+            series.add(serie);
+        }
+        return series;
+    }
+
+    public List<String> getCategories() {
+        return Collections.emptyList();
     }
 }
