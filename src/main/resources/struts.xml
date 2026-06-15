@@ -14,6 +14,14 @@
 	<constant name="struts.allowlist.packageNames" value="com.opendev.bolao.model, com.opendev.bolao.util" />
 	<constant name="struts.ognl.excludedNodeTypes" value="ognl.ASTThisVarRef, ognl.ASTVarRef" />
 
+	<package name="bolao-json" extends="json-default" namespace="/seguro">
+	    <action name="obterDadosGraficoJson" class="participanteAction" method="obterDadosGraficoJson">
+	        <result type="json">
+	            <param name="root">graficoData</param>
+	        </result>
+	    </action>
+	</package>
+
 	<package name="bolao-default" extends="struts-default">
 		
 		<interceptors>
