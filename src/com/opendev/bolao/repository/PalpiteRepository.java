@@ -52,6 +52,14 @@ public interface PalpiteRepository extends JpaRepository<Palpite, PalpiteId> {
     Palpite findByParticipanteAndJogo(Participante participante, Jogo jogo);
 
     /**
+     * Busca todos os palpites dos participantes listados.
+     * 
+     * @param participantes Lista de participantes.
+     * @return Lista de palpites.
+     */
+    List<Palpite> findByParticipanteIn(List<Participante> participantes);
+
+    /**
      * Busca palpites de um participante pelo seu ID.
      * 
      * @param idParticipante ID do participante.

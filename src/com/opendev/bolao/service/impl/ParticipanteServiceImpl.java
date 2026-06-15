@@ -4,9 +4,11 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
@@ -137,25 +139,31 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 				participantes = new ArrayList<>(1);
 				participantes.add(participante);
 			}
-			TimeSeries series = null;
+			
+            // Otimização: buscar todos os palpites dos participantes envolvidos de uma vez
+            List<Palpite> todosPalpites = getPalpiteRepository().findByParticipanteIn(participantes);
+            Map<Long, Map<Long, Palpite>> mapaPalpites = new HashMap<>();
+            for (Palpite p : todosPalpites) {
+                mapaPalpites.computeIfAbsent(p.getParticipante().getId(), k -> new HashMap<>())
+                            .put(p.getJogo().getId(), p);
+            }
+
 			List<Jogo> jogos = getJogoRepository().findJogosFinalizados();
-			Palpite palpiteDoJogo = null;
-			Participante umParticipante = null;
-			Jogo jogo = null;
-			long pontos = 0L;
+            // Ordenar jogos por data para garantir a ordem cronológica no gráfico
+            Collections.sort(jogos);
+            
 			seriesCollection = new TimeSeriesCollection();
-			for (Iterator iter = participantes.iterator(); iter.hasNext();) {
-				umParticipante = (Participante) iter.next();
-				series = new TimeSeries(umParticipante.getNomeFormatado());
-				for (int i = 0; i < jogos.size(); i++) {
-					jogo = (Jogo) jogos.get(i);
-					palpiteDoJogo = getPalpiteRepository().findByParticipanteAndJogo(umParticipante, jogo);
+			for (Participante umParticipante : participantes) {
+                TimeSeries series = new TimeSeries(umParticipante.getNomeFormatado());
+                long pontos = 0L;
+                Map<Long, Palpite> palpitesDoParticipante = mapaPalpites.getOrDefault(umParticipante.getId(), Collections.emptyMap());
+				for (Jogo jogo : jogos) {
+					Palpite palpiteDoJogo = palpitesDoParticipante.get(jogo.getId());
 					if (palpiteDoJogo != null) {
 						pontos += palpiteDoJogo.getPontuacao().getPontuacao();
 					}
 					series.addOrUpdate(new Day(jogo.getData()), pontos);
 				}
-                pontos = 0L;
 				seriesCollection.addSeries(series);
 			}
 		}
