@@ -13,6 +13,9 @@ import com.opendev.bolao.service.EquipeService;
  * Implementação do serviço de Equipe com Cache In-Memory.
  * Estratégia de Arquiteto: Reduzir roundtrips ao Aiven MySQL para dados estáticos.
  */
+import org.springframework.transaction.annotation.Transactional;
+
+@Transactional
 public class EquipeServiceImpl implements EquipeService {
 
 	private EquipeRepository equipeRepository;
