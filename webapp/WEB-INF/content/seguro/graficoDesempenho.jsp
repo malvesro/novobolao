@@ -32,7 +32,7 @@
                 </div>
                 <div class="form-section is-centered">
                     <fmt:message var="chartSubmitLabel" key="chat.submitcompare" />
-                    <input type="submit" name="graficoSubmit" id="grafico_submit" class="button" value="${chartSubmitLabel}" />
+                    <input type="button" name="graficoSubmit" id="grafico_submit" class="button" value="${chartSubmitLabel}" />
                 </div>
                 <div class="chart-wrapper">
                     <div id="performance-chart"></div>
@@ -46,37 +46,41 @@
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
     async function loadChart() {
-        const rivalId = document.getElementById('rival').value;
-        const response = await fetch(`${pageContext.request.contextPath}/seguro/obterDadosGraficoJson.action?rival=${rivalId}`);
-        const data = await response.json();
+        const performanceChart = document.querySelector("#performance-chart");
+        performanceChart.innerHTML = '<div class="alert alert-info">Carregando...</div>';
+        
+        try {
+            const rivalId = document.getElementById('rival').value;
+            const response = await fetch(`${pageContext.request.contextPath}/seguro/obterDadosGraficoJson.action?rival=${rivalId}`);
+            
+            if (!response.ok) throw new Error('Erro ao carregar dados do gráfico');
+            
+            const data = await response.json();
 
-        // Verificação de segurança: existem séries com dados?
-        if (!data.series || data.series.length === 0 || data.series.every(s => s.data.length === 0)) {
-            document.querySelector("#performance-chart").innerHTML = 
-                '<div class="alert alert-info" style="padding: 20px; text-align: center;">Ainda não há dados suficientes para gerar o gráfico.</div>';
-            return;
-        }
-
-        const options = {
-            chart: {
-                type: 'line',
-                height: 350
-            },
-            series: data.series,
-            xaxis: {
-                type: 'datetime'
-            },
-            tooltip: {
-                x: { format: 'dd/MM/yyyy' }
+            // Verificação de segurança: existem séries com dados?
+            if (!data.series || data.series.length === 0 || data.series.every(s => s.data.length === 0)) {
+                performanceChart.innerHTML = 
+                    '<div class="alert alert-info" style="padding: 20px; text-align: center;">Ainda não há dados suficientes para gerar o gráfico.</div>';
+                return;
             }
-        };
 
-        const chart = new ApexCharts(document.querySelector("#performance-chart"), options);
-        chart.render();
+            performanceChart.innerHTML = ''; // Limpa o "Carregando"
+            const options = {
+                chart: { type: 'line', height: 350 },
+                series: data.series,
+                xaxis: { type: 'datetime' },
+                tooltip: { x: { format: 'dd/MM/yyyy' } }
+            };
+
+            const chart = new ApexCharts(performanceChart, options);
+            chart.render();
+        } catch (error) {
+            performanceChart.innerHTML = '<div class="alert alert-danger">Erro ao carregar o gráfico. Tente novamente mais tarde.</div>';
+            console.error(error);
+        }
     }
 
     document.getElementById('grafico_submit').addEventListener('click', (e) => {
-        e.preventDefault();
         loadChart();
     });
 </script>
