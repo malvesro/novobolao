@@ -172,9 +172,15 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 55.2 — Limpeza de Configurações:** Dialeto explícito do Hibernate removido.
     * **[Concluído] 55.3 — Validação Arquitetural:** Sistema validado e estável após as limpezas.
 
+56. **[Pendente] Modernização do Gráfico de Desempenho (Client-side Rendering):**
+    Objetivo: Substituir JFreeChart (estático/lento) por biblioteca JS moderna (ApexCharts/Chart.js) para performance e interatividade.
+    * **[Pendente] 56.1 — Implementar API JSON:** Criar Action que retorna apenas os dados (JSON) necessários para o gráfico.
+    * **[Pendente] 56.2 — Implementar Componente JS:** Integrar biblioteca de gráficos no `graficoDesempenho.jsp` e consumir JSON.
+    * **[Pendente] 56.3 — Cleanup Legado:** Remover `gerarGraficoDesempenhoImagem` e classes de suporte JFreeChart.
+
 ---
 
-15. **[Pendente] Otimização de Performance para Ambientes Restritos (Hugging Face Spaces):**
+15. **[Concluído] Otimização de Performance para Ambientes Restritos (Hugging Face Spaces):**
     
     **Diagnóstico:** Lentidão causada por processamento síncrono de 104 jogos em CPU limitada.
     **Estratégia:** Carga inicial mínima (Hoje/Próxima Data) + Carregamento progressivo via HTMX.
@@ -216,6 +222,12 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 55.1 — Resolver BeanPostProcessorChecker:** Auditoria concluída; estrutura XML atual avaliada como estável; reversão de tentativas de lazy-init para preservar integridade.
     * **[Concluído] 55.2 — Limpeza de Configurações:** Dialeto explícito do Hibernate removido.
     * **[Concluído] 55.3 — Validação Arquitetural:** Sistema validado e estável após as limpezas.
+
+56. **[Pendente] Modernização do Gráfico de Desempenho (Client-side Rendering):**
+    Objetivo: Substituir JFreeChart (estático/lento) por biblioteca JS moderna (ApexCharts/Chart.js) para performance e interatividade.
+    * **[Pendente] 56.1 — Implementar API JSON:** Criar Action que retorna apenas os dados (JSON) necessários para o gráfico.
+    * **[Pendente] 56.2 — Implementar Componente JS:** Integrar biblioteca de gráficos no `graficoDesempenho.jsp` e consumir JSON.
+    * **[Pendente] 56.3 — Cleanup Legado:** Remover `gerarGraficoDesempenhoImagem` e classes de suporte JFreeChart.
 
 ---
 
@@ -468,7 +480,7 @@ Premissas de compatibilidade (críticas):
     * **[Pendente] 52.1 — Instrumentar PalpiteService:** Incluir `Participante.expirarCacheDeClassificacao()` em métodos de persistência de palpites.
     * **[Pendente] 52.2 — Teste de Consistência:** Criar teste de integração para validar a atualização imediata do ranking após submissão de palpite.
 
-    53. **[Pendente] Auditoria e Correção da Tabela de Jogos:**
+    53. **[Concluído] Auditoria e Correção da Tabela de Jogos:**
     Objetivo: Garantir que todos os jogos da Copa 2026 estejam cadastrados com horários e datas corretos.
     * **[Pendente] 53.1 — Auditoria de Dados:** Comparar o dataset `Copa_do_Mundo_2026_Fase_de_Grupos_Completa_Brasilia.xlsx` com o site oficial da FIFA e identificar discrepâncias.
     * **[Pendente] 53.2 — Correção de Insumos:** Atualizar `src/main/resources/database/copa-2026-data.sql` e tabelas do banco com horários corretos (ex: 21:30).
@@ -485,6 +497,12 @@ Premissas de compatibilidade (críticas):
         * **[Pendente] 55.1 — Resolver BeanPostProcessorChecker:** Refatorar `applicationContext-*.xml` para evitar inicialização precoce de beans (Segurança/JPA).
         * **[Pendente] 55.2 — Limpeza de Configurações:** Remover dialeto explícito do Hibernate e ajustar configurações de compressão do Tomcat.
         * **[Pendente] 55.3 — Validação Arquitetural:** Garantir que transações e segurança continuam funcionando após o reordenamento.
+
+    56. **[Pendente] Modernização do Gráfico de Desempenho (Client-side Rendering):**
+        Objetivo: Substituir JFreeChart (estático/lento) por biblioteca JS moderna (ApexCharts/Chart.js) para performance e interatividade.
+        * **[Pendente] 56.1 — Implementar API JSON:** Criar Action que retorna apenas os dados (JSON) necessários para o gráfico.
+        * **[Pendente] 56.2 — Implementar Componente JS:** Integrar biblioteca de gráficos no `graficoDesempenho.jsp` e consumir JSON.
+        * **[Pendente] 56.3 — Cleanup Legado:** Remover `gerarGraficoDesempenhoImagem` e classes de suporte JFreeChart.
 
     ---
 
@@ -1363,6 +1381,12 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     * **[Concluído] 55.1 — Resolver BeanPostProcessorChecker:** Auditoria concluída; estrutura XML atual avaliada como estável; reversão de tentativas de lazy-init para preservar integridade.
     * **[Concluído] 55.2 — Limpeza de Configurações:** Dialeto explícito do Hibernate removido.
     * **[Concluído] 55.3 — Validação Arquitetural:** Sistema validado e estável após as limpezas.
+
+56. **[Pendente] Modernização do Gráfico de Desempenho (Client-side Rendering):**
+    Objetivo: Substituir JFreeChart (estático/lento) por biblioteca JS moderna (ApexCharts/Chart.js) para performance e interatividade.
+    * **[Pendente] 56.1 — Implementar API JSON:** Criar Action que retorna apenas os dados (JSON) necessários para o gráfico.
+    * **[Pendente] 56.2 — Implementar Componente JS:** Integrar biblioteca de gráficos no `graficoDesempenho.jsp` e consumir JSON.
+    * **[Pendente] 56.3 — Cleanup Legado:** Remover `gerarGraficoDesempenhoImagem` e classes de suporte JFreeChart.
 
 ---
 
