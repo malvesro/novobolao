@@ -35,13 +35,41 @@
                     <input type="submit" name="graficoSubmit" id="grafico_submit" class="button" value="${chartSubmitLabel}" />
                 </div>
                 <div class="chart-wrapper">
-                    <c:url var="graficoImgUrl" value="/seguro/graficoDesempenhoImagem.action">
-                        <c:param name="rival" value="${param.rival}" />
-                    </c:url>
-                    <img src="${graficoImgUrl}" alt="Grafico comparativo de desempenho" />
+                    <div id="performance-chart"></div>
                 </div>
             </div>
         </form>
     </opendev:portlet>
     <span class="spacer spacer-sm"></span>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    async function loadChart() {
+        const rivalId = document.getElementById('rival').value;
+        const response = await fetch(`${pageContext.request.contextPath}/seguro/obterDadosGraficoJson.action?rival=${rivalId}`);
+        const data = await response.json();
+
+        const options = {
+            chart: {
+                type: 'line',
+                height: 350
+            },
+            series: data.series,
+            xaxis: {
+                type: 'datetime'
+            },
+            tooltip: {
+                x: { format: 'dd/MM/yyyy' }
+            }
+        };
+
+        const chart = new ApexCharts(document.querySelector("#performance-chart"), options);
+        chart.render();
+    }
+
+    document.getElementById('grafico_submit').addEventListener('click', (e) => {
+        e.preventDefault();
+        loadChart();
+    });
+</script>
