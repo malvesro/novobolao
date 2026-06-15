@@ -77,7 +77,14 @@
                      <span class="score-value score-value--palpite"><c:out value="${palpiteUsuario.golsEquipe1}" /></span>
                 </c:when>
                 <c:otherwise>
-                    <span class="score-value">${jogo.jaFoiAtualizado() ? jogo.golsEquipe1 : ''}</span>
+                    <span class="score-value">
+                        <c:choose>
+                            <c:when test="${not empty jogo.golsEquipe1 or jogo.golsEquipe1 eq 0}">
+                                ${jogo.golsEquipe1}
+                            </c:when>
+                            <c:otherwise></c:otherwise>
+                        </c:choose>
+                    </span>
                 </c:otherwise>
             </c:choose>
         </div>
@@ -112,7 +119,14 @@
                     <span class="score-value score-value--palpite"><c:out value="${palpiteUsuario.golsEquipe2}" /></span>
                 </c:when>
                 <c:otherwise>
-                    <span class="score-value">${jogo.jaFoiAtualizado() ? jogo.golsEquipe2 : ''}</span>
+                    <span class="score-value">
+                        <c:choose>
+                            <c:when test="${not empty jogo.golsEquipe2 or jogo.golsEquipe2 eq 0}">
+                                ${jogo.golsEquipe2}
+                            </c:when>
+                            <c:otherwise></c:otherwise>
+                        </c:choose>
+                    </span>
                 </c:otherwise>
             </c:choose>
 

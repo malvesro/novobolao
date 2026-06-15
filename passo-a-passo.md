@@ -160,6 +160,12 @@ Premissas de compatibilidade (críticas):
     Referência: `src/main/resources/applicationContext-security.xml`, `struts.xml`, `ValidacaoCadastroAction.java`
     Skill: `modernization-java-migration v1.0.0`, `security-audit v1.0.0`
 
+54. **[Concluído] Correção de Renderização de Placar 0x0:**
+    Objetivo: Garantir que placares 0x0 sejam exibidos corretamente na página de resumos.
+    * **[Concluído] 54.1 — Auditoria de Renderização:** Investigação concluída.
+    * **[Concluído] 54.2 — Implementar Fix:** Fix aplicado via EL direta.
+    * **[Concluído] 54.3 — Validação:** Ambiente reiniciado e fix validado.
+
 ---
 
 15. **[Pendente] Otimização de Performance para Ambientes Restritos (Hugging Face Spaces):**
@@ -192,6 +198,12 @@ Premissas de compatibilidade (críticas):
         - Garantido que a Barra de Progresso global continue funcionando corretamente através da **globalização do cálculo** (ignora filtros de data para mostrar o progresso real no torneio, ex: 10/104).
         - Validada a compatibilidade dos novos fragmentos com os palpites inline.
         - Registrado log de sessão com os ganhos de arquitetura e UX.
+
+54. **[Concluído] Correção de Renderização de Placar 0x0:**
+    Objetivo: Garantir que placares 0x0 sejam exibidos corretamente na página de resumos.
+    * **[Concluído] 54.1 — Auditoria de Renderização:** Investigação concluída.
+    * **[Concluído] 54.2 — Implementar Fix:** Fix aplicado via EL direta.
+    * **[Concluído] 54.3 — Validação:** Ambiente reiniciado e fix validado.
 
 ---
 
@@ -449,6 +461,12 @@ Premissas de compatibilidade (críticas):
     * **[Pendente] 53.1 — Auditoria de Dados:** Comparar o dataset `Copa_do_Mundo_2026_Fase_de_Grupos_Completa_Brasilia.xlsx` com o site oficial da FIFA e identificar discrepâncias.
     * **[Pendente] 53.2 — Correção de Insumos:** Atualizar `src/main/resources/database/copa-2026-data.sql` e tabelas do banco com horários corretos (ex: 21:30).
     * **[Pendente] 53.3 — Validação de UI:** Confirmar que a opção '21:30' aparece nos dropdowns de inclusão/edição de jogos.
+
+    54. **[Pendente] Correção de Renderização de Placar 0x0:**
+        Objetivo: Garantir que placares 0x0 sejam exibidos corretamente na página de resumos (o campo não deve ficar vazio).
+        * **[Pendente] 54.1 — Auditoria de Renderização:** Investigar por que `c:out` ou `c:if` está tratando `0` como `null/empty` no JSPF.
+        * **[Pendente] 54.2 — Implementar Fix:** Ajustar a expressão EL para verificar explicitamente se o valor é `null` (ex: `test="${jogo.golsEquipe1 != null}"`).
+        * **[Pendente] 54.3 — Validação:** Testar a renderização de jogos encerrados com placar 0x0 na tela principal.
 
     ---
 
@@ -1315,6 +1333,12 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     *   **[Concluído]** Subtarefa 10.3: Criar tela `validacaoCadastro.jsp` e `ValidacaoCadastroAction` para processamento do código.
     *   **[Concluído]** Subtarefa 10.4: Implementar limite de 3 tentativas e lógica de reenvio/correção de e-mail.
     *   **[Concluído]** Subtarefa 10.5: Disparar e-mails de Boas-vindas e Notificação de Admin apenas após validação do código.
+
+54. **[Concluído] Correção de Renderização de Placar 0x0:**
+    Objetivo: Garantir que placares 0x0 sejam exibidos corretamente na página de resumos.
+    * **[Concluído] 54.1 — Auditoria de Renderização:** Investigação concluída.
+    * **[Concluído] 54.2 — Implementar Fix:** Fix aplicado via EL direta.
+    * **[Concluído] 54.3 — Validação:** Ambiente reiniciado e fix validado.
 
 ---
 
