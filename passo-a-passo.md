@@ -172,11 +172,13 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 55.2 — Limpeza de Configurações:** Dialeto explícito do Hibernate removido.
     * **[Concluído] 55.3 — Validação Arquitetural:** Sistema validado e estável após as limpezas.
 
-56. **[Pendente] Modernização do Gráfico de Desempenho (Client-side Rendering):**
+56. **[Concluído] Modernização do Gráfico de Desempenho (Client-side Rendering):**
     Objetivo: Substituir JFreeChart (estático/lento) por biblioteca JS moderna (ApexCharts/Chart.js) para performance e interatividade.
-    * **[Pendente] 56.1 — Implementar API JSON:** Criar Action que retorna apenas os dados (JSON) necessários para o gráfico.
-    * **[Pendente] 56.2 — Implementar Componente JS:** Integrar biblioteca de gráficos no `graficoDesempenho.jsp` e consumir JSON.
-    * **[Pendente] 56.3 — Cleanup Legado:** Remover `gerarGraficoDesempenhoImagem` e classes de suporte JFreeChart.
+    * **[Concluído] 56.1 — Limpeza de UI:** Remover botão `grafico_submit` e atualizar layout CSS para identidade Copa 2026.
+    * **[Concluído] 56.2 — Implementar Componente JS:** Integrar biblioteca de gráficos no `graficoDesempenho.jsp` e consumir JSON.
+    * **[Concluído] 56.3 — Cleanup Legado:** Remover `gerarGraficoDesempenhoImagem` e classes de suporte JFreeChart.
+    * **[Concluído] 56.4 — Visual Temático:** Aplicar paleta de cores Copa 2026 e estilos no ApexCharts.
+    * **[Concluído] 56.5 — Cleanup Legado:** Remover `gerarGraficoDesempenhoImagem` e classes de suporte JFreeChart.
 
 ---
 
@@ -223,11 +225,13 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 55.2 — Limpeza de Configurações:** Dialeto explícito do Hibernate removido.
     * **[Concluído] 55.3 — Validação Arquitetural:** Sistema validado e estável após as limpezas.
 
-56. **[Pendente] Modernização do Gráfico de Desempenho (Client-side Rendering):**
+56. **[Concluído] Modernização do Gráfico de Desempenho (Client-side Rendering):**
     Objetivo: Substituir JFreeChart (estático/lento) por biblioteca JS moderna (ApexCharts/Chart.js) para performance e interatividade.
-    * **[Pendente] 56.1 — Implementar API JSON:** Criar Action que retorna apenas os dados (JSON) necessários para o gráfico.
-    * **[Pendente] 56.2 — Implementar Componente JS:** Integrar biblioteca de gráficos no `graficoDesempenho.jsp` e consumir JSON.
-    * **[Pendente] 56.3 — Cleanup Legado:** Remover `gerarGraficoDesempenhoImagem` e classes de suporte JFreeChart.
+    * **[Concluído] 56.1 — Limpeza de UI:** Remover botão `grafico_submit` e atualizar layout CSS para identidade Copa 2026.
+    * **[Concluído] 56.2 — Implementar Componente JS:** Integrar biblioteca de gráficos no `graficoDesempenho.jsp` e consumir JSON.
+    * **[Concluído] 56.3 — Cleanup Legado:** Remover `gerarGraficoDesempenhoImagem` e classes de suporte JFreeChart.
+    * **[Concluído] 56.4 — Visual Temático:** Aplicar paleta de cores Copa 2026 e estilos no ApexCharts.
+    * **[Concluído] 56.5 — Cleanup Legado:** Remover `gerarGraficoDesempenhoImagem` e classes de suporte JFreeChart.
 
 ---
 
@@ -498,9 +502,9 @@ Premissas de compatibilidade (críticas):
         * **[Pendente] 55.2 — Limpeza de Configurações:** Remover dialeto explícito do Hibernate e ajustar configurações de compressão do Tomcat.
         * **[Pendente] 55.3 — Validação Arquitetural:** Garantir que transações e segurança continuam funcionando após o reordenamento.
 
-    56. **[Pendente] Modernização do Gráfico de Desempenho (Client-side Rendering):**
+    56. **[Concluído] Modernização do Gráfico de Desempenho (Client-side Rendering):**
         Objetivo: Substituir JFreeChart (estático/lento) por biblioteca JS moderna (ApexCharts/Chart.js) para performance e interatividade.
-        * **[Pendente] 56.1 — Implementar API JSON:** Criar Action que retorna apenas os dados (JSON) necessários para o gráfico.
+        * **[Concluído] 56.1 — Limpeza de UI:** Remover botão `grafico_submit` e atualizar layout CSS para identidade Copa 2026.
         * **[Pendente] 56.2 — Implementar Componente JS:** Integrar biblioteca de gráficos no `graficoDesempenho.jsp` e consumir JSON.
         * **[Pendente] 56.3 — Cleanup Legado:** Remover `gerarGraficoDesempenhoImagem` e classes de suporte JFreeChart.
 
@@ -1382,11 +1386,13 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     * **[Concluído] 55.2 — Limpeza de Configurações:** Dialeto explícito do Hibernate removido.
     * **[Concluído] 55.3 — Validação Arquitetural:** Sistema validado e estável após as limpezas.
 
-56. **[Pendente] Modernização do Gráfico de Desempenho (Client-side Rendering):**
+56. **[Concluído] Modernização do Gráfico de Desempenho (Client-side Rendering):**
     Objetivo: Substituir JFreeChart (estático/lento) por biblioteca JS moderna (ApexCharts/Chart.js) para performance e interatividade.
-    * **[Pendente] 56.1 — Implementar API JSON:** Criar Action que retorna apenas os dados (JSON) necessários para o gráfico.
-    * **[Pendente] 56.2 — Implementar Componente JS:** Integrar biblioteca de gráficos no `graficoDesempenho.jsp` e consumir JSON.
-    * **[Pendente] 56.3 — Cleanup Legado:** Remover `gerarGraficoDesempenhoImagem` e classes de suporte JFreeChart.
+    * **[Concluído] 56.1 — Limpeza de UI:** Remover botão `grafico_submit` e atualizar layout CSS para identidade Copa 2026.
+    * **[Concluído] 56.2 — Implementar Componente JS:** Integrar biblioteca de gráficos no `graficoDesempenho.jsp` e consumir JSON.
+    * **[Concluído] 56.3 — Cleanup Legado:** Remover `gerarGraficoDesempenhoImagem` e classes de suporte JFreeChart.
+    * **[Concluído] 56.4 — Visual Temático:** Aplicar paleta de cores Copa 2026 e estilos no ApexCharts.
+    * **[Concluído] 56.5 — Cleanup Legado:** Remover `gerarGraficoDesempenhoImagem` e classes de suporte JFreeChart.
 
 ---
 

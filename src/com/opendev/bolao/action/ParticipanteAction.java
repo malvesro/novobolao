@@ -326,7 +326,7 @@ public class ParticipanteAction extends ActionSupport {
             String login = RequestUtils.getLoginParticipanteAutenticado();
             Participante participante = getParticipanteService().buscarPorLogin(login).orElse(null);
             setParticipanteLogado(participante);
-            
+
             List<Participante> participantes = getParticipanteService().buscarClassificacao();
             if (participantes != null && participante != null) {
                 // remove o próprio participante da lista de rivais
@@ -341,21 +341,6 @@ public class ParticipanteAction extends ActionSupport {
         }
     }
 
-    public String gerarGraficoDesempenhoImagem() {
-        try {
-            String login = RequestUtils.getLoginParticipanteAutenticado();
-            Participante participante = getParticipanteService().buscarPorLogin(login).orElse(null);
-            Long idRival = obterIdRival();
-            GraficoComparativoDesempenho grafico = getParticipanteService().construirGraficoDesempenho(participante, idRival);
-            JFreeChart chart = grafico.criarChart();
-            this.graficoStream = renderizarChart(chart, 560, 240);
-            return SUCCESS;
-        } catch (Exception e) {
-            LOGGER.error("[GRAFICO] Erro ao gerar imagem do grafico de desempenho", e);
-            return ERROR;
-        }
-    }
-    
     public String obterDadosPaginaPrincipal() {
         setJogosDeHoje(getJogoService().buscarJogosDeHoje());
         List classificacao = getParticipanteService().buscarClassificacao();
