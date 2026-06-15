@@ -37,7 +37,7 @@
 	</bean>
 
 	<bean id="equipeServiceImpl"
-		class="com.opendev.bolao.service.impl.EquipeServiceImpl" lazy-init="true">
+		class="com.opendev.bolao.service.impl.EquipeServiceImpl">
 		<property name="equipeRepository" ref="equipeRepository" />
 	</bean>
 
