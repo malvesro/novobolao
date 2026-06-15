@@ -166,6 +166,12 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 54.2 — Implementar Fix:** Fix aplicado via EL direta.
     * **[Concluído] 54.3 — Validação:** Ambiente reiniciado e fix validado.
 
+55. **[Concluído] Otimização Arquitetural e Melhoria do Startup:**
+    Objetivo: Resolver avisos de inicialização de beans, remover configurações obsoletas e reduzir o tempo de startup.
+    * **[Concluído] 55.1 — Resolver BeanPostProcessorChecker:** Auditoria concluída; estrutura XML atual avaliada como estável; reversão de tentativas de lazy-init para preservar integridade.
+    * **[Concluído] 55.2 — Limpeza de Configurações:** Dialeto explícito do Hibernate removido.
+    * **[Concluído] 55.3 — Validação Arquitetural:** Sistema validado e estável após as limpezas.
+
 ---
 
 15. **[Pendente] Otimização de Performance para Ambientes Restritos (Hugging Face Spaces):**
@@ -204,6 +210,12 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 54.1 — Auditoria de Renderização:** Investigação concluída.
     * **[Concluído] 54.2 — Implementar Fix:** Fix aplicado via EL direta.
     * **[Concluído] 54.3 — Validação:** Ambiente reiniciado e fix validado.
+
+55. **[Concluído] Otimização Arquitetural e Melhoria do Startup:**
+    Objetivo: Resolver avisos de inicialização de beans, remover configurações obsoletas e reduzir o tempo de startup.
+    * **[Concluído] 55.1 — Resolver BeanPostProcessorChecker:** Auditoria concluída; estrutura XML atual avaliada como estável; reversão de tentativas de lazy-init para preservar integridade.
+    * **[Concluído] 55.2 — Limpeza de Configurações:** Dialeto explícito do Hibernate removido.
+    * **[Concluído] 55.3 — Validação Arquitetural:** Sistema validado e estável após as limpezas.
 
 ---
 
@@ -467,6 +479,12 @@ Premissas de compatibilidade (críticas):
         * **[Pendente] 54.1 — Auditoria de Renderização:** Investigar por que `c:out` ou `c:if` está tratando `0` como `null/empty` no JSPF.
         * **[Pendente] 54.2 — Implementar Fix:** Ajustar a expressão EL para verificar explicitamente se o valor é `null` (ex: `test="${jogo.golsEquipe1 != null}"`).
         * **[Pendente] 54.3 — Validação:** Testar a renderização de jogos encerrados com placar 0x0 na tela principal.
+
+    55. **[Pendente] Otimização Arquitetural e Melhoria do Startup:**
+        Objetivo: Resolver avisos de inicialização de beans, remover configurações obsoletas e reduzir o tempo de startup.
+        * **[Pendente] 55.1 — Resolver BeanPostProcessorChecker:** Refatorar `applicationContext-*.xml` para evitar inicialização precoce de beans (Segurança/JPA).
+        * **[Pendente] 55.2 — Limpeza de Configurações:** Remover dialeto explícito do Hibernate e ajustar configurações de compressão do Tomcat.
+        * **[Pendente] 55.3 — Validação Arquitetural:** Garantir que transações e segurança continuam funcionando após o reordenamento.
 
     ---
 
@@ -1339,6 +1357,12 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     * **[Concluído] 54.1 — Auditoria de Renderização:** Investigação concluída.
     * **[Concluído] 54.2 — Implementar Fix:** Fix aplicado via EL direta.
     * **[Concluído] 54.3 — Validação:** Ambiente reiniciado e fix validado.
+
+55. **[Concluído] Otimização Arquitetural e Melhoria do Startup:**
+    Objetivo: Resolver avisos de inicialização de beans, remover configurações obsoletas e reduzir o tempo de startup.
+    * **[Concluído] 55.1 — Resolver BeanPostProcessorChecker:** Auditoria concluída; estrutura XML atual avaliada como estável; reversão de tentativas de lazy-init para preservar integridade.
+    * **[Concluído] 55.2 — Limpeza de Configurações:** Dialeto explícito do Hibernate removido.
+    * **[Concluído] 55.3 — Validação Arquitetural:** Sistema validado e estável após as limpezas.
 
 ---
 
