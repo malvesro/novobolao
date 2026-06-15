@@ -28,6 +28,9 @@ public class CspNonceFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String nonce = generateNonce();
         request.setAttribute(CSP_NONCE_ATTRIBUTE, nonce);
+        
+        // Log para depuração do nonce gerado
+        // System.out.println("DEBUG: Generated nonce: " + nonce);
 
         String policy = buildPolicy(nonce);
         response.setHeader("Content-Security-Policy", policy);
@@ -45,9 +48,9 @@ public class CspNonceFilter extends OncePerRequestFilter {
     private static String buildPolicy(String nonce) {
         return "default-src 'self'; "
             + "script-src 'self' 'nonce-" + nonce + "' 'strict-dynamic'; "
-            + "style-src 'self' 'unsafe-inline'; "
+            + "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            + "font-src 'self' data: https://fonts.gstatic.com; "
             + "img-src 'self' data:; "
-            + "font-src 'self' data:; "
             + "connect-src 'self'; "
             + "form-action 'self'; "
             + "frame-ancestors 'self'; "
