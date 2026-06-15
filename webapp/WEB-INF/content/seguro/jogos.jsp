@@ -269,4 +269,4 @@
 						<span class="spacer spacer-sm"></span>
 						</div>
 
-						<script src="${pageContext.request.contextPath}/js/ux-helper.js" defer></script>
+						<script src="${pageContext.request.contextPath}/js/ux-helper.js" defer nonce="${cspNonce}"></script>
