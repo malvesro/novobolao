@@ -40,6 +40,14 @@
 		class="com.opendev.bolao.service.impl.EquipeServiceImpl">
 		<property name="equipeRepository" ref="equipeRepository" />
 	</bean>
+	<bean id="equipeService" parent="transactionProxyTemplate">
+		<property name="proxyInterfaces">
+			<list><value>com.opendev.bolao.service.EquipeService</value></list>
+		</property>
+		<property name="target">
+			<ref bean="equipeServiceImpl" />
+		</property>
+	</bean>
 
 	<bean id="jogoServiceImpl"
 		class="com.opendev.bolao.service.impl.JogoServiceImpl">
