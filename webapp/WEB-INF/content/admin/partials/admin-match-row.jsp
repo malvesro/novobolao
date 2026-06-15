@@ -108,7 +108,7 @@
                 <input type="text" name="golsEquipe1" value="${jogo.golsEquipe1}" class="text score-input input-centered" maxlength="2" size="2"
                        hx-post="${base}/admin/atualizarResultadoJogo.action" hx-trigger="blur" hx-include="closest tr" hx-target="#jogoTr_${jogo.id}" hx-swap="outerHTML" />
             </sec:authorize>
-            <sec:authorize access="!hasRole('ADMIN')"><span class="score-value">${jogo.golsEquipe1}</span></sec:authorize>
+            <sec:authorize access="!hasRole('ADMIN')"><span class="score-value">${jogo.jaFoiAtualizado() ? jogo.golsEquipe1 : ''}</span></sec:authorize>
         </div>
     </td>
 
@@ -120,7 +120,7 @@
                 <input type="text" name="golsEquipe2" value="${jogo.golsEquipe2}" class="text score-input input-centered" maxlength="2" size="2"
                        hx-post="${base}/admin/atualizarResultadoJogo.action" hx-trigger="blur" hx-include="closest tr" hx-target="#jogoTr_${jogo.id}" hx-swap="outerHTML" />
             </sec:authorize>
-            <sec:authorize access="!hasRole('ADMIN')"><span class="score-value">${jogo.golsEquipe2}</span></sec:authorize>
+            <sec:authorize access="!hasRole('ADMIN')"><span class="score-value">${jogo.jaFoiAtualizado() ? jogo.golsEquipe2 : ''}</span></sec:authorize>
 
             <c:choose>
                 <c:when test="${not empty jogo.equipe2BandeiraUrl}">
