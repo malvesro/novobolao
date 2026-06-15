@@ -50,6 +50,13 @@
         const response = await fetch(`${pageContext.request.contextPath}/seguro/obterDadosGraficoJson.action?rival=${rivalId}`);
         const data = await response.json();
 
+        // Verificação de segurança: existem séries com dados?
+        if (!data.series || data.series.length === 0 || data.series.every(s => s.data.length === 0)) {
+            document.querySelector("#performance-chart").innerHTML = 
+                '<div class="alert alert-info" style="padding: 20px; text-align: center;">Ainda não há dados suficientes para gerar o gráfico.</div>';
+            return;
+        }
+
         const options = {
             chart: {
                 type: 'line',
