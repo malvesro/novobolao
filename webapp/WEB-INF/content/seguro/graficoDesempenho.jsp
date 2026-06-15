@@ -46,16 +46,22 @@
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
     async function loadChart() {
+        console.log("DEBUG: loadChart called");
         const performanceChart = document.querySelector("#performance-chart");
         performanceChart.innerHTML = '<div class="alert alert-info">Carregando...</div>';
         
         try {
             const rivalId = document.getElementById('rival').value;
-            const response = await fetch(`${pageContext.request.contextPath}/seguro/obterDadosGraficoJson.action?rival=${rivalId}`);
+            const url = `${pageContext.request.contextPath}/seguro/obterDadosGraficoJson.action?rival=${rivalId}`;
+            console.log("DEBUG: Fetching from: " + url);
             
-            if (!response.ok) throw new Error('Erro ao carregar dados do gráfico');
+            const response = await fetch(url);
+            console.log("DEBUG: Response status: " + response.status);
+            
+            if (!response.ok) throw new Error('Erro ao carregar dados do gráfico: ' + response.statusText);
             
             const data = await response.json();
+            console.log("DEBUG: Data received: ", data);
 
             // Verificação de segurança: existem séries com dados?
             if (!data.series || data.series.length === 0 || data.series.every(s => s.data.length === 0)) {
@@ -76,7 +82,7 @@
             chart.render();
         } catch (error) {
             performanceChart.innerHTML = '<div class="alert alert-danger">Erro ao carregar o gráfico. Tente novamente mais tarde.</div>';
-            console.error(error);
+            console.error("DEBUG: Error:", error);
         }
     }
 
