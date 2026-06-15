@@ -22,7 +22,6 @@
 		<property name="packagesToScan" value="com.opendev.bolao.model" />
 		<property name="jpaVendorAdapter">
 			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-				<property name="databasePlatform" value="org.hibernate.dialect.MySQLDialect" />
 				<property name="showSql" value="false" />
 				<property name="generateDdl" value="false" />
 			</bean>
