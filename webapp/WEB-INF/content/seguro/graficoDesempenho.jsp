@@ -43,8 +43,8 @@
     <span class="spacer spacer-sm"></span>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts" nonce="${cspNonce}"></script>
+<script nonce="${cspNonce}">
     async function loadChart() {
         console.log("DEBUG: loadChart called");
         const performanceChart = document.querySelector("#performance-chart");
