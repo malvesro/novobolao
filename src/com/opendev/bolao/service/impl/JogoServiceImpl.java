@@ -69,6 +69,7 @@ public class JogoServiceImpl implements JogoService {
 			jogo.setGolsEquipe1(golsEquipe1);
 			jogo.setGolsEquipe2(golsEquipe2);
             getJogoRepository().save(jogo);
+            this.cacheJogosDeHoje = null;
 			Participante.expirarCacheDeClassificacao();
 		});
 	}
@@ -88,6 +89,7 @@ public class JogoServiceImpl implements JogoService {
 			jogo.setEquipe2(equipe2);
 			
 			getJogoRepository().save(jogo);
+            this.cacheJogosDeHoje = null;
 			Participante.expirarCacheDeClassificacao();
 		});
 	}
