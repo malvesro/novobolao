@@ -510,6 +510,14 @@ Premissas de compatibilidade (críticas):
       - **Critério D - Responsividade:** sem quebra horizontal crítica em viewport de 360px, mantendo leitura de posição, nome e pontos.
       - **Critério E - Acessibilidade mínima:** estados de filtro/empate anunciados por texto (não apenas cor/ícone) e foco navegável por teclado na barra de filtros.
 
+58. **[Concluído] Implementar P0 da Classificação Geral: variação de posição + coluna na JSP + testes (16/06/2026):**
+    Objetivo: entregar a primeira evolução funcional da Classificação Geral com baixo risco, exibindo variação de posição por participante sem alterar a regra oficial de ordenação/desempate.
+    Skills aplicadas: `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`, `ui-ux-pro-max v1.0.0`.
+    * **[Concluído] 58.1 — Backend: calcular e expor `variacaoPosicao` (16/06/2026):** `ParticipanteServiceImpl.buscarClassificacao()` passou a calcular variação por participante comparando posição atual (`index + 1`) com snapshot de posições anterior em memória (`cachePosicoesRankingAnterior`), mantendo `null` para primeiro cálculo/sem histórico.
+    * **[Concluído] 58.2 — JSP: adicionar coluna de variação com acessibilidade (16/06/2026):** `classificacao.jsp` recebeu coluna `VAR` com estados `▲ +N`, `▼ -N`, `• 0` e `—`, sempre acompanhados de descrição textual para leitor de tela (`sr-only`) e legenda explícita.
+    * **[Concluído] 58.3 — Testes de regressão da variação (16/06/2026):** novo teste em `ParticipanteServiceTest` valida subida/queda entre snapshots após expiração de cache de classificação, incluindo cenário inicial sem histórico.
+    * **[Concluído] 58.4 — Validação e rastreabilidade (16/06/2026):** validação concluída com `mvn -Dfrontend.skip=true test` (69 testes, 0 falhas), atualização do plano e log de sessão criado em `.ia/logs/`.
+
 47. **[Concluído] Incluir campo de data na edição administrativa da tela de atualização de resultados (13/06/2026):**
     Objetivo: permitir que o administrador ajuste também a **data** do jogo na mesma tela em que já ajusta hora, local e equipes, mantendo consistência com o fuso oficial São Paulo e sem regressão no fluxo HTMX de atualização.
     Skills previstas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`, `ui-ux-pro-max v1.0.0`.

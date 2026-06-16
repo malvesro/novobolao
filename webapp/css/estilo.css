@@ -1387,6 +1387,32 @@ div.legenda span.abrev {
 	background-color: rgba(248, 116, 22, 0.08);
 }
 
+.ranking-variation-cell {
+	min-width: 76px;
+}
+
+.ranking-variation {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 56px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
+.ranking-variation-up {
+	color: #1e7f3d;
+}
+
+.ranking-variation-down {
+	color: #b03529;
+}
+
+.ranking-variation-stable,
+.ranking-variation-new {
+	color: var(--color-text-muted);
+}
+
 .portlet-body {
 	display: flex;
 	flex-direction: column;

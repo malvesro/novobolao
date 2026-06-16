@@ -7,6 +7,7 @@
 <fmt:message key="ranking.b.legend" var="legendB" />
 <fmt:message key="ranking.e.legend" var="legendE" />
 <fmt:message key="ranking.apr.legend" var="legendAPR" />
+<fmt:message key="ranking.delta.legend" var="legendDelta" />
 
 <div class="dashboard-section">
     <opendev:portlet id="participantesPortlet" title="Classificacao">
@@ -15,6 +16,7 @@
                 <thead>
                     <tr>
                         <th scope="col" class="text-center"><fmt:message key="ranking.position" /></th>
+                        <th scope="col" class="text-center" data-tooltip="${legendDelta}"><fmt:message key="ranking.delta" /></th>
                         <th scope="col" class="text-left"><fmt:message key="member.name" /></th>
                         <th scope="col" class="text-left"><fmt:message key="member.login" /></th>
                         <th scope="col" class="text-center"><fmt:message key="ranking.points" /></th>
@@ -57,6 +59,33 @@
                         </c:choose>
                         <tr id="linhaParticipante_${participante.id}" class="${rowClasses}">
                             <td class="text-center"><c:out value="${posicaoRanking}" /></td>
+                            <td class="text-center ranking-variation-cell">
+                                <c:set var="variacaoPosicao" value="${pontuacaoTotalDoParticipante.variacaoPosicao}" />
+                                <c:choose>
+                                    <c:when test="${empty variacaoPosicao}">
+                                        <span class="ranking-variation ranking-variation-new" aria-hidden="true">—</span>
+                                        <span class="sr-only"><fmt:message key="ranking.delta.noHistory" /></span>
+                                    </c:when>
+                                    <c:when test="${variacaoPosicao gt 0}">
+                                        <fmt:message key="ranking.delta.up" var="deltaDescricao">
+                                            <fmt:param value="${variacaoPosicao}" />
+                                        </fmt:message>
+                                        <span class="ranking-variation ranking-variation-up" aria-hidden="true">▲ +<c:out value="${variacaoPosicao}" /></span>
+                                        <span class="sr-only"><c:out value="${deltaDescricao}" /></span>
+                                    </c:when>
+                                    <c:when test="${variacaoPosicao lt 0}">
+                                        <fmt:message key="ranking.delta.down" var="deltaDescricao">
+                                            <fmt:param value="${variacaoPosicao * -1}" />
+                                        </fmt:message>
+                                        <span class="ranking-variation ranking-variation-down" aria-hidden="true">▼ <c:out value="${variacaoPosicao}" /></span>
+                                        <span class="sr-only"><c:out value="${deltaDescricao}" /></span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="ranking-variation ranking-variation-stable" aria-hidden="true">• 0</span>
+                                        <span class="sr-only"><fmt:message key="ranking.delta.stable" /></span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
                             <td class="text-left"><c:out value="${pontuacaoTotalDoParticipante.nomeParticipante}" /></td>
                             <td class="text-left"><c:out value="${pontuacaoTotalDoParticipante.loginParticipante}" /></td>
                             <td class="text-center"><c:out value="${pontuacaoTotalDoParticipante.pontuacao}" /></td>
@@ -83,6 +112,7 @@
         <p><span class="abrev"><fmt:message key="ranking.b" /> - </span><span><fmt:message key="ranking.b.legend" /></span></p>
         <p><span class="abrev"><fmt:message key="ranking.e" /> - </span><span><fmt:message key="ranking.e.legend" /></span></p>
         <p><span class="abrev"><fmt:message key="ranking.apr" /> - </span><span><fmt:message key="ranking.apr.legend" /></span></p>
+        <p><span class="abrev"><fmt:message key="ranking.delta" /> - </span><span><fmt:message key="ranking.delta.legend" /></span></p>
     </div>
     <span class="spacer spacer-sm"></span>
 </div>

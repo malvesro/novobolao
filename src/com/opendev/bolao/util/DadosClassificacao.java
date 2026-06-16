@@ -17,6 +17,7 @@ public class DadosClassificacao implements Serializable {
     private int quantidadeSoBonus;
     private int pontuacao;
     private int totalDeJogos;
+    private Integer variacaoPosicao;
 
 	
     public String getLoginParticipante() {
@@ -90,6 +91,14 @@ public class DadosClassificacao implements Serializable {
 	public void setTotalDeJogos(int totalDeJogos) {
 		this.totalDeJogos = totalDeJogos;
 	}
+
+    public Integer getVariacaoPosicao() {
+        return variacaoPosicao;
+    }
+
+    public void setVariacaoPosicao(Integer variacaoPosicao) {
+        this.variacaoPosicao = variacaoPosicao;
+    }
 	
 	public int getTotalPalpitesConsiderados() {
 		return getQuantidadeDeAcertosParciais() + getQuantidadeDeAcertosParciaisComBonus() +

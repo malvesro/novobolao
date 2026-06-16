@@ -18,6 +18,7 @@ import com.opendev.bolao.exception.ValidacaoException;
 import com.opendev.bolao.model.Participante;
 import com.opendev.bolao.util.DadosClassificacao;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,5 +107,52 @@ class ParticipanteServiceTest {
         assertThat(resultado).containsExactly(participanteMock);
         assertThat(dados.getTotalDeJogos()).isEqualTo(7);
         Mockito.verify(jogoRepository).countJogosFinalizados();
+    }
+
+    @Test
+    void deveCalcularVariacaoDePosicaoComparandoComSnapshotAnterior() throws Exception {
+        Participante p1PrimeiroSnapshot = criarParticipanteComPontuacao(1L, "alice", "Alice Silva", 12);
+        Participante p2PrimeiroSnapshot = criarParticipanteComPontuacao(2L, "bruno", "Bruno Souza", 9);
+        List<Participante> snapshotInicial = List.of(p1PrimeiroSnapshot, p2PrimeiroSnapshot);
+
+        Participante p1SegundoSnapshot = criarParticipanteComPontuacao(1L, "alice", "Alice Silva", 8);
+        Participante p2SegundoSnapshot = criarParticipanteComPontuacao(2L, "bruno", "Bruno Souza", 14);
+        List<Participante> snapshotAtualizado = List.of(p1SegundoSnapshot, p2SegundoSnapshot);
+
+        when(participanteRepository.findAll()).thenReturn(snapshotInicial, snapshotAtualizado);
+        when(jogoRepository.countJogosFinalizados()).thenReturn(10L);
+
+        List<Participante> primeiroRanking = participanteService.buscarClassificacao();
+        assertThat(primeiroRanking).hasSize(2);
+        assertThat(primeiroRanking.get(0).getLogin()).isEqualTo("alice");
+        assertThat(primeiroRanking.get(0).getPontuacaoTotal().getVariacaoPosicao()).isNull();
+        assertThat(primeiroRanking.get(1).getPontuacaoTotal().getVariacaoPosicao()).isNull();
+
+        Participante.expirarCacheDeClassificacao();
+        List<Participante> segundoRanking = participanteService.buscarClassificacao();
+
+        assertThat(segundoRanking).hasSize(2);
+        assertThat(segundoRanking.get(0).getLogin()).isEqualTo("bruno");
+        assertThat(segundoRanking.get(1).getLogin()).isEqualTo("alice");
+        assertThat(segundoRanking.get(0).getPontuacaoTotal().getVariacaoPosicao()).isEqualTo(1);
+        assertThat(segundoRanking.get(1).getPontuacaoTotal().getVariacaoPosicao()).isEqualTo(-1);
+    }
+
+    private Participante criarParticipanteComPontuacao(Long id, String login, String nome, int pontuacao) throws Exception {
+        Participante participante = new Participante();
+        participante.setId(id);
+        participante.setLogin(login);
+        participante.setNome(nome);
+
+        DadosClassificacao dados = new DadosClassificacao();
+        dados.setPontuacao(pontuacao);
+        dados.setQuantidadeDeAcertosTotais(0);
+        dados.setQuantidadeDeAcertosParciaisComBonus(0);
+
+        Field campoPontuacaoTotal = Participante.class.getDeclaredField("pontuacaoTotal");
+        campoPontuacaoTotal.setAccessible(true);
+        campoPontuacaoTotal.set(participante, dados);
+
+        return participante;
     }
 }

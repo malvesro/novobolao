@@ -57,6 +57,7 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 
 	// Cache Global de Classificação (Estratégia de Arquiteto para Bolão de alta escala)
 	private List<Participante> cacheRanking = null;
+    private Map<Long, Integer> cachePosicoesRankingAnterior = null;
 
 	public synchronized List buscarClassificacao() {
 		// Se o cache de dados individuais de pontuação estiver expirado, 
@@ -88,12 +89,46 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 		
 		// Ordenação oficial (Comparable implementado em Participante)
 		Collections.sort(participantes);
+        aplicarVariacaoPosicao(participantes);
 
 		Participante.notificarCacheAtualizado();
 		this.cacheRanking = Collections.unmodifiableList(participantes);
 		
 		return new ArrayList<>(this.cacheRanking);
 	}
+
+    private void aplicarVariacaoPosicao(List<Participante> participantesOrdenados) {
+        Map<Long, Integer> posicoesAnteriores = this.cachePosicoesRankingAnterior;
+        Map<Long, Integer> posicoesAtuais = new HashMap<>();
+
+        for (int indice = 0; indice < participantesOrdenados.size(); indice++) {
+            Participante participante = participantesOrdenados.get(indice);
+            int posicaoAtual = indice + 1;
+            Long participanteId = participante.getId();
+            DadosClassificacao totais = participante.getPontuacaoTotal();
+
+            if (participanteId != null) {
+                posicoesAtuais.put(participanteId, posicaoAtual);
+            }
+
+            if (totais == null || participanteId == null || posicoesAnteriores == null) {
+                if (totais != null) {
+                    totais.setVariacaoPosicao(null);
+                }
+                continue;
+            }
+
+            Integer posicaoAnterior = posicoesAnteriores.get(participanteId);
+            if (posicaoAnterior == null) {
+                totais.setVariacaoPosicao(null);
+                continue;
+            }
+
+            totais.setVariacaoPosicao(posicaoAnterior - posicaoAtual);
+        }
+
+        this.cachePosicoesRankingAnterior = posicoesAtuais;
+    }
 
 	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
 		this.passwordEncoder = passwordEncoder;
