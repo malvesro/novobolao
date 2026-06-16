@@ -5,6 +5,11 @@ const state = {
   lastInlineTrigger: null,
   initialized: false,
   autoSaveTimers: {},
+  globalStatusTimer: null,
+  dirtyByMatch: {},
+  pendingAdminRequests: 0,
+  lastAdminTriggerByRow: {},
+  lastSavedByMatch: {},
 };
 
 const FILTER_STORAGE_KEY = 'bolao:filtro:collapsed';
@@ -56,6 +61,137 @@ function debugWarn(message, detail) {
 
 function getBaseUrl() {
   return window.APP_BASE_URL || '';
+}
+
+function getPageWrapper() {
+  return document.getElementById('jogos-page-wrapper');
+}
+
+function getUiMessage(key, fallback) {
+  const wrapper = getPageWrapper();
+  if (!wrapper) {
+    return fallback;
+  }
+  const value = wrapper.dataset[key];
+  return value && value.trim() ? value : fallback;
+}
+
+function getNowHHMM() {
+  return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function announceGlobalStatus(message, kind = 'info') {
+  const el = document.getElementById('jogos-global-status');
+  if (!el || !message) {
+    return;
+  }
+
+  el.textContent = message;
+  el.classList.remove(
+    'jogos-global-status--success',
+    'jogos-global-status--error',
+    'jogos-global-status--info',
+    'jogos-global-status--visible',
+  );
+  el.classList.add('jogos-global-status--visible', `jogos-global-status--${kind}`);
+
+  if (state.globalStatusTimer) {
+    clearTimeout(state.globalStatusTimer);
+  }
+  state.globalStatusTimer = setTimeout(() => {
+    el.classList.remove('jogos-global-status--visible');
+  }, 3200);
+}
+
+function getMatchIdFromTrigger(trigger) {
+  if (!trigger || !(trigger instanceof HTMLElement)) {
+    return null;
+  }
+  if (trigger.dataset && trigger.dataset.jogoId) {
+    return trigger.dataset.jogoId;
+  }
+  const form = trigger.closest('form');
+  const hiddenJogoId = form ? form.querySelector('input[name="jogoId"]') : null;
+  if (hiddenJogoId && hiddenJogoId.value) {
+    return hiddenJogoId.value;
+  }
+  const cell = trigger.closest('[id^="palpite-cell_"]');
+  if (cell && cell.id) {
+    return cell.id.replace('palpite-cell_', '');
+  }
+  const row = trigger.closest('.match-row[data-jogo-id]');
+  if (row && row.dataset.jogoId) {
+    return row.dataset.jogoId;
+  }
+  return null;
+}
+
+function setMatchEditState(jogoId, editState) {
+  if (!jogoId) {
+    return;
+  }
+  const cell = document.getElementById(`palpite-cell_${jogoId}`);
+  if (!cell) {
+    return;
+  }
+  cell.dataset.editState = editState;
+}
+
+function markMatchDirty(jogoId, dirty) {
+  if (!jogoId) {
+    return;
+  }
+  state.dirtyByMatch[jogoId] = Boolean(dirty);
+}
+
+function getHasDirtyMatch() {
+  return Object.values(state.dirtyByMatch).some((value) => Boolean(value));
+}
+
+function getHasPendingChanges() {
+  return getHasDirtyMatch() || state.pendingAdminRequests > 0;
+}
+
+function updateAdminRowStatus(row, message, modifier) {
+  if (!row) {
+    return;
+  }
+  const statusEl = row.querySelector('.admin-row-status');
+  if (!statusEl) {
+    return;
+  }
+  statusEl.textContent = message || '';
+  statusEl.className = `admin-row-status${modifier ? ` admin-row-status--${modifier}` : ''}`;
+}
+
+function setAdminRetryVisible(row, visible) {
+  if (!row) {
+    return;
+  }
+  const retryButton = row.querySelector('[data-js="retry-admin-save"]');
+  if (!retryButton) {
+    return;
+  }
+  retryButton.hidden = !visible;
+}
+
+function buildPalpiteSignature(gols1, gols2) {
+  if (gols1 === null || gols1 === undefined || gols2 === null || gols2 === undefined) {
+    return null;
+  }
+  if (`${gols1}`.trim() === '' || `${gols2}`.trim() === '') {
+    return null;
+  }
+  return `${gols1}:${gols2}`;
+}
+
+function getPalpiteSignatureFromForm(form) {
+  if (!form) {
+    return null;
+  }
+  const gols1 = form.querySelector('input[name="palpiteGolsEquipe1"]')?.value;
+  const gols2 = form.querySelector('input[name="palpiteGolsEquipe2"]')?.value;
+  return buildPalpiteSignature(gols1, gols2);
 }
 
 function toggleCollapse(containerId, trigger) {
@@ -304,6 +440,7 @@ function showCellFeedback(jogoId, msg, modifier) {
   if (!el) return;
   el.textContent = msg;
   el.className = `palpite-cell-feedback${modifier ? ` palpite-cell-feedback--${modifier}` : ''}`;
+  setMatchEditState(jogoId, modifier || 'idle');
 }
 
 function clearCellFeedback(jogoId) {
@@ -311,6 +448,7 @@ function clearCellFeedback(jogoId) {
   if (!el) return;
   el.textContent = '';
   el.className = 'palpite-cell-feedback';
+  setMatchEditState(jogoId, 'idle');
 }
 
 function handleBeforeRequest(event) {
@@ -322,12 +460,31 @@ function handleBeforeRequest(event) {
     return;
   }
 
+  const adminRow = trigger.closest('.match-row--admin-direct');
+  if (adminRow) {
+    const savingMessage = getUiMessage('msgAdminSaving', 'Salvando resultado...');
+    state.pendingAdminRequests += 1;
+    if (trigger.getAttribute('name')) {
+      state.lastAdminTriggerByRow[adminRow.id] = trigger.getAttribute('name');
+    }
+    updateAdminRowStatus(adminRow, savingMessage, 'saving');
+    setAdminRetryVisible(adminRow, false);
+    return;
+  }
+
   // Botão ✓ (confirmar palpite)
-  if (trigger.matches('[data-js="confirmar-palpite"]')) {
-    const jogoId = trigger.dataset.jogoId;
-    trigger.disabled = true;
-    trigger.setAttribute('aria-busy', 'true');
-    showCellFeedback(jogoId, 'Salvando…', 'saving');
+  if (trigger.matches('[data-js="confirmar-palpite"], form.palpite-inputs')) {
+    const jogoId = getMatchIdFromTrigger(trigger);
+    const savingMessage = getUiMessage('msgTipSaving', 'Salvando...');
+    const confirmButton = trigger.matches('[data-js="confirmar-palpite"]')
+      ? trigger
+      : trigger.querySelector('[data-js="confirmar-palpite"]');
+    if (confirmButton) {
+      confirmButton.disabled = true;
+      confirmButton.setAttribute('aria-busy', 'true');
+    }
+    showCellFeedback(jogoId, savingMessage, 'saving');
+    markMatchDirty(jogoId, false);
     return;
   }
 
@@ -367,12 +524,38 @@ function handleAfterSwap(event) {
     const meta = target.querySelector('[data-palpite-meta="true"]');
     if (meta && matchRow) {
       syncMatchRowFromCell(matchRow, meta);
+      const signature = buildPalpiteSignature(meta.dataset.palpiteGols1, meta.dataset.palpiteGols2);
+      if (signature) {
+        state.lastSavedByMatch[jogoId] = signature;
+      }
     }
-    // Se salvou com sucesso, recarregar "meus palpites" se painel estiver aberto
     if (target.querySelector('.palpite-cell-feedback--saved')) {
+      const savedLabel = getUiMessage('msgTipSaved', 'Salvo as');
+      const sessionSaved = getUiMessage('msgSessionSaved', 'Palpite salvo com sucesso.');
+      announceGlobalStatus(sessionSaved, 'success');
+      showCellFeedback(jogoId, `${savedLabel} ${getNowHHMM()}`, 'saved');
+      markMatchDirty(jogoId, false);
       debugInfo('Palpite salvo (direct-inline).', { jogoId });
+    } else if (target.querySelector('.palpite-cell-feedback--error')) {
+      const tipError = getUiMessage('msgTipError', 'Falha ao salvar.');
+      announceGlobalStatus(getUiMessage('msgSessionError', 'Erro ao salvar palpite.'), 'error');
+      showCellFeedback(jogoId, tipError, 'error');
+      markMatchDirty(jogoId, true);
+    } else if (target.querySelector('.palpite-cell-feedback--locked')) {
+      showCellFeedback(jogoId, getUiMessage('msgTipLocked', 'Edicao encerrada.'), 'locked');
+      markMatchDirty(jogoId, false);
+    } else {
+      setMatchEditState(jogoId, 'idle');
     }
     // Não forçamos focus na nova célula para não roubar o foco do usuário durante um auto-save em background
+    return;
+  }
+
+  if (target.id && target.id.startsWith('jogoTr_') && target.classList.contains('match-row--admin-direct')) {
+    const savedMessage = `${getUiMessage('msgAdminSaved', 'Resultado salvo as')} ${getNowHHMM()}`;
+    updateAdminRowStatus(target, savedMessage, 'saved');
+    setAdminRetryVisible(target, false);
+    announceGlobalStatus(getUiMessage('msgAdminSessionSaved', 'Resultado atualizado com sucesso.'), 'success');
     return;
   }
 
@@ -403,14 +586,35 @@ function handleAfterRequest(event) {
 
   // progress refresh moved to HX-Trigger listener (server-confirmed)
 
-  // Botão ✓ — restaurar após request (sucesso ou falha)
-  if (trigger.matches('[data-js="confirmar-palpite"]')) {
-    trigger.disabled = false;
-    trigger.removeAttribute('aria-busy');
+  // Fluxo de palpite (botão ✓ ou submit de form)
+  if (trigger.matches('[data-js="confirmar-palpite"], form.palpite-inputs')) {
+    const jogoId = getMatchIdFromTrigger(trigger);
+    const confirmButton = trigger.matches('[data-js="confirmar-palpite"]')
+      ? trigger
+      : trigger.querySelector('[data-js="confirmar-palpite"]');
+    if (confirmButton) {
+      confirmButton.disabled = false;
+      confirmButton.removeAttribute('aria-busy');
+    }
     if (!event.detail.successful) {
-      const jogoId = trigger.dataset.jogoId;
-      showCellFeedback(jogoId, '⚠ Erro ao salvar. Tente novamente.', 'error');
+      const errorMessage = getUiMessage('msgTipError', 'Erro ao salvar. Tente novamente.');
+      showCellFeedback(jogoId, errorMessage, 'error');
+      markMatchDirty(jogoId, true);
+      announceGlobalStatus(getUiMessage('msgSessionError', 'Erro ao salvar palpite.'), 'error');
       debugWarn('Falha ao salvar palpite (rede).', { jogoId });
+    }
+    return;
+  }
+
+  const adminRow = trigger.closest('.match-row--admin-direct');
+  if (adminRow) {
+    state.pendingAdminRequests = Math.max(0, state.pendingAdminRequests - 1);
+    if (!event.detail.successful) {
+      const adminError = getUiMessage('msgAdminError', 'Erro ao salvar resultado.');
+      updateAdminRowStatus(adminRow, adminError, 'error');
+      setAdminRetryVisible(adminRow, true);
+      announceGlobalStatus(getUiMessage('msgAdminSessionError', 'Erro ao atualizar resultado.'), 'error');
+      debugWarn('Falha ao atualizar resultado no admin.', { rowId: adminRow.id });
     }
     return;
   }
@@ -430,6 +634,38 @@ function handleAfterRequest(event) {
 
 function handleGlobalClick(event) {
   const target = event.target;
+
+  const retryTipButton = target.closest('[data-js="retry-palpite"]');
+  if (retryTipButton) {
+    event.preventDefault();
+    const matchId = retryTipButton.dataset.jogoId;
+    const cell = document.getElementById(`palpite-cell_${matchId}`);
+    const form = cell ? cell.querySelector('form.palpite-inputs') : null;
+    if (form && window.htmx) {
+      showCellFeedback(matchId, getUiMessage('msgTipSaving', 'Salvando...'), 'saving');
+      htmx.trigger(form, 'submit');
+    }
+    return;
+  }
+
+  const retryAdminButton = target.closest('[data-js="retry-admin-save"]');
+  if (retryAdminButton) {
+    event.preventDefault();
+    const adminRow = retryAdminButton.closest('.match-row--admin-direct');
+    if (!adminRow || !window.htmx) {
+      return;
+    }
+    const lastFieldName = state.lastAdminTriggerByRow[adminRow.id];
+    const targetField = lastFieldName
+      ? adminRow.querySelector(`[name="${lastFieldName}"]`)
+      : adminRow.querySelector('input[name="golsEquipe1"], input[name="golsEquipe2"], select[name="hora"], select[name="data"]');
+    if (targetField) {
+      setAdminRetryVisible(adminRow, false);
+      htmx.trigger(targetField, 'change');
+      htmx.trigger(targetField, 'blur');
+    }
+    return;
+  }
   
   // Botão Cancelar Palpite Inline
   const cancelButton = target.closest('[data-js="cancelar-palpite-inline"]');
@@ -518,6 +754,68 @@ function handleDocumentKeydown(event) {
   }
 }
 
+function handleBeforeUnload(event) {
+  if (!state.initialized) {
+    return undefined;
+  }
+  if (!getHasPendingChanges()) {
+    return undefined;
+  }
+  const message = getUiMessage('msgTipDirty', 'Existem alteracoes nao salvas.');
+  event.preventDefault();
+  event.returnValue = message;
+  return message;
+}
+
+function getAdminEditableFields() {
+  return Array.from(document.querySelectorAll(
+    '.match-row--admin-direct input[name="golsEquipe1"], '
+    + '.match-row--admin-direct input[name="golsEquipe2"], '
+    + '.match-row--admin-direct select[name="data"], '
+    + '.match-row--admin-direct select[name="hora"], '
+    + '.match-row--admin-direct select[name="local"], '
+    + '.match-row--admin-direct select[name="fase"], '
+    + '.match-row--admin-direct select[name="equipe1Id"], '
+    + '.match-row--admin-direct select[name="equipe2Id"]',
+  ));
+}
+
+function handleAdminKeydown(event) {
+  if (event.key !== 'Enter') {
+    return;
+  }
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) {
+    return;
+  }
+  if (!target.closest('.match-row--admin-direct')) {
+    return;
+  }
+  const fields = getAdminEditableFields();
+  const currentIndex = fields.indexOf(target);
+  if (currentIndex < 0) {
+    return;
+  }
+  event.preventDefault();
+  const nextField = fields[currentIndex + 1];
+  if (nextField) {
+    nextField.focus();
+    nextField.select?.();
+  }
+}
+
+function handleAdminFieldChange(event) {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) {
+    return;
+  }
+  const adminRow = target.closest('.match-row--admin-direct');
+  if (!adminRow) {
+    return;
+  }
+  updateAdminRowStatus(adminRow, getUiMessage('msgAdminDirty', 'Alteracoes pendentes.'), 'saving');
+}
+
 function initCollapsePortlets() {
   document.querySelectorAll('[data-js="collapse-container"]').forEach((icon) => {
     icon.addEventListener('click', () => {
@@ -537,6 +835,8 @@ function initResultadosAdmin() {
       atualizarResultado(input);
     }
   });
+  document.body.addEventListener('keydown', handleAdminKeydown);
+  document.body.addEventListener('change', handleAdminFieldChange);
 }
 
 function handleAutoSaveInput(event) {
@@ -559,9 +859,19 @@ function handleAutoSaveInput(event) {
     return;
   }
 
+  const currentSignature = getPalpiteSignatureFromForm(form);
+  if (currentSignature && state.lastSavedByMatch[jogoId] === currentSignature) {
+    markMatchDirty(jogoId, false);
+    showCellFeedback(jogoId, `${getUiMessage('msgTipSaved', 'Salvo as')} ${getNowHHMM()}`, 'saved');
+    return;
+  }
+
   if (state.autoSaveTimers[jogoId]) {
     clearTimeout(state.autoSaveTimers[jogoId]);
   }
+
+  markMatchDirty(jogoId, true);
+  showCellFeedback(jogoId, getUiMessage('msgTipDirty', 'Alteracoes nao salvas.'), 'dirty');
 
   state.autoSaveTimers[jogoId] = setTimeout(() => {
     delete state.autoSaveTimers[jogoId];
@@ -596,16 +906,33 @@ function initPalpiteInline() {
   document.body.addEventListener('htmx:responseError', (event) => {
     const xhr = event.detail.xhr;
     const target = event.detail.target;
-    const matchId = target.id.replace('palpite-cell_', '');
-    const feedback = document.getElementById(`palpite-feedback_${matchId}`);
-    if (feedback) {
-      feedback.className = 'palpite-cell-feedback palpite-cell-feedback--error';
-      feedback.textContent = `Erro (${xhr.status}): Falha ao salvar palpite.`;
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
+    if (target.id && target.id.startsWith('palpite-cell_')) {
+      const matchId = target.id.replace('palpite-cell_', '');
+      const feedback = document.getElementById(`palpite-feedback_${matchId}`);
+      if (feedback) {
+        feedback.className = 'palpite-cell-feedback palpite-cell-feedback--error';
+        feedback.textContent = `Erro (${xhr.status}): ${getUiMessage('msgTipError', 'Falha ao salvar palpite.')}`;
+      }
+      announceGlobalStatus(getUiMessage('msgSessionError', 'Erro ao salvar palpite.'), 'error');
+      return;
+    }
+
+    if (target.id && target.id.startsWith('jogoTr_')) {
+      const adminRow = target.closest('.match-row--admin-direct') || document.getElementById(target.id);
+      if (adminRow) {
+        updateAdminRowStatus(adminRow, getUiMessage('msgAdminError', 'Erro ao salvar resultado.'), 'error');
+        setAdminRetryVisible(adminRow, true);
+      }
+      announceGlobalStatus(getUiMessage('msgAdminSessionError', 'Erro ao atualizar resultado.'), 'error');
     }
   });
   document.body.addEventListener('click', handleGlobalClick);
   document.body.addEventListener('input', handleAutoSaveInput);
   document.addEventListener('keydown', handleDocumentKeydown);
+  window.addEventListener('beforeunload', handleBeforeUnload);
 }
 
 function initGlobalKeyListener() {

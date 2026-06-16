@@ -1159,6 +1159,11 @@ div.legenda span.abrev {
 	animation: pulse 1s ease-in-out infinite;
 }
 
+.palpite-cell-feedback--dirty {
+	color: #7a4f01;
+	font-weight: 600;
+}
+
 .palpite-cell-feedback--saved {
 	color: var(--color-success, #1b7f5f);
 	font-weight: 600;
@@ -1167,6 +1172,14 @@ div.legenda span.abrev {
 .palpite-cell-feedback--error {
 	color: var(--color-danger, #b22727);
 	font-weight: 600;
+}
+
+.palpite-cell-feedback--locked {
+	color: #6c7178;
+}
+
+.match-table__palpite-cell[data-edit-state="dirty"] {
+	background: linear-gradient(90deg, rgba(250, 222, 159, 0.26), rgba(255, 255, 255, 0));
 }
 
 @keyframes pulse {
@@ -1226,6 +1239,64 @@ div.legenda span.abrev {
 	transform: none;
 	box-shadow: none;
 	background-color: rgba(0, 0, 0, 0.05);
+}
+
+.jogos-global-status {
+	position: sticky;
+	top: 0.5rem;
+	z-index: 30;
+	display: none;
+	margin: 0 0 0.75rem;
+	padding: 0.45rem 0.75rem;
+	border-radius: var(--radius-sm);
+	font-size: 12px;
+	font-weight: 600;
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.jogos-global-status--visible {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.jogos-global-status--success {
+	background: #e7f6ef;
+	color: #1b7f5f;
+	border: 1px solid rgba(27, 127, 95, 0.28);
+}
+
+.jogos-global-status--error {
+	background: #fdeaea;
+	color: #b22727;
+	border: 1px solid rgba(178, 39, 39, 0.22);
+}
+
+.jogos-global-status--info {
+	background: #edf4fb;
+	color: #1e4f82;
+	border: 1px solid rgba(30, 79, 130, 0.18);
+}
+
+.admin-row-status {
+	display: inline-block;
+	min-height: 1.2em;
+	font-size: 11px;
+	margin-right: 0.4rem;
+}
+
+.admin-row-status--saving {
+	color: #58616e;
+}
+
+.admin-row-status--saved {
+	color: #1b7f5f;
+	font-weight: 600;
+}
+
+.admin-row-status--error {
+	color: #b22727;
+	font-weight: 600;
 }
 
 .badge {

@@ -11,6 +11,11 @@
 <c:set var="palpiteStatusKey">match.tip.status.${palpiteStatus}</c:set>
 <fmt:message key="${palpiteStatusKey}" var="palpiteStatusLabel" />
 <fmt:message key="match.tip.none" var="palpiteNoneLabel" />
+<fmt:message key="match.tip.state.saving" var="tipSavingLabel" />
+<fmt:message key="match.tip.state.saved" var="tipSavedLabel" />
+<fmt:message key="match.tip.state.error" var="tipErrorLabel" />
+<fmt:message key="match.tip.state.locked" var="tipLockedLabel" />
+<fmt:message key="general.retry" var="retryLabel" />
 
 <td class="match-table__palpite-cell" id="palpite-cell_${matchId}">
 
@@ -30,21 +35,34 @@
         <%-- Janela ainda aberta: exibir inputs + feedback de resultado --%>
         <c:when test="${palpitePermitido}">
 
-            <%-- Feedback de sucesso —  "✓ Salvo HH:MM" --%>
-            <c:if test="${palpiteAtualizado}">
-                <jsp:useBean id="agora" class="java.util.Date" />
-                <fmt:formatDate value="${agora}" pattern="HH:mm" var="horaSalvo" />
-                <span class="palpite-cell-feedback palpite-cell-feedback--saved" aria-live="polite">
-                    ✓ Salvo às ${horaSalvo}
-                </span>
-            </c:if>
+            <c:choose>
+                <%-- Feedback de sucesso —  "✓ Salvo HH:MM" --%>
+                <c:when test="${palpiteAtualizado}">
+                    <jsp:useBean id="agora" class="java.util.Date" />
+                    <fmt:formatDate value="${agora}" pattern="HH:mm" var="horaSalvo" />
+                    <span id="palpite-feedback_${matchId}" class="palpite-cell-feedback palpite-cell-feedback--saved" aria-live="polite">
+                        ${tipSavedLabel} ${horaSalvo}
+                    </span>
+                </c:when>
 
-            <%-- Feedback de erro HTTP (ex.: validação backend) --%>
-            <c:if test="${not palpiteAtualizado and not empty palpiteErro}">
-                <span class="palpite-cell-feedback palpite-cell-feedback--error" aria-live="polite">
-                    ⚠ <c:out value="${palpiteErro}" />
-                </span>
-            </c:if>
+                <%-- Feedback de erro HTTP (ex.: validação backend) --%>
+                <c:when test="${not empty palpiteErro}">
+                    <span id="palpite-feedback_${matchId}" class="palpite-cell-feedback palpite-cell-feedback--error" aria-live="polite">
+                        ${tipErrorLabel}
+                        <c:out value="${palpiteErro}" />
+                    </span>
+                    <button type="button"
+                            class="button button-ghost palpite-cell-retry"
+                            data-js="retry-palpite"
+                            data-jogo-id="${matchId}">
+                        ${retryLabel}
+                    </button>
+                </c:when>
+
+                <c:otherwise>
+                    <span id="palpite-feedback_${matchId}" class="palpite-cell-feedback" aria-live="polite"></span>
+                </c:otherwise>
+            </c:choose>
 
             <%-- Inputs re-renderizados (mantém valores digitados em caso de erro) --%>
             <form class="palpite-inputs"
@@ -83,6 +101,7 @@
 
         <%-- Janela fechada: exibir placar + badge --%>
         <c:otherwise>
+            <span id="palpite-feedback_${matchId}" class="palpite-cell-feedback palpite-cell-feedback--locked" aria-live="polite">${tipLockedLabel}</span>
             <c:choose>
                 <c:when test="${palpiteSelecionado != null}">
                     <span class="palpite-saved-score" aria-label="Meu palpite">

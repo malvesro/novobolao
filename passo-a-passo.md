@@ -519,6 +519,48 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 58.3 — Testes de regressão da variação (16/06/2026):** novo teste em `ParticipanteServiceTest` valida subida/queda entre snapshots após expiração de cache de classificação, incluindo cenário inicial sem histórico.
     * **[Concluído] 58.4 — Validação e rastreabilidade (16/06/2026):** validação concluída com `mvn -Dfrontend.skip=true test` (69 testes, 0 falhas), atualização do plano e log de sessão criado em `.ia/logs/`.
 
+59. **[Concluído] Estratégia UX + Performance para Palpites e Resultados (16/06/2026):**
+    Objetivo: elevar confiabilidade percebida, reduzir perda de edição e melhorar produtividade operacional nas telas `/seguro/palpites.action` e `/admin/jogos.action`, com foco em feedback de gravação, proteção de saída e performance em ambiente restrito.
+    Domínio impactado: registro de palpites dos participantes e atualização administrativa de resultados da Copa 2026.
+    Plano de referência: `.ia/planos/plano-ux-performance-palpites-resultados-20260616.md`.
+    Skills previstas: `ui-ux-pro-max v1.0.0`, `modern-javascript-patterns v1.0.0`, `architecture-guardian v1.0.0`, `security-audit v1.0.0`.
+
+    * **[Concluído] 59.1 — Diagnóstico técnico-UX consolidado (baseline):**
+      Mapear estados atuais dos fluxos (participante/admin), incluindo pontos de fricção, inconsistências de feedback e custo de interação por operação.
+      Entregável: checklist objetivo de gaps + baseline registrado em `.ia/logs/session-20260616-tarefa59-iteracao1-baseline.md`.
+
+    * **[Concluído] 59.2 — Padronizar feedback visual de gravação (linha/célula + sessão):**
+      Implementar contrato único de estados (`dirty`, `saving`, `saved`, `error`, `locked`) com mensagens i18n e timestamp de confirmação.
+      Entregável: feedback padronizado implementado em `jogos.jsp`, `palpite-cell-response.jspf`, `admin-match-row.jsp` e `jogos.js`, com status global `aria-live`.
+
+    * **[Concluído] 59.3 — Guard de saída com alterações não salvas:**
+      Adicionar proteção de navegação/refresh quando existir alteração pendente sem persistência confirmada.
+      Entregável: `beforeunload` implementado com critério real de pendência (`dirty` e request admin em andamento), sem falso positivo em estado limpo.
+
+    * **[Concluído] 59.4 — Recuperação de erro orientada a ação (retry):**
+      Melhorar mensagens de erro e disponibilizar ação explícita de reenvio para falhas transitórias.
+      Entregável: botões de retry por célula (participante) e por linha (admin), mantendo valores de edição.
+
+    * **[Concluído] 59.5 — Otimização de requisições em edição rápida:**
+      Reduzir requisições redundantes (deduplicação de payload idêntico, debounce calibrado e bloqueio de concorrência por item).
+      Entregável: deduplicação de autosave por assinatura de payload + debounce/bloqueio de concorrência preservados.
+
+    * **[Concluído] 59.6 — Produtividade da operação admin (resultados):**
+      Evoluir experiência de atualização de placar com confirmação por linha salva e navegação eficiente por teclado.
+      Entregável: status por linha implementado e navegação por Enter entre campos editáveis adicionada no fluxo admin.
+
+    * **[Concluído] 59.7 — Consistência visual e acessibilidade WCAG 2.1 AA:**
+      Revisar contraste, foco visível, semântica, rótulos e dependência de cor/ícone para estados de gravação.
+      Entregável: estados textuais e regiões `aria-live` consolidados, reduzindo dependência exclusiva de cor/ícone.
+
+    * **[Concluído] 59.8 — Testes de regressão e smoke funcional:**
+      Cobrir cenários críticos (salvar múltiplas vezes, sair com pendência, erro+retry, edição admin sequencial, janela de prazo encerrada).
+      Entregável: evidências registradas com `npm run build` e `mvn -Dfrontend.skip=true test` (71 testes, 0 falhas), além de checklist funcional em log.
+
+    * **[Concluído] 59.9 — Rastreabilidade + ADR da decisão UX (se aplicável):**
+      Registrar decisões, trade-offs e resultados em log de sessão e propor ADR para padrão oficial de estados de gravação.
+      Entregável: logs de execução (`session-20260616-tarefa59-*`) e ADR rascunho criado em `.ia/historico/ADR-20260616-estados-gravacao-palpites-resultados.md`.
+
 47. **[Concluído] Incluir campo de data na edição administrativa da tela de atualização de resultados (13/06/2026):**
     Objetivo: permitir que o administrador ajuste também a **data** do jogo na mesma tela em que já ajusta hora, local e equipes, mantendo consistência com o fuso oficial São Paulo e sem regressão no fluxo HTMX de atualização.
     Skills previstas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`, `ui-ux-pro-max v1.0.0`.

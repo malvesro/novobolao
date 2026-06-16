@@ -169,6 +169,9 @@
 
     <sec:authorize access="hasRole('ADMIN')">
         <td class="match-table__actions">
+            <fmt:message key="general.retry" var="retryLabel" />
+            <span id="admin-save-status_${jogo.id}" class="admin-row-status" role="status" aria-live="polite"></span>
+            <button type="button" class="button button-ghost admin-row-retry" data-js="retry-admin-save" hidden>${retryLabel}</button>
             <div class="htmx-indicator progress-spinner progress-spinner--mini"></div>
         </td>
     </sec:authorize>

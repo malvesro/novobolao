@@ -1,11 +1,38 @@
 <%@include file="/WEB-INF/content/template/menu.jspf" %>
+<fmt:message key="match.tip.state.dirty" var="msgTipDirty" />
+<fmt:message key="match.tip.state.saving" var="msgTipSaving" />
+<fmt:message key="match.tip.state.saved" var="msgTipSaved" />
+<fmt:message key="match.tip.state.error" var="msgTipError" />
+<fmt:message key="match.tip.state.locked" var="msgTipLocked" />
+<fmt:message key="admin.result.state.saving" var="msgAdminSaving" />
+<fmt:message key="admin.result.state.dirty" var="msgAdminDirty" />
+<fmt:message key="admin.result.state.saved" var="msgAdminSaved" />
+<fmt:message key="admin.result.state.error" var="msgAdminError" />
+<fmt:message key="match.tip.session.saved" var="msgSessionSaved" />
+<fmt:message key="match.tip.session.error" var="msgSessionError" />
+<fmt:message key="admin.result.session.saved" var="msgAdminSessionSaved" />
+<fmt:message key="admin.result.session.error" var="msgAdminSessionError" />
 
 <c:if test="${telaPalpites}">
 	<%-- Barra de Progresso Sticky (Modernização UX 2026) --%>
 	<%@include file="/WEB-INF/content/seguro/partials/palpite-progress-bar.jspf" %>
 </c:if>
 
-					<div id="jogos-page-wrapper" class="dashboard-section">
+					<div id="jogos-page-wrapper"
+						class="dashboard-section"
+						data-msg-tip-dirty="${msgTipDirty}"
+						data-msg-tip-saving="${msgTipSaving}"
+						data-msg-tip-saved="${msgTipSaved}"
+						data-msg-tip-error="${msgTipError}"
+						data-msg-tip-locked="${msgTipLocked}"
+						data-msg-admin-saving="${msgAdminSaving}"
+						data-msg-admin-dirty="${msgAdminDirty}"
+						data-msg-admin-saved="${msgAdminSaved}"
+						data-msg-admin-error="${msgAdminError}"
+						data-msg-session-saved="${msgSessionSaved}"
+						data-msg-session-error="${msgSessionError}"
+						data-msg-admin-session-saved="${msgAdminSessionSaved}"
+						data-msg-admin-session-error="${msgAdminSessionError}">
 						<%-- Removido form externo que causava aninhamento inválido --%>
 
 							<c:set var="dataJogo" />
@@ -258,6 +285,12 @@
 										<span class="spacer spacer-sm"></span>
 									</c:if>
 								</c:if>
+
+								<div id="jogos-global-status"
+									class="jogos-global-status"
+									role="status"
+									aria-live="polite"
+									aria-atomic="true"></div>
 
 								<div id="jogos-lista-container">
 									<%@include file="/WEB-INF/content/seguro/partials/jogos-lista-fragmento.jsp" %>
