@@ -14,6 +14,12 @@ const state = {
 
 const FILTER_STORAGE_KEY = 'bolao:filtro:collapsed';
 
+function syncDebugState() {
+  window.__bolaoJogosDebug = window.__bolaoJogosDebug || {};
+  window.__bolaoJogosDebug.pendingAdminRequests = state.pendingAdminRequests;
+  window.__bolaoJogosDebug.hasDirtyMatch = getHasDirtyMatch();
+}
+
 function initFiltroColapsavel() {
   const portlet = document.querySelector('.match-filter-portlet');
   if (!portlet) return;
@@ -142,6 +148,7 @@ function markMatchDirty(jogoId, dirty) {
     return;
   }
   state.dirtyByMatch[jogoId] = Boolean(dirty);
+  syncDebugState();
 }
 
 function getHasDirtyMatch() {
@@ -451,6 +458,58 @@ function clearCellFeedback(jogoId) {
   setMatchEditState(jogoId, 'idle');
 }
 
+function isAdminRequest(event, trigger) {
+  if (trigger && trigger.closest('.match-row--admin-direct')) {
+    return true;
+  }
+
+  const path = event?.detail?.requestConfig?.path;
+  if (typeof path !== 'string') {
+    return false;
+  }
+
+  return path.includes('/admin/atualizarResultadoJogo.action')
+    || path.includes('/admin/salvarEdicaoEstrutural.action')
+    || path.includes('/admin/jogosMaisJogosPartial.action');
+}
+
+function getRequestConfig(event) {
+  const requestConfig = event?.detail?.requestConfig;
+  if (!requestConfig || typeof requestConfig !== 'object') {
+    return null;
+  }
+  return requestConfig;
+}
+
+function startAdminPending(event) {
+  const requestConfig = getRequestConfig(event);
+  if (requestConfig) {
+    if (requestConfig.__bolaoAdminTracked) {
+      return;
+    }
+    requestConfig.__bolaoAdminTracked = true;
+    requestConfig.__bolaoAdminSettled = false;
+  }
+  state.pendingAdminRequests += 1;
+  syncDebugState();
+}
+
+function finishAdminPending(event) {
+  const requestConfig = getRequestConfig(event);
+  if (requestConfig) {
+    if (!requestConfig.__bolaoAdminTracked || requestConfig.__bolaoAdminSettled) {
+      return false;
+    }
+    requestConfig.__bolaoAdminSettled = true;
+    state.pendingAdminRequests = Math.max(0, state.pendingAdminRequests - 1);
+    syncDebugState();
+    return true;
+  }
+  state.pendingAdminRequests = Math.max(0, state.pendingAdminRequests - 1);
+  syncDebugState();
+  return true;
+}
+
 function handleBeforeRequest(event) {
   if (!state.initialized) {
     return;
@@ -461,14 +520,16 @@ function handleBeforeRequest(event) {
   }
 
   const adminRow = trigger.closest('.match-row--admin-direct');
-  if (adminRow) {
+  if (isAdminRequest(event, trigger)) {
     const savingMessage = getUiMessage('msgAdminSaving', 'Salvando resultado...');
-    state.pendingAdminRequests += 1;
-    if (trigger.getAttribute('name')) {
+    startAdminPending(event);
+    if (adminRow && trigger.getAttribute('name')) {
       state.lastAdminTriggerByRow[adminRow.id] = trigger.getAttribute('name');
     }
-    updateAdminRowStatus(adminRow, savingMessage, 'saving');
-    setAdminRetryVisible(adminRow, false);
+    if (adminRow) {
+      updateAdminRowStatus(adminRow, savingMessage, 'saving');
+      setAdminRetryVisible(adminRow, false);
+    }
     return;
   }
 
@@ -606,10 +667,10 @@ function handleAfterRequest(event) {
     return;
   }
 
-  const adminRow = trigger.closest('.match-row--admin-direct');
-  if (adminRow) {
-    state.pendingAdminRequests = Math.max(0, state.pendingAdminRequests - 1);
-    if (!event.detail.successful) {
+  if (isAdminRequest(event, trigger)) {
+    const adminRow = trigger.closest('.match-row--admin-direct');
+    finishAdminPending(event);
+    if (!event.detail.successful && adminRow) {
       const adminError = getUiMessage('msgAdminError', 'Erro ao salvar resultado.');
       updateAdminRowStatus(adminRow, adminError, 'error');
       setAdminRetryVisible(adminRow, true);
@@ -905,7 +966,8 @@ function initPalpiteInline() {
   });
   document.body.addEventListener('htmx:responseError', (event) => {
     const xhr = event.detail.xhr;
-    const target = event.detail.target;
+    const target = event.detail.target instanceof HTMLElement ? event.detail.target : event.target;
+    const trigger = event?.detail?.elt;
     if (!(target instanceof HTMLElement)) {
       return;
     }
@@ -921,6 +983,9 @@ function initPalpiteInline() {
     }
 
     if (target.id && target.id.startsWith('jogoTr_')) {
+      if (isAdminRequest(event, trigger) || target.classList.contains('match-row--admin-direct')) {
+        finishAdminPending(event);
+      }
       const adminRow = target.closest('.match-row--admin-direct') || document.getElementById(target.id);
       if (adminRow) {
         updateAdminRowStatus(adminRow, getUiMessage('msgAdminError', 'Erro ao salvar resultado.'), 'error');
@@ -953,6 +1018,7 @@ export function initJogosPage() {
 
   window.__bolaoJogosDebug = window.__bolaoJogosDebug || {};
   window.__bolaoJogosDebug.moduleLoadedAt = new Date().toISOString();
+  syncDebugState();
 
   initCollapsePortlets();
   initFiltroColapsavel();

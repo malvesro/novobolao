@@ -272,6 +272,9 @@ export function initGraficoDesempenhoPage() {
       if (error?.name === 'AbortError') {
         return;
       }
+      if (requestToken !== latestRequestToken) {
+        return;
+      }
       destroyChartIfAny();
       setStatus(statusEl, statusError, 'error');
       chartEl.textContent = errorMessage;

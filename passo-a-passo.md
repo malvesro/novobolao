@@ -607,6 +607,73 @@ Premissas de compatibilidade (críticas):
       Skills aplicadas: `modern-javascript-patterns v1.0.0`, `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`, `security-audit v1.0.0`.
       Log: `.ia/logs/session-20260616-tarefa60-iteracao7-execucao-consolidada.md`.
 
+61. **[Concluído] Correção de regressões críticas na tela de palpites e resultados (16/06/2026):**
+    Objetivo: corrigir dois bugs de alta severidade percebida em produção local: (1) alerta de saída indevido após atualização admin de resultados e (2) desaparecimento do campo de palpite ao iniciar digitação.
+    Domínio impactado: UX transacional da operação administrativa (`/admin/jogos.action`) e registro de palpites do participante (`/seguro/palpites.action`).
+    Causa raiz preliminar: desalinhamento entre contrato HTMX/JSP vigente e máquina de estados do módulo `src/frontend/pages/jogos.js`.
+    Skills previstas: `modern-javascript-patterns v1.0.0`, `htmx v1.0.0`, `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`.
+
+    * **[Concluído] 61.1 — Documentar bug report técnico e rastreabilidade inicial (16/06/2026):**
+      Registrar sintomas, cenário de reprodução e hipótese de causa raiz no plano + log de sessão.
+      Entregável: subtarefa criada no `passo-a-passo.md` e log técnico inicial.
+
+    * **[Concluído] 61.2 — Corrigir falso positivo de `beforeunload` no admin (16/06/2026):**
+      Garantir decremento robusto de requisições pendentes admin (`pendingAdminRequests`) mesmo quando o elemento trigger for substituído via `hx-swap="outerHTML"`.
+      Entregável: ajuste em `src/frontend/pages/jogos.js` com detecção resiliente de request admin por caminho (`requestConfig.path`) além de `closest`, evitando falso positivo do guard de saída após swaps HTMX de linha administrativa.
+
+    * **[Concluído] 61.3 — Alinhar markup de palpites ao contrato HTMX atual (16/06/2026):**
+      Remover contrato legado de inputs soltos por `tbody` e adotar célula dedicada `palpite-cell` com `form.palpite-inputs`/`hx-target` por célula.
+      Entregável: ajustes em `match-row.jspf` e `palpite-cell-response.jsp` para uso consistente da célula direta (`palpite-cell-response.jspf`), preservando atualização OOB da barra de progresso.
+
+    * **[Concluído] 61.4 — Testes de regressão direcionados (frontend) (16/06/2026):**
+      Cobrir cenário de decremento admin resiliente e estabilidade da edição de palpite com contrato por célula.
+      Entregável: suíte Vitest atualizada (`tests/frontend/jogos.test.js`) com cobertura do contrato `palpite-cell` após swap e validação completa via `npm run test:frontend` (4 testes aprovados).
+
+    * **[Concluído] 61.5 — Validação consolidada + fechamento (16/06/2026):**
+      Executar `npm run build`, `npm run test:frontend` e `mvn -Dfrontend.skip=true test`; atualizar status final e registrar evidências em log.
+      Entregável: validação consolidada concluída (`npm run build`, `npm run test:frontend`, `mvn -Dfrontend.skip=true test` com 77 testes Java aprovados) e rastreabilidade final registrada.
+      Log: `.ia/logs/session-20260616-tarefa61-correcao-bugs-palpites-resultados.md`.
+
+62. **[Concluído] Hardening pós-auditoria dos últimos 4 commits (correções + testes) (16/06/2026):**
+    Objetivo: eliminar riscos residuais e prevenir regressões da mesma família dos bugs recentes (troca agressiva de DOM em edição, estado pendente preso e guard de saída indevido), com cobertura de testes orientada a impacto.
+    Escopo auditado: commits `3f095c4`, `45f2148`, `1ddf1c2` e `36273e2`.
+    Skills previstas: `htmx v1.0.0`, `modern-javascript-patterns v1.0.0`, `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`.
+
+    * **[Concluído] 62.1 — Commit 3f095c4: blindar contrato HTMX/JSP/JS do palpite por célula (P0) (16/06/2026):**
+      Validar e consolidar o contrato único de edição em `palpite-cell` (`hx-target` pontual + `hx-swap="outerHTML"`), removendo definitivamente qualquer fallback legado por `tbody`.
+      Entregável: auditoria de markup final em `match-row.jspf`/`palpite-cell-response.jsp(f)` confirmando contrato por célula e inclusão de teste estrutural anti-regressão.
+      Testes: `tests/frontend/jogos.test.js` ampliado para falhar explicitamente se reaparecer `hx-target="closest tbody"` ou `hx-swap="innerHTML"` no fluxo de edição de palpite.
+      Critério de aceite: foco de digitação permanece estável e o campo de palpite não desaparece durante autosave/swap.
+
+    * **[Concluído] 62.2 — Commit 3f095c4: robustecer contador de pendências admin e `beforeunload` (P0) (16/06/2026):**
+      Fortalecer a contabilização `pendingAdminRequests` para cenários de concorrência, cancelamento e trocas de linha via `outerHTML`, evitando falso positivo de saída.
+      Entregável: `src/frontend/pages/jogos.js` ajustado com rastreamento de request admin por `requestConfig` (`startAdminPending`/`finishAdminPending`) e fechamento resiliente em `afterRequest`/`responseError`.
+      Testes: cenário novo em `tests/frontend/jogos.test.js` cobrindo requests admin simultâneas com finalização mista (sucesso + erro) sem travar o `beforeunload`.
+      Critério de aceite: ao salvar resultado admin com sucesso, o aviso de sair sem salvar não aparece em estado limpo.
+
+    * **[Concluído] 62.3 — Commit 45f2148: prevenção de regressão no gráfico (P1) (16/06/2026):**
+      Revisar pontos de fragilidade no ciclo `fetch -> abort -> render -> retry` para evitar vazamento de estado visual (`aria-busy`, status loading) em transições rápidas.
+      Entregável: hardening pontual em `src/frontend/pages/graficoDesempenho.js` para ignorar erros tardios de requisições obsoletas (`requestToken` desatualizado).
+      Testes: `tests/frontend/graficoDesempenho.test.js` ampliado com caso de erro tardio da seleção anterior sem sobrescrever estado pronto da seleção mais recente.
+      Critério de aceite: gráfico sempre retorna a estado consistente (status + busy) após erro, abort ou retry.
+
+    * **[Concluído] 62.4 — Commit 1ddf1c2: prevenção de regressão da variação de posição (P1) (16/06/2026):**
+      Revisar cálculo/exposição de `variacaoPosicao` para garantir estabilidade sem histórico, empate de posição e variação zero.
+      Entregável: validação do contrato em `ParticipanteServiceImpl`/`DadosClassificacao` com foco em empate estável por regra de desempate oficial.
+      Testes: `ParticipanteServiceTest` expandido com cenário de empate estrutural e ordem de entrada invertida entre snapshots, mantendo variação zero determinística.
+      Critério de aceite: coluna VAR permanece coerente e determinística em ciclos sucessivos de cálculo.
+
+    * **[Concluído] 62.5 — Commit 36273e2: reforço do pacote de regressão (P1) (16/06/2026):**
+      Endurecer a suíte adicionada na tarefa 60 com casos de borda descobertos na auditoria (especialmente estados assíncronos e contratos HTMX).
+      Entregável: atualização das suítes `tests/frontend/jogos.test.js` e `tests/frontend/graficoDesempenho.test.js`, além do reforço em `ParticipanteServiceTest`.
+      Testes: validações direcionadas executadas com sucesso (`npm run test:frontend -- jogos.test.js`, `npm run test:frontend -- graficoDesempenho.test.js`, `mvn -Dfrontend.skip=true -Dtest=ParticipanteServiceTest test`).
+      Critério de aceite: suíte de regressão cobre explicitamente todos os achados da auditoria dos 4 commits.
+
+    * **[Concluído] 62.6 — Validação consolidada + rastreabilidade final (P0) (16/06/2026):**
+      Rodar validação cruzada completa após as correções e registrar evidências técnicas.
+      Entregável: execução concluída de `npm run build`, `npm run test:frontend` e `mvn -Dfrontend.skip=true test` (78 testes Java aprovados) + log final da tarefa com resultados e impacto.
+      Logs: `.ia/logs/session-20260616-tarefa62-planejamento-correcao-achados-ultimos4commits.md` e `.ia/logs/session-20260616-tarefa62-execucao-completa.md`.
+
 47. **[Concluído] Incluir campo de data na edição administrativa da tela de atualização de resultados (13/06/2026):**
     Objetivo: permitir que o administrador ajuste também a **data** do jogo na mesma tela em que já ajusta hora, local e equipes, mantendo consistência com o fuso oficial São Paulo e sem regressão no fluxo HTMX de atualização.
     Skills previstas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`, `ui-ux-pro-max v1.0.0`.

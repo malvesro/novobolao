@@ -165,4 +165,48 @@ describe('graficoDesempenho.js concorrencia e cache', () => {
 
     vi.useRealTimers();
   });
+
+  it('deve ignorar erro tardio de requisicao obsoleta e manter estado da ultima selecao', async () => {
+    mountGraficoFixture();
+
+    const fetchMock = vi.fn();
+    fetchMock
+      .mockImplementationOnce(() => Promise.resolve(jsonResponse(createPayload('Inicial'))))
+      .mockImplementationOnce(() => Promise.resolve(jsonResponse(createPayload('Rival A'))))
+      .mockImplementationOnce(() => Promise.resolve(jsonResponse(createPayload('Rival B'))));
+    global.fetch = fetchMock;
+
+    let rejectObsoleteRender;
+    updateOptionsMock
+      .mockImplementationOnce(() => new Promise((_, reject) => {
+        rejectObsoleteRender = reject;
+      }))
+      .mockImplementationOnce(async () => {});
+
+    const { initGraficoDesempenhoPage } = await import('../../src/frontend/pages/graficoDesempenho.js');
+    initGraficoDesempenhoPage();
+    await flushAsyncWork();
+
+    const rivalSelect = document.getElementById('rival');
+    const statusEl = document.getElementById('performance-chart-status');
+
+    rivalSelect.value = 'A';
+    rivalSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    vi.advanceTimersByTime(130);
+    await flushPromises();
+
+    rivalSelect.value = 'B';
+    rivalSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    vi.advanceTimersByTime(130);
+    await flushAsyncWork();
+
+    rejectObsoleteRender(new Error('falha tardia de render A'));
+    await flushAsyncWork();
+
+    expect(statusEl.textContent).toBe('Status pronto');
+    expect(statusEl.className).toContain('chart-status--ready');
+    expect(statusEl.className).not.toContain('chart-status--error');
+
+    vi.useRealTimers();
+  });
 });

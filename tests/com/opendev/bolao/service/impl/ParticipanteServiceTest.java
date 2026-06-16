@@ -202,6 +202,29 @@ class ParticipanteServiceTest {
         assertThat(rankingAtual.get(0).getPontuacaoTotal().getVariacaoPosicao()).isNull();
     }
 
+    @Test
+    void deveManterVariacaoZeroEmEmpateComOrdenacaoDeterministicaPorNome() throws Exception {
+        Participante anaSnapshot1 = criarParticipanteComPontuacao(1L, "ana", "Ana Silva", 10);
+        Participante brunoSnapshot1 = criarParticipanteComPontuacao(2L, "bruno", "Bruno Souza", 10);
+        Participante brunoSnapshot2 = criarParticipanteComPontuacao(2L, "bruno", "Bruno Souza", 10);
+        Participante anaSnapshot2 = criarParticipanteComPontuacao(1L, "ana", "Ana Silva", 10);
+
+        when(participanteRepository.findAll()).thenReturn(
+                List.of(anaSnapshot1, brunoSnapshot1),
+                List.of(brunoSnapshot2, anaSnapshot2));
+        when(jogoRepository.countJogosFinalizados()).thenReturn(9L);
+
+        participanteService.buscarClassificacao();
+        Participante.expirarCacheDeClassificacao();
+        List<Participante> rankingAtual = participanteService.buscarClassificacao();
+
+        assertThat(rankingAtual).hasSize(2);
+        assertThat(rankingAtual.get(0).getLogin()).isEqualTo("ana");
+        assertThat(rankingAtual.get(1).getLogin()).isEqualTo("bruno");
+        assertThat(rankingAtual.get(0).getPontuacaoTotal().getVariacaoPosicao()).isEqualTo(0);
+        assertThat(rankingAtual.get(1).getPontuacaoTotal().getVariacaoPosicao()).isEqualTo(0);
+    }
+
     private Participante criarParticipanteComPontuacao(Long id, String login, String nome, int pontuacao) throws Exception {
         Participante participante = new Participante();
         participante.setId(id);

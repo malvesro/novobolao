@@ -36,7 +36,7 @@
         </c:choose>
     </td>
 
-    <%-- Time da Casa + Input de Placar --%>
+    <%-- Time da Casa (placar oficial do jogo, não-editável em tela de palpites) --%>
     <td class="match-table__team match-table__team--home">
         <div class="team-cell text-right">
             <span><c:out value="${jogo.equipe1.nomePais}" /></span>
@@ -56,37 +56,14 @@
                 </c:otherwise>
             </c:choose>
             
-            <c:choose>
-                <c:when test="${telaPalpites and palpitePermitido}">
-                    <input class="palpite-inputs__score input-score-home"
-                           id="p1_${jogo.id}"
-                           name="palpiteGolsEquipe1"
-                           type="number" min="0" max="99"
-                           inputmode="numeric"
-                           value="${palpiteUsuario.golsEquipe1}"
-                           hx-post="${pageContext.request.contextPath}/seguro/atualizarPalpitePartial.action"
-                           hx-trigger="change delay:800ms, blur"
-                           hx-target="closest tbody"
-                           hx-swap="innerHTML settle:1.5s"
-                           hx-sync="closest tbody:replace"
-                           hx-include="closest tbody"
-                           aria-label="Gols ${jogo.equipe1.nomePais}"
-                           required />
-                </c:when>
-                <c:when test="${telaPalpites}">
-                     <span class="score-value score-value--palpite"><c:out value="${palpiteUsuario.golsEquipe1}" /></span>
-                </c:when>
-                <c:otherwise>
-                    <span class="score-value">
-                        <c:choose>
-                            <c:when test="${not empty jogo.golsEquipe1 or jogo.golsEquipe1 eq 0}">
-                                ${jogo.golsEquipe1}
-                            </c:when>
-                            <c:otherwise></c:otherwise>
-                        </c:choose>
-                    </span>
-                </c:otherwise>
-            </c:choose>
+            <span class="score-value">
+                <c:choose>
+                    <c:when test="${not empty jogo.golsEquipe1 or jogo.golsEquipe1 eq 0}">
+                        ${jogo.golsEquipe1}
+                    </c:when>
+                    <c:otherwise></c:otherwise>
+                </c:choose>
+            </span>
         </div>
     </td>
 
@@ -95,40 +72,17 @@
         <div id="indicator_${jogo.id}" class="htmx-indicator progress-spinner"></div>
     </td>
 
-    <%-- Input de Placar + Time Visitante --%>
+    <%-- Time Visitante (placar oficial do jogo, não-editável em tela de palpites) --%>
     <td class="match-table__team match-table__team--away">
         <div class="team-cell text-left">
-            <c:choose>
-                <c:when test="${telaPalpites and palpitePermitido}">
-                    <input class="palpite-inputs__score input-score-away"
-                           id="p2_${jogo.id}"
-                           name="palpiteGolsEquipe2"
-                           type="number" min="0" max="99"
-                           inputmode="numeric"
-                           value="${palpiteUsuario.golsEquipe2}"
-                           hx-post="${pageContext.request.contextPath}/seguro/atualizarPalpitePartial.action"
-                           hx-trigger="change delay:800ms, blur"
-                           hx-target="closest tbody"
-                           hx-swap="innerHTML settle:1.5s"
-                           hx-sync="closest tbody:replace"
-                           hx-include="closest tbody"
-                           aria-label="Gols ${jogo.equipe2.nomePais}"
-                           required />
-                </c:when>
-                <c:when test="${telaPalpites}">
-                    <span class="score-value score-value--palpite"><c:out value="${palpiteUsuario.golsEquipe2}" /></span>
-                </c:when>
-                <c:otherwise>
-                    <span class="score-value">
-                        <c:choose>
-                            <c:when test="${not empty jogo.golsEquipe2 or jogo.golsEquipe2 eq 0}">
-                                ${jogo.golsEquipe2}
-                            </c:when>
-                            <c:otherwise></c:otherwise>
-                        </c:choose>
-                    </span>
-                </c:otherwise>
-            </c:choose>
+            <span class="score-value">
+                <c:choose>
+                    <c:when test="${not empty jogo.golsEquipe2 or jogo.golsEquipe2 eq 0}">
+                        ${jogo.golsEquipe2}
+                    </c:when>
+                    <c:otherwise></c:otherwise>
+                </c:choose>
+            </span>
 
             <c:choose>
                 <c:when test="${not empty jogo.equipe2.bandeiraUrl}">
@@ -149,24 +103,15 @@
         </div>
     </td>
 
-    <%-- Coluna de Status/Ações --%>
+    <%-- Coluna dedicada do palpite direto por célula --%>
+    <c:set var="jogoSelecionado" value="${jogo}" />
+    <c:set var="palpiteSelecionado" value="${palpiteUsuario}" />
+    <c:set var="palpiteAtualizado" value="false" />
+    <c:set var="palpiteErro" value="" />
+    <%@include file="/WEB-INF/content/seguro/partials/palpite-cell-response.jspf" %>
+
+    <%-- Coluna de ações (grupo) --%>
     <td class="match-table__status-cell">
-        <c:if test="${telaPalpites}">
-            <c:if test="${palpiteAtualizado}">
-                <span class="feedback-toast" hx-trigger="load delay:2s" hx-on="load: this.remove()">✓ Salvo</span>
-            </c:if>
-            <c:choose>
-                <c:when test="${not empty palpiteUsuario}">
-                    <span class="badge badge--registered">${palpiteStatusLabel}</span>
-                </c:when>
-                <c:otherwise>
-                    <span class="palpite-placeholder">${palpiteSemRegistro}</span>
-                    <c:if test="${not palpitePermitido}">
-                        <span class="badge badge--locked">Encerrado</span>
-                    </c:if>
-                </c:otherwise>
-            </c:choose>
-        </c:if>
         <button type="button" 
                 class="btn-grupo-toggle" 
                 hx-get="${base}/seguro/palpitesDoJogoPartial.action?jogoId=${jogo.id}"
@@ -182,7 +127,7 @@
 
 <%-- Linha oculta para detalhes do grupo --%>
 <tr id="group-row_${jogo.id}" class="match-group-details-row hidden">
-    <td colspan="7">
+    <td colspan="8">
         <div class="group-details-container" aria-live="polite">
             <div class="group-details-header">
                 <h4>Palpites do Grupo - ${jogo.equipe1.nomePais} x ${jogo.equipe2.nomePais}</h4>
