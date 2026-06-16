@@ -1,6 +1,7 @@
 import { initTooltips } from './modules/tooltips.js';
 import { initMenuToggle } from './modules/menuToggle.js';
 import { initJogosPage } from './pages/jogos.js';
+import { initGraficoDesempenhoPage } from './pages/graficoDesempenho.js';
 import { initCadastroSanitizer } from './modules/formSanitizer.js';
 import { initPasswordToggle } from './modules/passwordToggle.js';
 
@@ -16,6 +17,7 @@ onReady(() => {
   initTooltips();
   initMenuToggle();
   initJogosPage();
+  initGraficoDesempenhoPage();
   initCadastroSanitizer();
   initPasswordToggle();
 });

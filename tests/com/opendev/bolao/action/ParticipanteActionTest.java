@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.jfree.data.category.DefaultCategoryDataset;
@@ -14,10 +15,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.opendev.bolao.grafico.GraficoBarraLideres;
+import com.opendev.bolao.grafico.GraficoComparativoDesempenho;
 import com.opendev.bolao.model.Participante;
 import com.opendev.bolao.service.ParticipanteService;
 import com.opendev.bolao.util.MensagemErro;
@@ -25,12 +28,14 @@ import com.opendev.bolao.util.MensagemErro;
 class ParticipanteActionTest {
 
     private MockHttpServletRequest request;
+    private MockHttpServletResponse response;
 
     @BeforeEach
     void configurarRequest() {
         request = new MockHttpServletRequest();
+        response = new MockHttpServletResponse();
         request.setRemoteAddr("127.0.0.1");
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request, response));
     }
 
     @AfterEach
@@ -107,5 +112,36 @@ class ParticipanteActionTest {
         assertThat(erros).filteredOn(MensagemErro.class::isInstance)
                 .extracting(obj -> ((MensagemErro) obj).getMensagem())
                 .contains("Este e-mail ja esta associado a outro cadastro.");
+    }
+
+    @Test
+    @DisplayName("obterDadosGraficoJson deve retornar payload e headers de cache privado")
+    void deveRetornarPayloadGraficoComCachePrivado() {
+        ParticipanteService participanteService = Mockito.mock(ParticipanteService.class);
+
+        Participante participante = new Participante();
+        participante.setId(10L);
+        participante.setLogin("usuario");
+        participante.setNome("Usuario Teste");
+
+        GraficoComparativoDesempenho grafico = Mockito.mock(GraficoComparativoDesempenho.class);
+        when(grafico.getSeriesData()).thenReturn(List.of(Map.of("name", "Usuario Teste", "data", List.of())));
+        when(grafico.getCategories()).thenReturn(List.of());
+
+        when(participanteService.buscarPorLogin("usuario")).thenReturn(Optional.of(participante));
+        when(participanteService.construirGraficoDesempenho(participante, null)).thenReturn(grafico);
+
+        request.setUserPrincipal(() -> "usuario");
+
+        ParticipanteAction action = new ParticipanteAction();
+        action.setParticipanteService(participanteService);
+        action.setRival("");
+
+        String resultado = action.obterDadosGraficoJson();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(action.getGraficoData()).containsKeys("series", "categories");
+        assertThat(response.getHeader("Cache-Control")).isEqualTo("private, max-age=30, must-revalidate");
+        assertThat(response.getHeader("Vary")).isEqualTo("Cookie, Accept-Encoding");
     }
 }

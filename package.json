@@ -19,6 +19,9 @@
     "postcss": "^8.4.35",
     "vite": "^5.4.21"
   },
+  "dependencies": {
+    "apexcharts": "^4.7.0"
+  },
   "overrides": {
     "axios": "1.17.0",
     "basic-ftp": "5.3.1",

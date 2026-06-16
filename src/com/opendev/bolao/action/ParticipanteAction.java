@@ -41,7 +41,10 @@ import org.jfree.chart.JFreeChart;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.apache.struts2.ActionSupport;
+import org.apache.struts2.ActionContext;
 import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.interceptor.parameter.StrutsParameter;
 import org.slf4j.Logger;
@@ -308,16 +311,36 @@ public class ParticipanteAction extends ActionSupport {
     }
 
     public String obterDadosGraficoJson() {
+        long startedAt = System.currentTimeMillis();
         String login = RequestUtils.getLoginParticipanteAutenticado();
         Participante participante = getParticipanteService().buscarPorLogin(login).orElse(null);
         Long idRival = obterIdRival();
-        
+
         GraficoComparativoDesempenho grafico = getParticipanteService().construirGraficoDesempenho(participante, idRival);
-        
+
         this.graficoData = new HashMap<>();
-        this.graficoData.put("series", grafico.getSeriesData()); // Assumindo método para extrair dados da série
-        this.graficoData.put("categories", grafico.getCategories());
-        
+        this.graficoData.put("series", grafico != null ? grafico.getSeriesData() : Collections.emptyList());
+        this.graficoData.put("categories", grafico != null ? grafico.getCategories() : Collections.emptyList());
+
+        HttpServletResponse response = getCurrentResponse();
+        if (response != null) {
+            // Cache curto e privado por usuário para reduzir round-trip no Aiven
+            // sem quebrar consistência em mudanças de curto prazo.
+            response.setHeader("Cache-Control", "private, max-age=30, must-revalidate");
+            response.setHeader("Pragma", "private");
+            response.setHeader("Vary", "Cookie, Accept-Encoding");
+        }
+
+        if (LOGGER.isDebugEnabled()) {
+            int seriesCount = 0;
+            Object seriesObj = this.graficoData.get("series");
+            if (seriesObj instanceof List) {
+                seriesCount = ((List) seriesObj).size();
+            }
+            LOGGER.debug("[GRAFICO][JSON] payload pronto login={} rival={} series={} elapsedMs={}",
+                    login, idRival, seriesCount, System.currentTimeMillis() - startedAt);
+        }
+
         return SUCCESS;
     }
 
@@ -421,6 +444,20 @@ public class ParticipanteAction extends ActionSupport {
         } catch (Exception ex) {
             throw new RuntimeException("Falha ao gerar grafico.", ex);
         }
+    }
+
+    private HttpServletResponse getCurrentResponse() {
+        ActionContext actionContext = ActionContext.getContext();
+        if (actionContext != null) {
+            HttpServletResponse response = ServletActionContext.getResponse();
+            if (response != null) {
+                return response;
+            }
+        }
+        if (RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attrs) {
+            return attrs.getResponse();
+        }
+        return null;
     }
 
 	private FiltroBuscaJogos obterFiltro() {

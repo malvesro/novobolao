@@ -9,6 +9,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
@@ -18,6 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class CspNonceFilter extends OncePerRequestFilter {
 
     public static final String CSP_NONCE_ATTRIBUTE = "cspNonce";
+    private static final Logger LOGGER = LoggerFactory.getLogger(CspNonceFilter.class);
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     private static final Base64.Encoder ENCODER = Base64.getUrlEncoder().withoutPadding();
@@ -28,12 +31,14 @@ public class CspNonceFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String nonce = generateNonce();
         request.setAttribute(CSP_NONCE_ATTRIBUTE, nonce);
-        
-        System.out.println("DEBUG: Generated nonce: " + nonce);
 
         String policy = buildPolicy(nonce);
         response.setHeader("Content-Security-Policy", policy);
         response.setHeader("Content-Security-Policy-Report-Only", policy);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[SEC][CSP] nonce gerado para uri={}", request.getRequestURI());
+        }
 
         filterChain.doFilter(request, response);
     }

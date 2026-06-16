@@ -1913,6 +1913,70 @@ div.legenda span.abrev {
 	height: auto;
 }
 
+.chart-wrapper--performance {
+	background: var(--color-surface);
+	border-radius: var(--radius-base);
+	padding: 1.25rem;
+	box-shadow: var(--shadow-base);
+	border: 1px solid var(--color-border);
+	position: relative;
+	min-height: 430px;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+}
+
+.chart-wrapper--loading {
+	opacity: 0.96;
+}
+
+.chart-status {
+	margin: 0;
+	font-size: 0.92rem;
+	line-height: 1.35;
+	color: var(--color-text-muted);
+}
+
+.chart-status--loading {
+	color: var(--color-primary);
+}
+
+.chart-status--ready {
+	color: #1e7f3d;
+}
+
+.chart-status--warn {
+	color: #925c00;
+}
+
+.chart-status--error {
+	color: #b03529;
+}
+
+.performance-chart {
+	flex: 1;
+	min-height: 340px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+}
+
+.performance-chart .button.chart-retry {
+	min-width: 180px;
+}
+
+@media (max-width: 768px) {
+	.chart-wrapper--performance {
+		min-height: 390px;
+		padding: 1rem;
+	}
+
+	.performance-chart {
+		min-height: 300px;
+	}
+}
+
 .dashboard-section {
 	width: 100%;
 	max-width: 1000px;

@@ -1,8 +1,17 @@
 {
+  "../../node_modules/apexcharts/dist/apexcharts.esm.js": {
+    "file": "js/apexcharts.esm-CmrCzkCA.js",
+    "name": "apexcharts.esm",
+    "src": "../../node_modules/apexcharts/dist/apexcharts.esm.js",
+    "isDynamicEntry": true
+  },
   "main.js": {
-    "file": "js/main-DAs9J1Un.js",
+    "file": "js/main-FbyvFox8.js",
     "name": "main",
     "src": "main.js",
-    "isEntry": true
+    "isEntry": true,
+    "dynamicImports": [
+      "../../node_modules/apexcharts/dist/apexcharts.esm.js"
+    ]
   }
 }
