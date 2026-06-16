@@ -3,11 +3,12 @@ package com.opendev.bolao.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.Time;
+import java.sql.Date;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -92,6 +93,61 @@ class PalpiteAuthorizationServiceImplTest {
         assertThat(resultado.getReason()).isEqualTo(PalpiteAuthorization.RejectionReason.ROLE_MISSING);
     }
 
+    @Test
+    @DisplayName("Deve bloquear admin para registro de palpite")
+    void deveBloquearAdminParaPalpite() {
+        Jogo jogo = criarJogo(ZonedDateTime.now(clock).plusHours(3));
+        Authentication authentication = autenticacao(true, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+
+        PalpiteAuthorization resultado = service.avaliar(authentication, jogo, null);
+
+        assertThat(resultado.isPermitido()).isFalse();
+        assertThat(resultado.getStatus()).isEqualTo(PalpiteAuthorization.Status.LOCKED);
+        assertThat(resultado.getReason()).isEqualTo(PalpiteAuthorization.RejectionReason.ADMIN_RESTRICTED);
+    }
+
+    @Test
+    @DisplayName("Deve permitir palpite as 18:33 para jogo as 22:00 no mesmo dia (java.sql.Date)")
+    void devePermitirPalpiteComSqlDateSemDerivaDeTimezone() {
+        Clock clockBrt1833 = Clock.fixed(Instant.parse("2026-06-16T21:33:00Z"), zoneId);
+        service = new PalpiteAuthorizationServiceImpl(clockBrt1833);
+        Jogo jogo = new Jogo();
+        jogo.setData(Date.valueOf("2026-06-16"));
+        jogo.setHora(Time.valueOf("22:00:00"));
+        Authentication authentication = autenticacao(true, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+        PalpiteAuthorization resultado = service.avaliar(authentication, jogo, null);
+
+        assertThat(resultado.isPermitido()).isTrue();
+        assertThat(resultado.getStatus()).isEqualTo(PalpiteAuthorization.Status.PENDING);
+        assertThat(resultado.getReason()).isEqualTo(PalpiteAuthorization.RejectionReason.NONE);
+    }
+
+    @Test
+    @DisplayName("Deve normalizar horario quando Time.toLocalTime divergir do valor canônico")
+    void deveNormalizarHoraQuandoToLocalTimeDivergir() {
+        Clock clockBrt1833 = Clock.fixed(Instant.parse("2026-06-16T21:33:00Z"), zoneId);
+        service = new PalpiteAuthorizationServiceImpl(clockBrt1833);
+        long millisHora22 = ZonedDateTime.of(1970, 1, 1, 22, 0, 0, 0, zoneId).toInstant().toEpochMilli();
+        Time horaDivergente = new Time(millisHora22) {
+            @Override
+            public LocalTime toLocalTime() {
+                return LocalTime.of(1, 0);
+            }
+        };
+
+        Jogo jogo = new Jogo();
+        jogo.setData(Date.valueOf("2026-06-16"));
+        jogo.setHora(horaDivergente);
+        Authentication authentication = autenticacao(true, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+        PalpiteAuthorization resultado = service.avaliar(authentication, jogo, null);
+
+        assertThat(resultado.isPermitido()).isTrue();
+        assertThat(resultado.getStatus()).isEqualTo(PalpiteAuthorization.Status.PENDING);
+        assertThat(resultado.getReason()).isEqualTo(PalpiteAuthorization.RejectionReason.NONE);
+    }
+
     private Authentication autenticacao(boolean autenticado, List<? extends GrantedAuthority> authorities) {
         TestingAuthenticationToken token = new TestingAuthenticationToken("user", "credentials", authorities);
         token.setAuthenticated(autenticado);
@@ -101,7 +157,7 @@ class PalpiteAuthorizationServiceImplTest {
     private Jogo criarJogo(ZonedDateTime dataHora) {
         Jogo jogo = new Jogo();
         ZonedDateTime ajustado = dataHora.withZoneSameInstant(zoneId);
-        jogo.setData(Date.from(ajustado.toInstant()));
+        jogo.setData(java.util.Date.from(ajustado.toInstant()));
         jogo.setHora(Time.valueOf(ajustado.toLocalTime()));
         return jogo;
     }

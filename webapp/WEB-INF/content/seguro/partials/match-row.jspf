@@ -10,9 +10,9 @@
     data-jogo-id="${jogo.id}">
     
     <td class="match-table__time">
-        <input type="hidden" name="jogoId" value="${jogo.id}" />
+        <input type="hidden" id="jogoId_${jogo.id}" name="jogoId" value="${jogo.id}" />
         <c:if test="${not empty _csrf}">
-            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+            <input type="hidden" id="csrf_${jogo.id}" name="${_csrf.parameterName}" value="${_csrf.token}" />
         </c:if>
         ${horaJogoFormatada}
     </td>
@@ -36,7 +36,7 @@
         </c:choose>
     </td>
 
-    <%-- Time da Casa (placar oficial do jogo, não-editável em tela de palpites) --%>
+    <%-- Time da Casa + input de palpite (quando permitido) --%>
     <td class="match-table__team match-table__team--home">
         <div class="team-cell text-right">
             <span><c:out value="${jogo.equipe1.nomePais}" /></span>
@@ -56,14 +56,34 @@
                 </c:otherwise>
             </c:choose>
             
-            <span class="score-value">
-                <c:choose>
-                    <c:when test="${not empty jogo.golsEquipe1 or jogo.golsEquipe1 eq 0}">
-                        ${jogo.golsEquipe1}
-                    </c:when>
-                    <c:otherwise></c:otherwise>
-                </c:choose>
-            </span>
+            <c:choose>
+                <c:when test="${telaPalpites and palpitePermitido}">
+                    <input class="palpite-inputs__score input-score-home"
+                           id="p1_${jogo.id}"
+                           name="palpiteGolsEquipe1"
+                           type="number" min="0" max="99"
+                           inputmode="numeric"
+                           value="${palpiteUsuario.golsEquipe1}"
+                           data-jogo-id="${jogo.id}"
+                           hx-post="${pageContext.request.contextPath}/seguro/atualizarPalpitePartial.action"
+                           hx-trigger="change delay:800ms, blur"
+                           hx-target="#palpite-cell_${jogo.id}"
+                           hx-swap="outerHTML"
+                           hx-include="#jogoId_${jogo.id}, #csrf_${jogo.id}, #p1_${jogo.id}, #p2_${jogo.id}"
+                           aria-label="Gols ${jogo.equipe1.nomePais}"
+                           required />
+                </c:when>
+                <c:otherwise>
+                    <span class="score-value">
+                        <c:choose>
+                            <c:when test="${not empty jogo.golsEquipe1 or jogo.golsEquipe1 eq 0}">
+                                ${jogo.golsEquipe1}
+                            </c:when>
+                            <c:otherwise></c:otherwise>
+                        </c:choose>
+                    </span>
+                </c:otherwise>
+            </c:choose>
         </div>
     </td>
 
@@ -72,17 +92,37 @@
         <div id="indicator_${jogo.id}" class="htmx-indicator progress-spinner"></div>
     </td>
 
-    <%-- Time Visitante (placar oficial do jogo, não-editável em tela de palpites) --%>
+    <%-- Input de palpite (quando permitido) + Time Visitante --%>
     <td class="match-table__team match-table__team--away">
         <div class="team-cell text-left">
-            <span class="score-value">
-                <c:choose>
-                    <c:when test="${not empty jogo.golsEquipe2 or jogo.golsEquipe2 eq 0}">
-                        ${jogo.golsEquipe2}
-                    </c:when>
-                    <c:otherwise></c:otherwise>
-                </c:choose>
-            </span>
+            <c:choose>
+                <c:when test="${telaPalpites and palpitePermitido}">
+                    <input class="palpite-inputs__score input-score-away"
+                           id="p2_${jogo.id}"
+                           name="palpiteGolsEquipe2"
+                           type="number" min="0" max="99"
+                           inputmode="numeric"
+                           value="${palpiteUsuario.golsEquipe2}"
+                           data-jogo-id="${jogo.id}"
+                           hx-post="${pageContext.request.contextPath}/seguro/atualizarPalpitePartial.action"
+                           hx-trigger="change delay:800ms, blur"
+                           hx-target="#palpite-cell_${jogo.id}"
+                           hx-swap="outerHTML"
+                           hx-include="#jogoId_${jogo.id}, #csrf_${jogo.id}, #p1_${jogo.id}, #p2_${jogo.id}"
+                           aria-label="Gols ${jogo.equipe2.nomePais}"
+                           required />
+                </c:when>
+                <c:otherwise>
+                    <span class="score-value">
+                        <c:choose>
+                            <c:when test="${not empty jogo.golsEquipe2 or jogo.golsEquipe2 eq 0}">
+                                ${jogo.golsEquipe2}
+                            </c:when>
+                            <c:otherwise></c:otherwise>
+                        </c:choose>
+                    </span>
+                </c:otherwise>
+            </c:choose>
 
             <c:choose>
                 <c:when test="${not empty jogo.equipe2.bandeiraUrl}">

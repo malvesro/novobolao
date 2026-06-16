@@ -674,6 +674,170 @@ Premissas de compatibilidade (críticas):
       Entregável: execução concluída de `npm run build`, `npm run test:frontend` e `mvn -Dfrontend.skip=true test` (78 testes Java aprovados) + log final da tarefa com resultados e impacto.
       Logs: `.ia/logs/session-20260616-tarefa62-planejamento-correcao-achados-ultimos4commits.md` e `.ia/logs/session-20260616-tarefa62-execucao-completa.md`.
 
+63. **[Concluído] Correção de UX: reposicionar campos de palpite ao lado dos times (16/06/2026):**
+    Objetivo: restaurar a experiência de digitação do palpite junto aos nomes das equipes (como era antes), sem reintroduzir o contrato HTMX legado por `tbody`.
+    Skills aplicadas: `htmx v1.0.0`, `modern-javascript-patterns v1.0.0`, `architecture-guardian v1.0.0`.
+
+    * **[Concluído] 63.1 — Reposicionar inputs na linha das equipes com contrato HTMX seguro (16/06/2026):**
+      Entregável: `match-row.jspf` atualizado para renderizar `p1/p2` ao lado dos times quando `palpitePermitido`, com `hx-target="#palpite-cell_<id>"` e `hx-swap="outerHTML"` (sem `closest tbody`).
+
+    * **[Concluído] 63.2 — Ajustar fragmento de resposta para modo inline nos times (16/06/2026):**
+      Entregável: `palpite-cell-response.jspf` simplificado para feedback/status/meta da célula, removendo formulário duplicado dentro da coluna de palpite.
+
+    * **[Concluído] 63.3 — Compatibilizar máquina de estados JS com inputs inline (16/06/2026):**
+      Entregável: `src/frontend/pages/jogos.js` adaptado para tratar `.palpite-inputs__score` em `beforeRequest/afterRequest`, suporte a retry por input e `dirty`/deduplicação sem dependência obrigatória de `form.palpite-inputs`.
+
+    * **[Concluído] 63.4 — Regressão frontend e build (16/06/2026):**
+      Entregável: testes atualizados e validados em `tests/frontend/jogos.test.js` + execução de `npm run test:frontend -- jogos.test.js`, `npm run test:frontend -- graficoDesempenho.test.js` e `npm run build`.
+      Log: `.ia/logs/session-20260616-tarefa63-ux-posicao-campos-palpite.md`.
+
+64. **[Concluído] Refinamento UX de alinhamento e centralização da tela de palpites (16/06/2026):**
+    Objetivo: corrigir desalinhamento visual residual da grade de jogos, melhorando leitura, eixo de digitação e consistência entre estados editável/encerrado.
+    Skills aplicadas: `ui-ux-pro-max v1.0.0`, `modern-css v1.0.0`, `htmx v1.0.0`, `architecture-guardian v1.0.0`.
+
+    * **[Concluído] 64.1 — Criar subgrid fixo de EQUIPES com trilhos estáveis (16/06/2026):**
+      Entregável: `webapp/css/estilo.css` ajustado para posicionar de forma determinística `time/bandeira/input` em ambos os lados (casa/fora), mantendo o separador central como eixo visual e alinhamento vertical consistente por linha.
+
+    * **[Concluído] 64.2 — Padronizar dimensões e baseline dos elementos interativos (16/06/2026):**
+      Entregável: inputs/placar estático/separador `x` unificados em uma mesma régua visual (altura, largura, peso tipográfico e contraste), com neutralização de margens legadas que causavam deslocamento lateral.
+
+    * **[Concluído] 64.3 — Simplificar coluna PALPITE e alinhar ação lateral (16/06/2026):**
+      Entregável: microcopy curta para estado bloqueado (`match.tip.state.locked.short`), redução de redundância visual na coluna PALPITE e alinhamento do botão lateral de grupo com dimensões/posição consistentes.
+
+    * **[Concluído] 64.4 — Validação visual + regressão técnica (16/06/2026):**
+      Entregável: validação executada com `npm run build` e `npm run test:frontend`, com evidências registradas em log de sessão (3 arquivos de teste frontend e 7 testes aprovados).
+      Log: `.ia/logs/session-20260616-tarefa64-refino-ux-alinhamento-palpites.md`.
+
+65. **[Concluído] Correção de janela de palpite (timezone) para jogos futuros (16/06/2026):**
+    Objetivo: corrigir bloqueio indevido de palpite em jogo ainda dentro da janela permitida (até 1 hora antes), eliminando deriva de data por conversão de timezone.
+    Skills aplicadas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`.
+
+    * **[Concluído] 65.1 — Diagnóstico de causa raiz e rastreabilidade (16/06/2026):**
+      Entregável: identificado risco de deslocamento de data na composição `Date + Time` quando `Date` chega como `java.sql.Date` e host roda em UTC, impactando `palpitePermitido`.
+
+    * **[Concluído] 65.2 — Correção temporal em domínio/autorização (16/06/2026):**
+      Entregável: composição `Date + Time` ajustada em `Jogo` e `PalpiteAuthorizationServiceImpl` para preservar o dia civil quando a data vem como `java.sql.Date`, mantendo timezone canônico `America/Sao_Paulo`.
+
+    * **[Concluído] 65.3 — Testes de regressão de timezone (16/06/2026):**
+      Entregável: testes adicionados em `JogoTest` e `PalpiteAuthorizationServiceImplTest` cobrindo cenário de jogo 22:00 às 18:33 (BRT) com `java.sql.Date`, validando que o palpite permanece permitido.
+
+    * **[Concluído] 65.4 — Validação consolidada + fechamento (16/06/2026):**
+      Entregável: suíte relevante executada com sucesso via `mvn -Dfrontend.skip=true -Dtest=PalpiteAuthorizationServiceImplTest,JogoTest test` (9 testes aprovados) e log atualizado com evidências.
+      Log: `.ia/logs/session-20260616-tarefa65-correcao-janela-palpite-timezone.md`.
+
+66. **[Concluído] Formalização do timezone oficial Brasil para jogos e UX de palpites (16/06/2026):**
+    Objetivo: garantir que o sistema considere sempre timezone do Brasil (`America/Sao_Paulo`) para carga de jogos e feedback de horário ao usuário, independentemente do timezone do host/cliente.
+    Skills aplicadas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`, `modern-javascript-patterns v1.0.0`.
+
+    * **[Concluído] 66.1 — Backend: referência temporal canônica na carga mínima (16/06/2026):**
+      Entregável: `ParticipanteAction.prepararInfoPalpites()` passou a usar início do dia em `BolaoTime.getZoneId()` como referência para buscar a próxima data com jogos.
+
+    * **[Concluído] 66.2 — Frontend: horário de feedback fixado em Brasília/São Paulo (16/06/2026):**
+      Entregável: `src/frontend/pages/jogos.js` atualizado para formatar `HH:mm` com `timeZone: 'America/Sao_Paulo'` nas mensagens de “salvo às”.
+
+    * **[Concluído] 66.3 — Teste de regressão de referência temporal (16/06/2026):**
+      Entregável: novo teste em `ParticipanteActionLoadTest` validando que a busca da carga mínima usa início do dia no timezone canônico do domínio.
+
+67. **[Concluído] Correção defensiva de extração de hora para janela de palpite (16/06/2026):**
+    Objetivo: eliminar bloqueio indevido de palpites quando houver divergência entre `Time.toLocalTime()` e o horário canônico derivado do epoch no fuso oficial (`America/Sao_Paulo`), cenário possível em materialização JDBC.
+    Skills aplicadas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`.
+
+    * **[Concluído] 67.1 — Normalização robusta da hora em `Jogo.getDataHora()` (16/06/2026):**
+      Entregável: adicionada extração defensiva de hora (`extrairHoraLocal`) com reconciliação entre `toLocalTime()` e `Instant + ZoneId`.
+
+    * **[Concluído] 67.2 — Normalização equivalente no serviço de autorização (16/06/2026):**
+      Entregável: `PalpiteAuthorizationServiceImpl` passou a usar a mesma estratégia de extração de hora para manter consistência entre renderização e validação HTMX.
+
+    * **[Concluído] 67.3 — Regressão com cenário de divergência de driver (16/06/2026):**
+      Entregável: testes adicionados em `JogoTest` e `PalpiteAuthorizationServiceImplTest` simulando divergência de `toLocalTime()` e validando permissão correta para jogo às 22:00.
+
+    * **[Concluído] 67.4 — Validação técnica da suíte focal (16/06/2026):**
+      Entregável: execução de `mvn -Dfrontend.skip=true -Dtest=JogoTest,PalpiteAuthorizationServiceImplTest test` com `11` testes aprovados.
+
+68. **[Concluído] Instrumentação de diagnóstico para bloqueio indevido de palpite (16/06/2026):**
+    Objetivo: rastrear com precisão, por jogo e por requisição, por que a autorização ficou bloqueada, permitindo reproduzir e auditar cenários como horário divergente, role ausente e inconsistências de janela.
+    Skills aplicadas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`.
+
+    * **[Concluído] 68.1 — Log enriquecido no fluxo parcial de palpite (16/06/2026):**
+      Entregável: `ParticipanteAction.prepararConteudoPalpite()` passou a logar `dataHoraJogo`, `agoraBrt`, `agoraBrtMais1h`, timezone default do host e `podeDarPalpite`.
+
+    * **[Concluído] 68.2 — Diagnóstico por lista de jogos com detecção de anomalia (16/06/2026):**
+      Entregável: adicionada rotina `diagnosticarPermissoesPalpiteNaLista(...)` em `ParticipanteAction` que cruza autorização, janela temporal e contexto de autenticação por `jogoId`.
+      - Modo anomalia automático: gera `WARN` apenas quando o jogo deveria estar aberto e veio bloqueado.
+      - Modo detalhado opcional: `INFO` por jogo ao abrir `/seguro/jogos.action?debugPalpite=true`.
+
+    * **[Concluído] 68.3 — Validação de regressão técnica (16/06/2026):**
+      Entregável: execução de `mvn -Dfrontend.skip=true -Dtest=ParticipanteActionLoadTest,PalpiteAuthorizationServiceImplTest,JogoTest test` com `19` testes aprovados.
+      Observação: tentativa de incluir `ParticipanteActionTest` falhou no ambiente atual por dependência de X11 (JFreeChart), sem relação com as mudanças desta tarefa.
+
+69. **[Concluído] UX de bloqueio para admin na tela de palpites (16/06/2026):**
+    Objetivo: manter a regra de negócio que bloqueia admin para palpites, mas com feedback visual claro e consistente desde o render inicial da lista e nas respostas parciais HTMX.
+    Skills aplicadas: `ui-ux-pro-max v1.0.0`, `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`.
+
+    * **[Concluído] 69.1 — Ajustar render inicial para refletir `adminRestricted` (16/06/2026):**
+      Entregável: `jogos-lista-fragmento.jsp` atualizado para calcular `palpitePermitido` sem perfil admin e preencher `palpiteBloqueioMotivo` com prioridade (`adminRestricted`, `roleMissing`, `timeWindow`, `unknown`).
+
+    * **[Concluído] 69.2 — Melhorar mensagem de bloqueio na célula de palpite (16/06/2026):**
+      Entregável: `palpite-cell-response.jspf` evoluído para exibir mensagem específica por motivo de bloqueio, incluindo texto explícito para admin (`match.tip.locked.adminRestricted`).
+
+    * **[Concluído] 69.3 — Garantir cobertura de regra admin no serviço (16/06/2026):**
+      Entregável: novo teste em `PalpiteAuthorizationServiceImplTest` validando bloqueio de admin com motivo `ADMIN_RESTRICTED`.
+
+    * **[Concluído] 69.4 — Validação técnica focal (16/06/2026):**
+      Entregável: execução de `mvn -Dfrontend.skip=true -Dtest=PalpiteAuthorizationServiceImplTest test` com `7` testes aprovados.
+
+70. **[Concluído] Pontuação em tempo real a partir do início do jogo (16/06/2026):**
+    Objetivo: permitir atualização dinâmica da classificação geral durante o jogo, considerando pontuação assim que o jogo iniciar e o resultado for atualizado pelo admin.
+    Skills aplicadas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`.
+
+    * **[Concluído] 70.1 — Alterar critério temporal de jogo ocorrido (16/06/2026):**
+      Entregável: `Jogo.jaOcorreu()` atualizado para retornar verdadeiro a partir do horário de início da partida (sem espera fixa de +2h).
+
+    * **[Concluído] 70.2 — Ajustar cache do ranking para sensibilidade temporal (16/06/2026):**
+      Entregável: `ParticipanteServiceImpl.buscarClassificacao()` passou a invalidar cache global quando muda o minuto corrente no timezone canônico, garantindo reprocessamento automático quando um jogo entra em andamento.
+
+    * **[Concluído] 70.3 — Atualizar e expandir regressão de testes (16/06/2026):**
+      Entregável:
+      - `JogoTest` adaptado para validar que `jaOcorreu()` fica true logo após o início.
+      - `ParticipanteServiceTest` com novo teste para invalidação do cache por avanço de minuto.
+
+    * **[Concluído] 70.4 — Validação técnica consolidada (16/06/2026):**
+      Entregável: execução de `mvn -Dfrontend.skip=true -Dtest=JogoTest,ParticipanteServiceTest,PalpiteAuthorizationServiceImplTest test` com `20` testes aprovados.
+
+71. **[Concluído] Refinamento da regra de cache e governança de atualização de placar (16/06/2026):**
+    Objetivo: simplificar e tornar determinístico o comportamento do ranking em tempo real, invalidando cache apenas em atualização de placar pelo admin, e bloquear atualização de placar antes do início do jogo.
+    Skills aplicadas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`, `modern-css v1.0.0`.
+
+    * **[Concluído] 71.1 — Documentar regras operacionais de placar/ranking (16/06/2026):**
+      Entregável: documentação dedicada criada em `.ia/planos/regras-negocio-placar-ranking-cache.md` com as regras acordadas:
+      - admin só atualiza placar a partir do início do jogo;
+      - jogos passados podem ser corrigidos;
+      - cache de ranking invalida apenas em atualização de placar válida.
+
+    * **[Concluído] 71.2 — Remover invalidação temporal periódica do ranking (16/06/2026):**
+      Entregável: revertida a estratégia de invalidação por minuto em `ParticipanteServiceImpl`; ranking volta a ser invalidado por evento de domínio.
+
+    * **[Concluído] 71.3 — Aplicar guarda de negócio na atualização de placar admin (16/06/2026):**
+      Entregável: `AdminAction.atualizarResultadoDoJogo(...)` validando início da partida antes de persistir placar (`BusinessException` com HTTP 400 quando jogo ainda não iniciado).
+
+    * **[Concluído] 71.4 — Ajustar pontos de invalidação de cache para evento de placar (16/06/2026):**
+      Entregável: `JogoServiceImpl` ajustado para:
+      - expirar cache de classificação apenas em `atualizarResultado` para jogo já iniciado;
+      - não expirar classificação em `atualizarDadosEstruturaisJogo`.
+
+    * **[Concluído] 71.5 — Cobertura de testes e regressão consolidada (16/06/2026):**
+      Entregável:
+      - `AdminActionTest` com cenários de bloqueio pré-jogo e sucesso pós-início;
+      - remoção do teste de invalidação por minuto em `ParticipanteServiceTest`;
+      - validação com `mvn -Dfrontend.skip=true -Dtest=AdminActionTest,ParticipanteServiceTest,JogoTest test` (`23` testes aprovados).
+
+    * **[Concluído] 71.6 — UX preventiva no admin para jogos ainda não iniciados (16/06/2026):**
+      Entregável:
+      - `admin-match-row.jsp` atualizado para desabilitar inputs de placar (`golsEquipe1`/`golsEquipe2`) quando `jogo.podeAtualizarResultado=false`, evitando tentativa inválida e erro confuso de gravação;
+      - feedback visual contextual adicionado na linha (`Liberado às HH:mm`) com suporte de acessibilidade (`aria-disabled`, `aria-label`) e mensagens i18n;
+      - método de domínio `Jogo.getPodeAtualizarResultado()` criado para centralizar a regra temporal de edição de resultado na camada de modelo;
+      - regressão validada com `mvn -Dfrontend.skip=true -Dtest=JogoTest,AdminActionTest test` (`17` testes aprovados).
+
 47. **[Concluído] Incluir campo de data na edição administrativa da tela de atualização de resultados (13/06/2026):**
     Objetivo: permitir que o administrador ajuste também a **data** do jogo na mesma tela em que já ajusta hora, local e equipes, mantendo consistência com o fuso oficial São Paulo e sem regressão no fluxo HTMX de atualização.
     Skills previstas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`, `ui-ux-pro-max v1.0.0`.

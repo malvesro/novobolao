@@ -14,7 +14,13 @@ function mountJogosFixture() {
     <table>
       <tbody>
         <tr class="match-row" data-jogo-id="101">
-          <td class="match-table__palpite"></td>
+          <td class="match-table__palpite">
+            <input id="p1_101" class="palpite-inputs__score" name="palpiteGolsEquipe1" value="1" />
+          </td>
+          <td class="match-table__separator"></td>
+          <td class="match-table__palpite">
+            <input id="p2_101" class="palpite-inputs__score" name="palpiteGolsEquipe2" value="0" />
+          </td>
           <td class="match-table__status"></td>
         </tr>
       </tbody>
@@ -29,12 +35,6 @@ function mountJogosFixture() {
         data-palpite-status-label="Pendente"
         data-palpite-placeholder="-"
       ></div>
-      <form class="palpite-inputs">
-        <input type="hidden" name="jogoId" value="101" />
-        <input class="palpite-inputs__score" name="palpiteGolsEquipe1" value="1" />
-        <input class="palpite-inputs__score" name="palpiteGolsEquipe2" value="0" />
-        <button type="button" class="btn-palpite-confirm" data-js="confirmar-palpite">Salvar</button>
-      </form>
       <button type="button" data-js="retry-palpite" data-jogo-id="101">Tentar novamente</button>
     </div>
 
@@ -123,8 +123,7 @@ describe('jogos.js estados criticos', () => {
     initJogosPage();
 
     const palpiteCell = document.getElementById('palpite-cell_101');
-    const form = palpiteCell.querySelector('form.palpite-inputs');
-    const gols1Input = form.querySelector('input[name="palpiteGolsEquipe1"]');
+    const gols1Input = document.getElementById('p1_101');
     const feedback = document.getElementById('palpite-feedback_101');
 
     // Primeira sincronizacao para popular lastSavedByMatch com assinatura 1:0
@@ -135,7 +134,7 @@ describe('jogos.js estados criticos', () => {
     expect(window.htmx.trigger).not.toHaveBeenCalled();
     expect(feedback.className).toContain('palpite-cell-feedback--saved');
 
-    // 2) Dirty + autosave: alterar placar marca dirty e dispara submit apos debounce
+    // 2) Dirty: alterar placar marca dirty e bloqueia saida
     gols1Input.value = '2';
     gols1Input.dispatchEvent(new Event('input', { bubbles: true }));
     expect(feedback.className).toContain('palpite-cell-feedback--dirty');
@@ -145,24 +144,34 @@ describe('jogos.js estados criticos', () => {
     expect(pendingExitEvent.defaultPrevented).toBe(true);
     expect(pendingExitEvent.returnValue).toBe(false);
 
-    vi.advanceTimersByTime(810);
-    expect(window.htmx.trigger).toHaveBeenCalledWith(form, 'submit');
+    // Simula ciclo HTMX de salvamento para input inline
+    gols1Input.dispatchEvent(new CustomEvent('htmx:beforeRequest', {
+      bubbles: true,
+      detail: { elt: gols1Input, requestConfig: { path: '/seguro/atualizarPalpitePartial.action' } },
+    }));
 
-    // 3) Sem pendencia: voltar ao valor salvo limpa dirty e nao bloqueia saida
-    gols1Input.value = '1';
-    gols1Input.dispatchEvent(new Event('input', { bubbles: true }));
+    palpiteCell.innerHTML = `
+      <span id="palpite-feedback_101" class="palpite-cell-feedback palpite-cell-feedback--saved">Salvo</span>
+      <div data-palpite-meta="true" data-palpite-gols1="2" data-palpite-gols2="0" data-palpite-status="pending" data-palpite-status-label="Pendente" data-palpite-placeholder="-"></div>
+      <button type="button" data-js="retry-palpite" data-jogo-id="101">Tentar novamente</button>
+    `;
+    palpiteCell.dispatchEvent(new CustomEvent('htmx:afterSwap', { bubbles: true }));
+    gols1Input.dispatchEvent(new CustomEvent('htmx:afterRequest', {
+      bubbles: true,
+      detail: { elt: gols1Input, requestConfig: { path: '/seguro/atualizarPalpitePartial.action' }, successful: true },
+    }));
 
-    const cleanExitEvent = new Event('beforeunload', { cancelable: true });
-    window.dispatchEvent(cleanExitEvent);
-    expect(cleanExitEvent.defaultPrevented).toBe(false);
-    expect(cleanExitEvent.returnValue).toBe(true);
+    const cleanExitAfterSave = new Event('beforeunload', { cancelable: true });
+    window.dispatchEvent(cleanExitAfterSave);
+    expect(cleanExitAfterSave.defaultPrevented).toBe(false);
+    expect(cleanExitAfterSave.returnValue).toBe(true);
 
-    // 4) Retry participante: aciona submit do form
+    // 3) Retry participante: aciona change no input do time da casa
     const retryPalpiteButton = document.querySelector('[data-js="retry-palpite"]');
     retryPalpiteButton.click();
-    expect(window.htmx.trigger).toHaveBeenCalledWith(form, 'submit');
+    expect(window.htmx.trigger).toHaveBeenCalledWith(gols1Input, 'change');
 
-    // 5) Retry admin: reaproveita ultimo campo alterado e dispara change/blur
+    // 4) Retry admin: reaproveita ultimo campo alterado e dispara change/blur
     const adminField = document.querySelector('#jogoTr_201 input[name="golsEquipe1"]');
     adminField.dispatchEvent(new CustomEvent('htmx:beforeRequest', {
       bubbles: true,
@@ -188,13 +197,13 @@ describe('jogos.js estados criticos', () => {
     const palpiteCell = document.getElementById('palpite-cell_101');
     palpiteCell.dispatchEvent(new CustomEvent('htmx:afterSwap', { bubbles: true }));
 
-    const form = document.querySelector('#palpite-cell_101 form.palpite-inputs');
-    const gols1Input = form.querySelector('input[name="palpiteGolsEquipe1"]');
-    const gols2Input = form.querySelector('input[name="palpiteGolsEquipe2"]');
+    const homeInput = document.getElementById('p1_101');
+    const awayInput = document.getElementById('p2_101');
+    const formInCell = document.querySelector('#palpite-cell_101 form.palpite-inputs');
 
-    expect(form).not.toBeNull();
-    expect(gols1Input).not.toBeNull();
-    expect(gols2Input).not.toBeNull();
+    expect(homeInput).not.toBeNull();
+    expect(awayInput).not.toBeNull();
+    expect(formInCell).toBeNull();
   });
 
   it('deve impedir regressao de contrato HTMX por tbody no fluxo de palpite', () => {
@@ -208,10 +217,12 @@ describe('jogos.js estados criticos', () => {
 
     expect(matchRowMarkup).not.toContain('hx-target="closest tbody"');
     expect(matchRowMarkup).not.toContain('hx-swap="innerHTML');
+    expect(matchRowMarkup).toContain('id="p1_${jogo.id}"');
+    expect(matchRowMarkup).toContain('id="p2_${jogo.id}"');
+    expect(matchRowMarkup).toContain('hx-target="#palpite-cell_${jogo.id}"');
+    expect(matchRowMarkup).toContain('hx-swap="outerHTML"');
     expect(palpiteCellMarkup).toContain('id="palpite-cell_${matchId}"');
-    expect(palpiteCellMarkup).toContain('form class="palpite-inputs"');
-    expect(palpiteCellMarkup).toContain('hx-target="#palpite-cell_${matchId}"');
-    expect(palpiteCellMarkup).toContain('hx-swap="outerHTML"');
+    expect(palpiteCellMarkup).not.toContain('form class="palpite-inputs"');
   });
 
 });

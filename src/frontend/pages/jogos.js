@@ -83,7 +83,11 @@ function getUiMessage(key, fallback) {
 }
 
 function getNowHHMM() {
-  return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  return new Date().toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'America/Sao_Paulo',
+  });
 }
 
 function announceGlobalStatus(message, kind = 'info') {
@@ -198,6 +202,15 @@ function getPalpiteSignatureFromForm(form) {
   }
   const gols1 = form.querySelector('input[name="palpiteGolsEquipe1"]')?.value;
   const gols2 = form.querySelector('input[name="palpiteGolsEquipe2"]')?.value;
+  return buildPalpiteSignature(gols1, gols2);
+}
+
+function getPalpiteSignatureFromRowInputs(jogoId) {
+  if (!jogoId) {
+    return null;
+  }
+  const gols1 = document.getElementById(`p1_${jogoId}`)?.value;
+  const gols2 = document.getElementById(`p2_${jogoId}`)?.value;
   return buildPalpiteSignature(gols1, gols2);
 }
 
@@ -534,7 +547,7 @@ function handleBeforeRequest(event) {
   }
 
   // Botão ✓ (confirmar palpite)
-  if (trigger.matches('[data-js="confirmar-palpite"], form.palpite-inputs')) {
+  if (trigger.matches('[data-js="confirmar-palpite"], form.palpite-inputs, .palpite-inputs__score')) {
     const jogoId = getMatchIdFromTrigger(trigger);
     const savingMessage = getUiMessage('msgTipSaving', 'Salvando...');
     const confirmButton = trigger.matches('[data-js="confirmar-palpite"]')
@@ -648,7 +661,7 @@ function handleAfterRequest(event) {
   // progress refresh moved to HX-Trigger listener (server-confirmed)
 
   // Fluxo de palpite (botão ✓ ou submit de form)
-  if (trigger.matches('[data-js="confirmar-palpite"], form.palpite-inputs')) {
+  if (trigger.matches('[data-js="confirmar-palpite"], form.palpite-inputs, .palpite-inputs__score')) {
     const jogoId = getMatchIdFromTrigger(trigger);
     const confirmButton = trigger.matches('[data-js="confirmar-palpite"]')
       ? trigger
@@ -705,6 +718,12 @@ function handleGlobalClick(event) {
     if (form && window.htmx) {
       showCellFeedback(matchId, getUiMessage('msgTipSaving', 'Salvando...'), 'saving');
       htmx.trigger(form, 'submit');
+    } else if (window.htmx) {
+      const homeInput = document.getElementById(`p1_${matchId}`);
+      if (homeInput) {
+        showCellFeedback(matchId, getUiMessage('msgTipSaving', 'Salvando...'), 'saving');
+        htmx.trigger(homeInput, 'change');
+      }
     }
     return;
   }
@@ -910,17 +929,14 @@ function handleAutoSaveInput(event) {
   }
   
   const form = target.closest('form.palpite-inputs');
-  if (!form) {
-    return;
-  }
-  
-  const jogoIdInput = form.querySelector('input[name="jogoId"]');
-  const jogoId = jogoIdInput ? jogoIdInput.value : null;
+  const jogoId = getMatchIdFromTrigger(target);
   if (!jogoId) {
     return;
   }
 
-  const currentSignature = getPalpiteSignatureFromForm(form);
+  const currentSignature = form
+    ? getPalpiteSignatureFromForm(form)
+    : getPalpiteSignatureFromRowInputs(jogoId);
   if (currentSignature && state.lastSavedByMatch[jogoId] === currentSignature) {
     markMatchDirty(jogoId, false);
     showCellFeedback(jogoId, `${getUiMessage('msgTipSaved', 'Salvo as')} ${getNowHHMM()}`, 'saved');
@@ -933,6 +949,10 @@ function handleAutoSaveInput(event) {
 
   markMatchDirty(jogoId, true);
   showCellFeedback(jogoId, getUiMessage('msgTipDirty', 'Alteracoes nao salvas.'), 'dirty');
+
+  if (!form) {
+    return;
+  }
 
   state.autoSaveTimers[jogoId] = setTimeout(() => {
     delete state.autoSaveTimers[jogoId];

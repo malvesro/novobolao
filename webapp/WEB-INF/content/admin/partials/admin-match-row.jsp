@@ -9,6 +9,13 @@
 </c:if>
 <fmt:formatDate var="dataJogoFormatada" value="${jogo.data}" pattern="dd/MM/yyyy" />
 <fmt:formatDate var="horaJogoFormatada" value="${jogo.hora}" pattern="HH:mm" />
+<fmt:message key="admin.result.locked.untilStart" var="adminResultLockedUntilStartLabel" />
+<fmt:message key="admin.result.locked.untilStart.short" var="adminResultLockedShortLabel">
+    <fmt:param value="${horaJogoFormatada}" />
+</fmt:message>
+<fmt:message key="admin.result.locked.untilStart.aria" var="adminResultLockedAriaLabel">
+    <fmt:param value="${horaJogoFormatada}" />
+</fmt:message>
 
 <tr class="${jogo.rowStyleClass} match-row--admin-direct" id="jogoTr_${jogo.id}" data-jogo-id="${jogo.id}">
     <td class="match-table__time">
@@ -106,7 +113,9 @@
 
             <sec:authorize access="hasRole('ADMIN')">
                 <input type="text" name="golsEquipe1" value="${jogo.golsEquipe1}" class="text score-input input-centered" maxlength="2" size="2"
-                       hx-post="${base}/admin/atualizarResultadoJogo.action" hx-trigger="blur" hx-include="closest tr" hx-target="#jogoTr_${jogo.id}" hx-swap="outerHTML" />
+                       hx-post="${base}/admin/atualizarResultadoJogo.action" hx-trigger="blur" hx-include="closest tr" hx-target="#jogoTr_${jogo.id}" hx-swap="outerHTML"
+                       ${not jogo.podeAtualizarResultado ? 'disabled="disabled"' : ''}
+                       aria-disabled="${not jogo.podeAtualizarResultado}" />
             </sec:authorize>
             <sec:authorize access="!hasRole('ADMIN')">
                 <span class="score-value">
@@ -127,7 +136,9 @@
         <div class="team-cell text-left">
             <sec:authorize access="hasRole('ADMIN')">
                 <input type="text" name="golsEquipe2" value="${jogo.golsEquipe2}" class="text score-input input-centered" maxlength="2" size="2"
-                       hx-post="${base}/admin/atualizarResultadoJogo.action" hx-trigger="blur" hx-include="closest tr" hx-target="#jogoTr_${jogo.id}" hx-swap="outerHTML" />
+                       hx-post="${base}/admin/atualizarResultadoJogo.action" hx-trigger="blur" hx-include="closest tr" hx-target="#jogoTr_${jogo.id}" hx-swap="outerHTML"
+                       ${not jogo.podeAtualizarResultado ? 'disabled="disabled"' : ''}
+                       aria-disabled="${not jogo.podeAtualizarResultado}" />
             </sec:authorize>
             <sec:authorize access="!hasRole('ADMIN')">
                 <span class="score-value">
@@ -170,8 +181,15 @@
     <sec:authorize access="hasRole('ADMIN')">
         <td class="match-table__actions">
             <fmt:message key="general.retry" var="retryLabel" />
-            <span id="admin-save-status_${jogo.id}" class="admin-row-status" role="status" aria-live="polite"></span>
+            <span id="admin-save-status_${jogo.id}" class="admin-row-status ${not jogo.podeAtualizarResultado ? 'admin-row-status--locked' : ''}" role="status" aria-live="polite">
+                <c:if test="${not jogo.podeAtualizarResultado}">${adminResultLockedShortLabel}</c:if>
+            </span>
             <button type="button" class="button button-ghost admin-row-retry" data-js="retry-admin-save" hidden>${retryLabel}</button>
+            <c:if test="${not jogo.podeAtualizarResultado}">
+                <span class="admin-result-locked-hint" aria-label="${adminResultLockedAriaLabel}">
+                    <c:out value="${adminResultLockedUntilStartLabel}" />
+                </span>
+            </c:if>
             <div class="htmx-indicator progress-spinner progress-spinner--mini"></div>
         </td>
     </sec:authorize>

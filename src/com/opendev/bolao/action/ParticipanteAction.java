@@ -5,12 +5,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Date;
+import java.util.TimeZone;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -216,7 +218,10 @@ public class ParticipanteAction extends ActionSupport {
 	       
 	       // Se não houver filtro explícito, aplica carga mínima (Próxima Data com Jogos)
 	       if (filtro == null) {
-	           Date dataReferencia = new Date();
+	           // "Hoje" deve seguir sempre o timezone oficial do domínio (Brasil/São Paulo),
+	           // evitando deriva quando o host estiver em UTC.
+	           Date dataReferencia = Date.from(LocalDate.now(BolaoTime.getZoneId())
+	                   .atStartOfDay(BolaoTime.getZoneId()).toInstant());
 	           Date proximaData = getJogoService().buscarPrimeiraDataComJogosApos(dataReferencia);
 	           
 	           if (proximaData != null) {
@@ -236,6 +241,7 @@ public class ParticipanteAction extends ActionSupport {
 	       setEquipes(getEquipeService().buscarApenasPaisesReais());
 	       setTelaPalpites(true);
 	       prepararMapaPalpitesUsuario();
+           diagnosticarPermissoesPalpiteNaLista(filtro);
 	       atualizarProgressoPalpites(filtro);
 	       return SUCCESS;
 	   }
@@ -719,11 +725,17 @@ public class ParticipanteAction extends ActionSupport {
         
         registrarCabecalhosHtmx(request, LOG_PREFIX_PREPARE);
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("{} jogoId={} data={} hora={} podeDarPalpite={}",
+            ZonedDateTime agoraBrt = ZonedDateTime.now(BolaoTime.getZoneId());
+            ZonedDateTime dataHoraJogo = jogo.getDataHora();
+            LOGGER.info("{} jogoId={} data={} hora={} dataHoraJogo={} agoraBrt={} agoraBrtMais1h={} timezoneDefault={} podeDarPalpite={}",
                     LOG_PREFIX_PREPARE,
                     this.jogoId,
                     jogo.getData(),
                     jogo.getHora(),
+                    dataHoraJogo,
+                    agoraBrt,
+                    agoraBrt.plusHours(1),
+                    TimeZone.getDefault().getID(),
                     jogo.getPodeDarPalpite());
         }
         LOGGER.debug("prepararConteudoPalpite: login={}, authClass={}, principal={}, sessionId={}",
@@ -828,6 +840,94 @@ public class ParticipanteAction extends ActionSupport {
             motivo = PalpiteAuthorization.RejectionReason.UNKNOWN;
         }
         return PalpiteAuthorization.negado(status, motivo);
+    }
+
+    private void diagnosticarPermissoesPalpiteNaLista(FiltroBuscaJogos filtroAtual) {
+        HttpServletRequest request = RequestUtils.getRequest();
+        boolean debugDetalhado = request != null && "true".equalsIgnoreCase(request.getParameter("debugPalpite"));
+        if (!debugDetalhado && !LOGGER.isWarnEnabled()) {
+            return;
+        }
+        if (this.jogos == null || this.jogos.isEmpty()) {
+            return;
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String roles = extrairRolesAutenticacao(authentication);
+        String loginAtual = this.login != null ? this.login : RequestUtils.getLoginParticipanteAutenticado();
+        ZonedDateTime agoraBrt = ZonedDateTime.now(BolaoTime.getZoneId());
+        ZonedDateTime agoraBrtMaisUmaHora = agoraBrt.plusHours(1);
+
+        for (Object item : this.jogos) {
+            if (!(item instanceof Jogo jogo) || jogo.getId() == null) {
+                continue;
+            }
+
+            Palpite palpite = this.palpitesUsuario != null ? this.palpitesUsuario.get(jogo.getId()) : null;
+            PalpiteAuthorization authorization = avaliarAutorizacao(jogo, palpite);
+            ZonedDateTime dataHoraJogo = jogo.getDataHora();
+            boolean deveriaEstarAberto = dataHoraJogo != null && agoraBrtMaisUmaHora.isBefore(dataHoraJogo);
+            boolean anomaliaBloqueio = deveriaEstarAberto && !authorization.isPermitido();
+
+            if (debugDetalhado) {
+                LOGGER.info(
+                        "[PALPITE_DIAG][LISTA] login={} jogoId={} data={} hora={} dataHoraJogo={} agoraBrt={} agoraBrtMais1h={} deveriaEstarAberto={} modelPodeDarPalpite={} autorizado={} status={} motivo={} palpiteExistente={} roles={} filtroDataInicial={} filtroDataFinal={} timezoneDefault={}",
+                        loginAtual,
+                        jogo.getId(),
+                        jogo.getData(),
+                        jogo.getHora(),
+                        dataHoraJogo,
+                        agoraBrt,
+                        agoraBrtMaisUmaHora,
+                        deveriaEstarAberto,
+                        jogo.getPodeDarPalpite(),
+                        authorization.isPermitido(),
+                        authorization.getStatus(),
+                        authorization.getReason(),
+                        palpite != null,
+                        roles,
+                        filtroAtual == null ? null : filtroAtual.getDataInicial(),
+                        filtroAtual == null ? null : filtroAtual.getDataFinal(),
+                        TimeZone.getDefault().getID());
+            } else if (anomaliaBloqueio) {
+                LOGGER.warn(
+                        "[PALPITE_DIAG][ANOMALIA] login={} jogoId={} data={} hora={} dataHoraJogo={} agoraBrt={} agoraBrtMais1h={} deveriaEstarAberto={} modelPodeDarPalpite={} autorizado={} status={} motivo={} palpiteExistente={} roles={} filtroDataInicial={} filtroDataFinal={} timezoneDefault={}",
+                        loginAtual,
+                        jogo.getId(),
+                        jogo.getData(),
+                        jogo.getHora(),
+                        dataHoraJogo,
+                        agoraBrt,
+                        agoraBrtMaisUmaHora,
+                        deveriaEstarAberto,
+                        jogo.getPodeDarPalpite(),
+                        authorization.isPermitido(),
+                        authorization.getStatus(),
+                        authorization.getReason(),
+                        palpite != null,
+                        roles,
+                        filtroAtual == null ? null : filtroAtual.getDataInicial(),
+                        filtroAtual == null ? null : filtroAtual.getDataFinal(),
+                        TimeZone.getDefault().getID());
+            }
+        }
+    }
+
+    private String extrairRolesAutenticacao(Authentication authentication) {
+        if (authentication == null || authentication.getAuthorities() == null) {
+            return "";
+        }
+        StringBuilder rolesBuilder = new StringBuilder();
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            if (authority == null || authority.getAuthority() == null) {
+                continue;
+            }
+            if (rolesBuilder.length() > 0) {
+                rolesBuilder.append(',');
+            }
+            rolesBuilder.append(authority.getAuthority());
+        }
+        return rolesBuilder.toString();
     }
 
     private void marcarRespostaParcial() {

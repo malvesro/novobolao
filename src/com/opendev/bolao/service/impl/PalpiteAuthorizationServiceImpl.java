@@ -150,9 +150,25 @@ public class PalpiteAuthorizationServiceImpl implements PalpiteAuthorizationServ
         if (data == null || hora == null) {
             return null;
         }
-        LocalDate localDate = Instant.ofEpochMilli(data.getTime()).atZone(zoneId).toLocalDate();
-        LocalTime localTime = hora.toLocalTime();
+        LocalDate localDate = extrairDataLocal(data);
+        LocalTime localTime = extrairHoraLocal(hora);
         LocalDateTime dateTime = LocalDateTime.of(localDate, localTime);
         return ZonedDateTime.of(dateTime, zoneId);
+    }
+
+    private LocalDate extrairDataLocal(java.util.Date dataBase) {
+        if (dataBase instanceof java.sql.Date) {
+            return ((java.sql.Date) dataBase).toLocalDate();
+        }
+        return Instant.ofEpochMilli(dataBase.getTime()).atZone(zoneId).toLocalDate();
+    }
+
+    private LocalTime extrairHoraLocal(java.sql.Time horaBase) {
+        LocalTime horaViaToLocalTime = horaBase.toLocalTime();
+        LocalTime horaViaEpoch = Instant.ofEpochMilli(horaBase.getTime()).atZone(zoneId).toLocalTime();
+        if (!horaViaEpoch.equals(horaViaToLocalTime)) {
+            return horaViaEpoch;
+        }
+        return horaViaToLocalTime;
     }
 }

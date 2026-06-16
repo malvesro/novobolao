@@ -15,7 +15,12 @@
 <fmt:message key="match.tip.state.saved" var="tipSavedLabel" />
 <fmt:message key="match.tip.state.error" var="tipErrorLabel" />
 <fmt:message key="match.tip.state.locked" var="tipLockedLabel" />
+<fmt:message key="match.tip.state.locked.short" var="tipLockedShortLabel" />
 <fmt:message key="general.retry" var="retryLabel" />
+<fmt:message key="match.tip.locked.timeWindow" var="tipLockedTimeWindowLabel" />
+<fmt:message key="match.tip.locked.adminRestricted" var="tipLockedAdminLabel" />
+<fmt:message key="match.tip.locked.roleMissing" var="tipLockedRoleLabel" />
+<fmt:message key="match.tip.locked.generic" var="tipLockedGenericLabel" />
 
 <td class="match-table__palpite-cell" id="palpite-cell_${matchId}">
 
@@ -63,45 +68,11 @@
                     <span id="palpite-feedback_${matchId}" class="palpite-cell-feedback" aria-live="polite"></span>
                 </c:otherwise>
             </c:choose>
-
-            <%-- Inputs re-renderizados (mantém valores digitados em caso de erro) --%>
-            <form class="palpite-inputs"
-                  hx-post="${atualizarUrl}"
-                  hx-target="#palpite-cell_${matchId}"
-                  hx-swap="outerHTML"
-                  aria-label="Palpite para ${jogoSelecionado.equipe1.nomePais} x ${jogoSelecionado.equipe2.nomePais}">
-                <input type="hidden" name="jogoId" value="${matchId}" />
-                <c:if test="${not empty _csrf}">
-                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-                </c:if>
-                <input class="palpite-inputs__score"
-                       id="p1_${matchId}"
-                       name="palpiteGolsEquipe1"
-                       type="number" min="0" max="99"
-                       inputmode="numeric"
-                       value="${palpiteGols1}"
-                       aria-label="Gols ${jogoSelecionado.equipe1.nomePais}"
-                       required />
-                <span class="palpite-inputs__sep">x</span>
-                <input class="palpite-inputs__score"
-                       id="p2_${matchId}"
-                       name="palpiteGolsEquipe2"
-                       type="number" min="0" max="99"
-                       inputmode="numeric"
-                       value="${palpiteGols2}"
-                       aria-label="Gols ${jogoSelecionado.equipe2.nomePais}"
-                       required />
-                <button type="submit"
-                        class="btn-palpite-confirm"
-                        data-js="confirmar-palpite"
-                        data-jogo-id="${matchId}"
-                        aria-label="Confirmar palpite">✓</button>
-            </form>
         </c:when>
 
         <%-- Janela fechada: exibir placar + badge --%>
         <c:otherwise>
-            <span id="palpite-feedback_${matchId}" class="palpite-cell-feedback palpite-cell-feedback--locked" aria-live="polite">${tipLockedLabel}</span>
+            <span id="palpite-feedback_${matchId}" class="palpite-cell-feedback palpite-cell-feedback--locked" aria-live="polite">${tipLockedShortLabel}</span>
             <c:choose>
                 <c:when test="${palpiteSelecionado != null}">
                     <span class="palpite-saved-score" aria-label="Meu palpite">
@@ -112,10 +83,20 @@
                     <span class="palpite-placeholder">${palpiteNoneLabel}</span>
                 </c:otherwise>
             </c:choose>
-            <span class="badge badge--${palpiteStatus} badge--cell">${palpiteStatusLabel}</span>
-            <c:if test="${palpiteBloqueioMotivo eq 'timeWindow'}">
-                <span class="palpite-locked-msg" aria-label="Prazo encerrado">🔒 Prazo encerrado</span>
-            </c:if>
+            <c:choose>
+                <c:when test="${palpiteBloqueioMotivo eq 'timeWindow'}">
+                    <span class="palpite-locked-msg" aria-label="Prazo encerrado">${tipLockedTimeWindowLabel}</span>
+                </c:when>
+                <c:when test="${palpiteBloqueioMotivo eq 'adminRestricted'}">
+                    <span class="palpite-locked-msg" aria-label="Perfil administrador bloqueado">${tipLockedAdminLabel}</span>
+                </c:when>
+                <c:when test="${palpiteBloqueioMotivo eq 'roleMissing'}">
+                    <span class="palpite-locked-msg" aria-label="Perfil sem permissão">${tipLockedRoleLabel}</span>
+                </c:when>
+                <c:otherwise>
+                    <span class="palpite-locked-msg" aria-label="Palpite indisponível">${tipLockedGenericLabel}</span>
+                </c:otherwise>
+            </c:choose>
         </c:otherwise>
     </c:choose>
 </td>

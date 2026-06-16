@@ -26,7 +26,6 @@ public class Jogo implements Serializable, Comparable<Jogo> {
 
 	private static final long serialVersionUID = 1L;
     private static final ZoneId ZONE_ID = BolaoTime.getZoneId();
-    private static final int JANELA_CONCLUSAO_HORAS = 2;
 
 	public static final int FASE_FINAL = 1;
 	public static final int FASE_TERCEIRO_LUGAR = 3;
@@ -138,14 +137,30 @@ public class Jogo implements Serializable, Comparable<Jogo> {
 		this.local = local;
 	}
 
-	public ZonedDateTime getDataHora() {
+    public ZonedDateTime getDataHora() {
         if (this.dataHora == null && this.data != null && this.hora != null) {
-            LocalDate localDate = Instant.ofEpochMilli(this.data.getTime()).atZone(ZONE_ID).toLocalDate();
-            LocalTime localTime = this.hora.toLocalTime();
+            LocalDate localDate = extrairDataLocal(this.data);
+            LocalTime localTime = extrairHoraLocal(this.hora);
             this.dataHora = ZonedDateTime.of(localDate, localTime, ZONE_ID);
         }
 		return this.dataHora;
 	}
+
+    private LocalDate extrairDataLocal(Date dataBase) {
+        if (dataBase instanceof java.sql.Date) {
+            return ((java.sql.Date) dataBase).toLocalDate();
+        }
+        return Instant.ofEpochMilli(dataBase.getTime()).atZone(ZONE_ID).toLocalDate();
+    }
+
+    private LocalTime extrairHoraLocal(Time horaBase) {
+        LocalTime horaViaToLocalTime = horaBase.toLocalTime();
+        LocalTime horaViaEpoch = Instant.ofEpochMilli(horaBase.getTime()).atZone(ZONE_ID).toLocalTime();
+        if (!horaViaEpoch.equals(horaViaToLocalTime)) {
+            return horaViaEpoch;
+        }
+        return horaViaToLocalTime;
+    }
 
     @Override
 	public int compareTo(Jogo other) {
@@ -192,13 +207,20 @@ public class Jogo implements Serializable, Comparable<Jogo> {
         if (dataHoraJogo == null) {
             return false;
         }
-        ZonedDateTime corte = dataHoraJogo.plusHours(JANELA_CONCLUSAO_HORAS);
         ZonedDateTime agora = ZonedDateTime.now(ZONE_ID);
-        return agora.isAfter(corte);
+        return !agora.isBefore(dataHoraJogo);
 	}
 
     public boolean jaFoiAtualizado() {
         return getGolsEquipe1() != null && getGolsEquipe2() != null;
+    }
+
+    /**
+     * Sinaliza se o placar já pode ser atualizado pela área administrativa.
+     * Regra: permitido a partir do início do jogo (inclui correções retroativas).
+     */
+    public boolean getPodeAtualizarResultado() {
+        return jaOcorreu();
     }
 
     public int getFase() {

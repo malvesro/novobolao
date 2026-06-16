@@ -84,8 +84,18 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 				|| golsEquipe2.longValue() < 0) {
 			throw new IllegalArgumentException();
 		}
+        validarAtualizacaoResultadoPermitida(idJogo);
 		getJogoService().atualizarResultado(idJogo, golsEquipe1, golsEquipe2);
 	}
+
+    private void validarAtualizacaoResultadoPermitida(Long idJogo) {
+        Jogo jogo = getJogoService().buscarPorId(idJogo)
+                .orElseThrow(() -> new com.opendev.bolao.exception.BusinessException("Jogo não encontrado"));
+        if (!jogo.jaOcorreu()) {
+            throw new com.opendev.bolao.exception.BusinessException(
+                    "Atualização de placar permitida apenas a partir do início do jogo.");
+        }
+    }
 
 
 	public String atualizarResultadoDoJogoHtmx() {

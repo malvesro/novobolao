@@ -79,13 +79,32 @@
                                 </c:choose>
 
                                 <c:set var="palpiteUsuario" value="${palpitesUsuario[jogo.id]}" />
-                                <c:set var="podeRegistrarPalpite" value="false" />
-                                <sec:authorize access="hasAnyRole('USER', 'ADMIN')">
-                                    <c:set var="podeRegistrarPalpite" value="true" />
-                                </sec:authorize>
-                                <c:set var="palpitePermitido" value="${podeRegistrarPalpite and jogo.podeDarPalpite}" />
+                                <sec:authorize access="hasRole('ADMIN')" var="usuarioAdmin" />
+                                <sec:authorize access="hasRole('USER')" var="usuarioComPapelPalpite" />
+
+                                <c:set var="podeRegistrarPalpite"
+                                       value="${usuarioComPapelPalpite and not usuarioAdmin}" />
+                                <c:set var="palpitePermitido"
+                                       value="${podeRegistrarPalpite and jogo.podeDarPalpite}" />
                                 <c:set var="palpiteStatus"
                                     value="${not empty palpiteUsuario ? 'registered' : (palpitePermitido ? 'pending' : 'locked')}" />
+                                <c:set var="palpiteBloqueioMotivo" value="" />
+                                <c:if test="${not palpitePermitido}">
+                                    <c:choose>
+                                        <c:when test="${usuarioAdmin}">
+                                            <c:set var="palpiteBloqueioMotivo" value="adminRestricted" />
+                                        </c:when>
+                                        <c:when test="${not usuarioComPapelPalpite}">
+                                            <c:set var="palpiteBloqueioMotivo" value="roleMissing" />
+                                        </c:when>
+                                        <c:when test="${not jogo.podeDarPalpite}">
+                                            <c:set var="palpiteBloqueioMotivo" value="timeWindow" />
+                                        </c:when>
+                                        <c:otherwise>
+                                            <c:set var="palpiteBloqueioMotivo" value="unknown" />
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:if>
                                 <fmt:message key="match.tip.status.${palpiteStatus}" var="palpiteStatusLabel" />
                                 <fmt:message key="match.tip.none" var="palpiteSemRegistro" />
 

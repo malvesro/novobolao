@@ -3,6 +3,8 @@ package com.opendev.bolao.action;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+import java.sql.Time;
+import java.time.ZonedDateTime;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.Optional;
@@ -197,5 +199,44 @@ class AdminActionTest {
         verify(httpRequest).setAttribute("adminResultadoView", Boolean.TRUE);
         verify(jogoService).buscarPrimeiraDataComJogosApos(any(Date.class));
         verify(jogoService).buscarUsandoFiltro(any(FiltroBuscaJogos.class));
+    }
+
+    @Test
+    void deveAtualizarResultadoHtmxQuandoJogoJaIniciado() {
+        adminAction.setId(1L);
+        adminAction.setGolsEquipe1(3);
+        adminAction.setGolsEquipe2(1);
+        Jogo jogo = criarJogoComInicio(ZonedDateTime.now(BolaoTime.getZoneId()).minusMinutes(1));
+
+        when(jogoService.buscarPorId(1L)).thenReturn(Optional.of(jogo));
+
+        String result = adminAction.atualizarResultadoDoJogoHtmx();
+
+        assertThat(result).isEqualTo(ActionSupport.SUCCESS);
+        verify(jogoService).atualizarResultado(1L, 3, 1);
+    }
+
+    @Test
+    void deveBloquearAtualizacaoDeResultadoAntesDoInicioDoJogo() {
+        adminAction.setId(1L);
+        adminAction.setGolsEquipe1(3);
+        adminAction.setGolsEquipe2(1);
+        Jogo jogo = criarJogoComInicio(ZonedDateTime.now(BolaoTime.getZoneId()).plusMinutes(30));
+
+        when(jogoService.buscarPorId(1L)).thenReturn(Optional.of(jogo));
+
+        String result = adminAction.atualizarResultadoDoJogoHtmx();
+
+        assertThat(result).isEqualTo(ActionSupport.NONE);
+        verify(httpResponse).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        verify(jogoService, never()).atualizarResultado(anyLong(), anyInt(), anyInt());
+    }
+
+    private Jogo criarJogoComInicio(ZonedDateTime dataHoraInicio) {
+        Jogo jogo = new Jogo();
+        jogo.setId(1L);
+        jogo.setData(java.util.Date.from(dataHoraInicio.toInstant()));
+        jogo.setHora(Time.valueOf(dataHoraInicio.toLocalTime()));
+        return jogo;
     }
 }

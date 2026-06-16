@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Optional;
 import java.util.ArrayList;
@@ -15,11 +16,13 @@ import com.opendev.bolao.service.JogoService;
 import com.opendev.bolao.service.PalpiteService;
 import com.opendev.bolao.service.ParticipanteService;
 import com.opendev.bolao.model.Participante;
+import com.opendev.bolao.util.BolaoTime;
 import com.opendev.bolao.util.DadosClassificacao;
 import com.opendev.bolao.util.FiltroBuscaJogos;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -64,6 +67,27 @@ class ParticipanteActionLoadTest {
         // Verifica que busca o total global para o progresso
         verify(jogoService).contarJogosUsandoFiltro(null);
         verify(jogoService).buscarUsandoFiltro(any(FiltroBuscaJogos.class));
+    }
+
+    @Test
+    void deveUsarInicioDoDiaNoTimezoneDoBrasilComoReferenciaDaCargaMinima() {
+        Date proximaData = new Date(System.currentTimeMillis() + 86400000L);
+        when(jogoService.buscarPrimeiraDataComJogosApos(any(Date.class))).thenReturn(proximaData);
+        when(jogoService.buscarUsandoFiltro(any(FiltroBuscaJogos.class))).thenReturn(new ArrayList<>());
+        when(jogoService.contarJogosUsandoFiltro(null)).thenReturn(104L);
+        when(equipeService.buscarApenasPaisesReais()).thenReturn(new ArrayList<>());
+
+        action.prepararInfoPalpites();
+
+        ArgumentCaptor<Date> dataCaptor = ArgumentCaptor.forClass(Date.class);
+        verify(jogoService).buscarPrimeiraDataComJogosApos(dataCaptor.capture());
+        Date dataReferencia = dataCaptor.getValue();
+
+        Date inicioDoDiaBrasil = Date.from(LocalDate.now(BolaoTime.getZoneId())
+                .atStartOfDay(BolaoTime.getZoneId())
+                .toInstant());
+
+        assertThat(dataReferencia).isEqualTo(inicioDoDiaBrasil);
     }
 
     @Test

@@ -70,7 +70,9 @@ public class JogoServiceImpl implements JogoService {
 			jogo.setGolsEquipe2(golsEquipe2);
             getJogoRepository().save(jogo);
             this.cacheJogosDeHoje = null;
-			Participante.expirarCacheDeClassificacao();
+            if (jogo.jaOcorreu()) {
+                Participante.expirarCacheDeClassificacao();
+            }
 		});
 	}
 
@@ -90,7 +92,6 @@ public class JogoServiceImpl implements JogoService {
 			
 			getJogoRepository().save(jogo);
             this.cacheJogosDeHoje = null;
-			Participante.expirarCacheDeClassificacao();
 		});
 	}
 
