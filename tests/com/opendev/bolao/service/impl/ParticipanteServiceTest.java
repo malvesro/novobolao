@@ -138,6 +138,70 @@ class ParticipanteServiceTest {
         assertThat(segundoRanking.get(1).getPontuacaoTotal().getVariacaoPosicao()).isEqualTo(-1);
     }
 
+    @Test
+    void deveManterVariacaoZeroQuandoParticipantePermaneceNaMesmaPosicao() throws Exception {
+        Participante aliceInicial = criarParticipanteComPontuacao(1L, "alice", "Alice Silva", 10);
+        Participante brunoInicial = criarParticipanteComPontuacao(2L, "bruno", "Bruno Souza", 7);
+        Participante aliceAtual = criarParticipanteComPontuacao(1L, "alice", "Alice Silva", 12);
+        Participante brunoAtual = criarParticipanteComPontuacao(2L, "bruno", "Bruno Souza", 9);
+
+        when(participanteRepository.findAll()).thenReturn(
+                List.of(aliceInicial, brunoInicial),
+                List.of(aliceAtual, brunoAtual));
+        when(jogoRepository.countJogosFinalizados()).thenReturn(12L);
+
+        participanteService.buscarClassificacao();
+        Participante.expirarCacheDeClassificacao();
+        List<Participante> rankingAtual = participanteService.buscarClassificacao();
+
+        assertThat(rankingAtual).hasSize(2);
+        assertThat(rankingAtual.get(0).getLogin()).isEqualTo("alice");
+        assertThat(rankingAtual.get(1).getLogin()).isEqualTo("bruno");
+        assertThat(rankingAtual.get(0).getPontuacaoTotal().getVariacaoPosicao()).isEqualTo(0);
+        assertThat(rankingAtual.get(1).getPontuacaoTotal().getVariacaoPosicao()).isEqualTo(0);
+    }
+
+    @Test
+    void deveManterVariacaoNulaQuandoParticipanteNaoPossuiHistoricoNoSnapshotAnterior() throws Exception {
+        Participante aliceInicial = criarParticipanteComPontuacao(1L, "alice", "Alice Silva", 10);
+        Participante aliceAtual = criarParticipanteComPontuacao(1L, "alice", "Alice Silva", 11);
+        Participante carlaNova = criarParticipanteComPontuacao(3L, "carla", "Carla Lima", 13);
+
+        when(participanteRepository.findAll()).thenReturn(
+                List.of(aliceInicial),
+                List.of(aliceAtual, carlaNova));
+        when(jogoRepository.countJogosFinalizados()).thenReturn(8L);
+
+        participanteService.buscarClassificacao();
+        Participante.expirarCacheDeClassificacao();
+        List<Participante> rankingAtual = participanteService.buscarClassificacao();
+
+        assertThat(rankingAtual).hasSize(2);
+        Participante participanteNovo = rankingAtual.stream()
+                .filter(p -> "carla".equals(p.getLogin()))
+                .findFirst()
+                .orElseThrow();
+        assertThat(participanteNovo.getPontuacaoTotal().getVariacaoPosicao()).isNull();
+    }
+
+    @Test
+    void deveIgnorarCalculoDeVariacaoQuandoParticipanteNaoPossuiId() throws Exception {
+        Participante semIdInicial = criarParticipanteComPontuacao(null, "anonimo", "Sem Id", 15);
+        Participante semIdAtual = criarParticipanteComPontuacao(null, "anonimo", "Sem Id", 15);
+
+        when(participanteRepository.findAll()).thenReturn(
+                List.of(semIdInicial),
+                List.of(semIdAtual));
+        when(jogoRepository.countJogosFinalizados()).thenReturn(5L);
+
+        participanteService.buscarClassificacao();
+        Participante.expirarCacheDeClassificacao();
+        List<Participante> rankingAtual = participanteService.buscarClassificacao();
+
+        assertThat(rankingAtual).hasSize(1);
+        assertThat(rankingAtual.get(0).getPontuacaoTotal().getVariacaoPosicao()).isNull();
+    }
+
     private Participante criarParticipanteComPontuacao(Long id, String login, String nome, int pontuacao) throws Exception {
         Participante participante = new Participante();
         participante.setId(id);

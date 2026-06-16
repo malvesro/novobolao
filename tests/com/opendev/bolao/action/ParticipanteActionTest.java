@@ -144,4 +144,49 @@ class ParticipanteActionTest {
         assertThat(response.getHeader("Cache-Control")).isEqualTo("private, max-age=30, must-revalidate");
         assertThat(response.getHeader("Vary")).isEqualTo("Cookie, Accept-Encoding");
     }
+
+    @Test
+    @DisplayName("obterDadosGraficoJson deve retornar listas vazias quando grafico for nulo")
+    void deveRetornarPayloadVazioQuandoGraficoForNulo() {
+        ParticipanteService participanteService = Mockito.mock(ParticipanteService.class);
+
+        Participante participante = new Participante();
+        participante.setId(20L);
+        participante.setLogin("usuario");
+
+        when(participanteService.buscarPorLogin("usuario")).thenReturn(Optional.of(participante));
+        when(participanteService.construirGraficoDesempenho(participante, null)).thenReturn(null);
+        request.setUserPrincipal(() -> "usuario");
+
+        ParticipanteAction action = new ParticipanteAction();
+        action.setParticipanteService(participanteService);
+        action.setRival("");
+
+        String resultado = action.obterDadosGraficoJson();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(action.getGraficoData()).containsEntry("series", List.of());
+        assertThat(action.getGraficoData()).containsEntry("categories", List.of());
+        assertThat(response.getHeader("Cache-Control")).isEqualTo("private, max-age=30, must-revalidate");
+    }
+
+    @Test
+    @DisplayName("obterDadosGraficoJson deve funcionar sem contexto de response")
+    void deveRetornarSucessoSemContextoDeResponse() {
+        RequestContextHolder.resetRequestAttributes();
+
+        ParticipanteService participanteService = Mockito.mock(ParticipanteService.class);
+        when(participanteService.buscarPorLogin(null)).thenReturn(Optional.empty());
+        when(participanteService.construirGraficoDesempenho(null, null)).thenReturn(null);
+
+        ParticipanteAction action = new ParticipanteAction();
+        action.setParticipanteService(participanteService);
+        action.setRival(null);
+
+        String resultado = action.obterDadosGraficoJson();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(action.getGraficoData()).containsEntry("series", List.of());
+        assertThat(action.getGraficoData()).containsEntry("categories", List.of());
+    }
 }

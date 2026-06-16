@@ -561,6 +561,52 @@ Premissas de compatibilidade (críticas):
       Registrar decisões, trade-offs e resultados em log de sessão e propor ADR para padrão oficial de estados de gravação.
       Entregável: logs de execução (`session-20260616-tarefa59-*`) e ADR rascunho criado em `.ia/historico/ADR-20260616-estados-gravacao-palpites-resultados.md`.
 
+60. **[Concluído] Pacote mínimo de testes (ordem de impacto) para últimos fluxos críticos (16/06/2026):**
+    Objetivo: elevar cobertura de regressão dos últimos commits focando primeiro nos fluxos de maior risco funcional (JS de interação/estado), depois nas bordas backend já mapeadas.
+    Contexto: mudanças recentes introduziram estado transacional no frontend (`jogos.js`, `graficoDesempenho.js`) e novos caminhos de fallback no backend (`ParticipanteAction`, ranking com variação de posição).
+    Plano de referência: `.ia/planos/plano-ux-performance-palpites-resultados-20260616.md` + análise de lacunas pós-commit.
+    Skills previstas: `modern-javascript-patterns v1.0.0`, `architecture-guardian v1.0.0`, `security-audit v1.0.0`.
+
+    * **[Concluído] 60.1 — Infra mínima de teste frontend (base para iterações curtas):**
+      Configurar runner leve para testes JS de página (ex.: Vitest + jsdom) com escopo restrito aos módulos alterados.
+      Entregável: `vitest.config.js`, scripts `test:frontend`/`test:frontend:watch`, setup em `tests/frontend/setup.js` e smoke validado via `npm run test:frontend`. Log: `.ia/logs/session-20260616-tarefa60-iteracao1-infra-testes-frontend.md`.
+
+    * **[Concluído] 60.2 — Testes prioritários de estado em `jogos.js` (maior impacto) (16/06/2026):**
+      Cobrir máquina de estados essencial (`dirty`/`saving`/`saved`/`error`), deduplicação de autosave, retry e guard `beforeunload`.
+      Entregável: suíte mínima cobrindo cenários críticos de perda de edição/regressão de UX com novo arquivo `tests/frontend/jogos.test.js` (deduplicação de autosave, marcação `dirty`, guard `beforeunload`, retry de participante e retry admin), validada via `npm run test:frontend`.
+      Skills aplicadas: `modern-javascript-patterns v1.0.0`, `htmx v1.0.0`, `architecture-guardian v1.0.0`.
+      Log: `.ia/logs/session-20260616-tarefa60-iteracao2-jogos-state-tests.md`.
+
+    * **[Concluído] 60.3 — Testes prioritários de concorrência/cache em `graficoDesempenho.js` (16/06/2026):**
+      Validar comportamento de cancelamento (`AbortController`), política “última seleção vence” e fallback de erro/retry.
+      Entregável: suíte `tests/frontend/graficoDesempenho.test.js` cobrindo cancelamento da requisição anterior, prevalência da seleção mais recente, uso de cache sem novo fetch para o mesmo rival e fallback com botão de retry após erro; validação em `npm run test:frontend`.
+      Skills aplicadas: `modern-javascript-patterns v1.0.0`, `htmx v1.0.0`, `architecture-guardian v1.0.0`.
+      Log: `.ia/logs/session-20260616-tarefa60-iteracao3-grafico-concorrencia-cache.md`.
+
+    * **[Concluído] 60.4 — Borda backend do gráfico (`ParticipanteAction`) (16/06/2026):**
+      Adicionar testes para cenários de fallback (`grafico == null`, ausência de contexto de response) preservando contrato JSON.
+      Entregável: cobertura adicionada em `tests/com/opendev/bolao/action/ParticipanteActionTest.java` para os cenários de robustez (`grafico` nulo e ausência de `HttpServletResponse`) sem regressão do contrato de retorno (`series`/`categories` como listas vazias e retorno `success`).
+      Skills aplicadas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`.
+      Log: `.ia/logs/session-20260616-tarefa60-iteracao4-backend-grafico-fallback.md`.
+
+    * **[Concluído] 60.5 — Borda backend da variação de ranking (`ParticipanteServiceImpl`) (16/06/2026):**
+      Cobrir cenários `variacaoPosicao = 0`, participante sem histórico e participante com `id` nulo.
+      Entregável: testes adicionados em `tests/com/opendev/bolao/service/impl/ParticipanteServiceTest.java` cobrindo manutenção de variação zero em posição estável, variação nula para participante novo sem snapshot anterior e tolerância a participante sem `id` sem regressão da ordenação oficial.
+      Skills aplicadas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`.
+      Log: `.ia/logs/session-20260616-tarefa60-iteracao5-variacao-ranking.md`.
+
+    * **[Concluído] 60.6 — Sanity extra do filtro CSP (baixa complexidade) (16/06/2026):**
+      Incluir teste opcional de não repetição de nonce entre requisições consecutivas.
+      Entregável: cobertura adicional aplicada em `tests/com/opendev/bolao/security/CspNonceFilterTest.java`, validando nonces distintos por request e coerência do nonce gerado no header CSP correspondente.
+      Skills aplicadas: `security-audit v1.0.0`, `architecture-guardian v1.0.0`.
+      Log: `.ia/logs/session-20260616-tarefa60-iteracao6-csp-nonce.md`.
+
+    * **[Concluído] 60.7 — Execução consolidada + rastreabilidade final (16/06/2026):**
+      Rodar `npm run build`, suíte frontend e `mvn -Dfrontend.skip=true test`; registrar evidências e impacto de cobertura.
+      Entregável: rodada consolidada executada com sucesso (`npm run build`, `npm run test:frontend`, `mvn -Dfrontend.skip=true test` com 77 testes Java aprovados) e rastreabilidade final registrada em log.
+      Skills aplicadas: `modern-javascript-patterns v1.0.0`, `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`, `security-audit v1.0.0`.
+      Log: `.ia/logs/session-20260616-tarefa60-iteracao7-execucao-consolidada.md`.
+
 47. **[Concluído] Incluir campo de data na edição administrativa da tela de atualização de resultados (13/06/2026):**
     Objetivo: permitir que o administrador ajuste também a **data** do jogo na mesma tela em que já ajusta hora, local e equipes, mantendo consistência com o fuso oficial São Paulo e sem regressão no fluxo HTMX de atualização.
     Skills previstas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`, `ui-ux-pro-max v1.0.0`.
