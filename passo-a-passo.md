@@ -464,14 +464,51 @@ Premissas de compatibilidade (críticas):
     * **[Concluído] 45.5 — Validação funcional e rastreabilidade (11/06/2026):** suíte `mvn -Dfrontend.skip=true test` executada com sucesso (64 testes) e smoke autenticado da home validando presença de `Top 3 da liderança`, regra textual de medalhas e rótulos visíveis de medalha após rebuild Docker.
     * **[Concluído] 45.6 — Inserir ícones gráficos de medalhas no Top 3 da home (11/06/2026):** substituída a bolha visual simples por ícone SVG de medalha (ouro/prata/bronze) discreto ao lado da posição (`1º`, `2º`, `3º`), mantendo semântica acessível e sem ocupar espaço excessivo no card.
 
-46. **[Pendente] Reavaliar melhorias de médio impacto/ideais na tela de Classificação Geral (11/06/2026):**
+46. **[Concluído] Reavaliar melhorias de médio impacto/ideais na tela de Classificação Geral (16/06/2026):**
     Objetivo: concentrar na tela de Classificação Geral os recursos analíticos e de exploração (filtros, evolução, insights), mantendo a home enxuta.
     Skills previstas: `ui-ux-pro-max v1.0.0`, `architecture-guardian v1.0.0`.
-    * **[Pendente] 46.1 — Revisão de escopo UX da Classificação Geral:** mapear quais melhorias migram da proposta original da home (variação de posição, filtros de período/fase, microinsights).
-    * **[Pendente] 46.1.1 — Estratégia de detalhamento de empatados:** projetar visualização dedicada para blocos de empate (mesma pontuação em múltiplas posições), mantendo clareza de ordem oficial de desempate.
-    * **[Pendente] 46.2 — Definir backlog incremental da classificação:** quebrar implementação em subtarefas pequenas (backend, JSP, estilos, testes), com prioridade por valor ao usuário.
-    * **[Pendente] 46.3 — Proposta de layout e navegação:** estruturar hierarquia da classificação (resumo + tabela completa + informações de desempate) para desktop e mobile.
-    * **[Pendente] 46.4 — Critérios de aceite e métricas UX:** definir indicadores objetivos (tempo de compreensão, clareza de posição, consistência com regras) antes da implementação.
+    Skills aplicadas nesta execução: `ui-ux-pro-max v1.0.0`, `architecture-guardian v1.0.0`.
+    * **[Concluído] 46.1 — Revisão de escopo UX da Classificação Geral (16/06/2026):** mapeamento concluído das melhorias que devem migrar da proposta original da home para a Classificação Geral, mantendo a home enxuta e orientada a resumo:
+      - **Variação de posição:** sair do resumo textual da home e ficar centralizada na Classificação Geral com delta por participante (`subiu`, `caiu`, `manteve`) em relação ao snapshot anterior.
+      - **Filtros de período/fase:** priorizar filtros de recorte temporal e por fase (grupos, 32-avos, 16-avos etc.) diretamente na tela de ranking para leitura analítica sem sobrecarregar a home.
+      - **Microinsights:** destacar cartões curtos de contexto (diferença para liderança, maior sequência positiva, maior eficiência recente), deixando o detalhamento completo na tabela.
+      - **Princípio aplicado:** home permanece em modo síntese (Top 3 + contexto), enquanto a Classificação Geral vira o ponto único de exploração e diagnóstico.
+    * **[Concluído] 46.1.1 — Estratégia de detalhamento de empatados (16/06/2026):** desenho funcional definido para blocos de empate com ordem oficial preservada e legível:
+      - **Agrupamento por faixa de pontuação:** participantes com mesma pontuação passam a ser apresentados em bloco visual contínuo (ex.: `Empatados com 48 pontos`), sem duplicar o critério de rank.
+      - **Posição oficial explícita:** cada linha mantém a posição oficial final (com desempate já aplicado), evitando interpretação de "mesma colocação absoluta".
+      - **Indicador textual de desempate:** inserir marcador discreto (`Desempate aplicado`) quando houver empate por pontos na faixa, com referência à regra oficial publicada em `regras.jsp`.
+      - **Expansão progressiva opcional:** para empates massivos, exibir resumo do bloco por padrão com expansão de detalhes sob demanda, protegendo legibilidade em mobile.
+    * **[Concluído] 46.2 — Definir backlog incremental da classificação (16/06/2026):** backlog técnico/UX de baixa granularidade definido e priorizado por valor ao usuário:
+      - **P0 (alto valor imediato):**
+        - backend: expor `variacaoPosicao` por participante comparando ranking atual vs snapshot anterior.
+        - JSP: renderizar coluna compacta de variação (`▲`, `▼`, `•`) com texto acessível.
+        - testes: cobertura unitária da regra de variação (subiu/caiu/manteve/novo participante).
+      - **P1 (clareza analítica):**
+        - backend: suportar filtro por fase e por janela temporal (últimos jogos/rodadas).
+        - JSP: barra de filtros com estado persistente na URL.
+        - CSS: responsividade dos filtros em 2 linhas no mobile sem quebra de leitura da tabela.
+        - testes: validação de contrato dos filtros e regressão de ordenação oficial.
+      - **P1 (empates e regras):**
+        - backend: sinalizador de empate por pontuação com desempate aplicado.
+        - JSP: agrupamento visual de blocos empatados + marcador textual de regra.
+        - testes: cenários de empate duplo, empate massivo e empate parcial no topo.
+      - **P2 (microinsights):**
+        - backend: métricas leves (`gapParaLider`, `eficienciaRecente`, `sequenciaPositiva`).
+        - JSP: cards de insight acima da tabela, sem substituir dados oficiais.
+        - testes: consistência dos cards com dados da classificação filtrada.
+    * **[Concluído] 46.3 — Proposta de layout e navegação (16/06/2026):** hierarquia visual proposta para desktop/mobile com foco em leitura rápida e rastreabilidade da regra oficial:
+      - **Bloco 1 (Topo - Resumo):** cartões curtos com posição do usuário logado, diferença para líder e aviso de empate ativo.
+      - **Bloco 2 (Exploração):** barra de filtros (fase/período) com feedback de estado aplicado e botão de limpeza.
+      - **Bloco 3 (Tabela oficial):** ranking completo como fonte primária da verdade, incluindo colunas de desempate e coluna de variação de posição.
+      - **Bloco 4 (Contexto de regra):** painel compacto "Como o desempate foi aplicado neste recorte", com link para `regras.jsp`.
+      - **Desktop:** filtros e microinsights em linha superior; tabela ocupa largura principal; legenda de siglas próxima ao rodapé da tabela.
+      - **Mobile:** ordem vertical (resumo -> filtros -> tabela com scroll horizontal controlado -> regra), mantendo colunas críticas fixas visualmente no início.
+    * **[Concluído] 46.4 — Critérios de aceite e métricas UX (16/06/2026):** critérios objetivos definidos para validar implementação sem ambiguidade:
+      - **Critério A - Compreensão de posição:** usuário identifica sua posição atual e variação em até 10 segundos no primeiro acesso (teste moderado).
+      - **Critério B - Clareza de desempate:** em cenários de empate, usuário reconhece que a ordem segue regra oficial (não apenas pontuação), com taxa de acerto >= 90% no roteiro de validação.
+      - **Critério C - Consistência funcional:** ranking da tela permanece idêntico ao `ParticipanteService.buscarClassificacao()` no mesmo recorte (sem reordenação local em JSP/JS).
+      - **Critério D - Responsividade:** sem quebra horizontal crítica em viewport de 360px, mantendo leitura de posição, nome e pontos.
+      - **Critério E - Acessibilidade mínima:** estados de filtro/empate anunciados por texto (não apenas cor/ícone) e foco navegável por teclado na barra de filtros.
 
 47. **[Concluído] Incluir campo de data na edição administrativa da tela de atualização de resultados (13/06/2026):**
     Objetivo: permitir que o administrador ajuste também a **data** do jogo na mesma tela em que já ajusta hora, local e equipes, mantendo consistência com o fuso oficial São Paulo e sem regressão no fluxo HTMX de atualização.
