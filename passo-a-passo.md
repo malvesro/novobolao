@@ -2219,3 +2219,10 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     * **[Concluído] 58.1 — Atualizar versão no `pom.xml`:** ajuste de `1.2.0` para `1.3.0`.
     * **[Concluído] 58.2 — Verificação de consistência:** confirmada ausência de hardcode residual da versão anterior nos arquivos de runtime.
     * **[Concluído] 58.3 — Rastreabilidade:** log de sessão criado em `.ia/logs/session-20260617-tarefa79-versionamento-1.3.0.md`.
+
+59. **[Concluído] Correção de inconsistência visual de posições no ranking (17/06/2026):**
+    Objetivo: eliminar divergência entre a posição exibida no destaque Top 10 e a posição oficial da tabela completa.
+    * **[Concluído] 59.1 — Diagnóstico da causa raiz:** identificado cálculo incorreto em `classificacao.jsp` (`loopTop10.index + 4` com `begin=3`, iniciando cards em 7º).
+    * **[Concluído] 59.2 — Correção da faixa Top 10:** ajustado cálculo da posição para `loopTop10.count + 3`, garantindo sequência correta da 4ª à 10ª posição.
+    * **[Concluído] 59.3 — Alinhamento com ranking oficial:** removida lógica legada de empate apenas por pontuação na tabela e padronizada posição oficial por ordem classificada (`loop.count`).
+    * **[Concluído] 59.4 — Validação técnica:** testes focados executados com `-Djava.awt.headless=true` (sucesso).

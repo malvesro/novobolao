@@ -85,7 +85,7 @@
                     <div class="ranking-top10-track" aria-label="${rankingTop10RestLabel}">
                         <c:forEach var="participanteTop10" items="${participantes}" begin="3" end="9" varStatus="loopTop10">
                             <c:set var="pontuacaoTop10" value="${participanteTop10.pontuacaoTotal}" />
-                            <c:set var="top10Position" value="${loopTop10.index + 4}" />
+                            <c:set var="top10Position" value="${loopTop10.count + 3}" />
                             <article class="ranking-top10-card ${participanteTop10.login eq pageContext.request.userPrincipal.name ? 'ranking-top10-card--me' : ''}">
                                 <p class="ranking-top10-card__position">${top10Position}º</p>
                                 <p class="ranking-top10-card__name"><c:out value="${pontuacaoTop10.nomeParticipante}" /></p>
@@ -141,10 +141,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <c:set var="qtdePontosAnterior" value="-1" />
-                            <c:set var="posicaoRanking" value="-1" />
                             <c:forEach var="participante" items="${participantes}" varStatus="loop">
                                 <c:set var="pontuacaoTotalDoParticipante" value="${participante.pontuacaoTotal}" />
+                                <c:set var="posicaoRanking" value="${loop.count}" />
                                 <c:choose>
                                     <c:when test="${loop.count mod 2 eq 0}">
                                         <c:set var="rowStyleClass" value="par" />
@@ -163,17 +162,6 @@
                                 <c:if test="${loop.count le 3}">
                                     <c:set var="rowClasses" value="${rowClasses} ranking-podium-row ranking-podium-row--${loop.count}" />
                                 </c:if>
-                                <c:choose>
-                                    <c:when test="${posicaoRanking eq -1}">
-                                        <c:set var="posicaoRanking" value="1" />
-                                    </c:when>
-                                    <c:when test="${pontuacaoTotalDoParticipante.pontuacao eq qtdePontosAnterior}">
-                                        <c:set var="posicaoRanking" value="" />
-                                    </c:when>
-                                    <c:otherwise>
-                                        <c:set var="posicaoRanking" value="${loop.count}" />
-                                    </c:otherwise>
-                                </c:choose>
                                 <tr id="linhaParticipante_${participante.id}" class="${rowClasses}">
                                     <td class="text-center ranking-position-cell">
                                         <span class="ranking-position-badge"><c:out value="${posicaoRanking}" /></span>
@@ -216,7 +204,6 @@
                                     <td class="text-center"><c:out value="${pontuacaoTotalDoParticipante.quantidadeDeErros}" /></td>
                                     <td class="text-center"><c:out value="${pontuacaoTotalDoParticipante.aproveitamento}" /></td>
                                 </tr>
-                                <c:set var="qtdePontosAnterior" value="${pontuacaoTotalDoParticipante.pontuacao}" />
                             </c:forEach>
                         </tbody>
                     </table>
