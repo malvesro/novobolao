@@ -155,10 +155,14 @@
         <button type="button" 
                 class="btn-grupo-toggle" 
                 hx-get="${base}/seguro/palpitesDoJogoPartial.action?jogoId=${jogo.id}"
+                hx-trigger="none"
                 hx-target="#group-content_${jogo.id}"
-                hx-trigger="click once"
                 data-js="toggle-group-details"
                 data-target="#group-row_${jogo.id}"
+                data-group-loaded=""
+                aria-expanded="false"
+                aria-label="Ver palpites do grupo"
+                aria-controls="group-row_${jogo.id}"
                 title="Ver palpites do grupo">
             👥
         </button>
@@ -171,7 +175,11 @@
         <div class="group-details-container" aria-live="polite">
             <div class="group-details-header">
                 <h4>Palpites do Grupo - ${jogo.equipe1.nomePais} x ${jogo.equipe2.nomePais}</h4>
-                <button type="button" class="btn-close-details" data-js="close-details" data-target="#group-row_${jogo.id}">×</button>
+                <button type="button"
+                        class="btn-close-details"
+                        data-js="close-details"
+                        data-target="#group-row_${jogo.id}"
+                        aria-label="Fechar painel de palpites do grupo">×</button>
             </div>
             <table class="table table-group-tips">
                 <thead>

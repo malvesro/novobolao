@@ -65,6 +65,78 @@ function debugWarn(message, detail) {
   console.warn(`${DEBUG_LABEL} ${message}`);
 }
 
+function syncGroupToggleA11y(button, expanded) {
+  if (!button) {
+    return;
+  }
+  button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  button.setAttribute('aria-label', expanded ? 'Ocultar palpites do grupo' : 'Ver palpites do grupo');
+}
+
+function requestGroupDetails(groupToggle) {
+  if (!groupToggle) {
+    return;
+  }
+  const hxGet = groupToggle.getAttribute('hx-get');
+  const hxTarget = groupToggle.getAttribute('hx-target');
+  if (!hxGet || !hxTarget) {
+    debugWarn('Botão de grupo sem atributos HTMX para carregamento.', { groupToggle });
+    return;
+  }
+  if (groupToggle.dataset.groupLoaded === 'true' || groupToggle.dataset.groupLoading === 'true') {
+    return;
+  }
+  groupToggle.dataset.groupLoading = 'true';
+  const target = document.querySelector(hxTarget);
+  if (!target) {
+    delete groupToggle.dataset.groupLoading;
+    debugWarn('Alvo de palpites do grupo não encontrado.', { hxTarget });
+    return;
+  }
+  target.innerHTML = '<tr><td colspan="3" class="text-center">Carregando palpites...</td></tr>';
+  const requestUrl = new URL(hxGet, window.location.origin).toString();
+  const loadWithFetch = () => fetch(requestUrl, {
+    method: 'GET',
+    headers: {
+      'HX-Request': 'true',
+    },
+    credentials: 'same-origin',
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return response.text();
+    })
+    .then((html) => {
+      target.innerHTML = html;
+      groupToggle.dataset.groupLoaded = 'true';
+      delete groupToggle.dataset.groupLoading;
+    })
+    .catch((error) => {
+      delete groupToggle.dataset.groupLoading;
+      target.innerHTML = '<tr><td colspan="3" class="text-center">Erro ao carregar palpites do grupo.</td></tr>';
+      debugWarn('Falha ao carregar palpites do grupo.', { error: error && error.message });
+    });
+  if (window.htmx && typeof window.htmx.ajax === 'function') {
+    window.htmx.ajax('GET', hxGet, {
+      // Usa o elemento já resolvido para evitar ambiguidades de resolução do alvo
+      // em diferentes versões/integrações do HTMX.
+      target,
+      swap: 'innerHTML',
+    });
+    // Fallback defensivo: se o swap HTMX não ocorrer (ex.: conflito de integração),
+    // recarrega via fetch sem depender de evento global.
+    window.setTimeout(() => {
+      if (groupToggle.dataset.groupLoading === 'true') {
+        loadWithFetch();
+      }
+    }, 1200);
+    return;
+  }
+  loadWithFetch();
+}
+
 function getBaseUrl() {
   return window.APP_BASE_URL || '';
 }
@@ -633,6 +705,16 @@ function handleAfterSwap(event) {
     return;
   }
 
+  if (target.id && target.id.startsWith('group-content_')) {
+    const jogoId = target.id.replace('group-content_', '');
+    const toggleBtn = document.querySelector(`.btn-grupo-toggle[data-target="#group-row_${jogoId}"]`);
+    if (toggleBtn) {
+      toggleBtn.dataset.groupLoaded = 'true';
+      delete toggleBtn.dataset.groupLoading;
+    }
+    return;
+  }
+
   // Padrão legado: linha de expansão (.match-expand)
   if (target.classList.contains('match-expand')) {
     target.hidden = false;
@@ -708,6 +790,9 @@ function handleAfterRequest(event) {
 
 function handleGlobalClick(event) {
   const target = event.target;
+  if (!(target instanceof Element)) {
+    return;
+  }
 
   const retryTipButton = target.closest('[data-js="retry-palpite"]');
   if (retryTipButton) {
@@ -770,8 +855,11 @@ function handleGlobalClick(event) {
   // BOTÃO TOGGLE GRUPO (ACCORDION)
   const groupToggle = target.closest('[data-js="toggle-group-details"]');
   if (groupToggle) {
-    event.preventDefault();
     const targetId = groupToggle.getAttribute('data-target');
+    if (!targetId) {
+      debugWarn('Botão de grupo sem data-target.', { groupToggle });
+      return;
+    }
     const targetRow = document.querySelector(targetId);
     
     if (targetRow) {
@@ -786,16 +874,21 @@ function handleGlobalClick(event) {
       document.querySelectorAll('.btn-grupo-toggle').forEach(btn => {
         if (btn !== groupToggle) {
           btn.classList.remove('active');
+          syncGroupToggleA11y(btn, false);
         }
       });
 
       // Toggle do alvo
       targetRow.classList.toggle('hidden');
       groupToggle.classList.toggle('active');
+      syncGroupToggleA11y(groupToggle, !targetRow.classList.contains('hidden'));
       
       if (isOpening) {
+        requestGroupDetails(groupToggle);
         debugInfo('Expandindo detalhes do grupo (Accordion).', { targetId });
       }
+    } else {
+      debugWarn('Linha de detalhes do grupo não encontrada para toggle.', { targetId });
     }
     return;
   }
@@ -809,7 +902,10 @@ function handleGlobalClick(event) {
     if (targetRow) {
       targetRow.classList.add('hidden');
       const toggleBtn = document.querySelector(`.btn-grupo-toggle[data-target="${targetId}"]`);
-      if (toggleBtn) toggleBtn.classList.remove('active');
+      if (toggleBtn) {
+        toggleBtn.classList.remove('active');
+        syncGroupToggleA11y(toggleBtn, false);
+      }
     }
   }
 }
@@ -830,7 +926,10 @@ function handleDocumentKeydown(event) {
     event.preventDefault();
     activeDetailRow.classList.add('hidden');
     const activeBtn = document.querySelector('.btn-grupo-toggle.active');
-    if (activeBtn) activeBtn.classList.remove('active');
+    if (activeBtn) {
+      activeBtn.classList.remove('active');
+      syncGroupToggleA11y(activeBtn, false);
+    }
   }
 }
 
@@ -1012,6 +1111,16 @@ function initPalpiteInline() {
         setAdminRetryVisible(adminRow, true);
       }
       announceGlobalStatus(getUiMessage('msgAdminSessionError', 'Erro ao atualizar resultado.'), 'error');
+      return;
+    }
+
+    if (target.id && target.id.startsWith('group-content_')) {
+      const jogoId = target.id.replace('group-content_', '');
+      const toggleBtn = document.querySelector(`.btn-grupo-toggle[data-target="#group-row_${jogoId}"]`);
+      if (toggleBtn) {
+        delete toggleBtn.dataset.groupLoading;
+      }
+      target.innerHTML = '<tr><td colspan="3" class="text-center">Erro ao carregar palpites do grupo.</td></tr>';
     }
   });
   document.body.addEventListener('click', handleGlobalClick);
@@ -1021,7 +1130,8 @@ function initPalpiteInline() {
 }
 
 function initGlobalKeyListener() {
-  document.addEventListener('keydown', handleDocumentKeydown);
+  // Listener global de teclado já é registrado em initPalpiteInline.
+  // Mantemos este método para retrocompatibilidade sem registrar duplicado.
 }
 
 export function initJogosPage() {

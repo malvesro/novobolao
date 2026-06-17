@@ -9,6 +9,8 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Date;
@@ -59,6 +61,7 @@ public class ParticipanteAction extends ActionSupport {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ParticipanteAction.class);
 	private static final String LOG_PREFIX_UPDATE = "[HTMX][UPDATE]";
 	private static final String LOG_PREFIX_PREPARE = "[HTMX][PREP]";
+    private static final Set<Integer> FASES_FILTRO_PERMITIDAS = new HashSet<>(java.util.Arrays.asList(11, 12, 13, 16, 8, 4, 2, 3, 1));
 
 	private PalpiteService palpiteService;
     private ParticipanteService participanteService;
@@ -79,6 +82,7 @@ public class ParticipanteAction extends ActionSupport {
     private long progressoPalpitesPreenchidos;
     private int progressoPalpitesPercentual;
     private Map<Long, Palpite> palpitesUsuario;
+    private Map<Long, PalpiteAuthorization> autorizacoesPalpitePorJogo = new HashMap<>();
     private Long jogoId;
     private Integer palpiteGolsEquipe1;
     private Integer palpiteGolsEquipe2;
@@ -117,6 +121,7 @@ public class ParticipanteAction extends ActionSupport {
     private String filtroGrupo;
     private boolean filtroSemPalpite;
     private boolean filtroJogosNaoOcorreram;
+    private List<String> filtroAvisos = new ArrayList<>();
     private boolean loginPossuiHtml;
     private boolean nomePossuiHtml;
     private boolean emailPossuiHtml;
@@ -241,6 +246,7 @@ public class ParticipanteAction extends ActionSupport {
 	       setEquipes(getEquipeService().buscarApenasPaisesReais());
 	       setTelaPalpites(true);
 	       prepararMapaPalpitesUsuario();
+           prepararAutorizacoesPalpitePorJogo();
            diagnosticarPermissoesPalpiteNaLista(filtro);
 	       atualizarProgressoPalpites(filtro);
 	       return SUCCESS;
@@ -254,6 +260,11 @@ public class ParticipanteAction extends ActionSupport {
         
         try {
             Date dataReferencia = ConversaoUtils.converterParaData(this.dataInicial);
+            if (dataReferencia == null) {
+                LOGGER.warn("[HTMX][LOAD_MORE] dataInicial inválida para buscarMaisJogosHtmx: '{}'", this.dataInicial);
+                setJogos(Collections.emptyList());
+                return SUCCESS;
+            }
             // Evita aritmética fixa em milissegundos (+86400000), que pode gerar
             // deriva em ambientes com timezone diferente (ex.: produção no HF).
             // O avanço de dia é feito por calendário na zona canônica do domínio.
@@ -274,12 +285,15 @@ public class ParticipanteAction extends ActionSupport {
                 setJogos(getJogoService().buscarUsandoFiltro(novoFiltro));
                 setTelaPalpites(true);
                 prepararMapaPalpitesUsuario();
+                prepararAutorizacoesPalpitePorJogo();
             } else {
                 setJogos(Collections.emptyList());
+                this.autorizacoesPalpitePorJogo = Collections.emptyMap();
             }
         } catch (Exception e) {
             LOGGER.error("Erro ao buscar mais jogos via HTMX", e);
             setJogos(Collections.emptyList());
+            this.autorizacoesPalpitePorJogo = Collections.emptyMap();
         }
         
         return SUCCESS;
@@ -308,6 +322,23 @@ public class ParticipanteAction extends ActionSupport {
             }
         }
         setPalpitesUsuario(mapa);
+    }
+
+    private void prepararAutorizacoesPalpitePorJogo() {
+        if (this.jogos == null || this.jogos.isEmpty()) {
+            this.autorizacoesPalpitePorJogo = Collections.emptyMap();
+            return;
+        }
+
+        Map<Long, PalpiteAuthorization> autorizacoes = new HashMap<>();
+        for (Object item : this.jogos) {
+            if (!(item instanceof Jogo jogo) || jogo.getId() == null) {
+                continue;
+            }
+            Palpite palpite = this.palpitesUsuario != null ? this.palpitesUsuario.get(jogo.getId()) : null;
+            autorizacoes.put(jogo.getId(), avaliarAutorizacao(jogo, palpite));
+        }
+        this.autorizacoesPalpitePorJogo = autorizacoes;
     }
 	
     private Map<String, Object> graficoData;
@@ -468,23 +499,89 @@ public class ParticipanteAction extends ActionSupport {
 
 	private FiltroBuscaJogos obterFiltro() {
 		FiltroBuscaJogos filtro = null;
+        this.filtroAvisos = new ArrayList<>();
         if (isUsarFiltro()) {
             filtro = new FiltroBuscaJogos();
-    		filtro.setDataInicial(ConversaoUtils.converterParaData(getDataInicial()));
-    		filtro.setDataFinal(ConversaoUtils.converterParaData(getDataFinal()));
+            Date dataInicialFiltro = ConversaoUtils.converterParaData(getDataInicial());
+            Date dataFinalFiltro = ConversaoUtils.converterParaData(getDataFinal());
+
+            if (!ValidacaoUtils.isVazia(getDataInicial()) && dataInicialFiltro == null) {
+                LOGGER.warn("[FILTRO][JOGOS] dataInicial inválida ignorada: '{}'", getDataInicial());
+                this.filtroAvisos.add("A data inicial informada é inválida e foi ignorada.");
+            }
+            if (!ValidacaoUtils.isVazia(getDataFinal()) && dataFinalFiltro == null) {
+                LOGGER.warn("[FILTRO][JOGOS] dataFinal inválida ignorada: '{}'", getDataFinal());
+                this.filtroAvisos.add("A data final informada é inválida e foi ignorada.");
+            }
+            if (dataInicialFiltro != null && dataFinalFiltro != null && dataFinalFiltro.before(dataInicialFiltro)) {
+                LOGGER.warn("[FILTRO][JOGOS] intervalo invertido detectado; aplicando swap dataInicial={} dataFinal={}",
+                        getDataInicial(), getDataFinal());
+                this.filtroAvisos.add("O intervalo de datas estava invertido e foi ajustado automaticamente.");
+                Date temp = dataInicialFiltro;
+                dataInicialFiltro = dataFinalFiltro;
+                dataFinalFiltro = temp;
+            }
+            filtro.setDataInicial(dataInicialFiltro);
+            filtro.setDataFinal(dataFinalFiltro);
+
             if (getFiltroFase() != null) {
-                filtro.setFase(getFiltroFase());
+                if (FASES_FILTRO_PERMITIDAS.contains(getFiltroFase())) {
+                    filtro.setFase(getFiltroFase());
+                } else {
+                    LOGGER.warn("[FILTRO][JOGOS] fase fora da whitelist ignorada: {}", getFiltroFase());
+                    this.filtroAvisos.add("A fase selecionada é inválida e foi ignorada.");
+                }
             }
             if (getFiltroEquipe() != null) {
-                filtro.setIdEquipe(getFiltroEquipe());
+                if (isEquipeFiltroPermitida(getFiltroEquipe())) {
+                    filtro.setIdEquipe(getFiltroEquipe());
+                } else {
+                    LOGGER.warn("[FILTRO][JOGOS] equipe fora da lista permitida ignorada: {}", getFiltroEquipe());
+                    this.filtroAvisos.add("A equipe selecionada não é válida para este filtro e foi ignorada.");
+                }
             }
-    		filtro.setGrupo(getFiltroGrupo());
+            String grupoCanonico = normalizarGrupoFiltro(getFiltroGrupo());
+            if (!ValidacaoUtils.isVazia(grupoCanonico)) {
+                filtro.setGrupo(grupoCanonico);
+            } else if (!ValidacaoUtils.isVazia(getFiltroGrupo())) {
+                LOGGER.warn("[FILTRO][JOGOS] grupo inválido ignorado: '{}'", getFiltroGrupo());
+                this.filtroAvisos.add("O grupo informado é inválido e foi ignorado.");
+            }
             filtro.setSoSemPalpite(isFiltroSemPalpite());
             filtro.setSoJogosQueNaoOcorreram(isFiltroJogosNaoOcorreram());
             filtro.setLogin(RequestUtils.getLoginParticipanteAutenticado());
         }
 		return filtro;
 	}
+
+    private boolean isEquipeFiltroPermitida(Long equipeId) {
+        if (equipeId == null || getEquipeService() == null) {
+            return false;
+        }
+        List equipesPermitidas = getEquipeService().buscarApenasPaisesReais();
+        if (equipesPermitidas == null) {
+            return false;
+        }
+        for (Object item : equipesPermitidas) {
+            if (item instanceof com.opendev.bolao.model.Equipe equipe
+                    && equipe.getId() != null
+                    && equipe.getId().equals(equipeId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String normalizarGrupoFiltro(String grupo) {
+        if (ValidacaoUtils.isVazia(grupo)) {
+            return null;
+        }
+        String canonico = grupo.trim().toUpperCase();
+        if (canonico.matches("^[A-H]$")) {
+            return canonico;
+        }
+        return null;
+    }
     
     private Participante obterParticipante() {
         Participante p = new Participante();
@@ -1091,6 +1188,10 @@ public class ParticipanteAction extends ActionSupport {
         this.palpitesUsuario = palpitesUsuario;
     }
 
+    public Map<Long, PalpiteAuthorization> getAutorizacoesPalpitePorJogo() {
+        return autorizacoesPalpitePorJogo;
+    }
+
 	public boolean isTelaPalpites() {
 		return telaPalpites;
 	}
@@ -1288,10 +1389,14 @@ public class ParticipanteAction extends ActionSupport {
 	public FiltroBuscaJogos getFiltro() {
 		return filtro;
 	}
-	
+
 	public void setFiltro(FiltroBuscaJogos filtro) {
 		this.filtro = filtro;
 	}
+
+    public List<String> getFiltroAvisos() {
+        return filtroAvisos;
+    }
 
 	   public long getProgressoPalpitesTotal() {
 	       return progressoPalpitesTotal;

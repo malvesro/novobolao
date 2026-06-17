@@ -96,6 +96,7 @@
 																<fmt:message key="filter.team" />
 															</label></td>
 														<td class="widget">
+															<c:set var="grupoAnterior" value="" />
 															<select name="filtroEquipe" id="filtro_equipe">
 																<option value="">
 																	<fmt:message key="filter.fase.0" />
@@ -124,6 +125,9 @@
 																	<c:set var="grupoAnterior"
 																		value="${equipe.grupo}" />
 																</c:forEach>
+																<c:if test="${not empty grupoAnterior}">
+																	</optgroup>
+																</c:if>
 															</select>
 														</td>
 													</tr>
@@ -162,6 +166,7 @@
 													<tr>
 														<td class="label"><label for="filtro_fase">
 																<fmt:message key="filter.fase" />
+															</label>
 														</td>
 														<td class="widget">
 															<select name="filtroFase" id="filtro_fase">
@@ -241,6 +246,20 @@
 										</form>
 									</opendev:portlet>
 								</div>
+								<c:if test="${not empty filtroAvisos}">
+									<div class="info-banner performance-notice">
+										<p>
+											<img src="${base}/img/information.gif" class="icon-inline" alt="" />
+											Alguns parâmetros do filtro foram ajustados para manter a consistência da busca:
+										</p>
+										<ul class="simple-list">
+											<c:forEach var="avisoFiltro" items="${filtroAvisos}">
+												<li><c:out value="${avisoFiltro}" /></li>
+											</c:forEach>
+										</ul>
+									</div>
+									<span class="spacer spacer-sm"></span>
+								</c:if>
 								<span class="spacer spacer-sm"></span>
 								<div id="palpites_info" class="legenda tips-info">
 									<p><img alt="" src="${base}/img/information.gif" class="icon-inline"
@@ -301,5 +320,3 @@
 						<div class="sticky-header"></div>
 						<span class="spacer spacer-sm"></span>
 						</div>
-
-						<script src="${pageContext.request.contextPath}/js/ux-helper.js" defer nonce="${cspNonce}"></script>

@@ -908,6 +908,265 @@ Premissas de compatibilidade (críticas):
       - validação técnica rápida executada após ajuste;
       - log registrado em `.ia/logs/session-20260616-tarefa73-cache-busting-css-global.md`.
 
+74. **[Concluído] Correção da tela de Palpites e Resultados: filtro de pesquisa + botão "Ver palpites do grupo" (17/06/2026):**
+    Objetivo: eliminar quebra de layout associada ao uso do filtro e restaurar funcionamento confiável do botão de exibição de palpites do grupo por jogo, com cobertura de regressão.
+    Skills aplicadas: `ui-ux-pro-max v1.0.0`, `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`, `modern-javascript-patterns v1.0.0`.
+    Referência de plano: `.ia/planos/plano-correcao-palpites-filtro-grupo-20260617.md`.
+
+    * **[Concluído] 74.1 — Diagnóstico reproduzível dos dois sintomas (17/06/2026):**
+      Entregável:
+      - análise estática consolidada apontou fragilidade de markup no filtro (fechamento semântico inconsistente de `label` no campo de fase e gestão frágil de `optgroup`);
+      - identificado acoplamento JS+HTMX no botão de grupo sem cobertura dedicada (toggle de `.hidden` + alvo `#group-content_<id>`).
+
+    * **[Concluído] 74.2 — Higienização estrutural do markup do filtro (`jogos.jsp`) (17/06/2026):**
+      Entregável:
+      - corrigido fechamento de `label` para `filtro_fase`;
+      - padronizada inicialização de `grupoAnterior` em `filtroEquipe` e fechamento explícito de `optgroup` ao fim do loop;
+      - reduzido risco de DOM malformado e quebra de layout em browsers mais estritos.
+
+    * **[Concluído] 74.3 — Endurecimento do fluxo JS do botão de grupo (`jogos.js`) (17/06/2026):**
+      Entregável:
+      - guardas adicionadas para `event.target` não-elemento e `data-target` ausente;
+      - sincronização de `aria-expanded` com estado real de abertura/fechamento;
+      - manutenção robusta do modo accordion com reset de estado em botões não ativos;
+      - warning de diagnóstico para alvo inexistente, evitando falha silenciosa.
+
+    * **[Concluído] 74.4 — Endurecimento do carregamento HTMX de palpites do grupo (17/06/2026):**
+      Entregável:
+      - botão de grupo alterado para `hx-trigger="click"` (removido `once`) permitindo recarga/retry em interações subsequentes;
+      - reforço semântico com `aria-controls` e `aria-expanded` no botão por jogo;
+      - alvo HTMX preservado por `jogoId` (`#group-content_<id>`), mantendo contrato de swap no `tbody`.
+
+    * **[Concluído] 74.5 — Ajustes CSS de robustez para filtro e painel de grupo (17/06/2026):**
+      Entregável:
+      - revisão das regras de filtro/painel de grupo executada, sem necessidade de novo patch CSS nesta rodada;
+      - robustez principal obtida por correção estrutural de markup e endurecimento de estado JS/HTMX.
+
+    * **[Concluído] 74.6 — Cobertura de testes frontend para evitar regressão (17/06/2026):**
+      Entregável:
+      - novos testes em `tests/frontend/jogos.test.js` cobrindo:
+      - interação accordion do botão de grupo + `aria-expanded`;
+      - contrato HTMX no `match-row.jspf` (`hx-trigger="click"`, `hx-target` e `aria-controls`);
+      - verificação de fechamento semântico do `label` de filtro de fase em `jogos.jsp`.
+
+    * **[Concluído] 74.7 — Regressão focal + smoke local (17/06/2026):**
+      Entregável:
+      - frontend: `npm run test:frontend -- tests/frontend/jogos.test.js` (`6` testes, `0` falhas);
+      - backend focal: `mvn -Dfrontend.skip=true -Dtest=ParticipanteActionLoadTest test` (`8` testes, `0` falhas).
+
+    * **[Concluído] 74.8 — Encerramento de rastreabilidade (17/06/2026):**
+      Entregável:
+      - log final registrado em `.ia/logs/session-20260617-tarefa74-execucao-palpites-filtro-grupo.md`;
+      - status da tarefa/subtarefas atualizado neste `passo-a-passo.md`.
+
+75. **[Concluído] Pacote mínimo de cobertura da tela de Palpites e Resultados (17/06/2026):**
+    Objetivo: fortalecer regressão da tela de palpites/resultados com foco em interações sensíveis (detalhes de grupo, filtro colapsável e carregamento incremental HTMX), priorizando impacto funcional.
+    Skills aplicadas: `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`, `modern-javascript-patterns v1.0.0`.
+
+    * **[Concluído] 75.1 — Cobrir fechamento dos detalhes de grupo (botão `X` + tecla `Esc`) e estado ARIA (17/06/2026):**
+      Entregável:
+      - novos cenários adicionados em `tests/frontend/jogos.test.js` cobrindo fechamento via `data-js="close-details"` e via teclado (`Escape`);
+      - validação de sincronização de `aria-expanded` e classe visual `active/hidden`;
+      - cenário defensivo adicionado para botão de grupo sem `data-target` (deve ser ignorado sem quebrar a tela).
+
+    * **[Concluído] 75.2 — Cobrir comportamento do filtro colapsável (desktop/mobile + sessionStorage) (17/06/2026):**
+      Entregável:
+      - testes de `initFiltroColapsavel()` adicionados em `tests/frontend/jogos.test.js`;
+      - cobertura validando persistência de estado colapsado em desktop (`sessionStorage`) e abertura padrão em mobile.
+
+    * **[Concluído] 75.3 — Cobrir endpoint de carregamento incremental (`buscarMaisJogosHtmx`) com cenários de borda (17/06/2026):**
+      Entregável:
+      - testes backend adicionados em `ParticipanteActionLoadTest` para:
+      - `dataInicial` inválida (fallback seguro para lista vazia);
+      - ausência de próxima data disponível;
+      - exceção no `JogoService` com manutenção do retorno estável da action (`SUCCESS` + lista vazia).
+
+    * **[Concluído] 75.4 — Cobrir regra de permissão de palpite na montagem da lista (admin bloqueado x user habilitado) (17/06/2026):**
+      Entregável:
+      - teste de contrato de markup adicionado em `tests/frontend/jogos.test.js` validando presença das regras:
+      - `usuarioAdmin` vs `usuarioComPapelPalpite`;
+      - cálculo de `podeRegistrarPalpite` e `palpitePermitido`;
+      - motivo de bloqueio `adminRestricted` preservado no fragmento.
+
+    * **[Concluído] 75.5 — Regressão consolidada + rastreabilidade final da tarefa 75 (17/06/2026):**
+      Entregável:
+      - execução focal: `npm run test:frontend -- tests/frontend/jogos.test.js` e suíte backend associada;
+      - resultados:
+      - frontend `12` testes aprovados, `0` falhas;
+      - backend `11` testes aprovados, `0` falhas;
+      - logs de execução registrados em `.ia/logs/session-20260617-tarefa75-*.md` e atualização final desta tarefa no plano.
+
+    * **[Concluído] 75.6 — Validação prévia de `dataInicial` inválida para reduzir ruído de log (17/06/2026):**
+      Entregável:
+      - `ParticipanteAction.buscarMaisJogosHtmx()` ajustado para validar `dataInicial` após parse;
+      - quando inválida, fluxo retorna com lista vazia e log `WARN` objetivo (`[HTMX][LOAD_MORE]`) sem stacktrace;
+      - `ERROR` com stacktrace mantido apenas para falhas inesperadas de serviço;
+      - regressão backend reexecutada com sucesso via `mvn -Dfrontend.skip=true -Dtest=ParticipanteActionLoadTest test`.
+
+76. **[Concluído] Hardening de validação do filtro de busca da tela de Palpites e Resultados (17/06/2026):**
+    Objetivo: validar de forma explícita os campos de pesquisa do filtro (datas, fase, equipe e grupo), reduzindo inconsistências de entrada sem alterar as regras centrais de consulta.
+    Skills aplicadas: `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`.
+
+    * **[Concluído] 76.1 — Endurecer validação de datas no filtro completo (`usarFiltro=true`) (17/06/2026):**
+      Entregável:
+      - tratamento explícito para datas inválidas (`dataInicial`/`dataFinal`) no `obterFiltro`;
+      - normalização de intervalo invertido (`dataFinal < dataInicial`) com swap controlado e log `WARN`.
+
+    * **[Concluído] 76.2 — Validar whitelist de fase/grupo e pertencimento de equipe (17/06/2026):**
+      Entregável:
+      - `filtroFase` aceito apenas para fases permitidas no domínio;
+      - `filtroGrupo` normalizado e aceito apenas no padrão `A..H`;
+      - `filtroEquipe` aplicado somente quando o id pertence à lista de equipes reais disponíveis.
+
+    * **[Concluído] 76.3 — Cobertura de testes backend para entradas válidas/inválidas do filtro (17/06/2026):**
+      Entregável:
+      - novos testes adicionados em `ParticipanteActionLoadTest` cobrindo:
+      - saneamento de campos inválidos (`fase`, `grupo`, `equipe`) e swap de intervalo de datas invertido;
+      - preservação de campos válidos (`fase`, `grupo`, `equipe`, datas no intervalo correto).
+
+    * **[Concluído] 76.4 — Regressão focal + rastreabilidade final da tarefa 76 (17/06/2026):**
+      Entregável:
+      - execução focal de testes backend associados;
+      - resultado: `mvn -Dfrontend.skip=true -Dtest=ParticipanteActionLoadTest test` com `13` testes aprovados e `0` falhas;
+      - log técnico em `.ia/logs/session-20260617-tarefa76-validacao-filtro-busca.md` e atualização final desta tarefa no plano.
+
+77. **[Concluído] Evolução UX/Arquitetura da tela de Palpites e Resultados (P0-P2) (17/06/2026):**
+    Objetivo: reduzir atrito de uso e desperdício de requisições na tela de palpites/resultados sem quebrar regras funcionais existentes.
+    Skills aplicadas: `ui-ux-pro-max v1.0.0`, `architecture-guardian v1.0.0`, `modern-javascript-patterns v1.0.0`.
+
+    * **[Concluído] 77.1 — Remover duplicidade de listener global de teclado (`Escape`) (17/06/2026):**
+      Entregável:
+      - eliminado registro duplicado de `handleDocumentKeydown` na inicialização da página;
+      - preservado comportamento funcional de fechamento por `Escape` no fluxo já registrado em `initPalpiteInline`.
+
+    * **[Concluído] 77.2 — Reduzir requisições HTMX redundantes no botão “Ver palpites do grupo” (17/06/2026):**
+      Entregável:
+      - `match-row.jspf` ajustado para disparar HTMX apenas quando conteúdo ainda não estiver carregado (`hx-trigger` condicional por `dataset.groupLoaded`);
+      - `jogos.js` ajustado para marcar botão como carregado após `htmx:afterSwap` em `#group-content_<id>`;
+      - reduzido round-trip em reaberturas do mesmo painel no mesmo ciclo de tela.
+
+    * **[Concluído] 77.3 — Cobertura de regressão frontend da otimização de grupo (17/06/2026):**
+      Entregável:
+      - testes atualizados em `tests/frontend/jogos.test.js` para contrato HTMX condicional e marcação `data-group-loaded` após swap.
+
+    * **[Concluído] 77.4 — Melhorar feedback visual de saneamento do filtro no frontend (P1) (17/06/2026):**
+      Entregável:
+      - backend passou a expor `filtroAvisos` com mensagens de saneamento;
+      - `jogos.jsp` atualizado para exibir aviso discreto em tela quando parâmetros de filtro forem ajustados/ignorados.
+
+    * **[Concluído] 77.5 — Refinos de acessibilidade e microinteração do painel de grupo (P1/P2) (17/06/2026):**
+      Entregável:
+      - botões de grupo/fechamento com `aria-label` explícito no markup;
+      - `jogos.js` ajustado para sincronizar `aria-label` e `aria-expanded` conforme estado aberto/fechado;
+      - cobertura de regressão frontend atualizada para contrato de acessibilidade.
+
+    * **[Concluído] 77.6 — Regressão focal desta iteração (17/06/2026):**
+      Entregável:
+      - `npm run test:frontend -- tests/frontend/jogos.test.js` com `13` testes aprovados;
+      - `mvn -Dfrontend.skip=true -Dtest=ParticipanteActionLoadTest test` com `13` testes aprovados.
+
+78. **[Concluído] BUG crítico: tela de Palpites/Resultados bloqueando todos os jogos como “Edição Encerrada” (17/06/2026):**
+    Objetivo: eliminar regressão que marca todos os jogos como bloqueados (inclusive futuros), restaurando a regra oficial de janela de palpite (até 1h antes), com diagnóstico auditável e cobertura anti-reincidência.
+    Skills previstas: `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`, `ui-ux-pro-max v1.0.0`, `modern-javascript-patterns v1.0.0`.
+
+    * **[Concluído] 78.1 — Diagnóstico reproduzível com evidência de causa raiz (backend + view-model):**
+      Entregável:
+      - reproduzir em ambiente local com usuário não-admin e jogo futuro;
+      - registrar evidência de `palpiteBloqueioMotivo` retornado por jogo (`timeWindow` vs `roleMissing` vs `adminRestricted`);
+      - consolidar causa raiz provável identificada no histórico: divergência de regra de autorização no JSP de lista (`jogos-lista-fragmento.jsp`) após hardening recente.
+
+    * **[Concluído] 78.2 — Unificar regra de autorização de lista com o serviço canônico de autorização de palpite:**
+      Entregável:
+      - remover lógica frágil/duplicada de papel diretamente na JSP para decisão final de permissão;
+      - passar a consumir decisão canônica de autorização por jogo (serviço/action), preservando bloqueio de admin e janela temporal oficial.
+      Resultado:
+      - `ParticipanteAction` passou a calcular `autorizacoesPalpitePorJogo` com base em `avaliarAutorizacao(...)` para cada jogo listado;
+      - `jogos-lista-fragmento.jsp` deixou de usar `sec:authorize` para decidir permissão e passou a consumir o mapa canônico do backend.
+
+    * **[Concluído] 78.3 — Ajustar feedback visual da causa de bloqueio por jogo:**
+      Entregável:
+      - garantir mensagem específica e consistente quando bloqueio for por perfil (`roleMissing`/`adminRestricted`) vs janela (`timeWindow`);
+      - manter rótulo curto “Edição encerrada” sem perder explicação detalhada contextual.
+      Resultado:
+      - a origem de `palpiteBloqueioMotivo` passou a ser exclusivamente canônica (backend), mantendo o contrato visual existente em `palpite-cell-response.jspf` com mensagens específicas por motivo.
+
+    * **[Concluído] 78.4 — Cobertura de regressão direcionada (cenários de permissão):**
+      Entregável:
+      - testes garantindo que usuário habilitado possa palpitar jogos futuros dentro da janela;
+      - testes garantindo bloqueio de admin e bloqueio por janela encerrada;
+      - testes cobrindo normalização de perfil/role para evitar falsos bloqueios por variação de prefixo (`ROLE_`).
+      Resultado:
+      - adicionados testes em `ParticipanteActionLoadTest` para validar preenchimento canônico de autorização por jogo na carga inicial e no “carregar mais jogos”;
+      - atualizado teste de contrato frontend (`tests/frontend/jogos.test.js`) para garantir consumo de `autorizacoesPalpitePorJogo` e ausência da lógica local por `hasRole(...)` no fragmento.
+
+    * **[Concluído] 78.5 — Regressão final + rastreabilidade da correção:**
+      Entregável:
+      - execução focal de testes frontend/backend associados;
+      - log de sessão em `.ia/logs/` com evidências antes/depois e conclusão técnica.
+      Resultado:
+      - `npm run test:frontend -- tests/frontend/jogos.test.js` com 13/13 testes aprovados;
+      - `mvn -Dfrontend.skip=true -Dtest=ParticipanteActionLoadTest,PalpiteAuthorizationServiceImplTest test` com 22/22 testes aprovados.
+
+    * **[Concluído] 78.6 — Hotfix de regressão no botão “Palpites do Grupo” (17/06/2026):**
+      Entregável:
+      - removido `event.preventDefault()` do handler de `toggle-group-details` em `jogos.js`, permitindo que o `hx-get` do HTMX seja disparado no clique;
+      - adicionado teste de regressão para garantir que o clique do botão de grupo não seja cancelado pelo JavaScript.
+      Resultado:
+      - `npm run test:frontend -- tests/frontend/jogos.test.js` com 14/14 testes aprovados.
+
+    * **[Concluído] 78.7 — Ajuste estratégico anti-conflito entre autorização canônica e contexto da view (17/06/2026):**
+      Entregável:
+      - mantida autorização canônica via `autorizacoesPalpitePorJogo` como fonte principal;
+      - adicionado fallback defensivo no JSP para cenário de divergência (`roleMissing`) quando a request web reconhece `ROLE_USER` (sem `ROLE_ADMIN`), respeitando estritamente a janela temporal (`jogo.podeDarPalpite`);
+      - preservado bloqueio de admin e removida reintrodução de `sec:authorize`.
+      Resultado:
+      - `npm run test:frontend -- tests/frontend/jogos.test.js` com 14/14 testes aprovados;
+      - `mvn -Dfrontend.skip=true -Dtest=ParticipanteActionLoadTest,PalpiteAuthorizationServiceImplTest test` com 22/22 testes aprovados.
+
+    * **[Concluído] 78.8 — Robustez do botão “Ver palpites do grupo” (17/06/2026):**
+      Entregável:
+      - estratégia de carregamento do painel de grupo movida para `jogos.js`: ao abrir accordion, o script dispara `htmx.ajax('GET', ...)` explicitamente quando o grupo ainda não foi carregado;
+      - remoção do `hx-trigger` declarativo no botão para evitar dependência de ordem de eventos/cancelamentos;
+      - adicionado controle de estado `groupLoading/groupLoaded` com limpeza após `afterSwap`/`responseError`.
+      Resultado:
+      - `npm run test:frontend -- tests/frontend/jogos.test.js` com 15/15 testes aprovados.
+
+    * **[Concluído] 78.9 — Correção final do botão de grupo sem regressão da janela de palpite (>1h) (17/06/2026):**
+      Entregável:
+      - fluxo de carregamento de detalhes do grupo consolidado em caminho único no frontend, priorizando `htmx.ajax('GET', ...)` e mantendo fallback `fetch` absoluto apenas para contingência;
+      - botão de grupo marcado com `hx-trigger="none"` para eliminar disputa entre disparo automático e disparo manual controlado (evita request duplicada/intermitente no clique);
+      - validação explícita de não regressão da regra de autorização temporal, mantendo a decisão canônica no backend (`PalpiteAuthorizationService`) para jogos futuros dentro da janela oficial.
+      Resultado:
+      - `npm run test:frontend -- tests/frontend/jogos.test.js` com 15/15 testes aprovados;
+      - `mvn -q -Dfrontend.skip=true -Dtest=PalpiteAuthorizationServiceImplTest,ParticipanteActionLoadTest test` executado com sucesso.
+
+    * **[Concluído] 78.10 — Hardening do alvo de swap HTMX no botão de grupo (17/06/2026):**
+      Entregável:
+      - identificado risco de compatibilidade no uso de `htmx.ajax` com `target` textual em objeto de contexto;
+      - `requestGroupDetails` atualizado para usar o elemento DOM já resolvido (`target`) no contexto do `htmx.ajax`, reduzindo ambiguidade de resolução do alvo;
+      - teste frontend ajustado para validar o novo contrato de chamada (`target` como `HTMLElement`).
+      Resultado:
+      - `npm run -s test:frontend -- tests/frontend/jogos.test.js` com 15/15 testes aprovados;
+      - `mvn -q -Dfrontend.skip=true -Dtest=PalpiteAuthorizationServiceImplTest,ParticipanteActionLoadTest test` executado com sucesso.
+
+    * **[Concluído] 78.11 — Fallback defensivo para carregamento do painel de grupo quando HTMX não efetiva swap (17/06/2026):**
+      Entregável:
+      - adicionado watchdog de 1200ms em `requestGroupDetails`: se `groupLoading` continuar ativo após tentativa `htmx.ajax`, o frontend reexecuta a carga via `fetch` com `HX-Request`;
+      - preservado contrato visual/ARIA do accordion e tratamento de erro existente;
+      - objetivo: cobrir cenário real de “botão fica verde, mas linhas de palpites não aparecem”.
+      Resultado:
+      - `npm run -s test:frontend -- tests/frontend/jogos.test.js` com 15/15 testes aprovados;
+      - `mvn -q -Dfrontend.skip=true -Dtest=PalpiteAuthorizationServiceImplTest,ParticipanteActionLoadTest test` executado com sucesso.
+
+    * **[Concluído] 78.12 — Correção de conflito entre scripts (duplo toggle) no botão de grupo (17/06/2026):**
+      Entregável:
+      - identificada causa raiz de produção local: `webapp/js/ux-helper.js` (legado) também registrava clique em `[data-js="toggle-group-details"]` e executava `target.classList.toggle('hidden')`, revertendo o estado já alterado por `src/frontend/pages/jogos.js`;
+      - removido include legado da tela `jogos.jsp` para evitar dupla orquestração de eventos no mesmo botão;
+      - adicionado teste anti-regressão em `tests/frontend/jogos.test.js` garantindo que `jogos.jsp` não volte a carregar `/js/ux-helper.js`.
+      Resultado:
+      - `npm run -s test:frontend -- tests/frontend/jogos.test.js` com 16/16 testes aprovados;
+      - `mvn -q -Dfrontend.skip=true -Dtest=PalpiteAuthorizationServiceImplTest,ParticipanteActionLoadTest test` executado com sucesso.
+
 47. **[Concluído] Incluir campo de data na edição administrativa da tela de atualização de resultados (13/06/2026):**
     Objetivo: permitir que o administrador ajuste também a **data** do jogo na mesma tela em que já ajusta hora, local e equipes, mantendo consistência com o fuso oficial São Paulo e sem regressão no fluxo HTMX de atualização.
     Skills previstas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`, `ui-ux-pro-max v1.0.0`.

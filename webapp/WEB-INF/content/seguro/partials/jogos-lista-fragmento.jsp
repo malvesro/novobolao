@@ -2,7 +2,6 @@
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
         <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
             <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-                <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
                     <%@ taglib prefix="opendev" uri="http://www.opendev.com.br/tld" %>
 
                         <c:set var="dataExibidaAnterior" value="" />
@@ -79,31 +78,23 @@
                                 </c:choose>
 
                                 <c:set var="palpiteUsuario" value="${palpitesUsuario[jogo.id]}" />
-                                <sec:authorize access="hasRole('ADMIN')" var="usuarioAdmin" />
-                                <sec:authorize access="hasRole('USER')" var="usuarioComPapelPalpite" />
-
-                                <c:set var="podeRegistrarPalpite"
-                                       value="${usuarioComPapelPalpite and not usuarioAdmin}" />
-                                <c:set var="palpitePermitido"
-                                       value="${podeRegistrarPalpite and jogo.podeDarPalpite}" />
-                                <c:set var="palpiteStatus"
-                                    value="${not empty palpiteUsuario ? 'registered' : (palpitePermitido ? 'pending' : 'locked')}" />
-                                <c:set var="palpiteBloqueioMotivo" value="" />
-                                <c:if test="${not palpitePermitido}">
-                                    <c:choose>
-                                        <c:when test="${usuarioAdmin}">
-                                            <c:set var="palpiteBloqueioMotivo" value="adminRestricted" />
-                                        </c:when>
-                                        <c:when test="${not usuarioComPapelPalpite}">
-                                            <c:set var="palpiteBloqueioMotivo" value="roleMissing" />
-                                        </c:when>
-                                        <c:when test="${not jogo.podeDarPalpite}">
-                                            <c:set var="palpiteBloqueioMotivo" value="timeWindow" />
-                                        </c:when>
-                                        <c:otherwise>
-                                            <c:set var="palpiteBloqueioMotivo" value="unknown" />
-                                        </c:otherwise>
-                                    </c:choose>
+                                <c:set var="autorizacaoPalpite" value="${autorizacoesPalpitePorJogo[jogo.id]}" />
+                                <c:set var="palpitePermitido" value="${not empty autorizacaoPalpite and autorizacaoPalpite.permitido}" />
+                                <c:set var="palpiteStatus" value="${not empty autorizacaoPalpite ? autorizacaoPalpite.status.key : (not empty palpiteUsuario ? 'registered' : (jogo.podeDarPalpite ? 'pending' : 'locked'))}" />
+                                <c:set var="palpiteBloqueioMotivo" value="${not empty autorizacaoPalpite and not empty autorizacaoPalpite.reason and not empty autorizacaoPalpite.reason.key ? autorizacaoPalpite.reason.key : ''}" />
+                                <%--
+                                  Fallback defensivo:
+                                  Em casos raros de divergência entre contexto de segurança da action e da view
+                                  (ex.: ROLE_USER reconhecida na request, mas auth nula no backend parcial),
+                                  evitamos bloquear toda a data como "Edição encerrada".
+                                  Regra: só libera por fallback para ROLE_USER sem ROLE_ADMIN e respeitando janela temporal.
+                                --%>
+                                <c:set var="usuarioRoleUserRequest" value="${pageContext.request.isUserInRole('ROLE_USER')}" />
+                                <c:set var="usuarioRoleAdminRequest" value="${pageContext.request.isUserInRole('ROLE_ADMIN')}" />
+                                <c:if test="${(empty autorizacaoPalpite or palpiteBloqueioMotivo eq 'roleMissing') and usuarioRoleUserRequest and not usuarioRoleAdminRequest}">
+                                    <c:set var="palpitePermitido" value="${jogo.podeDarPalpite}" />
+                                    <c:set var="palpiteStatus" value="${not empty palpiteUsuario ? 'registered' : (palpitePermitido ? 'pending' : 'locked')}" />
+                                    <c:set var="palpiteBloqueioMotivo" value="${palpitePermitido ? '' : 'timeWindow'}" />
                                 </c:if>
                                 <fmt:message key="match.tip.status.${palpiteStatus}" var="palpiteStatusLabel" />
                                 <fmt:message key="match.tip.none" var="palpiteSemRegistro" />

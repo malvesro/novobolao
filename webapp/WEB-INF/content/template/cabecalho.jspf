@@ -230,9 +230,15 @@
 <script type="text/javascript" nonce="${cspNonce}">
 	window.APP_BASE_URL = '<c:out value="${base}" />';
 </script>
+<c:set var="buildInfo" value="${applicationScope.buildInfo}" />
+<c:set var="assetVersionToken" value="dev" />
+<c:if test="${not empty buildInfo and not empty buildInfo.version}">
+	<c:set var="assetVersionToken" value="${buildInfo.version}" />
+</c:if>
 <script type="module" nonce="${cspNonce}">
 	const DEBUG_LABEL = '[bolao:bundle-loader]';
 	const BASE_URL = window.APP_BASE_URL || '';
+	const ASSET_VERSION = '<c:out value="${assetVersionToken}" />';
 
 	function debugInfo(message, detail) {
 		if (!window.console || !console.info) {
@@ -271,19 +277,25 @@
 		if (!path) {
 			return null;
 		}
+		const appendVersion = (url) => {
+			if (!url || !ASSET_VERSION) {
+				return url;
+			}
+			return url + (url.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(ASSET_VERSION);
+		};
 		if (path.startsWith('http://') || path.startsWith('https://')) {
-			return path;
+			return appendVersion(path);
 		}
 		if (path.startsWith(BASE_URL + '/')) {
-			return path;
+			return appendVersion(path);
 		}
 		if (path.startsWith('/')) {
-			return (BASE_URL || '') + path;
+			return appendVersion((BASE_URL || '') + path);
 		}
 		if (path.startsWith('assets/')) {
-			return (BASE_URL || '') + '/' + path;
+			return appendVersion((BASE_URL || '') + '/' + path);
 		}
-		return (BASE_URL || '') + '/assets/' + path;
+		return appendVersion((BASE_URL || '') + '/assets/' + path);
 	}
 
 	const manifestUrl = buildAssetUrl('assets/.vite/manifest.json');
@@ -353,7 +365,6 @@
 </script>
 
 
-<c:set var="buildInfo" value="${applicationScope.buildInfo}" />
 <c:set var="cssVersionToken" value="dev" />
 <c:if test="${not empty buildInfo and not empty buildInfo.version}">
 	<c:set var="cssVersionToken" value="${buildInfo.version}" />

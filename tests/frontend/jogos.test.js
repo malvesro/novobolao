@@ -49,6 +49,41 @@ function mountJogosFixture() {
         </tr>
       </tbody>
     </table>
+
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            <button type="button" class="btn-grupo-toggle" data-js="toggle-group-details" data-target="#group-row_301" data-group-loaded="" aria-expanded="false" hx-get="/seguro/palpitesDoJogoPartial.action?jogoId=301" hx-target="#group-content_301">👥</button>
+          </td>
+        </tr>
+        <tr id="group-row_301" class="match-group-details-row hidden">
+          <td>
+            <table><tbody id="group-content_301"><tr><td>Detalhes 301</td></tr></tbody></table>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <button type="button" class="btn-grupo-toggle active" data-js="toggle-group-details" data-target="#group-row_302" data-group-loaded="" aria-expanded="true" hx-get="/seguro/palpitesDoJogoPartial.action?jogoId=302" hx-target="#group-content_302">👥</button>
+          </td>
+        </tr>
+        <tr id="group-row_302" class="match-group-details-row">
+          <td>
+            <table><tbody id="group-content_302"><tr><td>Detalhes 302</td></tr></tbody></table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="match-filter-portlet">
+      <div class="collapsible-portlet__content">Conteudo filtro</div>
+      <img
+        data-js="collapse-container"
+        data-target="filtro_jogos"
+        src="/img/arrow_down.png"
+        alt="Toggle filtro"
+      />
+    </div>
   `;
 }
 
@@ -57,8 +92,198 @@ describe('jogos.js estados criticos', () => {
     vi.useRealTimers();
     vi.useFakeTimers();
     document.body.innerHTML = '';
+    sessionStorage.clear();
     window.htmx.trigger.mockClear();
     window.htmx.ajax.mockClear();
+  });
+
+  it('deve alternar painel de grupo em modo accordion e atualizar aria-expanded', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const btn301 = document.querySelector('.btn-grupo-toggle[data-target="#group-row_301"]');
+    const row301 = document.getElementById('group-row_301');
+    const btn302 = document.querySelector('.btn-grupo-toggle[data-target="#group-row_302"]');
+    const row302 = document.getElementById('group-row_302');
+
+    btn301.click();
+
+    expect(row301.classList.contains('hidden')).toBe(false);
+    expect(btn301.classList.contains('active')).toBe(true);
+    expect(btn301.getAttribute('aria-expanded')).toBe('true');
+    expect(btn301.getAttribute('aria-label')).toBe('Ocultar palpites do grupo');
+    expect(row302.classList.contains('hidden')).toBe(true);
+    expect(btn302.classList.contains('active')).toBe(false);
+    expect(btn302.getAttribute('aria-expanded')).toBe('false');
+    expect(btn302.getAttribute('aria-label')).toBe('Ver palpites do grupo');
+
+    btn301.click();
+
+    expect(row301.classList.contains('hidden')).toBe(true);
+    expect(btn301.classList.contains('active')).toBe(false);
+    expect(btn301.getAttribute('aria-expanded')).toBe('false');
+    expect(btn301.getAttribute('aria-label')).toBe('Ver palpites do grupo');
+  });
+
+  it('nao deve cancelar o click do botao de grupo para permitir hx-get do HTMX', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const btn301 = document.querySelector('.btn-grupo-toggle[data-target="#group-row_301"]');
+    const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true });
+    btn301.dispatchEvent(clickEvent);
+
+    expect(clickEvent.defaultPrevented).toBe(false);
+  });
+
+  it('deve disparar carregamento HTMX do grupo ao abrir accordion quando ainda nao carregado', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const btn301 = document.querySelector('.btn-grupo-toggle[data-target="#group-row_301"]');
+    btn301.click();
+
+    expect(window.htmx.ajax).toHaveBeenCalledWith(
+      'GET',
+      '/seguro/palpitesDoJogoPartial.action?jogoId=301',
+      expect.objectContaining({
+        target: document.getElementById('group-content_301'),
+        swap: 'innerHTML',
+      }),
+    );
+    expect(btn301.dataset.groupLoading).toBe('true');
+  });
+
+  it('deve fechar detalhes do grupo pelo botao de fechamento e sincronizar aria-expanded', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+
+    const row302 = document.getElementById('group-row_302');
+    row302.querySelector('td').insertAdjacentHTML(
+      'beforeend',
+      '<button type="button" data-js="close-details" data-target="#group-row_302">Fechar</button>',
+    );
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const btn302 = document.querySelector('.btn-grupo-toggle[data-target="#group-row_302"]');
+    const closeBtn = row302.querySelector('[data-js="close-details"]');
+    expect(row302.classList.contains('hidden')).toBe(false);
+    expect(btn302.getAttribute('aria-expanded')).toBe('true');
+
+    closeBtn.click();
+    expect(row302.classList.contains('hidden')).toBe(true);
+    expect(btn302.classList.contains('active')).toBe(false);
+    expect(btn302.getAttribute('aria-expanded')).toBe('false');
+    expect(btn302.getAttribute('aria-label')).toBe('Ver palpites do grupo');
+  });
+
+  it('deve fechar detalhes do grupo com Escape e manter botao sincronizado', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const btn302 = document.querySelector('.btn-grupo-toggle[data-target="#group-row_302"]');
+    const row302 = document.getElementById('group-row_302');
+
+    expect(row302.classList.contains('hidden')).toBe(false);
+    expect(btn302.classList.contains('active')).toBe(true);
+    expect(btn302.getAttribute('aria-expanded')).toBe('true');
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+    expect(row302.classList.contains('hidden')).toBe(true);
+    expect(btn302.classList.contains('active')).toBe(false);
+    expect(btn302.getAttribute('aria-expanded')).toBe('false');
+    expect(btn302.getAttribute('aria-label')).toBe('Ver palpites do grupo');
+  });
+
+  it('deve ignorar clique no botao de grupo sem data-target', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      '<button type="button" data-js="toggle-group-details">Sem target</button>',
+    );
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const invalidBtn = document.querySelector('button[data-js="toggle-group-details"]:not(.btn-grupo-toggle)');
+    const row301 = document.getElementById('group-row_301');
+    invalidBtn.click();
+
+    expect(row301.classList.contains('hidden')).toBe(true);
+    expect(warnSpy).toHaveBeenCalled();
+
+    warnSpy.mockRestore();
+  });
+
+  it('deve inicializar filtro colapsado em desktop quando sessionStorage indicar colapso', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      value: 1366,
+    });
+    sessionStorage.setItem('bolao:filtro:collapsed', 'true');
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const portlet = document.querySelector('.match-filter-portlet');
+    const toggle = portlet.querySelector('[data-js="collapse-container"]');
+    expect(portlet.classList.contains('filter-collapsed')).toBe(true);
+    expect(toggle.getAttribute('src')).toContain('arrow_right');
+  });
+
+  it('deve manter filtro expandido em mobile mesmo com sessionStorage colapsado', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      value: 375,
+    });
+    sessionStorage.setItem('bolao:filtro:collapsed', 'true');
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const portlet = document.querySelector('.match-filter-portlet');
+    expect(portlet.classList.contains('filter-collapsed')).toBe(false);
+  });
+
+  it('deve marcar botao de grupo como carregado apos swap do conteudo HTMX', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const target = document.getElementById('group-content_301');
+    const btn301 = document.querySelector('.btn-grupo-toggle[data-target="#group-row_301"]');
+    expect(btn301.dataset.groupLoaded).toBe('');
+
+    target.dispatchEvent(new CustomEvent('htmx:afterSwap', { bubbles: true }));
+
+    expect(btn301.dataset.groupLoaded).toBe('true');
   });
 
   it('deve balancear pendencias admin em concorrencia com sucesso e erro sem travar beforeunload', async () => {
@@ -221,8 +446,54 @@ describe('jogos.js estados criticos', () => {
     expect(matchRowMarkup).toContain('id="p2_${jogo.id}"');
     expect(matchRowMarkup).toContain('hx-target="#palpite-cell_${jogo.id}"');
     expect(matchRowMarkup).toContain('hx-swap="outerHTML"');
+    expect(matchRowMarkup).toContain('data-js="toggle-group-details"');
+    expect(matchRowMarkup).toContain('hx-target="#group-content_${jogo.id}"');
+    expect(matchRowMarkup).not.toContain('hx-trigger="click[!this.dataset.groupLoaded]"');
+    expect(matchRowMarkup).not.toContain('hx-trigger="click once"');
+    expect(matchRowMarkup).toContain('data-group-loaded=""');
+    expect(matchRowMarkup).toContain('aria-controls="group-row_${jogo.id}"');
+    expect(matchRowMarkup).toContain('aria-label="Ver palpites do grupo"');
+    expect(matchRowMarkup).toContain('aria-label="Fechar painel de palpites do grupo"');
     expect(palpiteCellMarkup).toContain('id="palpite-cell_${matchId}"');
     expect(palpiteCellMarkup).not.toContain('form class="palpite-inputs"');
+  });
+
+  it('deve manter fechamento semantico do label de filtro de fase', () => {
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    const projectRoot = path.resolve(currentDir, '..', '..');
+    const jogosPagePath = path.join(projectRoot, 'webapp/WEB-INF/content/seguro/jogos.jsp');
+
+    const jogosMarkup = fs.readFileSync(jogosPagePath, 'utf8');
+
+    expect(jogosMarkup).toContain('<label for="filtro_fase">');
+    expect(jogosMarkup).toContain('</label>');
+  });
+
+  it('nao deve carregar script legado ux-helper.js na tela de jogos', () => {
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    const projectRoot = path.resolve(currentDir, '..', '..');
+    const jogosPagePath = path.join(projectRoot, 'webapp/WEB-INF/content/seguro/jogos.jsp');
+
+    const jogosMarkup = fs.readFileSync(jogosPagePath, 'utf8');
+
+    expect(jogosMarkup).not.toContain('/js/ux-helper.js');
+  });
+
+  it('deve manter contrato de permissao de palpite via autorizacao canonica do backend', () => {
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    const projectRoot = path.resolve(currentDir, '..', '..');
+    const fragmentPath = path.join(projectRoot, 'webapp/WEB-INF/content/seguro/partials/jogos-lista-fragmento.jsp');
+
+    const fragmentMarkup = fs.readFileSync(fragmentPath, 'utf8');
+
+    expect(fragmentMarkup).toContain('autorizacoesPalpitePorJogo[jogo.id]');
+    expect(fragmentMarkup).toContain('autorizacaoPalpite.status.key');
+    expect(fragmentMarkup).toContain('autorizacaoPalpite.reason.key');
+    expect(fragmentMarkup).toContain("pageContext.request.isUserInRole('ROLE_USER')");
+    expect(fragmentMarkup).toContain("pageContext.request.isUserInRole('ROLE_ADMIN')");
+    expect(fragmentMarkup).toContain("palpiteBloqueioMotivo eq 'roleMissing'");
+    expect(fragmentMarkup).not.toContain("hasRole('ADMIN')");
+    expect(fragmentMarkup).not.toContain("hasRole('USER')");
   });
 
 });

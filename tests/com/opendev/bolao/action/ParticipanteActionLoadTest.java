@@ -13,10 +13,15 @@ import java.lang.reflect.Field;
 
 import com.opendev.bolao.service.EquipeService;
 import com.opendev.bolao.service.JogoService;
+import com.opendev.bolao.service.PalpiteAuthorizationService;
 import com.opendev.bolao.service.PalpiteService;
 import com.opendev.bolao.service.ParticipanteService;
+import com.opendev.bolao.model.Equipe;
+import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.model.Participante;
+import com.opendev.bolao.service.dto.PalpiteAuthorization;
 import com.opendev.bolao.util.BolaoTime;
+import com.opendev.bolao.util.ConversaoUtils;
 import com.opendev.bolao.util.DadosClassificacao;
 import com.opendev.bolao.util.FiltroBuscaJogos;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +43,8 @@ class ParticipanteActionLoadTest {
     private PalpiteService palpiteService;
     @Mock
     private ParticipanteService participanteService;
+    @Mock
+    private PalpiteAuthorizationService palpiteAuthorizationService;
 
     @InjectMocks
     private ParticipanteAction action;
@@ -45,6 +52,7 @@ class ParticipanteActionLoadTest {
     @BeforeEach
     void setUp() {
         action.setUsarFiltro(false);
+        action.setPalpiteAuthorizationService(palpiteAuthorizationService);
     }
 
     @Test
@@ -255,6 +263,158 @@ class ParticipanteActionLoadTest {
         assertThat(primeiro.getNomeFormatado()).isEqualTo("Alice Silva");
         assertThat(segundo.getNomeFormatado()).isEqualTo("Bruno Souza");
         assertThat(terceiro.getNomeFormatado()).isEqualTo("Carlos Lima");
+    }
+
+    @Test
+    void buscarMaisJogosHtmxDeveRetornarListaVaziaQuandoDataInicialForInvalida() {
+        action.setDataInicial("data-invalida");
+
+        String resultado = action.buscarMaisJogosHtmx();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(action.getJogos()).isNotNull().isEmpty();
+        verify(jogoService, never()).buscarPrimeiraDataComJogosApos(any(Date.class));
+        verify(jogoService, never()).buscarUsandoFiltro(any(FiltroBuscaJogos.class));
+    }
+
+    @Test
+    void buscarMaisJogosHtmxDeveRetornarListaVaziaQuandoNaoHouverProximaData() {
+        action.setDataInicial("16/06/2026");
+        when(jogoService.buscarPrimeiraDataComJogosApos(any(Date.class))).thenReturn(null);
+
+        String resultado = action.buscarMaisJogosHtmx();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(action.getJogos()).isNotNull().isEmpty();
+        verify(jogoService, never()).buscarUsandoFiltro(any(FiltroBuscaJogos.class));
+    }
+
+    @Test
+    void buscarMaisJogosHtmxDeveRetornarListaVaziaQuandoServicoLancarExcecao() {
+        action.setDataInicial("16/06/2026");
+        when(jogoService.buscarPrimeiraDataComJogosApos(any(Date.class))).thenThrow(new RuntimeException("erro"));
+
+        String resultado = action.buscarMaisJogosHtmx();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(action.getJogos()).isNotNull().isEmpty();
+        verify(jogoService, never()).buscarUsandoFiltro(any(FiltroBuscaJogos.class));
+    }
+
+    @Test
+    void prepararInfoPalpitesDeveSanitizarCamposInvalidosDoFiltro() {
+        action.setUsarFiltro(true);
+        action.setDataInicial("20/06/2026");
+        action.setDataFinal("10/06/2026");
+        action.setFiltroFase(99);
+        action.setFiltroGrupo("zz");
+        action.setFiltroEquipe(999L);
+        action.setFiltroSemPalpite(true);
+        action.setFiltroJogosNaoOcorreram(true);
+
+        Equipe equipePermitida = new Equipe();
+        equipePermitida.setId(1L);
+        when(equipeService.buscarApenasPaisesReais()).thenReturn(java.util.List.of(equipePermitida));
+        when(jogoService.buscarUsandoFiltro(any(FiltroBuscaJogos.class))).thenReturn(new ArrayList<>());
+        when(jogoService.contarJogosUsandoFiltro(any())).thenReturn(104L);
+
+        action.prepararInfoPalpites();
+
+        ArgumentCaptor<FiltroBuscaJogos> filtroCaptor = ArgumentCaptor.forClass(FiltroBuscaJogos.class);
+        verify(jogoService).buscarUsandoFiltro(filtroCaptor.capture());
+        FiltroBuscaJogos filtroAplicado = filtroCaptor.getValue();
+
+        assertThat(filtroAplicado.getDataInicial()).isEqualTo(ConversaoUtils.converterParaData("10/06/2026"));
+        assertThat(filtroAplicado.getDataFinal()).isEqualTo(ConversaoUtils.converterParaData("20/06/2026"));
+        assertThat(filtroAplicado.getFase()).isNull();
+        assertThat(filtroAplicado.getGrupo()).isNull();
+        assertThat(filtroAplicado.getIdEquipe()).isNull();
+        assertThat(filtroAplicado.isSoSemPalpite()).isTrue();
+        assertThat(filtroAplicado.isSoJogosQueNaoOcorreram()).isTrue();
+        assertThat(action.getFiltroAvisos()).isNotEmpty();
+        assertThat(action.getFiltroAvisos())
+                .anySatisfy(aviso -> assertThat(aviso).contains("intervalo de datas"))
+                .anySatisfy(aviso -> assertThat(aviso).contains("fase"))
+                .anySatisfy(aviso -> assertThat(aviso).contains("equipe"))
+                .anySatisfy(aviso -> assertThat(aviso).contains("grupo"));
+    }
+
+    @Test
+    void prepararInfoPalpitesDeveManterCamposValidosDoFiltro() {
+        action.setUsarFiltro(true);
+        action.setDataInicial("10/06/2026");
+        action.setDataFinal("20/06/2026");
+        action.setFiltroFase(16);
+        action.setFiltroGrupo("a");
+        action.setFiltroEquipe(1L);
+
+        Equipe equipePermitida = new Equipe();
+        equipePermitida.setId(1L);
+        when(equipeService.buscarApenasPaisesReais()).thenReturn(java.util.List.of(equipePermitida));
+        when(jogoService.buscarUsandoFiltro(any(FiltroBuscaJogos.class))).thenReturn(new ArrayList<>());
+        when(jogoService.contarJogosUsandoFiltro(any())).thenReturn(104L);
+
+        action.prepararInfoPalpites();
+
+        ArgumentCaptor<FiltroBuscaJogos> filtroCaptor = ArgumentCaptor.forClass(FiltroBuscaJogos.class);
+        verify(jogoService).buscarUsandoFiltro(filtroCaptor.capture());
+        FiltroBuscaJogos filtroAplicado = filtroCaptor.getValue();
+
+        assertThat(filtroAplicado.getDataInicial()).isEqualTo(ConversaoUtils.converterParaData("10/06/2026"));
+        assertThat(filtroAplicado.getDataFinal()).isEqualTo(ConversaoUtils.converterParaData("20/06/2026"));
+        assertThat(filtroAplicado.getFase()).isEqualTo(16);
+        assertThat(filtroAplicado.getGrupo()).isEqualTo("A");
+        assertThat(filtroAplicado.getIdEquipe()).isEqualTo(1L);
+        assertThat(action.getFiltroAvisos()).isEmpty();
+    }
+
+    @Test
+    void prepararInfoPalpitesDevePopularAutorizacoesCanonicamentePorJogo() {
+        action.setUsarFiltro(true);
+        action.setDataInicial("16/06/2026");
+        action.setDataFinal("16/06/2026");
+
+        Jogo jogoAberto = new Jogo();
+        jogoAberto.setId(1018L);
+        Jogo jogoFechado = new Jogo();
+        jogoFechado.setId(1017L);
+
+        when(equipeService.buscarApenasPaisesReais()).thenReturn(new ArrayList<>());
+        when(jogoService.buscarUsandoFiltro(any(FiltroBuscaJogos.class))).thenReturn(java.util.List.of(jogoAberto, jogoFechado));
+        when(jogoService.contarJogosUsandoFiltro(null)).thenReturn(104L);
+        when(palpiteAuthorizationService.avaliar(any(), eq(jogoAberto), isNull()))
+                .thenReturn(PalpiteAuthorization.permitido(PalpiteAuthorization.Status.PENDING));
+        when(palpiteAuthorizationService.avaliar(any(), eq(jogoFechado), isNull()))
+                .thenReturn(PalpiteAuthorization.negado(PalpiteAuthorization.Status.LOCKED, PalpiteAuthorization.RejectionReason.TIME_WINDOW));
+
+        action.prepararInfoPalpites();
+
+        assertThat(action.getAutorizacoesPalpitePorJogo()).hasSize(2);
+        assertThat(action.getAutorizacoesPalpitePorJogo().get(1018L).isPermitido()).isTrue();
+        assertThat(action.getAutorizacoesPalpitePorJogo().get(1018L).getStatus()).isEqualTo(PalpiteAuthorization.Status.PENDING);
+        assertThat(action.getAutorizacoesPalpitePorJogo().get(1017L).isPermitido()).isFalse();
+        assertThat(action.getAutorizacoesPalpitePorJogo().get(1017L).getReason()).isEqualTo(PalpiteAuthorization.RejectionReason.TIME_WINDOW);
+    }
+
+    @Test
+    void buscarMaisJogosHtmxDevePopularAutorizacaoCanonicaNoCarregamentoIncremental() {
+        action.setDataInicial("16/06/2026");
+
+        Date dataComJogos = ConversaoUtils.converterParaData("17/06/2026");
+        Jogo jogo = new Jogo();
+        jogo.setId(2022L);
+
+        when(jogoService.buscarPrimeiraDataComJogosApos(any(Date.class))).thenReturn(dataComJogos);
+        when(jogoService.buscarUsandoFiltro(any(FiltroBuscaJogos.class))).thenReturn(java.util.List.of(jogo));
+        when(palpiteAuthorizationService.avaliar(any(), eq(jogo), isNull()))
+                .thenReturn(PalpiteAuthorization.negado(PalpiteAuthorization.Status.LOCKED, PalpiteAuthorization.RejectionReason.ADMIN_RESTRICTED));
+
+        String resultado = action.buscarMaisJogosHtmx();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(action.getAutorizacoesPalpitePorJogo()).containsKey(2022L);
+        assertThat(action.getAutorizacoesPalpitePorJogo().get(2022L).getReason())
+                .isEqualTo(PalpiteAuthorization.RejectionReason.ADMIN_RESTRICTED);
     }
 
     private Participante criarParticipante(String nome, int pontos, int acertosTotais, int acertosParciaisBonus)
