@@ -838,6 +838,59 @@ Premissas de compatibilidade (críticas):
       - método de domínio `Jogo.getPodeAtualizarResultado()` criado para centralizar a regra temporal de edição de resultado na camada de modelo;
       - regressão validada com `mvn -Dfrontend.skip=true -Dtest=JogoTest,AdminActionTest test` (`17` testes aprovados).
 
+72. **[Concluído] UX de Alto Impacto para Classificação Geral (Top 10 + variação de posição) (16/06/2026):**
+    Objetivo: transformar a tela de Classificação Geral em uma experiência mais competitiva e legível, valorizando as 10 primeiras posições e a evolução de colocação, sem quebrar layout existente, funcionalidades e governança atual de cache.
+    Skills aplicadas: `ui-ux-pro-max v1.0.0`, `architecture-guardian v1.0.0`, `modern-css v1.0.0`, `senior-java-dev-legacy v1.0.0`.
+    Referência de plano: `.ia/planos/plano-ux-classificacao-geral-alto-impacto.md`.
+
+    * **[Concluído] 72.1 — Diagnóstico UX + baseline técnico da classificação (16/06/2026):**
+      Entregável:
+      - inventário consolidado de `classificacao.jsp` + `estilo.css`, incluindo estado atual da coluna `VAR` e do destaque do usuário logado;
+      - checklist arquitetural aplicado (sem nova query, sem alteração de invalidacão de cache e sem mudança da ordenação oficial);
+      - critérios de aceite registrados no plano de execução.
+
+    * **[Concluído] 72.2 — Criar camada visual de destaque para Top 10 (podium + trilha 4º–10º) (16/06/2026):**
+      Entregável:
+      - bloco Top 10 implementado em `webapp/WEB-INF/content/seguro/classificacao.jsp`, derivado da lista `participantes` já carregada em memória;
+      - pódio explícito (1º/2º/3º) + trilha de cards de 4º a 10º com destaque contextual;
+      - tabela oficial completa mantida como fonte canônica da classificação.
+
+    * **[Concluído] 72.3 — Evoluir semântica visual da variação de posição (setas/badges/estado) (16/06/2026):**
+      Entregável:
+      - badges consistentes para `subiu`, `caiu`, `estável` e `novo/sem histórico` aplicados no Top 10 e na tabela;
+      - semântica visual reforçada por texto e ícone (não dependente somente de cor);
+      - chaves i18n novas adicionadas em `src/main/resources/messages.properties` e `src/messages.properties`.
+
+    * **[Concluído] 72.4 — Refinar escaneabilidade da tabela sem quebrar leiaute existente (16/06/2026):**
+      Entregável:
+      - hierarquia visual reforçada nas colunas de posição, variação, nome e pontuação;
+      - aplicação de `font-variant-numeric: tabular-nums` para leitura estável de métricas;
+      - destaque do usuário logado evoluído com contraste e contorno mais perceptível.
+
+    * **[Concluído] 72.5 — Responsividade e microinterações (desktop/mobile) (16/06/2026):**
+      Entregável:
+      - comportamento responsivo do bloco Top 10 com trilha rolável em mobile e cartões com `scroll-snap`;
+      - ajustes de densidade visual nos breakpoints `1024px` e `768px`;
+      - microinterações sutis com respeito a `prefers-reduced-motion`.
+
+    * **[Concluído] 72.6 — Acessibilidade e conteúdo de apoio (legendas e contexto) (16/06/2026):**
+      Entregável:
+      - contraste e semântica revisados em badges/realces mantendo base WCAG 2.1 AA;
+      - legenda compacta da coluna `VAR` adicionada no cabeçalho da tabela;
+      - nota contextual de desempate exibida no bloco de destaque quando há empate de pontuação no topo.
+
+    * **[Concluído] 72.7 — Cobertura de testes e validação de regressão (16/06/2026):**
+      Entregável:
+      - regressão da classificação executada em `ParticipanteServiceTest` (cálculo/variação/cache) e `ParticipanteActionLoadTest` (carga/ordenação/listagem);
+      - comando executado: `mvn -Dfrontend.skip=true -Dtest=ParticipanteServiceTest,ParticipanteActionLoadTest test`;
+      - resultado: `15` testes aprovados, `0` falhas.
+
+    * **[Concluído] 72.8 — Encerramento de rastreabilidade (log + atualização do plano) (16/06/2026):**
+      Entregável:
+      - registro de execução em `.ia/logs/session-20260616-tarefa72-execucao-ux-classificacao-geral.md`;
+      - atualização final desta tarefa/subtarefas no `passo-a-passo.md`;
+      - backlog de evolução contínua recomendado no log (filtro por recortes, animação de entrada em swap HTMX e comparativo por usuário).
+
 47. **[Concluído] Incluir campo de data na edição administrativa da tela de atualização de resultados (13/06/2026):**
     Objetivo: permitir que o administrador ajuste também a **data** do jogo na mesma tela em que já ajusta hora, local e equipes, mantendo consistência com o fuso oficial São Paulo e sem regressão no fluxo HTMX de atualização.
     Skills previstas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`, `ui-ux-pro-max v1.0.0`.
