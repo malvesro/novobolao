@@ -891,6 +891,23 @@ Premissas de compatibilidade (críticas):
       - atualização final desta tarefa/subtarefas no `passo-a-passo.md`;
       - backlog de evolução contínua recomendado no log (filtro por recortes, animação de entrada em swap HTMX e comparativo por usuário).
 
+73. **[Concluído] Correção de cache-busting do CSS global para evitar quebra de layout pós-deploy (16/06/2026):**
+    Objetivo: impedir que o navegador/CDN mantenha `estilo.css` antigo após deploy de novas versões, cenário que causou mismatch entre JSP novo e CSS desatualizado na tela de classificação.
+    Skills aplicadas: `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`.
+
+    * **[Concluído] 73.1 — Diagnóstico de causa raiz (16/06/2026):**
+      Entregável:
+      - identificado carregamento estático do CSS em `cabecalho.jspf` via `@IMPORT url("${base}/css/estilo.css")`, sem token de versão para invalidação de cache.
+
+    * **[Concluído] 73.2 — Implementar versionamento de URL do CSS global (16/06/2026):**
+      Entregável:
+      - `cabecalho.jspf` ajustado para usar `link rel="stylesheet"` com query param versionado: `estilo.css?v=${buildInfo.version}` (fallback `dev` quando metadado não disponível).
+
+    * **[Concluído] 73.3 — Validar não regressão e rastreabilidade (16/06/2026):**
+      Entregável:
+      - validação técnica rápida executada após ajuste;
+      - log registrado em `.ia/logs/session-20260616-tarefa73-cache-busting-css-global.md`.
+
 47. **[Concluído] Incluir campo de data na edição administrativa da tela de atualização de resultados (13/06/2026):**
     Objetivo: permitir que o administrador ajuste também a **data** do jogo na mesma tela em que já ajusta hora, local e equipes, mantendo consistência com o fuso oficial São Paulo e sem regressão no fluxo HTMX de atualização.
     Skills previstas: `senior-java-dev-legacy v1.0.0`, `architecture-guardian v1.0.0`, `ui-ux-pro-max v1.0.0`.

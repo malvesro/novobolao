@@ -353,9 +353,12 @@
 </script>
 
 
-<style type="text/css">
-	@IMPORT url("${base}/css/estilo.css");
-</style>
+<c:set var="buildInfo" value="${applicationScope.buildInfo}" />
+<c:set var="cssVersionToken" value="dev" />
+<c:if test="${not empty buildInfo and not empty buildInfo.version}">
+	<c:set var="cssVersionToken" value="${buildInfo.version}" />
+</c:if>
+<link rel="stylesheet" type="text/css" href="${base}/css/estilo.css?v=${cssVersionToken}" />
 </head>
 <body>
 	<a class="skip-link" href="#content">Ir para o conteúdo principal</a>
