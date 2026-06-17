@@ -2213,3 +2213,9 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
 * **[Pendente] 11.3 - Plano de Atualização:** Documentar a estratégia de atualização, definindo versões alvo, justificando a escolha e avaliando riscos de quebra de compatibilidade.
 * **[Pendente] 11.4 - Execução da Remediação:** Aplicar as atualizações no `pom.xml` de forma incremental, compilando e testando o sistema após cada grupo de dependências atualizado.
 * **[Pendente] 11.5 - Validação Final:** Executar build completo (`mvn clean install`) e suíte de testes unitários/integração para garantir a integridade do sistema e a ausência de vulnerabilidades críticas.
+
+58. **[Concluído] Versionamento da aplicação para release 1.3.0 (17/06/2026):**
+    Objetivo: alinhar a versão canônica do artefato Maven com a entrega funcional já estabilizada na sprint.
+    * **[Concluído] 58.1 — Atualizar versão no `pom.xml`:** ajuste de `1.2.0` para `1.3.0`.
+    * **[Concluído] 58.2 — Verificação de consistência:** confirmada ausência de hardcode residual da versão anterior nos arquivos de runtime.
+    * **[Concluído] 58.3 — Rastreabilidade:** log de sessão criado em `.ia/logs/session-20260617-tarefa79-versionamento-1.3.0.md`.
