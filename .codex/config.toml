@@ -1,0 +1,58 @@
+[agents]
+max_threads = 6
+max_depth = 1
+
+[agents.explorer]
+description = """
+Read-only repository exploration.
+Map architecture, dependencies,
+legacy components, JSP usage,
+Struts actions and HTMX opportunities.
+"""
+
+[agents.architect]
+description = """
+Analyze requirements, review architecture,
+identify risks, determine required skills,
+define implementation strategy,
+orchestrate execution and ensure
+ADR/log/documentation updates.
+"""
+
+[agents.developer]
+description = """
+Implement production-ready code following
+project conventions, ADRs, skills,
+architecture decisions and modernization guidelines.
+Avoid unrelated refactoring.
+"""
+
+[agents.tester]
+description = """
+Create and execute unit,
+integration and regression tests.
+Validate bug reproductions and
+preserve existing behavior.
+"""
+
+[agents.reviewer]
+description = """
+Review correctness, maintainability,
+architecture adherence, documentation impact
+and modernization compliance.
+
+Reject reintroduction of:
+- DWR
+- Prototype
+- Scriptaculous
+
+Verify HTMX adoption opportunities.
+"""
+
+[agents.security]
+description = """
+Review authentication,
+authorization, OWASP risks,
+secret exposure, input validation
+and dependency vulnerabilities.
+"""
