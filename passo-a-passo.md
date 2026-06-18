@@ -2296,3 +2296,9 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
       - logs técnicos registrados em `.ia/logs/session-20260618-tarefa60-iteracao-cache-admin-invalidation.md`.
       - encerramento consolidado registrado em `.ia/logs/session-20260618-tarefa60-encerramento-consolidado.md`.
       - ajuste final de consistência aplicado: removidos resquícios de pré-aquecimento no login em `ParticipanteAction` e `ParticipanteActionTest`, preservando apenas a estratégia de cache/aquecimento na tela de gráfico.
+
+61. **[Concluído] Correção de falso aviso de saída na tela admin após salvar resultado (18/06/2026):**
+    Objetivo: impedir aviso de "dados não salvos" ao navegar para outra tela quando o resultado já foi efetivamente gravado.
+    * **[Concluído] 61.1 — Diagnóstico de estado pendente no frontend admin:** identificado cenário em `src/frontend/pages/jogos.js` em que `pendingAdminRequests` podia permanecer aberto após `htmx:afterRequest` sem `detail.elt`.
+    * **[Concluído] 61.2 — Ajuste de liquidação de pendência:** `handleAfterRequest()` passou a liquidar fluxo admin com base em `requestConfig.path` mesmo sem elemento trigger, evitando warning falso em `beforeunload`.
+    * **[Concluído] 61.3 — Regressão automatizada:** novo teste frontend em `tests/frontend/jogos.test.js` cobrindo `afterRequest` admin sem `detail.elt` e validando limpeza do bloqueio de saída.

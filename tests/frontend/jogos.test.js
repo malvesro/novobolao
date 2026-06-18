@@ -340,6 +340,35 @@ describe('jogos.js estados criticos', () => {
     expect(cleanExit.defaultPrevented).toBe(false);
   });
 
+  it('deve limpar pendencia admin quando afterRequest chegar sem detail.elt', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const adminField = document.querySelector('#jogoTr_201 input[name="golsEquipe1"]');
+    const requestConfig = { path: '/admin/atualizarResultadoJogo.action' };
+
+    adminField.dispatchEvent(new CustomEvent('htmx:beforeRequest', {
+      bubbles: true,
+      detail: { elt: adminField, requestConfig },
+    }));
+
+    const pendingExit = new Event('beforeunload', { cancelable: true });
+    window.dispatchEvent(pendingExit);
+    expect(pendingExit.defaultPrevented).toBe(true);
+
+    document.body.dispatchEvent(new CustomEvent('htmx:afterRequest', {
+      bubbles: true,
+      detail: { requestConfig, successful: true },
+    }));
+
+    const cleanExit = new Event('beforeunload', { cancelable: true });
+    window.dispatchEvent(cleanExit);
+    expect(cleanExit.defaultPrevented).toBe(false);
+  });
+
   it('deve cobrir deduplicacao de autosave, dirty/beforeunload e fluxos de retry', async () => {
     vi.resetModules();
     mountJogosFixture();

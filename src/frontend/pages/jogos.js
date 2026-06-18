@@ -735,6 +735,27 @@ function handleAfterRequest(event) {
   if (!state.initialized) {
     return;
   }
+
+  // Em alguns cenários de swap (ex.: outerHTML da linha admin), o elemento
+  // disparador pode não estar disponível no afterRequest. Nesse caso usamos
+  // apenas o requestConfig.path para liquidar pendências administrativas e
+  // evitar warning falso de beforeunload.
+  if (isAdminRequest(event, null)) {
+    const trigger = event.detail && event.detail.elt;
+    const adminRow = trigger instanceof HTMLElement
+      ? trigger.closest('.match-row--admin-direct')
+      : null;
+    finishAdminPending(event);
+    if (!event.detail.successful && adminRow) {
+      const adminError = getUiMessage('msgAdminError', 'Erro ao salvar resultado.');
+      updateAdminRowStatus(adminRow, adminError, 'error');
+      setAdminRetryVisible(adminRow, true);
+      announceGlobalStatus(getUiMessage('msgAdminSessionError', 'Erro ao atualizar resultado.'), 'error');
+      debugWarn('Falha ao atualizar resultado no admin.', { rowId: adminRow.id });
+    }
+    return;
+  }
+
   const trigger = event.detail && event.detail.elt;
   if (!trigger) {
     return;
@@ -758,19 +779,6 @@ function handleAfterRequest(event) {
       markMatchDirty(jogoId, true);
       announceGlobalStatus(getUiMessage('msgSessionError', 'Erro ao salvar palpite.'), 'error');
       debugWarn('Falha ao salvar palpite (rede).', { jogoId });
-    }
-    return;
-  }
-
-  if (isAdminRequest(event, trigger)) {
-    const adminRow = trigger.closest('.match-row--admin-direct');
-    finishAdminPending(event);
-    if (!event.detail.successful && adminRow) {
-      const adminError = getUiMessage('msgAdminError', 'Erro ao salvar resultado.');
-      updateAdminRowStatus(adminRow, adminError, 'error');
-      setAdminRetryVisible(adminRow, true);
-      announceGlobalStatus(getUiMessage('msgAdminSessionError', 'Erro ao atualizar resultado.'), 'error');
-      debugWarn('Falha ao atualizar resultado no admin.', { rowId: adminRow.id });
     }
     return;
   }
