@@ -37,6 +37,7 @@ import com.opendev.bolao.util.BolaoTime;
 import com.opendev.bolao.util.ConversaoUtils;
 import com.opendev.bolao.util.MensagemErro;
 import com.opendev.bolao.util.FiltroBuscaJogos;
+import com.opendev.bolao.util.GraficoDesempenhoCacheControl;
 import com.opendev.bolao.util.RequestUtils;
 import com.opendev.bolao.util.SanitizationUtils;
 import com.opendev.bolao.util.ValidacaoUtils;
@@ -349,6 +350,23 @@ public class ParticipanteAction extends ActionSupport {
 
     public String obterDadosGraficoJson() {
         long startedAt = System.currentTimeMillis();
+        boolean somenteVersao = isSolicitacaoSomenteVersaoCache();
+        long versaoCacheGrafico = GraficoDesempenhoCacheControl.obterVersaoAtual();
+        if (somenteVersao) {
+            this.graficoData = new HashMap<>();
+            this.graficoData.put("series", Collections.emptyList());
+            this.graficoData.put("categories", Collections.emptyList());
+            this.graficoData.put("cacheVersion", versaoCacheGrafico);
+            HttpServletResponse responseVersao = getCurrentResponse();
+            if (responseVersao != null) {
+                responseVersao.setHeader("Cache-Control", "private, no-store");
+                responseVersao.setHeader("Pragma", "no-cache");
+                responseVersao.setHeader("Vary", "Cookie, Accept-Encoding");
+                responseVersao.setHeader("X-Grafico-Cache-Version", String.valueOf(versaoCacheGrafico));
+            }
+            return SUCCESS;
+        }
+
         String login = RequestUtils.getLoginParticipanteAutenticado();
         Participante participante = getParticipanteService().buscarPorLogin(login).orElse(null);
         Long idRival = obterIdRival();
@@ -358,6 +376,7 @@ public class ParticipanteAction extends ActionSupport {
         this.graficoData = new HashMap<>();
         this.graficoData.put("series", grafico != null ? grafico.getSeriesData() : Collections.emptyList());
         this.graficoData.put("categories", grafico != null ? grafico.getCategories() : Collections.emptyList());
+        this.graficoData.put("cacheVersion", versaoCacheGrafico);
 
         HttpServletResponse response = getCurrentResponse();
         if (response != null) {
@@ -366,6 +385,7 @@ public class ParticipanteAction extends ActionSupport {
             response.setHeader("Cache-Control", "private, max-age=30, must-revalidate");
             response.setHeader("Pragma", "private");
             response.setHeader("Vary", "Cookie, Accept-Encoding");
+            response.setHeader("X-Grafico-Cache-Version", String.valueOf(versaoCacheGrafico));
         }
 
         if (LOGGER.isDebugEnabled()) {
@@ -379,6 +399,15 @@ public class ParticipanteAction extends ActionSupport {
         }
 
         return SUCCESS;
+    }
+
+    private boolean isSolicitacaoSomenteVersaoCache() {
+        HttpServletRequest request = getCurrentRequest();
+        if (request == null) {
+            return false;
+        }
+        String valor = request.getParameter("cacheVersionOnly");
+        return "true".equalsIgnoreCase(valor);
     }
 
     public String gerarGraficoDesempenho() {
@@ -493,6 +522,20 @@ public class ParticipanteAction extends ActionSupport {
         }
         if (RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attrs) {
             return attrs.getResponse();
+        }
+        return null;
+    }
+
+    private HttpServletRequest getCurrentRequest() {
+        ActionContext actionContext = ActionContext.getContext();
+        if (actionContext != null) {
+            HttpServletRequest request = ServletActionContext.getRequest();
+            if (request != null) {
+                return request;
+            }
+        }
+        if (RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attrs) {
+            return attrs.getRequest();
         }
         return null;
     }

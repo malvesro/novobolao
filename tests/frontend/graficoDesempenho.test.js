@@ -23,6 +23,7 @@ function jsonResponse(payload) {
 
 function createPayload(name) {
   return {
+    cacheVersion: 1,
     series: [
       {
         name,
@@ -39,12 +40,14 @@ function mountGraficoFixture() {
       data-loading-message="Carregando grafico..."
       data-empty-message="Sem dados"
       data-error-message="Erro no grafico"
-      data-cache-message="Dados do cache"
-      data-retry-label="Tentar novamente"
-      data-status-loading="Status carregando"
-      data-status-ready="Status pronto"
-      data-status-error="Status erro"
-    >
+	      data-cache-message="Dados do cache"
+	      data-retry-label="Tentar novamente"
+	      data-timeout-message="Tempo limite do grafico"
+	      data-status-loading="Status carregando"
+	      data-status-ready="Status pronto"
+	      data-status-error="Status erro"
+	      data-status-timeout="Status timeout"
+	    >
       <select id="rival">
         <option value="">Todos</option>
         <option value="A">Rival A</option>
@@ -99,7 +102,9 @@ describe('graficoDesempenho.js concorrencia e cache', () => {
         // sem resolve intencionalmente
       }))
       // Rival B (resposta válida)
-      .mockImplementationOnce(() => Promise.resolve(jsonResponse(createPayload('Rival B'))));
+      .mockImplementationOnce(() => Promise.resolve(jsonResponse(createPayload('Rival B'))))
+      // Verificação de versão antes de reutilizar cache de B
+      .mockImplementationOnce(() => Promise.resolve(jsonResponse({ cacheVersion: 1, series: [], categories: [] })));
 
     global.fetch = fetchMock;
 
@@ -136,7 +141,7 @@ describe('graficoDesempenho.js concorrencia e cache', () => {
     vi.advanceTimersByTime(130);
     await flushAsyncWork();
 
-    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(fetchMock).toHaveBeenCalledTimes(4);
     expect(chartEl.getAttribute('aria-busy')).toBe('false');
     expect(statusEl.className).not.toContain('chart-status--error');
 
@@ -206,6 +211,41 @@ describe('graficoDesempenho.js concorrencia e cache', () => {
     expect(statusEl.textContent).toBe('Status pronto');
     expect(statusEl.className).toContain('chart-status--ready');
     expect(statusEl.className).not.toContain('chart-status--error');
+
+    vi.useRealTimers();
+  });
+
+  it('deve exibir erro de timeout para requisicao ativa e oferecer retry', async () => {
+    mountGraficoFixture();
+
+    const fetchMock = vi.fn();
+    fetchMock
+      .mockImplementationOnce(() => new Promise((_, reject) => {
+        // Requisição pendente para forçar timeout do carregamento inicial
+        setTimeout(() => {
+          const abortError = new Error('aborted');
+          abortError.name = 'AbortError';
+          reject(abortError);
+        }, 10_001);
+      }));
+
+    global.fetch = fetchMock;
+
+    const { initGraficoDesempenhoPage } = await import('../../src/frontend/pages/graficoDesempenho.js');
+    initGraficoDesempenhoPage();
+
+    vi.advanceTimersByTime(10_100);
+    await flushAsyncWork();
+
+    const statusEl = document.getElementById('performance-chart-status');
+    const chartEl = document.getElementById('performance-chart');
+
+    expect(statusEl.textContent).toBe('Status timeout');
+    expect(statusEl.className).toContain('chart-status--error');
+
+    const retryButton = chartEl.querySelector('.chart-retry');
+    expect(retryButton).not.toBeNull();
+    expect(retryButton.textContent).toBe('Tentar novamente');
 
     vi.useRealTimers();
   });

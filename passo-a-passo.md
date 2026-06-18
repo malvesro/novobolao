@@ -2226,3 +2226,73 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     * **[Concluído] 59.2 — Correção da faixa Top 10:** ajustado cálculo da posição para `loopTop10.count + 3`, garantindo sequência correta da 4ª à 10ª posição.
     * **[Concluído] 59.3 — Alinhamento com ranking oficial:** removida lógica legada de empate apenas por pontuação na tabela e padronizada posição oficial por ordem classificada (`loop.count`).
     * **[Concluído] 59.4 — Validação técnica:** testes focados executados com `-Djava.awt.headless=true` (sucesso).
+
+60. **[Concluído] Correção do travamento "Atualizando gráfico..." + estratégia de cache na tela e invalidação por resultado admin (18/06/2026):**
+    Objetivo: eliminar o estado travado da tela de gráfico de desempenho, melhorar previsibilidade UX em latência alta e definir estratégia segura de cache com invalidação consistente.
+    Skills aplicadas no planejamento: `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`, `ui-ux-pro-max v1.0.0`, `security-audit v1.0.0`, `htmx`.
+    Referência de plano: `.ia/planos/plano-correcao-grafico-desempenho-timeout-cache-20260618.md`.
+
+    * **[Concluído] 60.1 — Diagnóstico técnico reproduzível do travamento de status (18/06/2026):**
+      Entregável:
+      - mapear e reproduzir fluxo com timeout/cancelamento em `src/frontend/pages/graficoDesempenho.js`;
+      - confirmar evidência de estado terminal incorreto (loading sem transição para erro/pronto).
+      Status implementado:
+      - diagnóstico confirmou falha de fechamento de estado em cenários de timeout/abort na requisição ativa, com permanência indevida de mensagem de loading.
+
+    * **[Concluído] 60.2 — Correção incremental do estado UX para timeout/abort (18/06/2026):**
+      Entregável:
+      - ajuste de `loadChart()` para sempre finalizar em `ready`, `warn` ou `error`;
+      - distinção entre abort obsoleto (troca de rival) e timeout da requisição ativa;
+      - retry explícito preservado para falhas transitórias.
+      Status implementado:
+      - `TimeoutError` explícito no frontend, fechamento de estado com mensagem apropriada e botão de retry;
+      - preservado comportamento de requisições obsoletas sem sobrescrever seleção mais recente.
+
+    * **[Concluído] 60.3 — Cobertura de testes frontend focada em timeout e concorrência (18/06/2026):**
+      Entregável:
+      - ampliar `tests/frontend/graficoDesempenho.test.js` para cenário de timeout da requisição ativa;
+      - garantir que timeout não deixe status em loading;
+      - manter cobertura de não regressão para troca rápida de rival.
+      Status implementado:
+      - suíte frontend atualizada e validada (`tests/frontend/graficoDesempenho.test.js`, 3 testes aprovados).
+
+    * **[Concluído] 60.4 — Prova funcional ponta a ponta do fluxo JSON do gráfico (18/06/2026):**
+      Entregável:
+      - validar contrato JSON em `/seguro/obterDadosGraficoJson.action` (success, sem dados e erro);
+      - registrar tempos médios e comportamento percebido em rede mais lenta.
+      Status implementado:
+      - contrato validado via `ParticipanteActionTest` (payload, headers e fallback);
+      - adicionado modo leve `cacheVersionOnly=true` para handshake de versão sem recomputação completa.
+
+    * **[Concluído] 60.5 — Estratégia de pré-cache revisada por decisão arquitetural (18/06/2026):**
+      Entregável:
+      - avaliar pré-aquecimento assíncrono do histórico "self" após login (sem bloquear autenticação);
+      - documentar trade-offs de custo/benefício e budget de execução;
+      - manter fallback padrão caso o pré-cache falhe.
+      Status implementado:
+      - após revisão estratégica para ambiente restrito (HF free), pré-cache no login foi **despriorizado**;
+      - estratégia adotada: cache e aquecimento na própria tela de gráfico, com reaproveitamento local por rival e invalidação por versão.
+
+    * **[Concluído] 60.6 — Invalidação de cache em atualização de resultado admin (18/06/2026):**
+      Entregável:
+      - definir e implementar gatilho de invalidação na confirmação de placar pelo admin;
+      - sincronizar invalidação entre cache cliente e sinalização backend (versão/timestamp lógico);
+      - validar que atualização de resultado reflita no gráfico sem inconsistência.
+      Status implementado:
+      - `JogoServiceImpl.atualizarResultado(...)` incrementa versão global de cache (`GraficoDesempenhoCacheControl.invalidarCacheGlobal()`).
+      - endpoint `/seguro/obterDadosGraficoJson.action` expõe `cacheVersion` no payload e `X-Grafico-Cache-Version` no header.
+      - adicionado modo leve `cacheVersionOnly=true` para consulta de versão sem recomputar o gráfico.
+      - frontend (`graficoDesempenho.js`) valida versão no servidor antes de reutilizar cache local por rival; em mudança de versão, remove entradas antigas e força atualização com dados recentes.
+      - testes de regressão executados com sucesso (`tests/frontend/graficoDesempenho.test.js`, `ParticipanteActionTest`, `JogoServiceImplTest`).
+
+    * **[Concluído] 60.7 — Revisão de segurança, documentação e rastreabilidade final (18/06/2026):**
+      Entregável:
+      - validação de segurança do endpoint/cache (dados privados por usuário);
+      - atualização de documentação técnica e registro de sessão em `.ia/logs/`;
+      - atualização final do status desta tarefa e subtarefas no plano.
+      Status implementado:
+      - cache mantido como `private` por usuário no endpoint JSON;
+      - ADR registrada em `.ia/historico/ADR-20260618-cache-grafico-desempenho-versionado.md`;
+      - logs técnicos registrados em `.ia/logs/session-20260618-tarefa60-iteracao-cache-admin-invalidation.md`.
+      - encerramento consolidado registrado em `.ia/logs/session-20260618-tarefa60-encerramento-consolidado.md`.
+      - ajuste final de consistência aplicado: removidos resquícios de pré-aquecimento no login em `ParticipanteAction` e `ParticipanteActionTest`, preservando apenas a estratégia de cache/aquecimento na tela de gráfico.

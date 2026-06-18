@@ -6,6 +6,7 @@ let chartInstance = null;
 let activeController = null;
 let latestRequestToken = 0;
 let apexChartsLoader = null;
+let latestServerCacheVersion = 0;
 
 const chartCache = new Map();
 
@@ -28,14 +29,38 @@ function getCachedPayload(cacheKey) {
     return null;
   }
 
+  if (latestServerCacheVersion > 0 && cached.cacheVersion > 0 && cached.cacheVersion < latestServerCacheVersion) {
+    chartCache.delete(cacheKey);
+    return null;
+  }
+
   return cached.payload;
 }
 
-function setCachedPayload(cacheKey, payload) {
+function setCachedPayload(cacheKey, payload, cacheVersion = 0) {
   chartCache.set(cacheKey, {
     createdAt: Date.now(),
     payload,
+    cacheVersion,
   });
+}
+
+function normalizeCacheVersion(versionCandidate) {
+  const version = Number.parseInt(versionCandidate, 10);
+  if (!Number.isFinite(version) || version < 1) {
+    return 0;
+  }
+  return version;
+}
+
+function syncCacheVersion(payload, response) {
+  const payloadVersion = normalizeCacheVersion(payload?.cacheVersion);
+  const headerVersion = normalizeCacheVersion(response?.headers?.get?.('X-Grafico-Cache-Version'));
+  const nextVersion = Math.max(payloadVersion, headerVersion);
+  if (nextVersion > latestServerCacheVersion) {
+    latestServerCacheVersion = nextVersion;
+  }
+  return nextVersion;
 }
 
 function setStatus(statusEl, message, kind = 'idle') {
@@ -158,6 +183,37 @@ function buildEndpoint(baseEndpoint, rivalId) {
   return endpoint.toString();
 }
 
+function buildVersionEndpoint(baseEndpoint) {
+  const endpoint = new URL(baseEndpoint, window.location.origin);
+  endpoint.searchParams.set('cacheVersionOnly', 'true');
+  return endpoint.toString();
+}
+
+async function syncServerCacheVersion(baseEndpoint) {
+  const response = await fetch(buildVersionEndpoint(baseEndpoint), {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+    credentials: 'same-origin',
+  });
+
+  if (!response.ok) {
+    return;
+  }
+
+  const payload = await response.json();
+  const cacheVersion = syncCacheVersion(payload, response);
+  if (cacheVersion > 0) {
+    for (const [key, entry] of chartCache.entries()) {
+      if ((entry?.cacheVersion || 0) < cacheVersion) {
+        chartCache.delete(key);
+      }
+    }
+  }
+}
+
 async function fetchChartPayload(baseEndpoint, rivalId, requestToken) {
   const cacheKey = rivalId || '__self__';
   const cached = getCachedPayload(cacheKey);
@@ -171,7 +227,11 @@ async function fetchChartPayload(baseEndpoint, rivalId, requestToken) {
 
   const controller = new AbortController();
   activeController = controller;
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  let timeoutTriggered = false;
+  const timeoutId = setTimeout(() => {
+    timeoutTriggered = true;
+    controller.abort();
+  }, REQUEST_TIMEOUT_MS);
 
   try {
     const response = await fetch(buildEndpoint(baseEndpoint, rivalId), {
@@ -189,12 +249,20 @@ async function fetchChartPayload(baseEndpoint, rivalId, requestToken) {
     }
 
     const payload = await response.json();
+    const cacheVersion = syncCacheVersion(payload, response);
     if (requestToken !== latestRequestToken) {
       return { payload: null, fromCache: false, stale: true };
     }
 
-    setCachedPayload(cacheKey, payload);
+    setCachedPayload(cacheKey, payload, cacheVersion);
     return { payload, fromCache: false, stale: false };
+  } catch (error) {
+    if (error?.name === 'AbortError' && timeoutTriggered) {
+      const timeoutError = new Error('Tempo limite ao carregar dados do gráfico.');
+      timeoutError.name = 'TimeoutError';
+      throw timeoutError;
+    }
+    throw error;
   } finally {
     clearTimeout(timeoutId);
   }
@@ -223,11 +291,13 @@ export function initGraficoDesempenhoPage() {
   const loadingMessage = wrapperEl.dataset.loadingMessage || 'Carregando...';
   const emptyMessage = wrapperEl.dataset.emptyMessage || 'Sem dados para gerar o gráfico.';
   const errorMessage = wrapperEl.dataset.errorMessage || 'Erro ao carregar dados do gráfico.';
+  const timeoutMessage = wrapperEl.dataset.timeoutMessage || errorMessage;
   const cacheMessage = wrapperEl.dataset.cacheMessage || 'Exibindo dados recentes em cache.';
   const retryLabel = wrapperEl.dataset.retryLabel || 'Tentar novamente';
   const statusLoading = wrapperEl.dataset.statusLoading || loadingMessage;
   const statusReady = wrapperEl.dataset.statusReady || 'Gráfico carregado.';
   const statusError = wrapperEl.dataset.statusError || errorMessage;
+  const statusTimeout = wrapperEl.dataset.statusTimeout || timeoutMessage;
 
   if (!endpoint) {
     setStatus(statusEl, statusError, 'error');
@@ -249,6 +319,9 @@ export function initGraficoDesempenhoPage() {
     wrapperEl.classList.add('chart-wrapper--loading');
 
     try {
+      if (!forceNetwork && chartCache.has(cacheKey)) {
+        await syncServerCacheVersion(endpoint);
+      }
       const result = await fetchChartPayload(endpoint, rivalId, requestToken);
       if (!result || result.stale || requestToken !== latestRequestToken) {
         return;
@@ -275,9 +348,10 @@ export function initGraficoDesempenhoPage() {
       if (requestToken !== latestRequestToken) {
         return;
       }
+      const timeoutOcorreu = error?.name === 'TimeoutError';
       destroyChartIfAny();
-      setStatus(statusEl, statusError, 'error');
-      chartEl.textContent = errorMessage;
+      setStatus(statusEl, timeoutOcorreu ? statusTimeout : statusError, 'error');
+      chartEl.textContent = timeoutOcorreu ? timeoutMessage : errorMessage;
       mountRetryButton(chartEl, retryLabel, () => {
         loadChart({ forceNetwork: true }).catch(() => {
           // fallback tratado em loadChart

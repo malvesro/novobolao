@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.time.Day;
@@ -33,6 +34,7 @@ import com.opendev.bolao.model.Privilegio;
 import com.opendev.bolao.model.PrivilegioId;
 import com.opendev.bolao.service.ParticipanteService;
 import com.opendev.bolao.util.DadosClassificacao;
+import com.opendev.bolao.util.GraficoDesempenhoCacheControl;
 import com.opendev.bolao.util.SanitizationUtils;
 import com.opendev.bolao.util.ValidacaoUtils;
 import com.opendev.bolao.util.MensagemErro;
@@ -58,6 +60,9 @@ public class ParticipanteServiceImpl implements ParticipanteService {
 	// Cache Global de Classificação (Estratégia de Arquiteto para Bolão de alta escala)
 	private List<Participante> cacheRanking = null;
     private Map<Long, Integer> cachePosicoesRankingAnterior = null;
+    private static final long GRAFICO_CACHE_TTL_MS = TimeUnit.MINUTES.toMillis(5);
+    private final Map<String, GraficoComparativoCacheEntry> cacheGraficoComparativo = new HashMap<>();
+    private long versaoCacheGraficoLocal = GraficoDesempenhoCacheControl.obterVersaoAtual();
 
 	public synchronized List buscarClassificacao() {
 		// Se o cache de dados individuais de pontuação estiver expirado, 
@@ -162,48 +167,95 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         LOGGER.info("[PERFIL][SENHA] Senha alterada com sucesso para usuario={}", login);
     }
 	
-	public GraficoComparativoDesempenho construirGraficoDesempenho(Participante participante, Long idRivail) {
-		TimeSeriesCollection seriesCollection = null;
-		List<Participante> participantes = null;
-		if (participante != null) {
-			if (idRivail != null) {
-				participantes = new ArrayList<>(2);
-				participantes.add(participante);
+	public synchronized GraficoComparativoDesempenho construirGraficoDesempenho(Participante participante, Long idRivail) {
+        sincronizarVersaoDoCacheGrafico();
+        if (participante == null || participante.getId() == null) {
+            return construirGraficoDesempenhoSemCache(participante, idRivail);
+        }
+
+        String chaveCache = gerarChaveCacheGrafico(participante.getId(), idRivail, this.versaoCacheGraficoLocal);
+        GraficoComparativoCacheEntry cacheEntry = this.cacheGraficoComparativo.get(chaveCache);
+        if (cacheEntry != null && !cacheEntry.estaExpirado()) {
+            return cacheEntry.grafico;
+        }
+
+        GraficoComparativoDesempenho grafico = construirGraficoDesempenhoSemCache(participante, idRivail);
+        this.cacheGraficoComparativo.put(chaveCache, new GraficoComparativoCacheEntry(grafico));
+        return grafico;
+	}
+
+    private void sincronizarVersaoDoCacheGrafico() {
+        long versaoAtual = GraficoDesempenhoCacheControl.obterVersaoAtual();
+        if (versaoAtual == this.versaoCacheGraficoLocal) {
+            return;
+        }
+        this.cacheGraficoComparativo.clear();
+        this.versaoCacheGraficoLocal = versaoAtual;
+        LOGGER.info("[CACHE][GRAFICO] Cache invalidado por mudança de versão global para {}", versaoAtual);
+    }
+
+    private String gerarChaveCacheGrafico(Long participanteId, Long idRivail, long versao) {
+        String rivalChave = idRivail == null ? "__self__" : String.valueOf(idRivail);
+        return participanteId + "::" + rivalChave + "::v" + versao;
+    }
+
+    private GraficoComparativoDesempenho construirGraficoDesempenhoSemCache(Participante participante, Long idRivail) {
+        TimeSeriesCollection seriesCollection = null;
+        List<Participante> participantes = null;
+        if (participante != null) {
+            if (idRivail != null) {
+                participantes = new ArrayList<>(2);
+                participantes.add(participante);
                 getParticipanteRepository().findById(idRivail).ifPresent(participantes::add);
-			} else {
-				participantes = new ArrayList<>(1);
-				participantes.add(participante);
-			}
-			
+            } else {
+                participantes = new ArrayList<>(1);
+                participantes.add(participante);
+            }
+
             // Otimização: buscar todos os palpites dos participantes envolvidos de uma vez
             List<Palpite> todosPalpites = getPalpiteRepository().findByParticipanteIn(participantes);
             Map<Long, Map<Long, Palpite>> mapaPalpites = new HashMap<>();
             for (Palpite p : todosPalpites) {
                 mapaPalpites.computeIfAbsent(p.getParticipante().getId(), k -> new HashMap<>())
-                            .put(p.getJogo().getId(), p);
+                        .put(p.getJogo().getId(), p);
             }
 
-			List<Jogo> jogos = getJogoRepository().findJogosFinalizados();
+            List<Jogo> jogos = getJogoRepository().findJogosFinalizados();
             // Ordenar jogos por data para garantir a ordem cronológica no gráfico
             Collections.sort(jogos);
-            
-			seriesCollection = new TimeSeriesCollection();
-			for (Participante umParticipante : participantes) {
+
+            seriesCollection = new TimeSeriesCollection();
+            for (Participante umParticipante : participantes) {
                 TimeSeries series = new TimeSeries(umParticipante.getNomeFormatado());
                 long pontos = 0L;
-                Map<Long, Palpite> palpitesDoParticipante = mapaPalpites.getOrDefault(umParticipante.getId(), Collections.emptyMap());
-				for (Jogo jogo : jogos) {
-					Palpite palpiteDoJogo = palpitesDoParticipante.get(jogo.getId());
-					if (palpiteDoJogo != null) {
-						pontos += palpiteDoJogo.getPontuacao().getPontuacao();
-					}
-					series.addOrUpdate(new Day(jogo.getData()), pontos);
-				}
-				seriesCollection.addSeries(series);
-			}
-		}
+                Map<Long, Palpite> palpitesDoParticipante = mapaPalpites.getOrDefault(umParticipante.getId(),
+                        Collections.emptyMap());
+                for (Jogo jogo : jogos) {
+                    Palpite palpiteDoJogo = palpitesDoParticipante.get(jogo.getId());
+                    if (palpiteDoJogo != null) {
+                        pontos += palpiteDoJogo.getPontuacao().getPontuacao();
+                    }
+                    series.addOrUpdate(new Day(jogo.getData()), pontos);
+                }
+                seriesCollection.addSeries(series);
+            }
+        }
         return new GraficoComparativoDesempenho(seriesCollection);
-	}
+    }
+
+    private static final class GraficoComparativoCacheEntry {
+        private final GraficoComparativoDesempenho grafico;
+        private final long createdAt;
+
+        private GraficoComparativoCacheEntry(GraficoComparativoDesempenho grafico) {
+            this.grafico = grafico;
+            this.createdAt = System.currentTimeMillis();
+        }
+
+        private boolean estaExpirado() {
+            return System.currentTimeMillis() - this.createdAt > GRAFICO_CACHE_TTL_MS;
+        }
+    }
 
     public Optional<Participante> buscarPorLogin(String login) {
         return getParticipanteRepository().findByLogin(login);

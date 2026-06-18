@@ -28,6 +28,7 @@ import com.opendev.bolao.service.JogoService;
 import com.opendev.bolao.util.BolaoTime;
 import com.opendev.bolao.util.ConversaoUtils;
 import com.opendev.bolao.util.FiltroBuscaJogos;
+import com.opendev.bolao.util.GraficoDesempenhoCacheControl;
 
 /**
  * Implementação do serviço de Jogo.
@@ -64,17 +65,18 @@ public class JogoServiceImpl implements JogoService {
 		return getJogoRepository().findAll(Sort.by("data", "hora"));
 	}
 	
-	public void atualizarResultado(Long idJogo, Integer golsEquipe1, Integer golsEquipe2) {
-		getJogoRepository().findById(idJogo).ifPresent(jogo -> {
-			jogo.setGolsEquipe1(golsEquipe1);
-			jogo.setGolsEquipe2(golsEquipe2);
+		public void atualizarResultado(Long idJogo, Integer golsEquipe1, Integer golsEquipe2) {
+			getJogoRepository().findById(idJogo).ifPresent(jogo -> {
+				jogo.setGolsEquipe1(golsEquipe1);
+				jogo.setGolsEquipe2(golsEquipe2);
             getJogoRepository().save(jogo);
             this.cacheJogosDeHoje = null;
+            GraficoDesempenhoCacheControl.invalidarCacheGlobal();
             if (jogo.jaOcorreu()) {
                 Participante.expirarCacheDeClassificacao();
             }
-		});
-	}
+			});
+		}
 
 	public void atualizarDadosEstruturaisJogo(Long idJogo, Date data, Time hora, String local, int fase, Long idEquipe1, Long idEquipe2) {
 		getJogoRepository().findById(idJogo).ifPresent(jogo -> {

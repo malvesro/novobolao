@@ -5,10 +5,12 @@
 <fmt:message key="performance.chart.empty" var="chartEmptyMessage" />
 <fmt:message key="performance.chart.cache" var="chartCacheMessage" />
 <fmt:message key="performance.chart.retry" var="chartRetryLabel" />
+<fmt:message key="performance.chart.timeout" var="chartTimeoutMessage" />
 <fmt:message key="performance.chart.status.idle" var="chartIdleStatus" />
 <fmt:message key="performance.chart.status.loading" var="chartLoadingStatus" />
 <fmt:message key="performance.chart.status.ready" var="chartReadyStatus" />
 <fmt:message key="performance.chart.status.error" var="chartErrorStatus" />
+<fmt:message key="performance.chart.status.timeout" var="chartTimeoutStatus" />
 
 <div class="dashboard-section">
     <opendev:portlet id="chart_portlet" title="Grafico comparativo de desempenho" icon="/img/chart.png">
@@ -46,10 +48,12 @@
                 data-empty-message="${chartEmptyMessage}"
                 data-cache-message="${chartCacheMessage}"
                 data-retry-label="${chartRetryLabel}"
+                data-timeout-message="${chartTimeoutMessage}"
                 data-status-idle="${chartIdleStatus}"
                 data-status-loading="${chartLoadingStatus}"
                 data-status-ready="${chartReadyStatus}"
-                data-status-error="${chartErrorStatus}">
+                data-status-error="${chartErrorStatus}"
+                data-status-timeout="${chartTimeoutStatus}">
                 <div id="performance-chart-status" class="chart-status" role="status" aria-live="polite">
                     <c:out value="${chartIdleStatus}" />
                 </div>

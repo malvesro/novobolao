@@ -19,6 +19,7 @@ import com.opendev.bolao.model.Equipe;
 import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.repository.EquipeRepository;
 import com.opendev.bolao.repository.JogoRepository;
+import com.opendev.bolao.util.GraficoDesempenhoCacheControl;
 
 @ExtendWith(MockitoExtension.class)
 class JogoServiceImplTest {
@@ -87,5 +88,16 @@ class JogoServiceImplTest {
         assertThat(resultado2).isSameAs(resultado1); // Deve ser a MESMA referência de cache
         // Banco consultado apenas uma vez graças ao cache
         verify(jogoRepository, times(1)).findByData(any(Date.class));
+    }
+
+    @Test
+    void deveInvalidarVersaoGlobalDoCacheGraficoAoAtualizarResultado() {
+        long versaoAntes = GraficoDesempenhoCacheControl.obterVersaoAtual();
+        when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogo));
+
+        jogoService.atualizarResultado(1L, 2, 1);
+
+        assertThat(GraficoDesempenhoCacheControl.obterVersaoAtual()).isGreaterThan(versaoAntes);
+        verify(jogoRepository).save(jogo);
     }
 }

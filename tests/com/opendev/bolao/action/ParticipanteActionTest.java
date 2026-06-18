@@ -23,6 +23,7 @@ import com.opendev.bolao.grafico.GraficoBarraLideres;
 import com.opendev.bolao.grafico.GraficoComparativoDesempenho;
 import com.opendev.bolao.model.Participante;
 import com.opendev.bolao.service.ParticipanteService;
+import com.opendev.bolao.util.GraficoDesempenhoCacheControl;
 import com.opendev.bolao.util.MensagemErro;
 
 class ParticipanteActionTest {
@@ -141,8 +142,11 @@ class ParticipanteActionTest {
 
         assertThat(resultado).isEqualTo("success");
         assertThat(action.getGraficoData()).containsKeys("series", "categories");
+        assertThat(action.getGraficoData()).containsKey("cacheVersion");
         assertThat(response.getHeader("Cache-Control")).isEqualTo("private, max-age=30, must-revalidate");
         assertThat(response.getHeader("Vary")).isEqualTo("Cookie, Accept-Encoding");
+        assertThat(response.getHeader("X-Grafico-Cache-Version"))
+                .isEqualTo(String.valueOf(GraficoDesempenhoCacheControl.obterVersaoAtual()));
     }
 
     @Test
@@ -167,6 +171,7 @@ class ParticipanteActionTest {
         assertThat(resultado).isEqualTo("success");
         assertThat(action.getGraficoData()).containsEntry("series", List.of());
         assertThat(action.getGraficoData()).containsEntry("categories", List.of());
+        assertThat(action.getGraficoData()).containsKey("cacheVersion");
         assertThat(response.getHeader("Cache-Control")).isEqualTo("private, max-age=30, must-revalidate");
     }
 
@@ -188,5 +193,24 @@ class ParticipanteActionTest {
         assertThat(resultado).isEqualTo("success");
         assertThat(action.getGraficoData()).containsEntry("series", List.of());
         assertThat(action.getGraficoData()).containsEntry("categories", List.of());
+        assertThat(action.getGraficoData()).containsKey("cacheVersion");
+    }
+
+    @Test
+    @DisplayName("obterDadosGraficoJson deve retornar apenas versao quando cacheVersionOnly=true")
+    void deveRetornarApenasVersaoQuandoSolicitado() {
+        request.setParameter("cacheVersionOnly", "true");
+
+        ParticipanteAction action = new ParticipanteAction();
+        action.setParticipanteService(Mockito.mock(ParticipanteService.class));
+
+        String resultado = action.obterDadosGraficoJson();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(action.getGraficoData()).containsEntry("series", List.of());
+        assertThat(action.getGraficoData()).containsKey("cacheVersion");
+        assertThat(response.getHeader("Cache-Control")).isEqualTo("private, no-store");
+        assertThat(response.getHeader("X-Grafico-Cache-Version"))
+                .isEqualTo(String.valueOf(GraficoDesempenhoCacheControl.obterVersaoAtual()));
     }
 }

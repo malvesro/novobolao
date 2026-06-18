@@ -413,6 +413,8 @@ Ao concluir funcionalidades relevantes:
 * atualizar versão quando aplicável;
 * registrar alteração em log;
 * registrar alteração em documentação.
+* sempre fazer commit da documentação junto com o código para manter a rastreabilidade
+* sempre usar conventional commit com emoji e mensagens em português do Brasil profissional e explicada.
 
 ---
 
@@ -564,7 +566,7 @@ Uma tarefa somente pode ser considerada concluída quando:
 
 Antes da entrega final apresentar:
 
-Auto-Analise:
+Auto-Analise: [texto técnico explicativo e didático]
 [Risco: Baixo|Medio|Alto]
 [Compatibilidade: OK|Atencao]
 [Veredito: Aprovado|Revisar]
