@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Sort;
@@ -40,13 +39,12 @@ public class JogoServiceImpl implements JogoService {
 	
 	private JogoRepository jogoRepository;
 	private EquipeRepository equipeRepository;
-	   private ParticipanteRepository participanteRepository;
+	private ParticipanteRepository participanteRepository;
 
-	   @PersistenceContext
-	   private EntityManager entityManager;
+	@PersistenceContext
+	private EntityManager entityManager;
 
     // Cache dos jogos de hoje com TTL baseado em data calendária.
-    // Padrão de Bolão: todos os participantes acessam a mesma lista diariamente.
     private List<Jogo> cacheJogosDeHoje = null;
     private LocalDate cacheDateJogosDeHoje = null;
 
@@ -65,20 +63,20 @@ public class JogoServiceImpl implements JogoService {
 		return getJogoRepository().findAll(Sort.by("data", "hora"));
 	}
 	
-		public void atualizarResultado(Long idJogo, Integer golsEquipe1, Integer golsEquipe2) {
-			getJogoRepository().findById(idJogo).ifPresent(jogo -> {
-				jogo.setGolsEquipe1(golsEquipe1);
-				jogo.setGolsEquipe2(golsEquipe2);
+	public void atualizarResultado(Long idJogo, Integer golsEquipe1, Integer golsEquipe2) {
+		getJogoRepository().findById(idJogo).ifPresent(jogo -> {
+			jogo.setGolsEquipe1(golsEquipe1);
+			jogo.setGolsEquipe2(golsEquipe2);
             getJogoRepository().save(jogo);
             this.cacheJogosDeHoje = null;
             GraficoDesempenhoCacheControl.invalidarCacheGlobal();
             if (jogo.jaOcorreu()) {
                 Participante.expirarCacheDeClassificacao();
             }
-			});
-		}
+		});
+	}
 
-	public void atualizarDadosEstruturaisJogo(Long idJogo, Date data, Time hora, String local, int fase, Long idEquipe1, Long idEquipe2) {
+	public void atualizarDadosEstruturaisJogo(Long idJogo, Date data, Time hora, String local, int fase, Long idEquipe1, Long idEquipe2, String externalId) {
 		getJogoRepository().findById(idJogo).ifPresent(jogo -> {
 			Equipe equipe1 = getEquipeRepository().findById(idEquipe1)
 					.orElseThrow(() -> new IllegalArgumentException("Equipe 1 não encontrada: " + idEquipe1));
@@ -91,6 +89,7 @@ public class JogoServiceImpl implements JogoService {
 			jogo.setFase(fase);
 			jogo.setEquipe1(equipe1);
 			jogo.setEquipe2(equipe2);
+			jogo.setExternalId(externalId);
 			
 			getJogoRepository().save(jogo);
             this.cacheJogosDeHoje = null;
@@ -104,14 +103,14 @@ public class JogoServiceImpl implements JogoService {
         return getJogoRepository().findById(id);
     }
  
- public List buscarUsandoFiltro(FiltroBuscaJogos filtro) {
+    public List buscarUsandoFiltro(FiltroBuscaJogos filtro) {
         if (filtro == null) {
             return getJogoRepository().findAll(Sort.by("data", "hora"));
         }
         Query query = entityManager.createQuery(filtro.getHqlQuery());
         filtro.popularParametrosDaHql(query);
         return query.getResultList();
- }
+    }
 
     public long contarJogosUsandoFiltro(FiltroBuscaJogos filtro) {
         if (filtro == null) {
@@ -132,37 +131,22 @@ public class JogoServiceImpl implements JogoService {
     }
     
     public void avisarSobreProximoJogo() {
-        // Regra de negócio temporal em timezone canônico (São Paulo).
-        // Importante para manter consistência quando o host de execução (HF)
-        // estiver em timezone diferente.
         ZonedDateTime referencia = ZonedDateTime.now(BolaoTime.getZoneId());
         logger.info(getClass() + ".avisarSobreProximoJogo() - " + referencia);
         ZonedDateTime dataHoraAlvo = referencia.plusHours(2);
         LocalDate diaAlvo = dataHoraAlvo.toLocalDate();
         Date data = Date.from(diaAlvo.atStartOfDay(BolaoTime.getZoneId()).toInstant());
         Date hora = ConversaoUtils.converterParaTempo(dataHoraAlvo.getHour());
-        logger.info("Buscando jogos da data = " + data + ", hora = " + hora);
         List<Jogo> jogos = getJogoRepository().findByDataAndHora(data, hora);
-        logger.info("Quantidade de jogos encontrados = " + jogos.size());
-        StringBuilder jogosHtml = new StringBuilder();
+        
         if (jogos != null && !jogos.isEmpty()) {
+            StringBuilder jogosHtml = new StringBuilder();
             for (Jogo jogo : jogos) {
-                jogosHtml.append("<tr>");
-                jogosHtml.append("<td align=\"center\">");
-                jogosHtml.append(jogo.getData());
-                jogosHtml.append("</td>");
-                jogosHtml.append("<td align=\"center\">");
-                jogosHtml.append(jogo.getHora());
-                jogosHtml.append("</td>");
-                jogosHtml.append("<td>");
-                jogosHtml.append(jogo.getLocal());
-                jogosHtml.append("</td>");
-                jogosHtml.append("<td align=\"center\">");
-                jogosHtml.append(jogo.getRepresentacaoEquipes());
-                jogosHtml.append("</td>");
-                jogosHtml.append("</tr>");
+                jogosHtml.append("<tr><td>").append(jogo.getData()).append("</td><td>")
+                         .append(jogo.getHora()).append("</td><td>").append(jogo.getLocal())
+                         .append("</td><td>").append(jogo.getRepresentacaoEquipes()).append("</td></tr>");
             }
-            Email email = new Email("proximosJogos.html", "Atenção às próximas batalhas: o momento de selar seus palpites está se aproximando!");
+            Email email = new Email("proximosJogos.html", "Atenção às próximas batalhas!");
             email.setPropriedade("jogos", jogosHtml.toString());
             List<Participante> participantes = getParticipanteRepository().findAll();
             for (Participante participante : participantes) {
@@ -177,22 +161,40 @@ public class JogoServiceImpl implements JogoService {
     }
     
     public synchronized List<Jogo> buscarJogosDeHoje() {
-        // O domínio considera "hoje" na zona oficial do bolão (São Paulo),
-        // independentemente do timezone do host.
         LocalDate hoje = LocalDate.now(BolaoTime.getZoneId());
-
-        // Cache com TTL de 1 dia calendário: invalida automaticamente ao mudar o dia.
-        // Estratégia de Bolão: todos os participantes acessam os mesmos dados no mesmo dia.
         if (cacheJogosDeHoje != null && hoje.equals(cacheDateJogosDeHoje)) {
             return cacheJogosDeHoje;
         }
-
-        logger.info("[CACHE][JOGOS-HOJE] Atualizando cache de jogos do dia: " + hoje);
         Date dataHoje = Date.from(hoje.atStartOfDay(BolaoTime.getZoneId()).toInstant());
         List<Jogo> jogos = getJogoRepository().findByData(dataHoje);
         cacheJogosDeHoje = Collections.unmodifiableList(jogos);
         cacheDateJogosDeHoje = hoje;
         return cacheJogosDeHoje;
+    }
+
+    @Override
+    public void processarAtualizacaoScore(String externalId, Integer golsEq1, Integer golsEq2, java.time.Instant sourceUpdatedAt) {
+        getJogoRepository().findByExternalId(externalId).ifPresent(jogo -> {
+            boolean mudou = false;
+            if (jogo.getGolsEquipe1() == null || !jogo.getGolsEquipe1().equals(golsEq1) ||
+                jogo.getGolsEquipe2() == null || !jogo.getGolsEquipe2().equals(golsEq2)) {
+                
+                logger.info("[LIVE-SCORE] Atualizando jogo " + jogo.getId() + " (" + externalId + "): " + golsEq1 + " x " + golsEq2);
+                jogo.setGolsEquipe1(golsEq1);
+                jogo.setGolsEquipe2(golsEq2);
+                mudou = true;
+            }
+            jogo.setLastCheckedAt(java.time.Instant.now());
+            jogo.setSourceUpdatedAt(sourceUpdatedAt);
+            getJogoRepository().save(jogo);
+            if (mudou) {
+                this.cacheJogosDeHoje = null;
+                GraficoDesempenhoCacheControl.invalidarCacheGlobal();
+                if (jogo.jaOcorreu()) {
+                    Participante.expirarCacheDeClassificacao();
+                }
+            }
+        });
     }
 
 	public JogoRepository getJogoRepository() {
@@ -219,4 +221,14 @@ public class JogoServiceImpl implements JogoService {
         this.participanteRepository = participanteRepository;
     }
 
+    @Override
+    public Optional<Jogo> buscarPorIdExterno(String externalId) {
+        return getJogoRepository().findByExternalId(externalId);
+    }
+
+    @Override
+    public Optional<Jogo> buscarPorDataETimes(Date data, Long idEq1, Long idEq2) {
+        List<Jogo> jogos = getJogoRepository().findByDataAndEquipes(data, idEq1, idEq2);
+        return jogos.isEmpty() ? Optional.empty() : Optional.of(jogos.get(0));
+    }
 }

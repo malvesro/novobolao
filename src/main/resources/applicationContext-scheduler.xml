@@ -63,6 +63,30 @@
 		<property name="timeZone" value="America/Sao_Paulo" />
 	</bean>
 	
+	<!-- Job para polling de scores em tempo real -->
+	<bean id="liveScoreJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="liveScorePollerJob" />
+		<property name="targetMethod" value="execute" />
+	</bean>
+
+	<bean id="liveScoreTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="liveScoreJobDetail" />
+		<property name="cronExpression" value="0 * * * * ?" /> <!-- A cada minuto -->
+		<property name="timeZone" value="America/Sao_Paulo" />
+	</bean>
+
+	<!-- Job para sincronização de agenda -->
+	<bean id="fixtureRefreshJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="fixtureRefreshJob" />
+		<property name="targetMethod" value="execute" />
+	</bean>
+
+	<bean id="fixtureRefreshTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="fixtureRefreshJobDetail" />
+		<property name="cronExpression" value="0/30 * * * * ?" /> <!-- A cada 30 segundos para teste local -->
+		<property name="timeZone" value="America/Sao_Paulo" />
+	</bean>
+
 	<!-- Factory responsável por registrar todas as Triggers -->
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
@@ -73,8 +97,23 @@
 				<ref bean="avisoJogo13Trigger" />
 				<ref bean="avisoJogo15Trigger" />
 				<ref bean="avisoJogo16Trigger" />
+				<ref bean="liveScoreTrigger" />
+				<ref bean="fixtureRefreshTrigger" />
+				<ref bean="pastResultsAuditTrigger" />
 			</list>
 		</property>
+	</bean>
+
+	<!-- Auditoria Diária de Resultados Passados -->
+	<bean id="pastResultsAuditJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="pastResultsAuditJob" />
+		<property name="targetMethod" value="execute" />
+	</bean>
+
+	<bean id="pastResultsAuditTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="pastResultsAuditJobDetail" />
+		<property name="cronExpression" value="0/30 * * * * ?" /> <!-- A cada 30 segundos para teste local -->
+		<property name="timeZone" value="America/Sao_Paulo" />
 	</bean>
 
 </beans>

@@ -157,6 +157,19 @@ public final class FlagUtils {
 		}
 	}
 
+	public static String getPortugueseNameFromEnglish(String englishName) {
+		if (englishName == null || englishName.isEmpty()) return "";
+		String code = countryCodeFromName(englishName);
+		if (code == null || code.isEmpty()) return "";
+		
+		for (Map.Entry<String, String> entry : COUNTRY_TO_ISO.entrySet()) {
+			if (entry.getValue().equalsIgnoreCase(code)) {
+				return entry.getKey(); 
+			}
+		}
+		return "";
+	}
+
 	private static String normalize(String value) {
 		String decomposed = Normalizer.normalize(value, Normalizer.Form.NFD);
 		String withoutMarks = decomposed.replaceAll("\\p{M}", "");

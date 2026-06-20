@@ -61,6 +61,15 @@ public class Jogo implements Serializable, Comparable<Jogo> {
 	@Column(name = "JOG_FASE", nullable = false)
 	private int fase;
 
+    @Column(name = "JOG_EXTERNAL_ID", length = 64, unique = true)
+    private String externalId;
+
+    @Column(name = "JOG_LAST_CHECKED")
+    private java.time.Instant lastCheckedAt;
+
+    @Column(name = "JOG_SOURCE_UPDATED")
+    private java.time.Instant sourceUpdatedAt;
+
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "JOG_EQP1_ID")
 	private Equipe equipe1;
@@ -273,5 +282,29 @@ public class Jogo implements Serializable, Comparable<Jogo> {
 
     public String getEquipe2SiglaPais() {
         return getEquipe2() != null ? getEquipe2().getSiglaPais() : "";
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
+    }
+
+    public java.time.Instant getLastCheckedAt() {
+        return lastCheckedAt;
+    }
+
+    public void setLastCheckedAt(java.time.Instant lastCheckedAt) {
+        this.lastCheckedAt = lastCheckedAt;
+    }
+
+    public java.time.Instant getSourceUpdatedAt() {
+        return sourceUpdatedAt;
+    }
+
+    public void setSourceUpdatedAt(java.time.Instant sourceUpdatedAt) {
+        this.sourceUpdatedAt = sourceUpdatedAt;
     }
 }

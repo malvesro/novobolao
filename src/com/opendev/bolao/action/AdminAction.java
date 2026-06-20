@@ -202,7 +202,8 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 					this.local, 
 					this.fase, 
 					this.equipe1Id, 
-					this.equipe2Id
+					this.equipe2Id,
+					null
 			);
 			
 			// Após salvar, recarregamos o jogo para devolver a linha da tabela atualizada

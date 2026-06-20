@@ -31,8 +31,9 @@
 	</bean>
 	
 	<!-- Automatic Database Initialization (Cloud-friendly) -->
-	<jdbc:initialize-database data-source="defaultDataSource" enabled="${DB_INITIALIZE:true}">
+	<jdbc:initialize-database data-source="defaultDataSource" enabled="${DB_INITIALIZE:true}" ignore-failures="ALL">
 		<jdbc:script location="classpath:database/schema.sql" />
+		<jdbc:script location="classpath:database/migrations/V20260620_01__add_realtime_score_fields.sql" />
 		<jdbc:script location="classpath:database/data.sql" />
 		<jdbc:script location="classpath:database/copa-2026-data.sql" encoding="UTF-8" />
 	</jdbc:initialize-database>

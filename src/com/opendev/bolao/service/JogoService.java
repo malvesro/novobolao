@@ -28,6 +28,12 @@ public interface JogoService {
     
     public List buscarJogosDeHoje();
     
-    public void atualizarDadosEstruturaisJogo(Long idJogo, Date data, Time hora, String local, int fase, Long idEquipe1, Long idEquipe2);
+    public void atualizarDadosEstruturaisJogo(Long idJogo, Date data, Time hora, String local, int fase, Long idEquipe1, Long idEquipe2, String externalId);
+
+    void processarAtualizacaoScore(String externalId, Integer golsEq1, Integer golsEq2, java.time.Instant sourceUpdatedAt);
+
+    Optional<Jogo> buscarPorIdExterno(String externalId);
+
+    Optional<Jogo> buscarPorDataETimes(java.util.Date data, Long idEq1, Long idEq2);
 
 }

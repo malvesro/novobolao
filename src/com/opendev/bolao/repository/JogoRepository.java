@@ -58,4 +58,11 @@ public interface JogoRepository extends JpaRepository<Jogo, Long> {
      */
     @Query("SELECT COUNT(j) FROM Jogo j WHERE j.golsEquipe1 IS NOT NULL AND j.golsEquipe2 IS NOT NULL")
     long countJogosFinalizados();
+
+    java.util.Optional<Jogo> findByExternalId(String externalId);
+
+    @Query("SELECT j FROM Jogo j WHERE j.data = :data AND " +
+           "((j.equipe1.id = :idEq1 AND j.equipe2.id = :idEq2) OR " +
+           " (j.equipe1.id = :idEq2 AND j.equipe2.id = :idEq1))")
+    List<Jogo> findByDataAndEquipes(@Param("data") Date data, @Param("idEq1") Long idEq1, @Param("idEq2") Long idEq2);
 }

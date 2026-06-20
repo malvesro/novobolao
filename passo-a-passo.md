@@ -157,12 +157,6 @@ Premissas de compatibilidade (críticas):
 
     * **[Concluído] 14.6 — Corrigir conflito de prefixo [opendev] em validacaoCadastro.jsp (10/06/2026):** Verificado que o arquivo já se encontra limpo de declarações redundantes, utilizando corretamente o prelude definido no `web.xml`.
 
-    Referência: `src/main/resources/applicationContext-security.xml`, `struts.xml`, `ValidacaoCadastroAction.java`
-    Skill: `modernization-java-migration v1.0.0`, `security-audit v1.0.0`
-
-54. **[Concluído] Correção de Renderização de Placar 0x0:**
-    Objetivo: Garantir que placares 0x0 sejam exibidos corretamente na página de resumos.
-    * **[Concluído] 54.1 — Auditoria de Renderização:** Investigação concluída.
     * **[Concluído] 54.2 — Implementar Fix:** Fix aplicado via EL direta.
     * **[Concluído] 54.3 — Validação:** Ambiente reiniciado e fix validado.
 

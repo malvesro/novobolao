@@ -1,0 +1,1775 @@
+# Proposta de Solução — Atualização em Tempo Real do Placar da Copa do Mundo FIFA 2026
+
+> **Revisão:** Fonte primária atualizada para `football-data.org` após confirmação de que:
+> - WC2026API.com free tier está esgotado ("No spots available")
+> - APIfootball.com free tier **não cobre** Copa do Mundo (apenas England Championship e France Ligue 2)
+> - O sistema de bolão possui tela de atualização manual, tornando o delay de ~5 minutos aceitável
+
+---
+
+## Visão geral
+
+Este documento propõe uma arquitetura completa para atualização automática e gratuita do placar dos jogos da Copa do Mundo FIFA 2026 em um sistema de bolão baseado em Struts, JSP e HTMX. A fonte de dados recomendada é a **football-data.org**, a única API verdadeiramente gratuita e permanente que cobre a Copa 2026 com endpoints de fixtures e status de partida documentados, retornando timestamps em UTC explícito.
+
+Como o sistema já possui **tela de atualização manual de placar**, o delay de aproximadamente 5 minutos do plano gratuito é operacionalmente aceitável: em casos de inconsistência ou falha de sincronização, o operador atualiza o placar diretamente pela interface administrativa sem depender da API.
+
+---
+
+## Avaliação de APIs — Decisão Fundamentada
+
+| API | Free & permanente | Copa 2026 free | Live score free | UTC documentado | Decisão |
+|---|---|---|---|---|---|
+| **football-data.org** | ✅ | ✅ código `WC` | ⚠️ ~5 min delay | ✅ ISO 8601 Z | ✅ **Escolhida** |
+| TheSportsDB.com | ✅ | ✅ id `4429` | ❌ sem live | ⚠️ incerto | Auxiliar (agenda) |
+| WC2026API.com | ❌ free esgotado | ✅ | ✅ | ✅ | ❌ Descartada |
+| APIfootball.com | ✅ | ❌ não cobre Copa | ❌ free = 2 ligas inglesas | ⚠️ | ❌ Descartada |
+| Zafronix WC API | ✅ | ✅ | ❌ live = pago | ❌ não documentado | ❌ Descartada |
+
+### Por que football-data.org
+
+- Gratuita para sempre ("free tier forever"), sem cartão de crédito, cadastro em 2 minutos
+- Copa do Mundo 2026 coberta com código de competição `WC`, temporada `2026`
+- Retorna todos os campos necessários: placar, status (`SCHEDULED`, `IN_PLAY`, `PAUSED`, `FINISHED`), kickoff em UTC com `Z`
+- Rate limit de **10 chamadas/minuto** no free tier — suficiente para o volume do bolão
+- Filtro por janela de datas com `?dateFrom=` e `?dateTo=` em ISO 8601 UTC
+- Documentação estável e pública, API em produção há mais de 10 anos
+
+### Cálculo de viabilidade — Rate limit
+
+Com jogos sequenciais (não simultâneos) e polling a cada 60 segundos durante jogo ativo:
+
+```
+Polling ao vivo:  1 request/60s = 1 req/min  →  limit: 10/min  ✅ 10x de folga
+Agenda (2x/dia):  2 requests/dia
+Total diário:     2 + (120 min × 1 req/min) = 122 requests/dia no pico
+```
+
+Mesmo reduzindo o intervalo para **30 segundos** durante jogos, o uso chega a 2 req/min — bem dentro do limite.
+
+
+## Atraso do plano gratuito — Documentação e impacto
+
+### O que é o atraso
+
+A **football-data.org** opera com um atraso intencional (*throttle*) de aproximadamente **5 minutos** na atualização de placares ao vivo para contas do plano Free. Isso significa que um gol marcado às 20:00:00 BRT estará disponível via API apenas por volta das 20:05:00 BRT.
+
+> Este comportamento é documentado pela própria football-data.org como política explícita do tier gratuito. O plano pago (€12/mês) remove o atraso e entrega dados em tempo real.
+
+### Origem técnica do atraso
+
+| Camada | Comportamento |
+|---|---|
+| Fonte primária da API | Dados oficiais FIFA/fornecedor licenciado |
+| Processamento interno | football-data.org aplica throttle deliberado no tier Free |
+| Entrega ao sistema | JSON com placar defasado ~5 min |
+| Banco de dados local | Grava o que recebeu — defasagem é herdada |
+| Frontend (browser) | Exibe o que está no banco — não introduz atraso adicional |
+
+O atraso **não é de rede nem de processamento** — é uma política comercial para incentivar o upgrade de plano. O sistema não pode contorná-lo tecnicamente; apenas o operador pode compensá-lo via atualização manual.
+
+### Impacto no bolão — análise por cenário
+
+| Cenário | Impacto | Ação recomendada |
+|---|---|---|
+| Gol durante o jogo | Placar exibido ~5 min depois do real | Aceitável; usuários não acompanham o jogo pelo bolão |
+| Gol nos últimos 2 min | Pode aparecer já com status `FINISHED` | Operador revisa e confirma placar correto |
+| Jogo termina 0x0 | Placar final correto após ~5 min | Sem impacto prático |
+| Prorrogação/pênaltis | Duração extra compensa o delay | Campos ET/PEN chegam antes do `FINISHED` |
+| API indisponível | Nenhum dado chega | Operador usa tela de atualização manual |
+| Rate limit atingido (429) | Ciclo pulado; próximo em 60s | Sem impacto significativo no bolão |
+
+### Quando o atraso é irrelevante para o bolão
+
+Em um bolão típico, o usuário **registra o palpite antes do jogo**, não durante. O que importa para apuração é o **placar final**, não o placar minuto a minuto. Nesse modelo:
+
+- O delay de 5 minutos **não afeta** a apuração de pontos.
+- O placar final chega correto — apenas com 5 minutos de defasagem após o apito final.
+- A experiência do usuário é de ver o placar se atualizar com certa cadência, não em tempo real absoluto.
+
+Se o bolão incluir modalidades de palpite ao vivo (ex: "quem marca o próximo gol"), o atraso se torna relevante e **o plano pago ou atualização manual se tornam obrigatórios** nessas modalidades.
+
+### Compensação pelo sistema: tela de atualização manual
+
+O sistema já possui tela administrativa de atualização manual. Ela é o mecanismo oficial de contingência e deve ser usada nos seguintes gatilhos:
+
+1. **`last_checked_at` > 10 minutos** durante jogo ativo → operador verifica e corrige se necessário
+2. **Falha de comunicação** com a API (timeout, 5xx, 429 persistente) → operador insere placar
+3. **Jogo encerrado, placar ainda não atualizado** → operador confirma placar final
+4. **Gol nos acréscimos finais** reportado em outras fontes antes da API → operador antecipa a atualização
+
+```sql
+-- Toda atualização manual deve ser registrada com source = 'MANUAL'
+INSERT INTO match_score_log (
+    match_id, home_score, away_score,
+    status_code, source, observed_at
+) VALUES (
+    :matchId, :homeScore, :awayScore,
+    :statusCode, 'MANUAL', NOW()
+);
+```
+
+### Alerta visual na tela administrativa
+
+O sistema deve exibir um alerta quando o `last_checked_at` indicar defasagem excessiva durante jogo ativo:
+
+```java
+/**
+ * Retorna true se o jogo está ativo e o último check foi há mais de 10 minutos.
+ * Indica ao operador que a sincronia pode estar comprometida.
+ */
+public boolean isStaleWhileLive(MatchGame match) {
+    boolean isActive = "IN_PLAY".equals(match.getStatusCode())
+                    || "PAUSED".equals(match.getStatusCode());
+    if (!isActive) return false;
+    Instant threshold = Instant.now().minus(Duration.ofMinutes(10));
+    return match.getLastCheckedAt() == null
+        || match.getLastCheckedAt().isBefore(threshold);
+}
+```
+
+```jsp
+<%-- Exibe alerta na tela administrativa quando há defasagem --%>
+<c:if test="${match.staleWhileLive}">
+  <span class="badge bg-warning text-dark">
+    ⚠️ Última sync: <s:property value="lastCheckedAtBrtFormatted"/> — verificar manualmente
+  </span>
+</c:if>
+```
+
+### Comunicação ao usuário final
+
+O sistema deve informar de forma transparente que os placares podem ter pequeno atraso:
+
+```html
+<!-- Rodapé do scoreboard, visível ao usuário -->
+<p class="text-muted small text-end">
+  ℹ️ Placares atualizados automaticamente com pequena defasagem.
+  Em caso de divergência, o placar oficial será corrigido pelo administrador.
+</p>
+```
+
+Essa mensagem elimina expectativa de tempo real absoluto e justifica qualquer diferença momentânea que o usuário perceba ao comparar com fontes externas (TV, app de placar).
+
+
+---
+
+## Endpoints da football-data.org
+
+### Autenticação
+
+Todas as chamadas requerem o header:
+
+```http
+X-Auth-Token: SEU_TOKEN_AQUI
+```
+
+### Fixtures do dia (agenda)
+
+```http
+GET https://api.football-data.org/v4/competitions/WC/matches
+    ?dateFrom=2026-06-22T03:00:00Z
+    &dateTo=2026-06-23T02:59:59Z
+
+Headers:
+  X-Auth-Token: SEU_TOKEN
+  Accept: application/json
+```
+
+### Partidas ao vivo / em andamento
+
+```http
+GET https://api.football-data.org/v4/competitions/WC/matches?status=IN_PLAY
+
+Headers:
+  X-Auth-Token: SEU_TOKEN
+```
+
+### Partida específica por ID
+
+```http
+GET https://api.football-data.org/v4/matches/{match_id}
+
+Headers:
+  X-Auth-Token: SEU_TOKEN
+```
+
+### Exemplo de resposta JSON
+
+```json
+{
+  "matches": [
+    {
+      "id": 490123,
+      "utcDate": "2026-06-22T03:00:00Z",
+      "status": "IN_PLAY",
+      "stage": "GROUP_STAGE",
+      "group": "GROUP_A",
+      "homeTeam": { "id": 759, "name": "Brasil" },
+      "awayTeam": { "id": 760, "name": "Argentina" },
+      "score": {
+        "winner": null,
+        "duration": "REGULAR",
+        "fullTime": { "home": 1, "away": 0 },
+        "halfTime": { "home": 1, "away": 0 }
+      }
+    }
+  ]
+}
+```
+
+Campos de placar no mata-mata:
+
+```json
+"score": {
+  "winner": "HOME_TEAM",
+  "duration": "PENALTY_SHOOTOUT",
+  "fullTime":      { "home": 1, "away": 1 },
+  "halfTime":      { "home": 0, "away": 0 },
+  "extraTime":     { "home": 1, "away": 1 },
+  "penalties":     { "home": 5, "away": 4 }
+}
+```
+
+
+## Rate limit — controle automático obrigatório
+
+### Limites do plano Free
+
+| Plano | Requests/minuto | Requests/dia | Delay live score |
+|---|---|---|---|
+| **Free** | **10 req/min** | Ilimitado* | ~5 minutos |
+| Standard | 30 req/min | Ilimitado | Tempo real |
+| Pro | 60 req/min | Ilimitado | Tempo real |
+
+\* O plano Free não tem limite diário explícito, mas o limite de 10 req/min é restritivo em uso intensivo.
+
+Referência oficial: [API Policies — football-data.org](https://docs.football-data.org/general/v4/policies.html)
+
+### Cabeçalhos de resposta — leitura obrigatória
+
+> **Atenção:** A football-data.org recomenda explicitamente que clientes — especialmente código gerado por LLMs — **inspecionem os cabeçalhos de resposta** para controle de rate limit. Sem isso, o código entra em loop de HTTP 429 repetidos.
+
+Cada resposta da API inclui os seguintes cabeçalhos:
+
+| Cabeçalho | Tipo | Significado |
+|---|---|---|
+| `X-Requests-Available-Minute` | `integer` | Quantos requests restam na janela atual de 1 minuto |
+| `X-RequestCounter-Reset` | `integer` | Segundos até a janela resetar |
+
+Exemplo de cabeçalhos retornados:
+
+```http
+HTTP/1.1 200 OK
+X-Auth-Token: (seu token)
+X-Requests-Available-Minute: 8
+X-RequestCounter-Reset: 43
+Content-Type: application/json
+```
+
+### Estratégia de backoff no poller
+
+O `LiveScorePollerJob` deve verificar o valor de `X-Requests-Available-Minute` **antes de cada chamada** e recuar se o saldo estiver baixo:
+
+```java
+/**
+ * Verifica se é seguro fazer uma nova chamada com base no saldo de rate limit.
+ * Deve ser chamado antes de cada request ao vivo.
+ */
+private boolean isSafeToRequest() {
+    int remaining = apiClient.getRequestsRemainingInWindow();
+    if (remaining <= 1) {
+        LOG.warning("[LiveScorePollerJob] Rate limit quase esgotado ("
+                + remaining + " restantes). Pulando ciclo.");
+        return false;
+    }
+    return true;
+}
+
+@Override
+public void run() {
+    if (!isSafeToRequest()) return;   // ← guarda obrigatório
+
+    try {
+        List<MatchDto> liveMatches = apiClient.fetchLive();
+        for (MatchDto dto : liveMatches) {
+            process(dto);
+        }
+    } catch (FootballDataClient.RateLimitException e) {
+        // 429 recebido mesmo após verificação — janela resetou entre a leitura e o request
+        LOG.warning("[LiveScorePollerJob] HTTP 429 recebido: " + e.getMessage());
+        // Não relança — próximo ciclo em 60s aguarda o reset automático
+
+    } catch (FootballDataClient.ApiUnavailableException e) {
+        // 5xx — API instável, tentar no próximo ciclo
+        LOG.warning("[LiveScorePollerJob] API indisponível: " + e.getMessage());
+
+    } catch (Exception e) {
+        LOG.severe("[LiveScorePollerJob] Erro inesperado: " + e.getMessage());
+    }
+}
+```
+
+### Cálculo de segurança — polling de 5 minutos por jogo
+
+Com janela de 1 minuto e limite de 10 req/min no Free:
+
+```
+Polling por jogo (1 req/5min):   0,2 req/min por jogo
+Pior caso (3 jogos simultâneos): 0,6 req/min total
+Revalidação de agenda (2×/dia):  ~0,004 req/min → desprezível ✅
+Limite Free:                     10 req/min
+Margem livre:                    94% → SEM risco de atingir rate limit ✅
+```
+
+O polling **não usa lista global** (`/matches?status=IN_PLAY`). Usa `GET /matches/{id}` por jogo ativo, garantindo controle fino da janela e mínimo de requests.
+
+### Resposta HTTP 429 — comportamento esperado
+
+Quando o limite é atingido, a API retorna:
+
+```http
+HTTP/1.1 429 Too Many Requests
+X-Requests-Available-Minute: 0
+X-RequestCounter-Reset: 38
+```
+
+O sistema **não deve fazer retry imediato**. O comportamento correto é:
+
+1. Logar o aviso com o tempo de reset lido do cabeçalho
+2. Aguardar o próximo ciclo agendado (60s)
+3. Verificar `X-Requests-Available-Minute` no início do próximo ciclo antes de tentar
+
+
+---
+
+## Objetivos
+
+- Sincronizar fixtures (data, horário, status) **duas vezes por dia** via API.
+- Atualizar placar automaticamente durante jogos com polling de **60 segundos**.
+- Gravar toda mudança relevante no banco de dados **antes** de exibir ao usuário.
+- Tratar corretamente o fuso horário de Brasília (`America/Sao_Paulo`), incluindo jogos que começam às 00h e 01h BRT.
+- Suportar prorrogação e pênaltis nas fases eliminatórias.
+- Manter **tela de atualização manual** como mecanismo de contingência, eliminando dependência de live score em tempo real.
+
+---
+
+## Arquitetura proposta
+
+O banco de dados é a **fonte de verdade** para todos os usuários. A API externa é acessada apenas pelo backend Java.
+
+```
+┌─────────────────────────────────────────────┐
+│         football-data.org (API externa)      │
+│  GET /competitions/WC/matches               │
+└────────────────┬────────────────────────────┘
+                 │ HTTP GET (1 req/60s ao vivo)
+                 │ HTTP GET (2×/dia para agenda)
+                 ▼
+┌─────────────────────────────────────────────┐
+│    JAVA BACKEND (Struts 2)                  │
+│                                             │
+│  FixtureRefreshJob  →  upsert agenda        │
+│  LiveScorePollerJob →  detecta mudança      │
+│                     →  persiste no banco    │
+│                     →  broadcast SSE        │
+│                                             │
+│  ScoreboardAction   →  lê do banco          │
+│                     →  retorna HTML parcial │
+└────────────────┬────────────────────────────┘
+                 │ JDBC / JPA
+                 ▼
+┌─────────────────────────────────────────────┐
+│         BANCO DE DADOS (UTC)                │
+│  match_game + match_score_log               │
+└────────────────┬────────────────────────────┘
+                 │ SSE push / HTMX polling
+                 ▼
+┌─────────────────────────────────────────────┐
+│    BROWSER (JSP + HTMX)                     │
+│  sse-connect ou hx-trigger="every 30s"      │
+└─────────────────────────────────────────────┘
+```
+
+### Componentes
+
+| Componente | Responsabilidade |
+|---|---|
+| `FootballDataClient` | Consumir football-data.org e desserializar JSON |
+| `FixtureRefreshJob` | Revalidar calendário 2× por dia (06h e 20h BRT) |
+| `LiveScorePollerJob` | Consultar placares durante janelas ativas |
+| `MatchRepository` | Persistir partidas e mudanças de estado |
+| `ScoreLogRepository` | Registrar histórico de alterações de placar |
+| `ScorePushService` | Enviar mudanças para o frontend via SSE |
+| `ScoreboardAction` | Entregar HTML parcial ao HTMX e página inicial |
+| `ScoreManualUpdateAction` | Tela administrativa de atualização manual |
+
+> O diagrama abaixo ilustra o fluxo completo dos dois jobs: revalidação de agenda (2×/dia) e polling de placar por jogo individual (a cada 5 minutos).
+
+![Fluxo de polling](fluxo-polling.png)
+
+---
+
+## Estratégia de agendamento
+
+### 1. Revalidação de agenda — 2× por dia
+
+A agenda é revalidada em **06h BRT** e **20h BRT** (cobre jogos das 00h e 01h BRT do dia seguinte). O job também executa no startup da aplicação.
+
+Em cada execução, o sistema busca o dia atual BRT **e** o dia seguinte BRT. Para cada jogo retornado, compara os campos `kickoff_utc`, `homeTeam.name`, `awayTeam.name` e `status` com o que está no banco e persiste qualquer diferença.
+
+**Nomes dos times em português:** a API retorna os nomes em inglês/idioma local. O sistema mantém uma tabela `team_translation` (`team_id → name_pt_br`) para exibição em português. O `FixtureRefreshJob` usa o `team_id` retornado pela API para resolver o nome localizado — nunca usa o nome bruto da API na camada de exibição.
+
+A janela de busca cobre o **dia civil em Brasília** convertido para UTC:
+
+```
+00:00 BRT = 03:00 UTC (mesmo dia)
+23:59 BRT = 02:59 UTC do dia seguinte
+```
+
+Isso garante que jogos das 23h BRT — que são 02:00 UTC do dia seguinte — não sejam perdidos.
+
+**Campos verificados e atualizados em cada revalidação:**
+
+| Campo no banco | Campo na API | Ação se diferente |
+|---|---|---|
+| `kickoff_utc` | `utcDate` | Atualiza, loga mudança de horário |
+| `home_team_id` | `homeTeam.id` | Atualiza (mata-mata: de null para definido) |
+| `away_team_id` | `awayTeam.id` | Atualiza (mata-mata: de null para definido) |
+| `home_team_slot` | `homeTeam.name` (quando slot lógico) | Atualiza descrição do slot |
+| `status_code` | `status` | Atualiza |
+| `stage_name` | `stage` | Atualiza |
+
+### 2. Polling de placar ao vivo — por jogo individual
+
+O polling **é por jogo específico** (`GET /v4/matches/{id}`), não por lista global. Isso garante controle preciso da janela de cada partida e evita desperdício de requests em jogos ainda não iniciados.
+
+**Ciclo de vida do polling por jogo:**
+
+```
+kickoff_utc - 5 min → ativa janela de polling
+              ↓
+         a cada 5 min → GET /v4/matches/{id}
+              ↓
+    status = FINISHED (ou FINISHED+duration)
+         + buffer pós-jogo
+              ↓
+         desativa polling do jogo
+```
+
+**Janelas por fase:**
+
+| Fase | Início do polling | Duração máxima | Buffer pós-jogo | Total da janela |
+|---|---|---|---|---|
+| Fase de grupos | kickoff - 5 min | 95 min | 10 min | **110 min** |
+| R32, R16, QF, SF, FINAL | kickoff - 5 min | 130 min | 15 min | **150 min** |
+
+**Cálculo de consumo de requests — plano Free (10 req/min):**
+
+```
+Polling por jogo:   1 req a cada 5 min = 0,2 req/min por jogo
+Pior caso real:     3 jogos simultâneos = 0,6 req/min
+Limite Free:        10 req/min
+Margem livre:       94% → SEM RISCO de atingir rate limit ✅
+
+Fase de grupos:  22 requests por jogo (110 min ÷ 5 min)
+Mata-mata:       30 requests por jogo (150 min ÷ 5 min)
+```
+
+O plano Free **não possui limite diário** para clientes autenticados — apenas 10 req/min. Com o modelo de polling por jogo a cada 5 minutos, o consumo fica em **menos de 1% do limite por minuto** mesmo no dia de maior volume da Copa.
+
+---
+
+## Timezone e modelo temporal
+
+Todas as 16 sedes operam em fusos americanos — **EDT (UTC-4)**, **CDT (UTC-5)** ou **PDT (UTC-7)** — todas atrás do Brasil. O torneio inclui jogos às **00h e 01h BRT**, provenientes de sedes PDT (San Francisco, Seattle, Vancouver).
+
+### Regras obrigatórias
+
+- **`Instant`** ou `OffsetDateTime` para transporte e comparação
+- **`ZoneId.of("America/Sao_Paulo")`** para toda regra funcional de agenda
+- **UTC** no banco de dados (campo `TIMESTAMP WITH TIME ZONE`)
+- Conversão para BRT apenas na camada de exibição (JSP/Action)
+- **Nunca usar `LocalDate`** sem timezone para cálculo de janelas
+
+### Janela correta de "dia BRT" em UTC
+
+```java
+public static BrtWindow dayWindow(LocalDate brtDate) {
+    ZoneId brt = ZoneId.of("America/Sao_Paulo");
+    Instant from = brtDate.atStartOfDay(brt).toInstant();        // 03:00 UTC
+    Instant to   = brtDate.plusDays(1).atStartOfDay(brt)
+                          .minusSeconds(1).toInstant();           // 02:59:59 UTC+1
+    return new BrtWindow(from, to);
+    // Ex. para 22/06/2026:
+    // from = 2026-06-22T03:00:00Z
+    // to   = 2026-06-23T02:59:59Z  ← captura jogo das 23h BRT do dia 22 ✅
+}
+```
+
+---
+
+## Banco de dados
+
+### Schema principal
+
+```sql
+CREATE TABLE match_game (
+    id                  BIGSERIAL PRIMARY KEY,
+    external_id         VARCHAR(64) NOT NULL UNIQUE,     -- ID da football-data.org
+    home_team           VARCHAR(120),                    -- NULL até definido no mata-mata
+    away_team           VARCHAR(120),                    -- NULL até definido no mata-mata
+    home_team_slot      VARCHAR(80),                     -- "Winner Match 73" etc.
+    away_team_slot      VARCHAR(80),
+    kickoff_utc         TIMESTAMP WITH TIME ZONE NOT NULL,
+    status_code         VARCHAR(20) NOT NULL,
+    -- STATUS: SCHEDULED | IN_PLAY | PAUSED | FINISHED
+    stage_name          VARCHAR(20) NOT NULL,
+    -- STAGE: GROUP_STAGE | R32 | R16 | QF | SF | THIRD | FINAL
+    match_number        SMALLINT,                        -- nº do jogo na tabela FIFA
+    home_score          SMALLINT NOT NULL DEFAULT 0,
+    away_score          SMALLINT NOT NULL DEFAULT 0,
+    home_score_et       SMALLINT,                        -- prorrogação
+    away_score_et       SMALLINT,
+    home_score_pen      SMALLINT,                        -- pênaltis
+    away_score_pen      SMALLINT,
+    score_duration      VARCHAR(30),                     -- REGULAR | EXTRA_TIME | PENALTY_SHOOTOUT
+    venue_name          VARCHAR(160),
+    source_system       VARCHAR(40) NOT NULL DEFAULT 'football-data.org',
+    source_updated_at   TIMESTAMP WITH TIME ZONE,
+    last_checked_at     TIMESTAMP WITH TIME ZONE,
+    created_at          TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at          TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_match_game_kickoff_utc ON match_game (kickoff_utc);
+CREATE INDEX idx_match_game_status_code ON match_game (status_code);
+CREATE INDEX idx_match_game_stage_name  ON match_game (stage_name);
+```
+
+```sql
+CREATE TABLE match_score_log (
+    id                  BIGSERIAL PRIMARY KEY,
+    match_id            BIGINT NOT NULL REFERENCES match_game(id),
+    home_score          SMALLINT NOT NULL,
+    away_score          SMALLINT NOT NULL,
+    home_score_et       SMALLINT,
+    away_score_et       SMALLINT,
+    home_score_pen      SMALLINT,
+    away_score_pen      SMALLINT,
+    status_code         VARCHAR(20) NOT NULL,
+    score_duration      VARCHAR(30),
+    observed_at         TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at          TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_match_score_log_match_id ON match_score_log (match_id);
+```
+
+---
+
+## Código de exemplo
+
+### 1. Configuração
+
+```java
+package br.com.bolao.worldcup.config;
+
+import java.time.ZoneId;
+
+public final class WorldCupProperties {
+
+    public static final ZoneId BRT = ZoneId.of("America/Sao_Paulo");
+
+    private final String baseUrl  = "https://api.football-data.org/v4";
+    private final String apiToken;         // X-Auth-Token
+    private final int    pollingSeconds;   // padrão: 60
+
+    public WorldCupProperties(String apiToken, int pollingSeconds) {
+        this.apiToken       = apiToken;
+        this.pollingSeconds = pollingSeconds;
+    }
+
+    public String getBaseUrl()        { return baseUrl; }
+    public String getApiToken()       { return apiToken; }
+    public int    getPollingSeconds() { return pollingSeconds; }
+}
+```
+
+### 2. DTOs
+
+```java
+package br.com.bolao.worldcup.client.dto;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.Instant;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class MatchDto {
+
+    @JsonProperty("id")
+    private Long id;
+
+    @JsonProperty("utcDate")          // "2026-06-22T03:00:00Z" — UTC explícito
+    private Instant kickoffUtc;
+
+    @JsonProperty("status")           // SCHEDULED | IN_PLAY | PAUSED | FINISHED
+    private String status;
+
+    @JsonProperty("stage")            // GROUP_STAGE | LAST_32 | LAST_16 | QUARTER_FINALS | ...
+    private String stage;
+
+    @JsonProperty("homeTeam")
+    private TeamDto homeTeam;
+
+    @JsonProperty("awayTeam")
+    private TeamDto awayTeam;
+
+    @JsonProperty("score")
+    private ScoreDto score;
+
+    // Getters
+    public Long    getId()          { return id; }
+    public Instant getKickoffUtc()  { return kickoffUtc; }
+    public String  getStatus()      { return status; }
+    public String  getStage()       { return stage; }
+    public TeamDto getHomeTeam()    { return homeTeam; }
+    public TeamDto getAwayTeam()    { return awayTeam; }
+    public ScoreDto getScore()      { return score; }
+}
+```
+
+```java
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class TeamDto {
+    @JsonProperty("id")   private Long   id;
+    @JsonProperty("name") private String name;
+    public Long   getId()   { return id; }
+    public String getName() { return name; }
+}
+```
+
+```java
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ScoreDto {
+
+    @JsonProperty("winner")   private String winner;    // HOME_TEAM | AWAY_TEAM | DRAW | null
+    @JsonProperty("duration") private String duration;  // REGULAR | EXTRA_TIME | PENALTY_SHOOTOUT
+
+    @JsonProperty("fullTime")   private ScorePairDto fullTime;
+    @JsonProperty("halfTime")   private ScorePairDto halfTime;
+    @JsonProperty("extraTime")  private ScorePairDto extraTime;
+    @JsonProperty("penalties")  private ScorePairDto penalties;
+
+    public String       getWinner()    { return winner; }
+    public String       getDuration()  { return duration; }
+    public ScorePairDto getFullTime()  { return fullTime; }
+    public ScorePairDto getExtraTime() { return extraTime; }
+    public ScorePairDto getPenalties() { return penalties; }
+}
+```
+
+```java
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ScorePairDto {
+    @JsonProperty("home") private Integer home;
+    @JsonProperty("away") private Integer away;
+    public int getHome() { return home == null ? 0 : home; }
+    public int getAway() { return away == null ? 0 : away; }
+}
+```
+
+### 3. Cliente da API
+
+> **Guia oficial:** A football-data.org fornece um [Quick Start Guide](https://docs.football-data.org/general/v4/coding/java.html) e uma [Referência completa da API v4](https://docs.football-data.org/general/v4/resources.html) para desenvolvedores Java.
+>
+> **Importante para LLMs e geração de código:** instrua o modelo a **inspecionar os cabeçalhos de resposta** para controle automático de rate limit (ver seção de Rate Limit abaixo). Sem isso, o limitador de taxa será atingido repetidamente.
+
+```java
+package br.com.bolao.worldcup.client;
+
+import br.com.bolao.worldcup.client.dto.MatchDto;
+import br.com.bolao.worldcup.config.WorldCupProperties;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import java.io.IOException;
+import java.net.*;
+import java.net.http.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Logger;
+
+/**
+ * Cliente HTTP para a football-data.org — API v4.
+ *
+ * Autenticação: header "X-Auth-Token" com token obtido em football-data.org/client/register
+ *
+ * Plano Free:
+ *   - 10 requests/minuto
+ *   - Delay de ~5 minutos no placar ao vivo (throttle intencional do provider)
+ *   - Copa do Mundo coberta com código de competição "WC"
+ *
+ * Rate limit: lido dos cabeçalhos de resposta a cada chamada.
+ *   X-Requests-Available-Minute → requests restantes na janela atual (1 minuto)
+ *   X-RequestCounter-Reset      → segundos até o reset da janela
+ *
+ * Referência oficial: https://docs.football-data.org/general/v4/policies.html
+ * Quickstart Java:    https://docs.football-data.org/general/v4/coding/java.html
+ */
+public class FootballDataClient {
+
+    private static final Logger LOG = Logger.getLogger(FootballDataClient.class.getName());
+
+    private static final String BASE_URL      = "https://api.football-data.org/v4";
+    private static final String COMPETITION   = "WC";      // Copa do Mundo FIFA
+    private static final String STATUS_LIVE   = "IN_PLAY";
+
+    // Cabeçalhos de rate limit retornados pela football-data.org
+    private static final String HEADER_REMAINING = "X-Requests-Available-Minute";
+    private static final String HEADER_RESET     = "X-RequestCounter-Reset";
+
+    // Estado atual de rate limit (atualizado a cada resposta)
+    private final AtomicInteger requestsRemaining = new AtomicInteger(10);
+    private final AtomicLong    resetInSeconds    = new AtomicLong(60);
+
+    private final HttpClient     httpClient;
+    private final ObjectMapper   objectMapper;
+    private final String         apiToken;
+
+    public FootballDataClient(WorldCupProperties props) {
+        this.apiToken   = props.getApiToken();
+        this.httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(5))
+                .build();
+        this.objectMapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Métodos públicos
+    // ─────────────────────────────────────────────────────────────
+
+    /**
+     * Retorna todos os jogos dentro de uma janela UTC.
+     *
+     * Use BrtWindow.dayWindow(brtDate) para calcular fromUtc e toUtc.
+     * Parâmetros aceitos pela API no formato yyyy-MM-dd (data local UTC).
+     *
+     * Exemplo de URL gerada:
+     *   GET /v4/competitions/WC/matches?dateFrom=2026-06-22&dateTo=2026-06-23
+     */
+    public List<MatchDto> fetchByWindow(Instant fromUtc, Instant toUtc)
+            throws IOException, InterruptedException {
+
+        // football-data.org aceita datas no formato yyyy-MM-dd em UTC
+        String from = fromUtc.toString().substring(0, 10);  // "2026-06-22"
+        String to   = toUtc.toString().substring(0, 10);    // "2026-06-23"
+
+        String url = BASE_URL + "/competitions/" + COMPETITION + "/matches"
+                + "?dateFrom=" + from
+                + "&dateTo="   + to;
+
+        return getMatches(url);
+    }
+
+    /**
+     * Retorna apenas os jogos com status IN_PLAY.
+     *
+     * ATENÇÃO — plano Free: há delay de ~5 minutos em relação ao placar real.
+     * Isso é intencional na football-data.org. O sistema compensa via tela
+     * de atualização manual administrativa.
+     *
+     * Endpoint: GET /v4/competitions/WC/matches?status=IN_PLAY
+     */
+    public List<MatchDto> fetchLive() throws IOException, InterruptedException {
+        String url = BASE_URL + "/competitions/" + COMPETITION
+                + "/matches?status=" + STATUS_LIVE;
+        return getMatches(url);
+    }
+
+    /**
+     * Retorna um jogo específico pelo ID interno da football-data.org.
+     * Endpoint: GET /v4/matches/{matchId}
+     */
+    public MatchDto fetchById(Long matchId) throws IOException, InterruptedException {
+        String url = BASE_URL + "/matches/" + matchId;
+        HttpResponse<String> resp = send(url);
+        readRateLimitHeaders(resp);
+        ensureSuccess(resp);
+        return objectMapper.readValue(resp.body(), MatchDto.class);
+    }
+
+    /**
+     * Retorna os requests restantes na janela atual (lido do último cabeçalho).
+     * Útil para o scheduler decidir se deve ou não disparar a próxima chamada.
+     */
+    public int getRequestsRemainingInWindow() {
+        return requestsRemaining.get();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Métodos privados
+    // ─────────────────────────────────────────────────────────────
+
+    private List<MatchDto> getMatches(String url) throws IOException, InterruptedException {
+        HttpResponse<String> resp = send(url);
+        readRateLimitHeaders(resp);   // ← OBRIGATÓRIO: lê cabeçalhos antes de qualquer lógica
+        ensureSuccess(resp);
+
+        // Resposta: { "count": N, "matches": [...] }
+        Map<String, Object> root = objectMapper.readValue(resp.body(),
+                new TypeReference<>() {});
+        String matchesJson = objectMapper.writeValueAsString(root.get("matches"));
+        return objectMapper.readValue(matchesJson, new TypeReference<>() {});
+    }
+
+    private HttpResponse<String> send(String url) throws IOException, InterruptedException {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("X-Auth-Token", apiToken)   // autenticação obrigatória
+                .header("Accept", "application/json")
+                .timeout(Duration.ofSeconds(8))
+                .GET()
+                .build();
+        return httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+    }
+
+    /**
+     * Lê os cabeçalhos de rate limit retornados pela football-data.org.
+     *
+     * Cabeçalhos relevantes (documentação oficial):
+     *   X-Requests-Available-Minute  — requests disponíveis na janela atual (1 min)
+     *   X-RequestCounter-Reset       — segundos restantes até o reset da janela
+     *
+     * Inspecionar esses cabeçalhos é OBRIGATÓRIO para evitar atingir o limitador
+     * de forma repetida. Sem isso, requisições em burst causam 429 consecutivos.
+     *
+     * Referência: https://docs.football-data.org/general/v4/policies.html
+     */
+    private void readRateLimitHeaders(HttpResponse<String> resp) {
+        resp.headers().firstValue(HEADER_REMAINING).ifPresent(v -> {
+            try {
+                int remaining = Integer.parseInt(v.trim());
+                requestsRemaining.set(remaining);
+                if (remaining <= 2) {
+                    LOG.warning("[FootballDataClient] Rate limit baixo: "
+                            + remaining + " requests restantes na janela atual.");
+                }
+            } catch (NumberFormatException ignored) {}
+        });
+
+        resp.headers().firstValue(HEADER_RESET).ifPresent(v -> {
+            try {
+                resetInSeconds.set(Long.parseLong(v.trim()));
+            } catch (NumberFormatException ignored) {}
+        });
+
+        LOG.fine("[FootballDataClient] Rate limit — remaining: "
+                + requestsRemaining.get()
+                + ", reset em: " + resetInSeconds.get() + "s");
+    }
+
+    /**
+     * Trata erros HTTP de forma segura para o scheduler.
+     *
+     * 429 Too Many Requests → lança RateLimitException (não interrompe o scheduler)
+     * 5xx Server Error      → lança ApiUnavailableException
+     * Outros 4xx            → lança IllegalStateException com status code
+     */
+    private static void ensureSuccess(HttpResponse<String> resp) {
+        int status = resp.statusCode();
+        if (status == 429) {
+            throw new RateLimitException(
+                "Rate limit atingido (HTTP 429). Aguardar reset da janela antes do próximo ciclo.");
+        }
+        if (status >= 500) {
+            throw new ApiUnavailableException(
+                "football-data.org indisponível (HTTP " + status + "). Tentará novamente no próximo ciclo.");
+        }
+        if (status < 200 || status >= 300) {
+            throw new IllegalStateException(
+                "Resposta inesperada da football-data.org: HTTP " + status
+                + " | Body: " + resp.body());
+        }
+    }
+
+    // ─── Exceções específicas para tratamento no scheduler ───────
+
+    public static class RateLimitException extends RuntimeException {
+        public RateLimitException(String msg) { super(msg); }
+    }
+
+    public static class ApiUnavailableException extends RuntimeException {
+        public ApiUnavailableException(String msg) { super(msg); }
+    }
+}
+```
+
+#### Quick Start oficial — primeiros passos (Java 11+)
+
+Conforme o [Guia Java da football-data.org](https://docs.football-data.org/general/v4/coding/java.html), o mínimo funcional para testar a autenticação é:
+
+```java
+// Teste rápido no JShell ou em um main() — valida token e conectividade
+import java.net.URI;
+import java.net.http.*;
+
+HttpClient client = HttpClient.newHttpClient();
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.football-data.org/v4/competitions/WC/matches"))
+    .header("X-Auth-Token", "SEU_TOKEN_AQUI")
+    .GET()
+    .build();
+
+HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+System.out.println("Status: " + response.statusCode());
+System.out.println("Remaining: " + response.headers().firstValue("X-Requests-Available-Minute"));
+System.out.println(response.body());
+```
+
+Execute esse trecho após registrar sua conta em `football-data.org/client/register` para confirmar que o token funciona e que a competição `WC` está retornando jogos da temporada 2026.
+
+### 4. Utilitário de janela BRT
+
+```java
+package br.com.bolao.worldcup.time;
+
+import br.com.bolao.worldcup.config.WorldCupProperties;
+import java.time.*;
+
+public final class BrtWindow {
+
+    private final Instant fromUtc;
+    private final Instant toUtc;
+
+    private BrtWindow(Instant fromUtc, Instant toUtc) {
+        this.fromUtc = fromUtc;
+        this.toUtc   = toUtc;
+    }
+
+    /**
+     * Cria a janela UTC que cobre exatamente o dia civil em Brasília.
+     *
+     * Ex. para 2026-06-22:
+     *   from = 2026-06-22T03:00:00Z  (00:00 BRT)
+     *   to   = 2026-06-23T02:59:59Z  (23:59:59 BRT)
+     *
+     * Captura corretamente jogos das 23h BRT que são 02:xx UTC do dia seguinte.
+     */
+    public static BrtWindow dayWindow(LocalDate brtDate) {
+        ZonedDateTime start = brtDate.atStartOfDay(WorldCupProperties.BRT);
+        ZonedDateTime end   = start.plusDays(1).minusSeconds(1);
+        return new BrtWindow(start.toInstant(), end.toInstant());
+    }
+
+    public Instant fromUtc() { return fromUtc; }
+    public Instant toUtc()   { return toUtc; }
+}
+```
+
+### 5. Revalidação da agenda — 2× por dia
+
+```java
+package br.com.bolao.worldcup.jobs;
+
+import br.com.bolao.worldcup.client.FootballDataClient;
+import br.com.bolao.worldcup.client.dto.MatchDto;
+import br.com.bolao.worldcup.config.WorldCupProperties;
+import br.com.bolao.worldcup.repository.MatchRepository;
+import br.com.bolao.worldcup.repository.TeamTranslationRepository;
+import br.com.bolao.worldcup.time.BrtWindow;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.logging.Logger;
+
+/**
+ * Executado no startup e às 06h e 20h BRT.
+ *
+ * Responsabilidades:
+ *  1. Buscar fixtures do dia atual BRT e do dia seguinte BRT
+ *  2. Para cada jogo, verificar e atualizar se houver mudança em:
+ *       - kickoff_utc (reagendamento de horário)
+ *       - homeTeam.id / awayTeam.id (times definidos no mata-mata)
+ *       - status_code (mudança de estado)
+ *       - stage_name
+ *  3. Resolver o nome do time em português via tabela team_translation
+ *
+ * Nomes dos times: a API retorna em inglês/idioma local (ex: "Brazil", "France").
+ * O sistema resolve para pt-BR usando team_id como chave de lookup.
+ * Ex: team_id=759 → "Brasil", team_id=773 → "França".
+ * Nomes sem tradução cadastrada usam o nome original da API como fallback.
+ */
+public class FixtureRefreshJob implements Runnable {
+
+    private static final Logger LOG = Logger.getLogger(FixtureRefreshJob.class.getName());
+
+    private final FootballDataClient       apiClient;
+    private final MatchRepository          matchRepository;
+    private final TeamTranslationRepository teamTranslationRepo;
+
+    public FixtureRefreshJob(FootballDataClient apiClient,
+                             MatchRepository matchRepository,
+                             TeamTranslationRepository teamTranslationRepo) {
+        this.apiClient          = apiClient;
+        this.matchRepository    = matchRepository;
+        this.teamTranslationRepo = teamTranslationRepo;
+    }
+
+    @Override
+    public void run() {
+        LOG.info("[FixtureRefreshJob] Iniciando revalidação de agenda...");
+        try {
+            LocalDate hoje   = LocalDate.now(WorldCupProperties.BRT);
+            LocalDate amanha = hoje.plusDays(1);
+
+            int updatedHoje   = syncDay(hoje);
+            int updatedAmanha = syncDay(amanha);
+
+            LOG.info("[FixtureRefreshJob] Concluído — hoje: " + updatedHoje
+                    + " atualizados, amanhã: " + updatedAmanha + " atualizados.");
+
+        } catch (Exception e) {
+            LOG.warning("[FixtureRefreshJob] Falha na revalidação: " + e.getMessage());
+            // Não relança — sistema tem atualização manual como contingência
+        }
+    }
+
+    /**
+     * Busca jogos do dia BRT e persiste apenas os que mudaram.
+     * @return número de jogos efetivamente atualizados no banco
+     */
+    private int syncDay(LocalDate brtDate) throws Exception {
+        BrtWindow      window  = BrtWindow.dayWindow(brtDate);
+        List<MatchDto> matches = apiClient.fetchByWindow(window.fromUtc(), window.toUtc());
+
+        int updated = 0;
+        for (MatchDto dto : matches) {
+            boolean changed = upsertIfChanged(dto);
+            if (changed) updated++;
+        }
+
+        LOG.info("[FixtureRefreshJob] " + brtDate + " → "
+                + matches.size() + " jogos verificados, " + updated + " atualizados.");
+        return updated;
+    }
+
+    /**
+     * Compara o estado atual do banco com o retornado pela API.
+     * Persiste apenas se houver mudança real (evita writes desnecessários).
+     *
+     * Campos comparados: kickoff_utc, home_team_id, away_team_id,
+     *                    home_team_slot, status_code, stage_name.
+     *
+     * Nomes em pt-BR: resolvidos via TeamTranslationRepository usando team_id.
+     *   Se não houver tradução cadastrada, usa o nome retornado pela API (fallback).
+     *
+     * @return true se o banco foi atualizado, false caso contrário
+     */
+    private boolean upsertIfChanged(MatchDto dto) {
+        var current = matchRepository.findByExternalId(String.valueOf(dto.getId()));
+
+        // Resolve nome do time em pt-BR (pode ser null no mata-mata — times ainda indefinidos)
+        String homeNamePtBr = resolveTeamName(dto.getHomeTeam());
+        String awayNamePtBr = resolveTeamName(dto.getAwayTeam());
+
+        // Detecta se é slot lógico (nome ainda não definido no mata-mata)
+        boolean homeIsSlot = dto.getHomeTeam() == null
+                || dto.getHomeTeam().getId() == null;
+        boolean awayIsSlot = dto.getAwayTeam() == null
+                || dto.getAwayTeam().getId() == null;
+
+        if (current.isEmpty()) {
+            // Jogo novo — insere
+            matchRepository.createFrom(dto, homeNamePtBr, awayNamePtBr);
+            LOG.info("[FixtureRefreshJob] Novo jogo inserido: id=" + dto.getId()
+                    + " | " + homeNamePtBr + " x " + awayNamePtBr
+                    + " | kickoff=" + dto.getKickoffUtc());
+            return true;
+        }
+
+        var match = current.get();
+        boolean changed = false;
+
+        // Verifica mudança de horário (reagendamento)
+        if (!dto.getKickoffUtc().equals(match.getKickoffUtc())) {
+            LOG.info("[FixtureRefreshJob] Horário alterado jogo " + dto.getId()
+                    + ": " + match.getKickoffUtc() + " → " + dto.getKickoffUtc());
+            match.setKickoffUtc(dto.getKickoffUtc());
+            changed = true;
+        }
+
+        // Verifica times (resolve no mata-mata quando passam de slot para nome real)
+        if (!homeIsSlot && !dto.getHomeTeam().getId().equals(match.getHomeTeamId())) {
+            match.setHomeTeamId(dto.getHomeTeam().getId());
+            match.setHomeTeam(homeNamePtBr);
+            match.setHomeTeamSlot(null);  // slot resolvido
+            LOG.info("[FixtureRefreshJob] Time da casa definido: " + homeNamePtBr);
+            changed = true;
+        }
+        if (!awayIsSlot && !dto.getAwayTeam().getId().equals(match.getAwayTeamId())) {
+            match.setAwayTeamId(dto.getAwayTeam().getId());
+            match.setAwayTeam(awayNamePtBr);
+            match.setAwayTeamSlot(null);  // slot resolvido
+            LOG.info("[FixtureRefreshJob] Time visitante definido: " + awayNamePtBr);
+            changed = true;
+        }
+
+        // Verifica mudança de status
+        if (!dto.getStatus().equals(match.getStatusCode())) {
+            match.setStatusCode(dto.getStatus());
+            changed = true;
+        }
+
+        if (changed) {
+            match.setSourceUpdatedAt(java.time.Instant.now());
+            matchRepository.save(match);
+        }
+
+        return changed;
+    }
+
+    /**
+     * Resolve o nome do time em português do Brasil.
+     *
+     * Prioridade:
+     *  1. Tradução cadastrada em team_translation (team_id → name_pt_br)
+     *  2. Nome retornado pela API (fallback — inglês/idioma local)
+     *  3. null (mata-mata — time ainda indefinido)
+     */
+    private String resolveTeamName(br.com.bolao.worldcup.client.dto.TeamDto teamDto) {
+        if (teamDto == null || teamDto.getId() == null) return null;
+
+        return teamTranslationRepo
+                .findByExternalId(teamDto.getId())
+                .map(t -> t.getNamePtBr())
+                .orElse(teamDto.getName()); // fallback: nome da API
+    }
+}
+```
+
+#### Schema da tabela de tradução de times
+
+```sql
+-- Mapeamento team_id (football-data.org) → nome em português do Brasil
+CREATE TABLE team_translation (
+    id              BIGSERIAL PRIMARY KEY,
+    external_id     BIGINT      NOT NULL UNIQUE,  -- team_id da football-data.org
+    name_api        VARCHAR(120) NOT NULL,         -- nome original retornado pela API
+    name_pt_br      VARCHAR(120) NOT NULL,         -- nome em português para exibição
+    created_at      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+-- Exemplos de registros (Copa 2026 — seleções principais)
+INSERT INTO team_translation (external_id, name_api, name_pt_br) VALUES
+  (759,  'Brazil',       'Brasil'),
+  (773,  'France',       'França'),
+  (760,  'Argentina',    'Argentina'),
+  (765,  'Germany',      'Alemanha'),
+  (764,  'Spain',        'Espanha'),
+  (770,  'Portugal',     'Portugal'),
+  (762,  'England',      'Inglaterra'),
+  (799,  'Netherlands',  'Holanda'),
+  (801,  'Uruguay',      'Uruguai'),
+  (794,  'Mexico',       'México'),
+  (768,  'Japan',        'Japão'),
+  (771,  'Morocco',      'Marrocos'),
+  (769,  'South Korea',  'Coreia do Sul'),
+  (763,  'Croatia',      'Croácia'),
+  (772,  'Senegal',      'Senegal'),
+  (789,  'United States','Estados Unidos');
+-- (adicionar todos os 48 classificados conforme IDs confirmados na API)
+```
+
+> **Nota:** Os `external_id` acima são exemplos baseados nos padrões históricos da API. Confirme os IDs reais executando `GET /v4/competitions/WC/teams` após o início do torneio e atualize a tabela.
+
+### 6. Poller de placar ao vivo — por jogo individual
+
+O poller **não usa lista global de jogos ao vivo**. Ele gerencia uma janela de polling por jogo, ativada 5 minutos antes do kickoff e encerrada após confirmação de `FINISHED` + buffer pós-jogo. Cada ciclo faz `GET /v4/matches/{id}` para cada jogo ativo — 1 request por jogo a cada 5 minutos.
+
+```java
+package br.com.bolao.worldcup.jobs;
+
+import br.com.bolao.worldcup.client.FootballDataClient;
+import br.com.bolao.worldcup.client.dto.MatchDto;
+import br.com.bolao.worldcup.config.WorldCupProperties;
+import br.com.bolao.worldcup.domain.MatchGame;
+import br.com.bolao.worldcup.push.ScorePushService;
+import br.com.bolao.worldcup.repository.MatchRepository;
+import br.com.bolao.worldcup.repository.ScoreLogRepository;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.logging.Logger;
+
+/**
+ * Poller de placar ao vivo — executa a cada 5 minutos.
+ *
+ * Modelo: polling POR JOGO ESPECÍFICO via GET /v4/matches/{id}
+ *
+ * Janela de ativação por jogo:
+ *   INÍCIO:     kickoff_utc - 5 minutos
+ *   FIM normal: status FINISHED confirmado + buffer pós-jogo
+ *   FIM seguro: kickoff_utc + duração_máxima_da_fase (failsafe)
+ *
+ * Duração máxima por fase:
+ *   Fase de grupos → 110 min (95 min de jogo + 15 min buffer)
+ *   Mata-mata      → 150 min (130 min prorrogação+pênaltis + 20 min buffer)
+ *
+ * Consumo de requests (plano Free — limite 10/min):
+ *   1 req / 5 min / jogo = 0,2 req/min por jogo
+ *   Pior caso (3 jogos simultâneos): 0,6 req/min → 94% de margem livre ✅
+ *
+ * O delay de ~5 min do free tier é documentado e compensado pela
+ * tela de atualização manual administrativa.
+ */
+public class LiveScorePollerJob implements Runnable {
+
+    private static final Logger LOG = Logger.getLogger(LiveScorePollerJob.class.getName());
+
+    // Margem antes do kickoff para ativar o polling
+    private static final int PRE_MATCH_BUFFER_MIN = 5;
+
+    private final FootballDataClient apiClient;
+    private final MatchRepository    matchRepository;
+    private final ScoreLogRepository scoreLogRepository;
+    private final ScorePushService   scorePushService;
+
+    public LiveScorePollerJob(FootballDataClient apiClient,
+                              MatchRepository    matchRepository,
+                              ScoreLogRepository scoreLogRepository,
+                              ScorePushService   scorePushService) {
+        this.apiClient          = apiClient;
+        this.matchRepository    = matchRepository;
+        this.scoreLogRepository = scoreLogRepository;
+        this.scorePushService   = scorePushService;
+    }
+
+    @Override
+    public void run() {
+        if (!apiClient.isSafeToRequest()) {
+            LOG.warning("[LiveScorePollerJob] Rate limit baixo — ciclo pulado.");
+            return;
+        }
+
+        // Busca todos os jogos que devem estar na janela de polling agora
+        List<MatchGame> activeMatches = matchRepository.findMatchesInPollingWindow(Instant.now());
+
+        if (activeMatches.isEmpty()) {
+            LOG.fine("[LiveScorePollerJob] Nenhum jogo na janela de polling agora.");
+            return;
+        }
+
+        LOG.info("[LiveScorePollerJob] " + activeMatches.size() + " jogo(s) na janela.");
+
+        for (MatchGame match : activeMatches) {
+            try {
+                pollMatch(match);
+            } catch (FootballDataClient.RateLimitException e) {
+                LOG.warning("[LiveScorePollerJob] Rate limit atingido no jogo "
+                        + match.getId() + " — interrompendo ciclo.");
+                break;  // Para os demais jogos deste ciclo; retorna na próxima execução
+
+            } catch (Exception e) {
+                LOG.warning("[LiveScorePollerJob] Erro no jogo " + match.getId()
+                        + ": " + e.getMessage());
+                // Continua para o próximo jogo
+            }
+        }
+    }
+
+    /**
+     * Consulta o estado atual de um jogo específico e persiste mudanças.
+     * Usa GET /v4/matches/{externalId} — 1 request por chamada.
+     */
+    private void pollMatch(MatchGame current) throws Exception {
+        MatchDto dto = apiClient.fetchById(Long.valueOf(current.getExternalId()));
+
+        int    newHome     = dto.getScore().getFullTime().getHome();
+        int    newAway     = dto.getScore().getFullTime().getAway();
+        String newStatus   = dto.getStatus();
+        String newDuration = dto.getScore().getDuration(); // REGULAR | EXTRA_TIME | PENALTY_SHOOTOUT
+
+        boolean scoreChanged  = current.getHomeScore() != newHome
+                             || current.getAwayScore() != newAway;
+        boolean statusChanged = !current.getStatusCode().equals(newStatus);
+        boolean etChanged     = false;
+        boolean penChanged    = false;
+
+        // Prorrogação (mata-mata)
+        if (dto.getScore().getExtraTime() != null) {
+            int etH = dto.getScore().getExtraTime().getHome();
+            int etA = dto.getScore().getExtraTime().getAway();
+            etChanged = !Integer.valueOf(etH).equals(current.getHomeScoreEt())
+                     || !Integer.valueOf(etA).equals(current.getAwayScoreEt());
+            current.setHomeScoreEt(etH);
+            current.setAwayScoreEt(etA);
+        }
+
+        // Pênaltis (mata-mata)
+        if (dto.getScore().getPenalties() != null) {
+            int penH = dto.getScore().getPenalties().getHome();
+            int penA = dto.getScore().getPenalties().getAway();
+            penChanged = !Integer.valueOf(penH).equals(current.getHomeScorePen())
+                      || !Integer.valueOf(penA).equals(current.getAwayScorePen());
+            current.setHomeScorePen(penH);
+            current.setAwayScorePen(penA);
+        }
+
+        boolean changed = scoreChanged || statusChanged || etChanged || penChanged;
+
+        // Atualiza campos principais
+        current.setHomeScore(newHome);
+        current.setAwayScore(newAway);
+        current.setStatusCode(newStatus);
+        current.setScoreDuration(newDuration);
+        current.setLastCheckedAt(Instant.now());
+
+        matchRepository.save(current);
+
+        if (changed) {
+            scoreLogRepository.insert(current);
+            scorePushService.broadcast(current.getId());
+            LOG.info("[LiveScorePollerJob] Jogo " + current.getExternalId()
+                    + " atualizado: " + newHome + "x" + newAway
+                    + " | status=" + newStatus
+                    + (newDuration != null ? " | " + newDuration : ""));
+        }
+    }
+
+    // ─── Cálculo de janela de polling ────────────────────────────────
+
+    /**
+     * Retorna o início da janela de polling para um jogo.
+     * = kickoff_utc - 5 minutos
+     */
+    public static Instant pollingWindowStart(MatchGame match) {
+        return match.getKickoffUtc().minus(Duration.ofMinutes(PRE_MATCH_BUFFER_MIN));
+    }
+
+    /**
+     * Retorna o fim da janela de polling para um jogo.
+     * Considera prorrogação e pênaltis para mata-mata.
+     *
+     * Fase de grupos:  kickoff + 110 min (95 jogo + 15 buffer)
+     * Mata-mata:       kickoff + 150 min (130 jogo/prorrogação/pênaltis + 20 buffer)
+     *
+     * Nota: o fechamento definitivo da janela ocorre quando status = FINISHED,
+     * independentemente do failsafe temporal. O failsafe evita janela aberta infinita.
+     */
+    public static Instant pollingWindowEnd(MatchGame match) {
+        int maxMinutes = isKnockout(match.getStageName()) ? 150 : 110;
+        return match.getKickoffUtc().plus(Duration.ofMinutes(maxMinutes));
+    }
+
+    /**
+     * Um jogo deve ser consultado neste ciclo se:
+     *  1. Ainda não está em status final (FINISHED, POSTPONED, CANCELLED)
+     *  2. O instante atual está dentro da janela [start, end]
+     */
+    public static boolean isInPollingWindow(MatchGame match, Instant now) {
+        if (isFinalStatus(match.getStatusCode())) return false;
+        return !now.isBefore(pollingWindowStart(match))
+            && !now.isAfter(pollingWindowEnd(match));
+    }
+
+    private static boolean isKnockout(String stageName) {
+        return stageName != null && !stageName.equals("GROUP_STAGE");
+    }
+
+    private static boolean isFinalStatus(String status) {
+        return "FINISHED".equals(status)
+            || "POSTPONED".equals(status)
+            || "CANCELLED".equals(status);
+    }
+}
+```
+
+#### Query para buscar jogos na janela de polling
+
+O repositório deve expor `findMatchesInPollingWindow(Instant now)` usando a lógica de janela:
+
+```sql
+-- Retorna jogos que devem ser consultados agora
+-- Janela: [kickoff_utc - 5min, kickoff_utc + 150min] para mata-mata
+--         [kickoff_utc - 5min, kickoff_utc + 110min] para grupos
+-- Exclui jogos já com status final
+
+SELECT * FROM match_game
+WHERE status_code NOT IN ('FINISHED', 'POSTPONED', 'CANCELLED')
+  AND :now >= kickoff_utc - INTERVAL '5 minutes'
+  AND :now <= CASE
+        WHEN stage_name = 'GROUP_STAGE'
+             THEN kickoff_utc + INTERVAL '110 minutes'
+        ELSE      kickoff_utc + INTERVAL '150 minutes'
+      END
+ORDER BY kickoff_utc;
+```
+
+### 7. Agendador
+
+```java
+package br.com.bolao.worldcup.jobs;
+
+import br.com.bolao.worldcup.config.WorldCupProperties;
+
+import java.time.*;
+import java.util.concurrent.*;
+
+/**
+ * Inicializado pelo ServletContextListener na startup da aplicação.
+ * Gerencia os dois jobs: FixtureRefreshJob e LiveScorePollerJob.
+ */
+public class JobScheduler {
+
+    private final ScheduledExecutorService scheduler =
+            Executors.newScheduledThreadPool(3);
+
+    private final FixtureRefreshJob  fixtureJob;
+    private final LiveScorePollerJob pollerJob;
+    private final WorldCupProperties props;
+
+    public JobScheduler(FixtureRefreshJob fixtureJob,
+                        LiveScorePollerJob pollerJob,
+                        WorldCupProperties props) {
+        this.fixtureJob = fixtureJob;
+        this.pollerJob  = pollerJob;
+        this.props      = props;
+    }
+
+    public void start() {
+        // 1. Sincroniza fixtures imediatamente no startup
+        fixtureJob.run();
+
+        // 2. Agenda fixture refresh às 06h BRT todos os dias
+        scheduleDaily(6, 0, fixtureJob);
+
+        // 3. Agenda fixture refresh às 20h BRT todos os dias
+        //    (cobre jogos da meia-noite BRT do dia seguinte)
+        scheduleDaily(20, 0, fixtureJob);
+
+        // 4. Inicia polling de placar a cada 5 minutos
+        //    Cada ciclo consulta apenas os jogos dentro da janela de polling ativa.
+        //    Consumo: 1 req/5min/jogo → máximo 0,6 req/min (3 jogos simultâneos)
+        //    Limite Free: 10 req/min → margem de 94% livre
+        scheduler.scheduleWithFixedDelay(
+                pollerJob,
+                30L,                         // delay inicial de 30s após startup
+                5L * 60L,                    // intervalo: 5 minutos (300 segundos)
+                TimeUnit.SECONDS
+        );
+    }
+
+    public void stop() {
+        scheduler.shutdownNow();
+    }
+
+    private void scheduleDaily(int hour, int minute, Runnable job) {
+        ZonedDateTime now  = ZonedDateTime.now(WorldCupProperties.BRT);
+        ZonedDateTime next = ZonedDateTime.of(
+                now.toLocalDate(), LocalTime.of(hour, minute), WorldCupProperties.BRT);
+
+        if (!next.isAfter(now)) {
+            next = next.plusDays(1);
+        }
+
+        long initialDelay = Duration.between(now, next).toSeconds();
+
+        // scheduleAtFixedRate com período de 24h
+        scheduler.scheduleAtFixedRate(
+                job,
+                initialDelay,
+                TimeUnit.DAYS.toSeconds(1),
+                TimeUnit.SECONDS
+        );
+    }
+}
+```
+
+### 8. ServletContextListener (inicialização)
+
+```java
+package br.com.bolao.worldcup.web;
+
+import br.com.bolao.worldcup.client.FootballDataClient;
+import br.com.bolao.worldcup.config.WorldCupProperties;
+import br.com.bolao.worldcup.jobs.*;
+import br.com.bolao.worldcup.repository.*;
+import br.com.bolao.worldcup.push.ScorePushService;
+
+import javax.servlet.*;
+import javax.servlet.annotation.WebListener;
+
+@WebListener
+public class BolaoContextListener implements ServletContextListener {
+
+    private JobScheduler scheduler;
+
+    @Override
+    public void contextInitialized(ServletContextEvent event) {
+        String apiToken      = System.getenv("FOOTBALL_DATA_API_TOKEN");
+        int    pollingSecs   = 60;
+
+        WorldCupProperties props  = new WorldCupProperties(apiToken, pollingSecs);
+        FootballDataClient client = new FootballDataClient(props);
+
+        MatchRepository    matchRepo    = new MatchRepository();
+        ScoreLogRepository scoreLogRepo = new ScoreLogRepository();
+        ScorePushService   pushService  = new ScorePushService();
+
+        FixtureRefreshJob  fixtureJob = new FixtureRefreshJob(client, matchRepo);
+        LiveScorePollerJob pollerJob  = new LiveScorePollerJob(
+                client, matchRepo, scoreLogRepo, pushService);
+
+        scheduler = new JobScheduler(fixtureJob, pollerJob, props);
+        scheduler.start();
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent event) {
+        if (scheduler != null) {
+            scheduler.stop();
+        }
+    }
+}
+```
+
+### 9. SSE e HTMX no frontend
+
+```html
+<!-- SSE: atualização imediata quando banco mudar -->
+<div hx-ext="sse"
+     sse-connect="/bolao/placar-sse.action"
+     sse-swap="placarUpdate">
+  <div id="scoreboard">
+    <%-- Estado inicial carregado do banco pelo Struts --%>
+  </div>
+</div>
+
+<!-- Fallback: polling a cada 30s se SSE não estiver disponível -->
+<!--
+<div id="scoreboard"
+     hx-get="/bolao/placar-fragmento.action"
+     hx-trigger="load, every 30s"
+     hx-swap="innerHTML">
+</div>
+-->
+```
+
+### 10. Fragmento JSP do placar
+
+```jsp
+<%@ taglib prefix="s" uri="/struts-tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<table class="table table-striped scoreboard">
+  <thead>
+    <tr>
+      <th>Fase</th>
+      <th>Jogo</th>
+      <th>Placar</th>
+      <th>Status</th>
+      <th>Horário (Brasília)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <s:iterator value="matches">
+      <tr>
+        <td><s:property value="stageName"/></td>
+        <td>
+          <c:choose>
+            <c:when test="${not empty homeTeam}">${homeTeam}</c:when>
+            <c:otherwise><em class="slot-pending">${homeTeamSlot}</em></c:otherwise>
+          </c:choose>
+          x
+          <c:choose>
+            <c:when test="${not empty awayTeam}">${awayTeam}</c:when>
+            <c:otherwise><em class="slot-pending">${awayTeamSlot}</em></c:otherwise>
+          </c:choose>
+        </td>
+        <td>
+          <s:property value="homeScore"/> - <s:property value="awayScore"/>
+          <c:if test="${not empty homeScoreEt}">
+            <span class="badge bg-secondary">ET: ${homeScoreEt}-${awayScoreEt}</span>
+          </c:if>
+          <c:if test="${not empty homeScorePen}">
+            <span class="badge bg-dark">Pên: ${homeScorePen}-${awayScorePen}</span>
+          </c:if>
+        </td>
+        <td><s:property value="statusCode"/></td>
+        <td><s:property value="kickoffBrtFormatted"/></td>
+      </tr>
+    </s:iterator>
+  </tbody>
+</table>
+```
+
+---
+
+## Fases eliminatórias da Copa 2026
+
+### Estrutura do mata-mata
+
+| Fase | Período | Jogos | `stage` na API |
+|---|---|---|---|
+| **Oitavas (Round of 32)** | 28/06 – 03/07 | 16 | `LAST_32` |
+| **Quartas (Round of 16)** | 04/07 – 07/07 | 8 | `LAST_16` |
+| **Semifinais** | 14/07 – 15/07 | 2 | `SEMI_FINALS` |
+| **Disputa 3º lugar** | 18/07 | 1 | `THIRD_PLACE` |
+| **Final** | 19/07 | 1 | `FINAL` |
+
+> Os valores exatos do campo `stage` devem ser validados com a documentação vigente da football-data.org no momento da integração. Os listados acima são os padrões históricos da API para torneios FIFA.
+
+### Diferenças técnicas no mata-mata
+
+- **Times não conhecidos de antemão:** campo `name` pode vir como `null` ou vazio até o jogo anterior ser disputado. Gravar em `home_team_slot` / `away_team_slot`.
+- **Prorrogação e pênaltis:** campos `extraTime` e `penalties` presentes no JSON. Campo `duration` indica `EXTRA_TIME` ou `PENALTY_SHOOTOUT`.
+- **Janela de polling:** ampliar buffer pós-jogo para 15 min no mata-mata.
+- **Status final possíveis:** `FINISHED` com `duration = PENALTY_SHOOTOUT` indica encerramento nos pênaltis.
+
+### Calibração da janela por fase
+
+```java
+public int getPostMatchBufferMinutes(String stageName) {
+    return switch (stageName) {
+        case "GROUP_STAGE"              -> 10;
+        case "LAST_32", "LAST_16",
+             "QUARTER_FINALS",
+             "SEMI_FINALS",
+             "THIRD_PLACE", "FINAL"    -> 15;
+        default -> 12;
+    };
+}
+
+public int getMaxMatchDurationMinutes(String stageName) {
+    return switch (stageName) {
+        case "GROUP_STAGE" -> 95;    // 90 min + acréscimos
+        default            -> 130;   // 90 + 30 prorrogação + 10 buffer pênaltis
+    };
+}
+```
+
+---
+
+## Tela de atualização manual
+
+O sistema já possui tela administrativa de atualização manual de placar. Ela atua como **contingência direta** para dois cenários:
+
+1. **Falha de sincronização** da API (timeout, rate limit, instabilidade)
+2. **Delay do free tier** (~5 min) em jogos com gol nos últimos minutos
+
+### Recomendações para a tela manual
+
+- Exibir claramente o campo `last_checked_at` de cada partida para o operador saber a defasagem atual
+- Registrar toda alteração manual na tabela `match_score_log` com campo `source = 'MANUAL'`
+- Exibir alerta visual quando `last_checked_at` for mais de 10 minutos atrás durante jogo ativo
+- Restringir o acesso à tela via RBAC (apenas perfil `ADMIN` ou `OPERADOR`)
+
+```sql
+-- Diferencia atualizações manuais das automáticas no log
+ALTER TABLE match_score_log ADD COLUMN IF NOT EXISTS
+    source VARCHAR(20) NOT NULL DEFAULT 'API';
+-- Valores: 'API' | 'MANUAL'
+```
+
+---
+
+## Regras de negócio
+
+### Quando atualizar fixture (agenda)
+
+- Mudança em `kickoff_utc` (reagendamento)
+- Mudança em `status_code`
+- Mudança em `home_team` ou `away_team` (times definidos no mata-mata)
+- Mudança em `stage_name`
+
+### Quando registrar em match_score_log
+
+- Mudança em qualquer campo de placar (`home_score`, `away_score`, `*_et`, `*_pen`)
+- Mudança em `status_code`
+- Atualização manual pelo operador
+
+### Resiliência
+
+- Timeout HTTP de 8 segundos
+- Em `HTTP 429`: log de aviso, aguardar próximo ciclo (não retry imediato)
+- Em erro genérico: log de aviso, tentar novamente no próximo ciclo agendado
+- Nunca cancelar o scheduler por erro de uma execução
+
+---
+
+## Observabilidade
+
+Logs mínimos por ciclo do poller:
+
+```
+[LiveScorePollerJob] 3 jogos ao vivo encontrados
+[LiveScorePollerJob] Jogo 490123 — placar atualizado: 1x0 → 2x0 (FINISHED)
+[LiveScorePollerJob] Jogo 490124 — sem mudança (status=IN_PLAY, 1x1)
+[FixtureRefreshJob]  Sincronizados 4 jogos para 2026-06-22
+[FixtureRefreshJob]  Jogo 490125 — kickoff alterado: 2026-06-23T03:00:00Z → 2026-06-23T04:00:00Z
+```
+
+Métricas sugeridas:
+
+- `fixture_refresh_count_total`
+- `live_score_poll_count_total`
+- `score_changes_persisted_total`
+- `api_errors_total` (por status HTTP)
+- `manual_updates_total`
+- `last_successful_poll_timestamp`
+
+---
+
+## Checklist final de implementação
+
+- [ ] Registrar em football-data.org e obter `X-Auth-Token` (football-data.org/client/register)
+- [ ] Executar o Quick Start Java (JShell) para validar token e confirmar Copa `WC` retornando dados 2026
+- [ ] Verificar cabeçalhos `X-Requests-Available-Minute` e `X-RequestCounter-Reset` em cada resposta
+- [ ] Implementar guarda `isSafeToRequest()` no `LiveScorePollerJob` antes de cada chamada
+- [ ] Confirmar `league_id = WC` e `season = 2026` retornando jogos reais
+- [ ] Criar tabelas `match_game` e `match_score_log` com campos de ET e pênaltis
+- [ ] Adicionar campo `source` ('API' / 'MANUAL') em `match_score_log`
+- [ ] Implementar `FootballDataClient` com autenticação por header `X-Auth-Token`
+- [ ] Implementar `BrtWindow.dayWindow()` e validar com jogo das 23h BRT
+- [ ] Implementar `FixtureRefreshJob` com execução no startup, 06h e 20h BRT
+- [ ] Implementar `LiveScorePollerJob` com intervalo de 60 segundos
+- [ ] Configurar `JobScheduler` via `ServletContextListener`
+- [ ] Persistir sempre em UTC no banco
+- [ ] Exibir sempre em `America/Sao_Paulo` na camada JSP/Action
+- [ ] Integrar fragmento JSP com SSE ou polling HTMX
+- [ ] Implementar exibição condicional de slot de times no mata-mata
+- [ ] Implementar exibição de placar ET e pênaltis no JSP
+- [ ] Adaptar `getMaxMatchDurationMinutes()` por fase (grupo vs mata-mata)
+- [ ] Registrar atualização manual com `source = 'MANUAL'` no log
+- [ ] Exibir `last_checked_at` na tela administrativa
+- [ ] Testar jogo próximo da meia-noite BRT (janela UTC correta)
+- [ ] Testar jogo com prorrogação e pênaltis (campos ET e PEN gravados)
+- [ ] Validar rate limit: máximo de 0,6 req/min (3 jogos simultâneos, 1 req/5min por jogo) — margem 94% livre
+- [ ] Confirmar que `findMatchesInPollingWindow(Instant now)` retorna apenas jogos na janela ativa
+- [ ] Validar SQL de janela de polling (GROUP_STAGE: 110 min, mata-mata: 150 min)
+- [ ] Popular tabela `team_translation` com os 48 times classificados e nomes em pt-BR
+- [ ] Confirmar IDs dos times executando `GET /v4/competitions/WC/teams` após início do torneio
+- [ ] Testar exibição de nomes em pt-BR (Brasil, França, Alemanha etc.) em toda a UI
+- [ ] Verificar fallback de nome em pt-BR quando team_id não estiver na tabela de tradução
+- [ ] Confirmar que `FixtureRefreshJob` detecta times do mata-mata quando passam de slot para nome real
+
+---
+
+## Conclusão
+
+A **football-data.org** é a única API gratuita, permanente e documentada que cobre a Copa do Mundo FIFA 2026 com endpoints de fixtures e placar confirmados. O delay de ~5 minutos do free tier é aceitável para o bolão porque o sistema já possui tela de atualização manual — o operador corrige eventuais defasagens sem depender de live score em tempo real.
+
+A arquitetura proposta garante: banco de dados como fonte de verdade, agendamento inteligente com janela BRT correta, suporte completo ao mata-mata (prorrogação, pênaltis, slots de times), e entrega reativa ao browser via SSE com HTMX.

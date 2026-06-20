@@ -70,6 +70,8 @@ services:
       SMTP_STARTTLS_REQUIRED: "${SMTP_STARTTLS_REQUIRED:-true}"
       SMTP_SSL: "${SMTP_SSL:-false}"
       SMTP_SSL_TRUST: "${SMTP_SSL_TRUST:-}"
+      FOOTBALL_DATA_API_TOKEN: "${FOOTBALL_DATA_API_TOKEN:-}"
+      FOOTBALL_DATA_ENABLED: "${FOOTBALL_DATA_ENABLED:-true}"
     depends_on:
       db:
         condition: service_healthy
