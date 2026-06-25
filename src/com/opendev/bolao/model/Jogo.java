@@ -201,6 +201,23 @@ public class Jogo implements Serializable, Comparable<Jogo> {
         ZonedDateTime agoraComMargem = ZonedDateTime.now(ZONE_ID).plusHours(1);
         return agoraComMargem.isBefore(dataHoraJogo);
     }
+
+    /**
+     * Indica se os palpites do grupo podem ser visualizados para este jogo.
+     * Regra de negócio: a visibilidade é habilitada somente após o encerramento
+     * da janela de palpites (quando nenhum participante pode mais criar ou alterar
+     * seu palpite), evitando que um participante copie o palpite de outro.
+     * Em outras palavras: visível exatamente quando {@link #getPodeDarPalpite()} é false.
+     * <p>
+     * Segurança: se a data/hora do jogo não estiver definida ({@code null}),
+     * retorna {@code false} para não expor palpites indevidamente.
+     */
+    public boolean getPodeVerPalpitesGrupo() {
+        if (getDataHora() == null) {
+            return false;
+        }
+        return !getPodeDarPalpite();
+    }
 	
 	public boolean jaOcorreu() {
         ZonedDateTime dataHoraJogo = getDataHora();

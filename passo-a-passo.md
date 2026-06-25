@@ -2297,6 +2297,23 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
       - encerramento consolidado registrado em `.ia/logs/session-20260618-tarefa60-encerramento-consolidado.md`.
       - ajuste final de consistência aplicado: removidos resquícios de pré-aquecimento no login em `ParticipanteAction` e `ParticipanteActionTest`, preservando apenas a estratégia de cache/aquecimento na tela de gráfico.
 
+79. **[Concluído] Restrição do botão "Ver palpites do grupo" à janela de palpites encerrada (24/06/2026):**
+    Objetivo: impedir que participantes copiem palpites uns dos outros, habilitando o botão 👥 ("Ver palpites do grupo") somente quando a janela de palpites estiver encerrada (`!jogo.podeDarPalpite`).
+    Skills aplicadas: `architecture-guardian v1.0.0`, `java17-struts7 v1.0.0`, `jsp-jspf v1.0.0`.
+    * **[Concluído] 79.1 — Verificação do método `getPodeVerPalpitesGrupo()` em Jogo.java:**
+      Método já existente (linhas 212-214) com lógica `return !getPodeDarPalpite()`. Nenhuma alteração necessária.
+    * **[Concluído] 79.2 — Atualização do match-row.jspf:**
+      Substituído botão fixo por `c:choose` condicional: quando `jogo.podeVerPalpitesGrupo` é true, botão habilitado com `hx-get`; quando false, botão desabilitado (`disabled`, `aria-disabled="true"`) com tooltip i18n explicativo.
+    * **[Concluído] 79.3 — Chaves i18n em messages.properties:**
+      Adicionadas `match.tip.group.view`, `match.tip.group.disabled.label` e `match.tip.group.disabled.tooltip`.
+    * **[Concluído] 79.4 — Validação server-side (defesa em profundidade):**
+      `ParticipanteAction.listarPalpitesDoJogoHtmx()` agora valida `jogo.getPodeVerPalpitesGrupo()` antes de retornar palpites, retornando lista vazia se a janela ainda estiver aberta.
+    * **[Concluído] 79.5 — Testes unitários em JogoTest.java:**
+      Adicionados 3 novos testes: `devePermitirVisualizarPalpitesDoGrupoQuandoJanelaEncerrada`, `deveBloquearVisualizacaoDePalpitesDoGrupoQuandoJanelaAberta`, `deveRetornarRelacaoInversaEntrePodeDarPalpiteEPodeVerPalpitesGrupo`. Total: 9 testes, 0 falhas.
+    * **[Concluído] 79.6 — Log de sessão e documentação:**
+      Registro em `.ia/logs/session-20260624-restricao-botao-grupo.md`.
+    Auto-Analise: Implementação completa seguindo o plano. Método já existente em Jogo.java, JSP adaptado com tooltip i18n, validação server-side adicionada, 3 novos testes passando. | [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
 61. **[Concluído] Correção de falso aviso de saída na tela admin após salvar resultado (18/06/2026):**
     Objetivo: impedir aviso de "dados não salvos" ao navegar para outra tela quando o resultado já foi efetivamente gravado.
     * **[Concluído] 61.1 — Diagnóstico de estado pendente no frontend admin:** identificado cenário em `src/frontend/pages/jogos.js` em que `pendingAdminRequests` podia permanecer aberto após `htmx:afterRequest` sem `detail.elt`.

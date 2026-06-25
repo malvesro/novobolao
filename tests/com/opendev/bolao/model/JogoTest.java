@@ -95,6 +95,60 @@ class JogoTest {
         assertThat(jogoFuturo.getPodeAtualizarResultado()).isFalse();
     }
 
+    @Test
+    void devePermitirVisualizarPalpitesDoGrupoQuandoJanelaEncerrada() {
+        // Janela de palpites encerrada: falta menos de 1h para o jogo (podeDarPalpite = false)
+        ZonedDateTime menosDeUmaHora = ZonedDateTime.now(BolaoTime.getZoneId()).plusMinutes(30);
+        Jogo jogoComJanelaEncerrada = criarJogo(menosDeUmaHora);
+
+        assertThat(jogoComJanelaEncerrada.getPodeDarPalpite()).isFalse();
+        assertThat(jogoComJanelaEncerrada.getPodeVerPalpitesGrupo()).isTrue();
+    }
+
+    @Test
+    void deveBloquearVisualizacaoDePalpitesDoGrupoQuandoJanelaAberta() {
+        // Janela de palpites aberta: falta mais de 1h para o jogo (podeDarPalpite = true)
+        ZonedDateTime maisDeUmaHora = ZonedDateTime.now(BolaoTime.getZoneId()).plusHours(5);
+        Jogo jogoComJanelaAberta = criarJogo(maisDeUmaHora);
+
+        assertThat(jogoComJanelaAberta.getPodeDarPalpite()).isTrue();
+        assertThat(jogoComJanelaAberta.getPodeVerPalpitesGrupo()).isFalse();
+    }
+
+    @Test
+    void deveRetornarRelacaoInversaEntrePodeDarPalpiteEPodeVerPalpitesGrupo() {
+        ZonedDateTime futuro = ZonedDateTime.now(BolaoTime.getZoneId()).plusHours(3);
+        Jogo jogoFuturo = criarJogo(futuro);
+
+        ZonedDateTime passado = ZonedDateTime.now(BolaoTime.getZoneId()).minusHours(2);
+        Jogo jogoPassado = criarJogo(passado);
+
+        // Relação inversa deve valer para ambos
+        assertThat(jogoFuturo.getPodeDarPalpite()).isNotEqualTo(jogoFuturo.getPodeVerPalpitesGrupo());
+        assertThat(jogoPassado.getPodeDarPalpite()).isNotEqualTo(jogoPassado.getPodeVerPalpitesGrupo());
+    }
+
+    @Test
+    void devePermitirVisualizarPalpitesDeJogoJaOcorrido() {
+        // Jogo que já ocorreu: janela de palpites está encerrada
+        ZonedDateTime passado = ZonedDateTime.now(BolaoTime.getZoneId()).minusHours(2);
+        Jogo jogoOcorrido = criarJogo(passado);
+
+        assertThat(jogoOcorrido.getPodeDarPalpite()).isFalse();
+        assertThat(jogoOcorrido.getPodeVerPalpitesGrupo()).isTrue();
+    }
+
+    @Test
+    void deveBloquearVisualizacaoDePalpitesQuandoDataHoraForNula() {
+        // Segurança: dataHora nula não deve expor palpites
+        Jogo jogoSemData = new Jogo();
+        // Não definir data/hora — getDataHora() retornará null
+
+        assertThat(jogoSemData.getDataHora()).isNull();
+        assertThat(jogoSemData.getPodeDarPalpite()).isFalse();
+        assertThat(jogoSemData.getPodeVerPalpitesGrupo()).isFalse();
+    }
+
     private Jogo criarJogo(ZonedDateTime dataHora) {
         Jogo jogo = new Jogo();
         jogo.setData(java.util.Date.from(dataHora.toInstant()));

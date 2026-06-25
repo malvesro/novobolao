@@ -152,20 +152,38 @@
 
     <%-- Coluna de ações (grupo) --%>
     <td class="match-table__status-cell">
-        <button type="button" 
-                class="btn-grupo-toggle" 
-                hx-get="${base}/seguro/palpitesDoJogoPartial.action?jogoId=${jogo.id}"
-                hx-trigger="none"
-                hx-target="#group-content_${jogo.id}"
-                data-js="toggle-group-details"
-                data-target="#group-row_${jogo.id}"
-                data-group-loaded=""
-                aria-expanded="false"
-                aria-label="Ver palpites do grupo"
-                aria-controls="group-row_${jogo.id}"
-                title="Ver palpites do grupo">
-            👥
-        </button>
+        <c:choose>
+            <c:when test="${jogo.podeVerPalpitesGrupo}">
+                <%-- Janela de palpites encerrada: botão habilitado --%>
+                <button type="button" 
+                        class="btn-grupo-toggle" 
+                        hx-get="${base}/seguro/palpitesDoJogoPartial.action?jogoId=${jogo.id}"
+                        hx-trigger="none"
+                        hx-target="#group-content_${jogo.id}"
+                        data-js="toggle-group-details"
+                        data-target="#group-row_${jogo.id}"
+                        data-group-loaded=""
+                        aria-expanded="false"
+                        aria-label="Ver palpites do grupo"
+                        aria-controls="group-row_${jogo.id}"
+                        title="<fmt:message key='match.tip.group.view' />">
+                    👥
+                </button>
+            </c:when>
+            <c:otherwise>
+                <%-- Janela de palpites aberta: botão desabilitado com tooltip --%>
+                <button type="button" 
+                        class="btn-grupo-toggle btn-grupo-toggle--disabled" 
+                        disabled="disabled"
+                        aria-disabled="true"
+                        data-js="toggle-group-details"
+                        data-target="#group-row_${jogo.id}"
+                        aria-label="<fmt:message key='match.tip.group.disabled.label' />"
+                        title="<fmt:message key='match.tip.group.disabled.tooltip' />">
+                    👥
+                </button>
+            </c:otherwise>
+        </c:choose>
     </td>
 </tr>
 
