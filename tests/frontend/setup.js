@@ -4,7 +4,11 @@ if (!window.htmx) {
   window.htmx = {
     ajax: vi.fn(),
     trigger: vi.fn(),
+    process: vi.fn(),
   };
+}
+if (!window.htmx.process) {
+  window.htmx.process = vi.fn();
 }
 
 // Alguns módulos usam `htmx` diretamente (sem prefixo `window.`).
@@ -18,4 +22,7 @@ afterEach(() => {
   document.body.innerHTML = '';
   window.htmx.ajax.mockClear();
   window.htmx.trigger.mockClear();
+  if (window.htmx.process && typeof window.htmx.process.mockClear === 'function') {
+    window.htmx.process.mockClear();
+  }
 });

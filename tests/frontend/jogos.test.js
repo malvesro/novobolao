@@ -9,7 +9,18 @@ function mountJogosFixture() {
       data-msg-tip-dirty="Alteracoes nao salvas."
       data-msg-tip-saved="Salvo as"
       data-msg-tip-saving="Salvando..."
+      data-msg-load-more-error="Falha ao carregar a próxima data. Tente novamente."
+      data-msg-load-more-retry="Tentar novamente"
+      data-msg-load-more-next-date="Carregar Próxima Data"
+      data-msg-admin-date-moved-visible="Jogo movido para a nova data carregada na tela."
+      data-msg-admin-date-moved-hidden="Jogo movido para outra data. Ajuste o filtro para visualiza-lo."
+      data-msg-admin-row-saving="Salvando"
+      data-msg-admin-row-dirty="Pendente"
+      data-msg-admin-row-saved="Salvo"
+      data-msg-admin-row-error="Erro"
+      data-msg-admin-row-locked="Bloqueado"
     ></div>
+    <div id="jogos-global-status" class="jogos-global-status" role="status" aria-live="polite" aria-atomic="true"></div>
 
     <table>
       <tbody>
@@ -38,17 +49,43 @@ function mountJogosFixture() {
       <button type="button" data-js="retry-palpite" data-jogo-id="101">Tentar novamente</button>
     </div>
 
-    <table>
-      <tbody>
-        <tr id="jogoTr_201" class="match-row match-row--admin-direct">
-          <td>
-            <input type="text" name="golsEquipe1" value="2" />
-            <button type="button" data-js="retry-admin-save">Retry admin</button>
-            <span class="admin-row-status"></span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div data-match-date-group="11/06/2026">
+      <table class="match-table">
+        <tbody>
+          <tr id="jogoTr_201" class="match-row match-row--admin-direct" data-jogo-date="11/06/2026">
+            <td>
+              <input type="text" name="golsEquipe1" value="2" />
+              <button type="button" data-js="retry-admin-save">Retry admin</button>
+              <button
+                type="button"
+                data-js="toggle-admin-details"
+                data-target="#adminDetails_201"
+                data-label-open="Detalhes"
+                data-label-close="Ocultar"
+                aria-expanded="false"
+              >Detalhes</button>
+              <span class="admin-row-status"></span>
+              <div id="adminDetails_201" data-js="admin-structural-panel" hidden>
+                <select name="data">
+                  <option value="11/06/2026" selected>11/06/2026</option>
+                  <option value="12/06/2026">12/06/2026</option>
+                </select>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <span class="spacer spacer-sm"></span>
+    <div data-match-date-group="12/06/2026">
+      <table class="match-table">
+        <tbody>
+          <tr id="jogoTr_999" class="match-row match-row--admin-direct" data-jogo-date="12/06/2026">
+            <td><span>Outro jogo</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <table>
       <tbody>
@@ -75,6 +112,20 @@ function mountJogosFixture() {
       </tbody>
     </table>
 
+    <div id="load-more-container" class="load-more-section">
+      <button
+        type="button"
+        class="button button--secondary button--full-width"
+        hx-get="/admin/jogosMaisJogosPartial.action?data=26/06/2026"
+        hx-target="#load-more-container"
+        hx-swap="outerHTML"
+        hx-indicator="#loading-more-indicator"
+      >
+        <img id="loading-more-indicator" class="htmx-indicator icon-inline" src="/img/loading.gif" alt="" />
+        Carregar Próxima Data
+      </button>
+    </div>
+
     <div class="match-filter-portlet">
       <div class="collapsible-portlet__content">Conteudo filtro</div>
       <img
@@ -93,8 +144,10 @@ describe('jogos.js estados criticos', () => {
     vi.useFakeTimers();
     document.body.innerHTML = '';
     sessionStorage.clear();
+    window.APP_BASE_URL = '';
     window.htmx.trigger.mockClear();
     window.htmx.ajax.mockClear();
+    window.htmx.process.mockClear();
   });
 
   it('deve alternar painel de grupo em modo accordion e atualizar aria-expanded', async () => {
@@ -232,6 +285,250 @@ describe('jogos.js estados criticos', () => {
     expect(warnSpy).toHaveBeenCalled();
 
     warnSpy.mockRestore();
+  });
+
+  it('deve alternar painel de detalhes estruturais da linha admin', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const toggleButton = document.querySelector('[data-js="toggle-admin-details"]');
+    const detailsPanel = document.getElementById('adminDetails_201');
+
+    expect(detailsPanel.hasAttribute('hidden')).toBe(true);
+    expect(toggleButton.getAttribute('aria-expanded')).toBe('false');
+    expect(toggleButton.textContent).toContain('Detalhes');
+
+    toggleButton.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect(detailsPanel.hasAttribute('hidden')).toBe(false);
+    expect(toggleButton.getAttribute('aria-expanded')).toBe('true');
+    expect(toggleButton.textContent).toContain('Ocultar');
+
+    toggleButton.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect(detailsPanel.hasAttribute('hidden')).toBe(true);
+    expect(toggleButton.getAttribute('aria-expanded')).toBe('false');
+    expect(toggleButton.textContent).toContain('Detalhes');
+  });
+
+  it('deve fechar painel de detalhes admin ao pressionar Escape', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const toggleButton = document.querySelector('[data-js="toggle-admin-details"]');
+    const detailsPanel = document.getElementById('adminDetails_201');
+
+    detailsPanel.removeAttribute('hidden');
+    toggleButton.setAttribute('aria-expanded', 'true');
+    toggleButton.textContent = 'Ocultar';
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(detailsPanel.hasAttribute('hidden')).toBe(true);
+    expect(toggleButton.getAttribute('aria-expanded')).toBe('false');
+    expect(toggleButton.textContent).toContain('Detalhes');
+  });
+
+  it('deve sincronizar painel admin para fechado apos afterSwap quando estado nao estiver expandido', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const adminRow = document.getElementById('jogoTr_201');
+    const toggleButton = document.querySelector('[data-js="toggle-admin-details"]');
+    const detailsPanel = document.getElementById('adminDetails_201');
+
+    // Simula fragmento vindo aberto sem estado expandido persistido no JS.
+    detailsPanel.removeAttribute('hidden');
+    toggleButton.setAttribute('aria-expanded', 'true');
+    toggleButton.textContent = 'Ocultar';
+
+    adminRow.dispatchEvent(new CustomEvent('htmx:afterSwap', { bubbles: true }));
+
+    expect(detailsPanel.hasAttribute('hidden')).toBe(true);
+    expect(toggleButton.getAttribute('aria-expanded')).toBe('false');
+    expect(toggleButton.textContent).toContain('Detalhes');
+  });
+
+  it('deve mover linha admin para o agrupamento da nova data quando a data de destino estiver carregada', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const adminRow = document.getElementById('jogoTr_201');
+    const dataSelect = adminRow.querySelector('select[name="data"]');
+    dataSelect.value = '12/06/2026';
+    const requestConfig = { path: '/admin/salvarEdicaoEstrutural.action' };
+
+    dataSelect.dispatchEvent(new CustomEvent('htmx:beforeRequest', {
+      bubbles: true,
+      detail: { elt: dataSelect, requestConfig },
+    }));
+
+    adminRow.dispatchEvent(new CustomEvent('htmx:afterSwap', { bubbles: true }));
+
+    const targetGroup = document.querySelector('[data-match-date-group="12/06/2026"]');
+    const movedRow = targetGroup.querySelector('#jogoTr_201');
+    const oldGroup = document.querySelector('[data-match-date-group="11/06/2026"]');
+
+    expect(movedRow).not.toBeNull();
+    expect(movedRow.dataset.jogoDate).toBe('12/06/2026');
+    expect(oldGroup).toBeNull();
+  });
+
+  it('deve remover linha da data antiga quando nova data nao estiver carregada', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+    document.querySelector('[data-match-date-group="12/06/2026"]').remove();
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const adminRow = document.getElementById('jogoTr_201');
+    const dataSelect = adminRow.querySelector('select[name="data"]');
+    dataSelect.value = '12/06/2026';
+    const requestConfig = { path: '/admin/salvarEdicaoEstrutural.action' };
+
+    dataSelect.dispatchEvent(new CustomEvent('htmx:beforeRequest', {
+      bubbles: true,
+      detail: { elt: dataSelect, requestConfig },
+    }));
+
+    adminRow.dispatchEvent(new CustomEvent('htmx:afterSwap', { bubbles: true }));
+
+    expect(document.getElementById('jogoTr_201')).toBeNull();
+    expect(document.querySelector('[data-match-date-group="11/06/2026"]')).toBeNull();
+  });
+
+  it('deve exibir estado de erro com retry no load-more admin quando resposta HTMX falhar', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const loadMoreContainer = document.getElementById('load-more-container');
+    const loadMoreButton = loadMoreContainer.querySelector('button');
+    const requestConfig = { path: '/admin/jogosMaisJogosPartial.action?data=26/06/2026' };
+
+    loadMoreButton.dispatchEvent(new CustomEvent('htmx:beforeRequest', {
+      bubbles: true,
+      detail: {
+        elt: loadMoreButton,
+        requestConfig,
+      },
+    }));
+
+    loadMoreContainer.dispatchEvent(new CustomEvent('htmx:responseError', {
+      bubbles: true,
+      detail: {
+        elt: loadMoreButton,
+        target: loadMoreContainer,
+        xhr: { status: 500 },
+        requestConfig,
+      },
+    }));
+
+    const rebuiltButton = loadMoreContainer.querySelector('button[hx-get]');
+    expect(loadMoreContainer.textContent).toContain('Falha ao carregar a próxima data. Tente novamente.');
+    expect(rebuiltButton).not.toBeNull();
+    expect(rebuiltButton.getAttribute('hx-get')).toContain('/admin/jogosMaisJogosPartial.action?data=26%2F06%2F2026');
+    expect(rebuiltButton.textContent).toContain('Tentar novamente');
+    expect(window.__bolaoJogosDebug.pendingAdminRequests).toBe(0);
+    expect(window.htmx.process).toHaveBeenCalled();
+  });
+
+  it('deve aceitar path de load-more com context path e reconstruir retry canonico', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+    window.APP_BASE_URL = '/novobolao';
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const loadMoreContainer = document.getElementById('load-more-container');
+    const loadMoreButton = loadMoreContainer.querySelector('button');
+    const requestConfig = { path: '/novobolao/admin/jogosMaisJogosPartial.action?data=26/06/2026&foo=bar' };
+
+    loadMoreButton.dispatchEvent(new CustomEvent('htmx:beforeRequest', {
+      bubbles: true,
+      detail: { elt: loadMoreButton, requestConfig },
+    }));
+
+    loadMoreContainer.dispatchEvent(new CustomEvent('htmx:responseError', {
+      bubbles: true,
+      detail: {
+        elt: loadMoreButton,
+        target: loadMoreContainer,
+        xhr: { status: 500 },
+        requestConfig,
+      },
+    }));
+
+    const rebuiltButton = loadMoreContainer.querySelector('button[hx-get]');
+    expect(rebuiltButton).not.toBeNull();
+    expect(rebuiltButton.getAttribute('hx-get')).toBe('/admin/jogosMaisJogosPartial.action?data=26%2F06%2F2026');
+    expect(rebuiltButton.getAttribute('hx-get')).not.toContain('foo=');
+  });
+
+  it('nao deve duplicar anuncio global em falha load-more no par responseError/afterRequest', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const statusEl = document.getElementById('jogos-global-status');
+    const loadMoreContainer = document.getElementById('load-more-container');
+    const loadMoreButton = loadMoreContainer.querySelector('button');
+    const requestConfig = { path: '/admin/jogosMaisJogosPartial.action?data=26/06/2026' };
+
+    loadMoreButton.dispatchEvent(new CustomEvent('htmx:beforeRequest', {
+      bubbles: true,
+      detail: { elt: loadMoreButton, requestConfig },
+    }));
+
+    loadMoreContainer.dispatchEvent(new CustomEvent('htmx:responseError', {
+      bubbles: true,
+      detail: {
+        elt: loadMoreButton,
+        target: loadMoreContainer,
+        xhr: { status: 500 },
+        requestConfig,
+      },
+    }));
+    const firstMessage = statusEl.textContent;
+
+    loadMoreButton.dispatchEvent(new CustomEvent('htmx:afterRequest', {
+      bubbles: true,
+      detail: { elt: loadMoreButton, requestConfig, successful: false },
+    }));
+
+    expect(statusEl.textContent).toBe(firstMessage);
+  });
+
+  it('deve exibir status admin pendente ao alterar campo sem request em andamento', async () => {
+    vi.resetModules();
+    mountJogosFixture();
+
+    const { initJogosPage } = await import('../../src/frontend/pages/jogos.js');
+    initJogosPage();
+
+    const adminField = document.querySelector('#jogoTr_201 input[name="golsEquipe1"]');
+    const adminStatus = document.querySelector('#jogoTr_201 .admin-row-status');
+
+    adminField.dispatchEvent(new Event('change', { bubbles: true }));
+
+    expect(adminStatus.textContent).toContain('Pendente');
+    expect(adminStatus.className).toContain('admin-row-status--dirty');
+    expect(adminStatus.getAttribute('title')).toContain('Alteracoes pendentes.');
   });
 
   it('deve inicializar filtro colapsado em desktop quando sessionStorage indicar colapso', async () => {
@@ -508,6 +805,23 @@ describe('jogos.js estados criticos', () => {
     expect(jogosMarkup).not.toContain('/js/ux-helper.js');
   });
 
+  it('deve expor mensagens curtas de status admin incluindo estado bloqueado no wrapper da pagina', () => {
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    const projectRoot = path.resolve(currentDir, '..', '..');
+    const jogosPagePath = path.join(projectRoot, 'webapp/WEB-INF/content/seguro/jogos.jsp');
+
+    const jogosMarkup = fs.readFileSync(jogosPagePath, 'utf8');
+
+    expect(jogosMarkup).toContain('data-msg-admin-row-saving="${msgAdminRowSaving}"');
+    expect(jogosMarkup).toContain('data-msg-admin-row-dirty="${msgAdminRowDirty}"');
+    expect(jogosMarkup).toContain('data-msg-admin-row-saved="${msgAdminRowSaved}"');
+    expect(jogosMarkup).toContain('data-msg-admin-row-error="${msgAdminRowError}"');
+    expect(jogosMarkup).toContain('data-msg-admin-row-locked="${msgAdminRowLocked}"');
+    expect(jogosMarkup).toContain('data-msg-load-more-error="${msgLoadMoreError}"');
+    expect(jogosMarkup).toContain('data-msg-load-more-retry="${msgLoadMoreRetry}"');
+    expect(jogosMarkup).toContain('data-msg-load-more-next-date="${msgLoadMoreNextDate}"');
+  });
+
   it('deve manter contrato de permissao de palpite via autorizacao canonica do backend', () => {
     const currentDir = path.dirname(fileURLToPath(import.meta.url));
     const projectRoot = path.resolve(currentDir, '..', '..');
@@ -540,6 +854,25 @@ describe('jogos.js estados criticos', () => {
     expect(fragmentMarkup).toContain('<c:param name="filtroEquipe" value="${filtro.idEquipe}" />');
     expect(fragmentMarkup).toContain('<c:param name="filtroGrupo" value="${filtro.grupo}" />');
     expect(fragmentMarkup).toContain('<c:param name="filtroJogosNaoOcorreram" value="true" />');
+    expect(fragmentMarkup).toContain('match.loadmore.action.nextDate');
+    expect(fragmentMarkup).toContain('admin.match.loadmore.state.end');
+    expect(fragmentMarkup).toContain('match.loadmore.state.end');
+  });
+
+  it('deve manter cabecalho admin com coluna de acoes e sem local/grupo no modo admin', () => {
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    const projectRoot = path.resolve(currentDir, '..', '..');
+    const fragmentPath = path.join(projectRoot, 'webapp/WEB-INF/content/seguro/partials/jogos-lista-fragmento.jsp');
+
+    const fragmentMarkup = fs.readFileSync(fragmentPath, 'utf8');
+
+    expect(fragmentMarkup).toContain('<c:if test="${not adminResultadoView}">');
+    expect(fragmentMarkup).toContain('<fmt:message key="match.where" />');
+    expect(fragmentMarkup).toContain('<fmt:message key="match.group" />');
+    expect(fragmentMarkup).toContain('class="match-table__actions-header"');
+    expect(fragmentMarkup).toContain('<fmt:message key="admin.match.actions" />');
+    expect(fragmentMarkup).toContain('data-match-date-group="${dataJogoFormatada}"');
+    expect(fragmentMarkup).not.toContain('.admin-structural-panel[hidden] { display: block !important; }');
   });
 
   it('deve classificar endpoint de exclusao como request administrativa no jogos.js', () => {
@@ -552,6 +885,11 @@ describe('jogos.js estados criticos', () => {
     expect(jogosJsSource).toContain("path.includes('/admin/excluirJogo.action')");
     expect(jogosJsSource).toContain("const adminRowError = path.includes('/admin/excluirJogo.action')");
     expect(jogosJsSource).toContain("const adminGlobalError = path.includes('/admin/excluirJogo.action')");
+    expect(jogosJsSource).toContain('stripAppBasePath');
+    expect(jogosJsSource).toContain('normalizeBasePath');
+    expect(jogosJsSource).toContain('LOAD_MORE_PATH_ALLOWLIST');
+    expect(jogosJsSource).toContain('openAdminDetailsRows');
+    expect(jogosJsSource).toContain('reopenAdminDetailsIfNeeded');
   });
 
   it('deve manter contrato HTMX do botao de exclusao administrativa na linha do jogo', () => {
@@ -567,8 +905,46 @@ describe('jogos.js estados criticos', () => {
     expect(adminRowMarkup).toContain('hx-confirm="${adminDeleteConfirmLabel}"');
     expect(adminRowMarkup).toContain('hx-include="#csrfTokenField, #jogoDeleteId_${jogo.id}"');
     expect(adminRowMarkup).toContain('<c:if test="${jogoPodeSerExcluido}">');
+    expect(adminRowMarkup).toContain('class="admin-actions-inline"');
+    expect(adminRowMarkup).toContain('data-js="toggle-admin-details"');
+    expect(adminRowMarkup).toContain('class="admin-structural-panel"');
+    expect(adminRowMarkup).toContain('data-jogo-date="${dataJogoFormatada}"');
+    expect(adminRowMarkup).not.toContain('[hidden] { display: block !important; }');
+    expect(adminRowMarkup).not.toContain('class="admin-result-locked-inline"');
+    expect(adminRowMarkup).toContain('id="jogoId_${jogo.id}"');
+    expect(adminRowMarkup).toContain('id="golsEquipe1_${jogo.id}"');
+    expect(adminRowMarkup).toContain('id="golsEquipe2_${jogo.id}"');
+    expect(adminRowMarkup).toContain('id="adminData_${jogo.id}"');
+    expect(adminRowMarkup).toContain('id="adminHora_${jogo.id}"');
+    expect(adminRowMarkup).toContain('id="adminLocal_${jogo.id}"');
+    expect(adminRowMarkup).toContain('id="adminFase_${jogo.id}"');
+    expect(adminRowMarkup).toContain('id="adminEquipe1_${jogo.id}"');
+    expect(adminRowMarkup).toContain('id="adminEquipe2_${jogo.id}"');
+    expect(adminRowMarkup).toContain('hx-include="#csrfTokenField, #jogoId_${jogo.id}, #golsEquipe1_${jogo.id}, #golsEquipe2_${jogo.id}"');
+    expect(adminRowMarkup).toContain('hx-include="#csrfTokenField, #jogoId_${jogo.id}, #adminData_${jogo.id}, #adminHora_${jogo.id}, #adminLocal_${jogo.id}, #adminFase_${jogo.id}, #adminEquipe1_${jogo.id}, #adminEquipe2_${jogo.id}"');
+    expect(adminRowMarkup).toContain('<c:when test="${jogo.podeAtualizarResultado}">');
+    expect(adminRowMarkup).toContain('<span class="score-value">');
+    expect(adminRowMarkup).not.toContain('hx-include="closest tr"');
+    expect(adminRowMarkup).not.toContain('aria-disabled="${not jogo.podeAtualizarResultado}"');
+    expect(adminRowMarkup).not.toContain('disabled="disabled"');
     expect(adminRowMarkup).not.toContain("${not jogoPodeSerExcluido ? 'disabled=\"disabled\"' : ''}");
     expect(adminRowMarkup).not.toContain('admin.match.delete.disabled');
+  });
+
+  it('deve manter contrato visual clean de acoes sem sticky forcado na coluna admin', () => {
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    const projectRoot = path.resolve(currentDir, '..', '..');
+    const cssPath = path.join(projectRoot, 'webapp/css/estilo.css');
+
+    const cssSource = fs.readFileSync(cssPath, 'utf8');
+
+    expect(cssSource).toContain('.admin-actions-inline');
+    expect(cssSource).toContain('.admin-row-status:empty');
+    expect(cssSource).toContain('.admin-row-status--dirty');
+    expect(cssSource).toContain('.match-table__actions {');
+    expect(cssSource).toContain('background: transparent;');
+    expect(cssSource).toContain('.admin-structural-panel[hidden]');
+    expect(cssSource).toContain('display: none !important;');
   });
 
 });

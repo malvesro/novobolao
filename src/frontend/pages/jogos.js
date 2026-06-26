@@ -10,7 +10,17 @@ const state = {
   pendingAdminRequests: 0,
   lastAdminTriggerByRow: {},
   lastSavedByMatch: {},
+  openAdminDetailsRows: {},
+  pendingAdminDateMoveByRow: {},
 };
+
+function getBoundGlobalHandlers() {
+  return window.__bolaoJogosBoundHandlers || null;
+}
+
+function setBoundGlobalHandlers(handlers) {
+  window.__bolaoJogosBoundHandlers = handlers;
+}
 
 const FILTER_STORAGE_KEY = 'bolao:filtro:collapsed';
 
@@ -243,8 +253,65 @@ function updateAdminRowStatus(row, message, modifier) {
   if (!statusEl) {
     return;
   }
-  statusEl.textContent = message || '';
+  const compactStatusText = {
+    saving: getUiMessage('msgAdminRowSaving', 'Salvando'),
+    dirty: getUiMessage('msgAdminRowDirty', 'Pendente'),
+    saved: getUiMessage('msgAdminRowSaved', 'Salvo'),
+    error: getUiMessage('msgAdminRowError', 'Erro'),
+    locked: getUiMessage('msgAdminRowLocked', 'Bloqueado'),
+  };
+  const compactMessage = modifier ? compactStatusText[modifier] : null;
+  statusEl.textContent = compactMessage || message || '';
+  if (message) {
+    statusEl.setAttribute('title', message);
+    statusEl.setAttribute('aria-label', message);
+  } else {
+    statusEl.removeAttribute('title');
+    statusEl.removeAttribute('aria-label');
+  }
   statusEl.className = `admin-row-status${modifier ? ` admin-row-status--${modifier}` : ''}`;
+}
+
+function getAdminDetailsPanel(row) {
+  return row ? row.querySelector('[data-js="admin-structural-panel"]') : null;
+}
+
+function getAdminDetailsToggle(row) {
+  return row ? row.querySelector('[data-js="toggle-admin-details"]') : null;
+}
+
+function setAdminDetailsExpanded(row, expanded, focusToggle = false) {
+  if (!row || !row.id) {
+    return;
+  }
+  const detailsPanel = getAdminDetailsPanel(row);
+  const toggleButton = getAdminDetailsToggle(row);
+  if (!detailsPanel || !toggleButton) {
+    return;
+  }
+
+  if (expanded) {
+    detailsPanel.removeAttribute('hidden');
+    state.openAdminDetailsRows[row.id] = true;
+  } else {
+    detailsPanel.setAttribute('hidden', 'hidden');
+    delete state.openAdminDetailsRows[row.id];
+  }
+  toggleButton.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  const openLabel = toggleButton.getAttribute('data-label-open') || 'Detalhes';
+  const closeLabel = toggleButton.getAttribute('data-label-close') || 'Ocultar';
+  toggleButton.textContent = expanded ? closeLabel : openLabel;
+  if (focusToggle) {
+    toggleButton.focus();
+  }
+}
+
+function reopenAdminDetailsIfNeeded(row) {
+  if (!row || !row.id) {
+    return;
+  }
+  const shouldBeExpanded = Boolean(state.openAdminDetailsRows[row.id]);
+  setAdminDetailsExpanded(row, shouldBeExpanded);
 }
 
 function setAdminRetryVisible(row, visible) {
@@ -256,6 +323,78 @@ function setAdminRetryVisible(row, visible) {
     return;
   }
   retryButton.hidden = !visible;
+}
+
+function getAdminDateGroupContainer(dateLabel) {
+  if (!dateLabel || typeof dateLabel !== 'string') {
+    return null;
+  }
+  const escapedDateLabel = dateLabel
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"');
+  return document.querySelector(`[data-match-date-group="${escapedDateLabel}"]`);
+}
+
+function removeEmptyDateGroupIfNeeded(dateGroup) {
+  if (!dateGroup) {
+    return;
+  }
+  const remainingRows = dateGroup.querySelectorAll('tr.match-row--admin-direct');
+  if (remainingRows.length > 0) {
+    return;
+  }
+  const spacer = dateGroup.nextElementSibling;
+  dateGroup.remove();
+  if (spacer && spacer.classList.contains('spacer') && spacer.classList.contains('spacer-sm')) {
+    spacer.remove();
+  }
+}
+
+function syncAdminRowDateMoveIfNeeded(row) {
+  if (!row || !row.id) {
+    return;
+  }
+  const pendingMove = state.pendingAdminDateMoveByRow[row.id];
+  if (!pendingMove) {
+    return;
+  }
+  delete state.pendingAdminDateMoveByRow[row.id];
+
+  const { oldDate, newDate } = pendingMove;
+  if (!oldDate || !newDate || oldDate === newDate) {
+    row.dataset.jogoDate = newDate || row.dataset.jogoDate || '';
+    return;
+  }
+
+  const oldRowRef = row;
+  const oldDateGroup = oldRowRef.closest('[data-match-date-group]');
+  const targetDateGroup = getAdminDateGroupContainer(newDate);
+  if (!targetDateGroup) {
+    oldRowRef.remove();
+    removeEmptyDateGroupIfNeeded(oldDateGroup);
+    announceGlobalStatus(
+      getUiMessage('msgAdminDateMovedHidden', 'Jogo movido para outra data. Ajuste o filtro para visualiza-lo.'),
+      'info',
+    );
+    return;
+  }
+
+  const targetTable = targetDateGroup.querySelector('table.match-table');
+  if (!targetTable) {
+    oldRowRef.remove();
+    removeEmptyDateGroupIfNeeded(oldDateGroup);
+    return;
+  }
+
+  const newBody = document.createElement('tbody');
+  newBody.appendChild(oldRowRef);
+  targetTable.appendChild(newBody);
+  oldRowRef.dataset.jogoDate = newDate;
+  removeEmptyDateGroupIfNeeded(oldDateGroup);
+  announceGlobalStatus(
+    getUiMessage('msgAdminDateMovedVisible', 'Jogo movido para a nova data carregada na tela.'),
+    'success',
+  );
 }
 
 function buildPalpiteSignature(gols1, gols2) {
@@ -297,30 +436,6 @@ function toggleCollapse(containerId, trigger) {
   }
   const hidden = content.classList.toggle('collapsible-portlet__content--hidden');
   trigger.src = hidden ? `${getBaseUrl()}/img/arrow_right.png` : `${getBaseUrl()}/img/arrow_down.png`;
-}
-
-function atualizarResultado(input) {
-  if (!input) {
-    return;
-  }
-  const jogoId = input.id.substring(input.id.lastIndexOf('_') + 1);
-  const golsEquipe1Field = document.getElementById(`golsEquipe1_tf_${jogoId}`);
-  const golsEquipe1 = golsEquipe1Field && golsEquipe1Field.value !== '' ? golsEquipe1Field.value : '-1';
-  const golsEquipe2 = input.value !== '' ? input.value : '-1';
-
-  fetch(`${getBaseUrl()}/admin/atualizarResultadoJogo.action`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      id: jogoId,
-      golsEquipe1,
-      golsEquipe2,
-    }),
-  }).catch(() => {
-    debugWarn('Falha ao atualizar resultado.', { jogoId });
-  });
 }
 
 function storeInlineInitialState() {
@@ -559,12 +674,139 @@ function isAdminRequest(event, trigger) {
     || path.includes('/admin/excluirJogo.action');
 }
 
+const LOAD_MORE_PATH_ALLOWLIST = new Set([
+  '/admin/jogosMaisJogosPartial.action',
+  '/seguro/palpitesMaisJogosPartial.action',
+]);
+
+const LOAD_MORE_QUERY_ALLOWLIST = new Set([
+  'data',
+  'dataInicial',
+  'dataFinal',
+  'usarFiltro',
+  'filtroEquipe',
+  'filtroGrupo',
+  'filtroFase',
+  'filtroJogosNaoOcorreram',
+  'filtroSemPalpite',
+]);
+
+function normalizeBasePath(baseUrl) {
+  if (typeof baseUrl !== 'string' || !baseUrl.trim()) {
+    return '';
+  }
+  try {
+    const normalized = new URL(baseUrl, window.location.origin);
+    return normalized.pathname.replace(/\/+$/, '');
+  } catch (error) {
+    return '';
+  }
+}
+
+function stripAppBasePath(pathname) {
+  if (typeof pathname !== 'string') {
+    return pathname;
+  }
+  const basePath = normalizeBasePath(getBaseUrl());
+  if (!basePath || basePath === '/') {
+    return pathname;
+  }
+  if (pathname === basePath) {
+    return '/';
+  }
+  if (pathname.startsWith(`${basePath}/`)) {
+    return pathname.slice(basePath.length);
+  }
+  return pathname;
+}
+
+function normalizeLoadMorePath(path) {
+  if (typeof path !== 'string' || !path.trim()) {
+    return null;
+  }
+  try {
+    const resolved = new URL(path, window.location.origin);
+    if (resolved.origin !== window.location.origin) {
+      return null;
+    }
+    const normalizedPathname = stripAppBasePath(resolved.pathname);
+    if (!LOAD_MORE_PATH_ALLOWLIST.has(normalizedPathname)) {
+      return null;
+    }
+    const safeParams = new URLSearchParams();
+    for (const [key, value] of resolved.searchParams.entries()) {
+      if (!LOAD_MORE_QUERY_ALLOWLIST.has(key)) {
+        continue;
+      }
+      safeParams.append(key, value);
+    }
+    const query = safeParams.toString();
+    return query ? `${normalizedPathname}?${query}` : normalizedPathname;
+  } catch (error) {
+    return null;
+  }
+}
+
+function isLoadMorePath(path) {
+  return normalizeLoadMorePath(path) !== null;
+}
+
+function renderLoadMoreErrorState(container, path) {
+  const safePath = normalizeLoadMorePath(path);
+  if (!container || !safePath) {
+    return;
+  }
+  const errorMessage = getUiMessage('msgLoadMoreError', 'Falha ao carregar a próxima data.');
+  const retryLabel = getUiMessage('msgLoadMoreRetry', 'Tentar novamente');
+  const nextDateLabel = getUiMessage('msgLoadMoreNextDate', 'Carregar Próxima Data');
+
+  container.innerHTML = '';
+
+  const feedback = document.createElement('p');
+  feedback.className = 'load-more-feedback load-more-feedback--error';
+  feedback.textContent = errorMessage;
+  container.appendChild(feedback);
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'button button--secondary button--full-width';
+  button.setAttribute('hx-get', safePath);
+  button.setAttribute('hx-target', '#load-more-container');
+  button.setAttribute('hx-swap', 'outerHTML');
+  button.setAttribute('hx-indicator', '#loading-more-indicator');
+
+  const spinner = document.createElement('img');
+  spinner.id = 'loading-more-indicator';
+  spinner.src = `${getBaseUrl()}/img/loading.gif`;
+  spinner.className = 'htmx-indicator icon-inline';
+  spinner.alt = '';
+  button.appendChild(spinner);
+  button.append(` ${retryLabel || nextDateLabel}`);
+
+  container.appendChild(button);
+  if (window.htmx && typeof window.htmx.process === 'function') {
+    window.htmx.process(container);
+  }
+}
+
 function getRequestConfig(event) {
   const requestConfig = event?.detail?.requestConfig;
   if (!requestConfig || typeof requestConfig !== 'object') {
     return null;
   }
   return requestConfig;
+}
+
+function isLoadMoreErrorAlreadyAnnounced(event) {
+  const requestConfig = getRequestConfig(event);
+  return Boolean(requestConfig && requestConfig.__bolaoLoadMoreErrorAnnounced);
+}
+
+function markLoadMoreErrorAnnounced(event) {
+  const requestConfig = getRequestConfig(event);
+  if (requestConfig) {
+    requestConfig.__bolaoLoadMoreErrorAnnounced = true;
+  }
 }
 
 function startAdminPending(event) {
@@ -611,6 +853,11 @@ function handleBeforeRequest(event) {
     startAdminPending(event);
     if (adminRow && trigger.getAttribute('name')) {
       state.lastAdminTriggerByRow[adminRow.id] = trigger.getAttribute('name');
+    }
+    if (adminRow && trigger.getAttribute('name') === 'data') {
+      const oldDate = adminRow.dataset.jogoDate || '';
+      const nextDate = trigger.value || '';
+      state.pendingAdminDateMoveByRow[adminRow.id] = { oldDate, newDate: nextDate };
     }
     if (adminRow) {
       updateAdminRowStatus(adminRow, savingMessage, 'saving');
@@ -699,6 +946,8 @@ function handleAfterSwap(event) {
   }
 
   if (target.id && target.id.startsWith('jogoTr_') && target.classList.contains('match-row--admin-direct')) {
+    reopenAdminDetailsIfNeeded(target);
+    syncAdminRowDateMoveIfNeeded(target);
     const savedMessage = `${getUiMessage('msgAdminSaved', 'Resultado salvo as')} ${getNowHHMM()}`;
     updateAdminRowStatus(target, savedMessage, 'saved');
     setAdminRetryVisible(target, false);
@@ -747,6 +996,7 @@ function handleAfterRequest(event) {
       ? trigger.closest('.match-row--admin-direct')
       : null;
     const path = event?.detail?.requestConfig?.path || '';
+    const isLoadMoreRequest = isLoadMorePath(path);
     finishAdminPending(event);
     if (event.detail.successful && path.includes('/admin/excluirJogo.action')) {
       announceGlobalStatus(getUiMessage('msgAdminDeleteSaved', 'Jogo excluido com sucesso.'), 'success');
@@ -766,6 +1016,9 @@ function handleAfterRequest(event) {
         ? 'Falha ao excluir jogo no admin.'
         : 'Falha ao atualizar resultado no admin.';
       debugWarn(debugMessage, { rowId: adminRow.id });
+    }
+    if (!event.detail.successful && !adminRow && isLoadMoreRequest && !isLoadMoreErrorAlreadyAnnounced(event)) {
+      announceGlobalStatus(getUiMessage('msgLoadMoreError', 'Falha ao carregar a próxima data.'), 'error');
     }
     return;
   }
@@ -853,6 +1106,23 @@ function handleGlobalClick(event) {
     }
     return;
   }
+
+  const toggleAdminDetailsButton = target.closest('[data-js="toggle-admin-details"]');
+  if (toggleAdminDetailsButton) {
+    event.preventDefault();
+    const targetId = toggleAdminDetailsButton.getAttribute('data-target');
+    const adminRow = toggleAdminDetailsButton.closest('.match-row--admin-direct');
+    if (!targetId || !adminRow) {
+      return;
+    }
+    const detailsPanel = adminRow.querySelector(targetId);
+    if (!detailsPanel) {
+      return;
+    }
+    const isOpening = detailsPanel.hasAttribute('hidden');
+    setAdminDetailsExpanded(adminRow, isOpening);
+    return;
+  }
   
   // Botão Cancelar Palpite Inline
   const cancelButton = target.closest('[data-js="cancelar-palpite-inline"]');
@@ -936,6 +1206,13 @@ function handleDocumentKeydown(event) {
   if (event.key !== 'Escape') {
     return;
   }
+  const openedAdminDetails = document.querySelector('.match-row--admin-direct [data-js="admin-structural-panel"]:not([hidden])');
+  if (openedAdminDetails) {
+    const adminRow = openedAdminDetails.closest('.match-row--admin-direct');
+    setAdminDetailsExpanded(adminRow, false, true);
+    event.preventDefault();
+    return;
+  }
   if (state.expandedMatchId) {
     event.preventDefault();
     closeInlineRow(state.expandedMatchId);
@@ -1014,7 +1291,7 @@ function handleAdminFieldChange(event) {
   if (!adminRow) {
     return;
   }
-  updateAdminRowStatus(adminRow, getUiMessage('msgAdminDirty', 'Alteracoes pendentes.'), 'saving');
+  updateAdminRowStatus(adminRow, getUiMessage('msgAdminDirty', 'Alteracoes pendentes.'), 'dirty');
 }
 
 function initCollapsePortlets() {
@@ -1027,17 +1304,18 @@ function initCollapsePortlets() {
 }
 
 function initResultadosAdmin() {
-  document.body.addEventListener('change', (event) => {
-    const input = event.target;
-    if (!(input instanceof HTMLInputElement)) {
-      return;
+  const handlers = getBoundGlobalHandlers() || {};
+  if (handlers.adminKeydown) {
+      document.body.removeEventListener('keydown', handlers.adminKeydown);
     }
-    if (input.dataset.js === 'resultado-input') {
-      atualizarResultado(input);
-    }
-  });
-  document.body.addEventListener('keydown', handleAdminKeydown);
-  document.body.addEventListener('change', handleAdminFieldChange);
+  if (handlers.adminChange) {
+      document.body.removeEventListener('change', handlers.adminChange);
+  }
+  handlers.adminKeydown = handleAdminKeydown;
+  handlers.adminChange = handleAdminFieldChange;
+  setBoundGlobalHandlers(handlers);
+  document.body.addEventListener('keydown', handlers.adminKeydown);
+  document.body.addEventListener('change', handlers.adminChange);
 }
 
 function handleAutoSaveInput(event) {
@@ -1093,10 +1371,26 @@ function handleAutoSaveInput(event) {
 
 function initPalpiteInline() {
   storeInlineInitialState();
-  document.body.addEventListener('htmx:beforeRequest', handleBeforeRequest);
-  document.body.addEventListener('htmx:afterSwap', handleAfterSwap);
-  document.body.addEventListener('htmx:afterRequest', handleAfterRequest);
-  document.body.addEventListener('palpiteProgressRefresh', (event) => {
+  const previousHandlers = getBoundGlobalHandlers();
+  if (previousHandlers) {
+    document.body.removeEventListener('htmx:beforeRequest', previousHandlers.beforeRequest);
+    document.body.removeEventListener('htmx:afterSwap', previousHandlers.afterSwap);
+    document.body.removeEventListener('htmx:afterRequest', previousHandlers.afterRequest);
+    document.body.removeEventListener('palpiteProgressRefresh', previousHandlers.progressRefresh);
+    document.body.removeEventListener('htmx:responseError', previousHandlers.responseError);
+    document.body.removeEventListener('click', previousHandlers.globalClick);
+    document.body.removeEventListener('input', previousHandlers.autoSaveInput);
+    document.removeEventListener('keydown', previousHandlers.keydown);
+    window.removeEventListener('beforeunload', previousHandlers.beforeUnload);
+    if (previousHandlers.adminKeydown) {
+      document.body.removeEventListener('keydown', previousHandlers.adminKeydown);
+    }
+    if (previousHandlers.adminChange) {
+      document.body.removeEventListener('change', previousHandlers.adminChange);
+    }
+  }
+
+  const onProgressRefresh = (event) => {
     if (!state.initialized || !window.htmx) {
       return;
     }
@@ -1104,12 +1398,17 @@ function initPalpiteInline() {
       target: '#palpiteProgressContainer',
       swap: 'outerHTML'
     });
-  });
-  document.body.addEventListener('htmx:responseError', (event) => {
+  };
+
+  const onResponseError = (event) => {
     const xhr = event.detail.xhr;
     const target = event.detail.target instanceof HTMLElement ? event.detail.target : event.target;
     const trigger = event?.detail?.elt;
     const path = event?.detail?.requestConfig?.path || '';
+    const safeLoadMorePath = normalizeLoadMorePath(path);
+    if (isAdminRequest(event, trigger)) {
+      finishAdminPending(event);
+    }
     if (!(target instanceof HTMLElement)) {
       return;
     }
@@ -1150,12 +1449,47 @@ function initPalpiteInline() {
         delete toggleBtn.dataset.groupLoading;
       }
       target.innerHTML = '<tr><td colspan="3" class="text-center">Erro ao carregar palpites do grupo.</td></tr>';
+      return;
     }
-  });
-  document.body.addEventListener('click', handleGlobalClick);
-  document.body.addEventListener('input', handleAutoSaveInput);
-  document.addEventListener('keydown', handleDocumentKeydown);
-  window.addEventListener('beforeunload', handleBeforeUnload);
+
+    const fallbackLoadMorePath = target.id === 'load-more-container'
+      ? normalizeLoadMorePath(target.querySelector('button[hx-get]')?.getAttribute('hx-get'))
+      : null;
+    const effectiveLoadMorePath = safeLoadMorePath || fallbackLoadMorePath;
+    if (effectiveLoadMorePath) {
+      const container = target.id === 'load-more-container'
+        ? target
+        : document.getElementById('load-more-container');
+      renderLoadMoreErrorState(container, effectiveLoadMorePath);
+      markLoadMoreErrorAnnounced(event);
+      announceGlobalStatus(getUiMessage('msgLoadMoreError', 'Falha ao carregar a próxima data.'), 'error');
+    }
+  };
+
+  const nextHandlers = {
+    beforeRequest: handleBeforeRequest,
+    afterSwap: handleAfterSwap,
+    afterRequest: handleAfterRequest,
+    progressRefresh: onProgressRefresh,
+    responseError: onResponseError,
+    globalClick: handleGlobalClick,
+    autoSaveInput: handleAutoSaveInput,
+    keydown: handleDocumentKeydown,
+    beforeUnload: handleBeforeUnload,
+    adminKeydown: previousHandlers?.adminKeydown,
+    adminChange: previousHandlers?.adminChange,
+  };
+  setBoundGlobalHandlers(nextHandlers);
+
+  document.body.addEventListener('htmx:beforeRequest', nextHandlers.beforeRequest);
+  document.body.addEventListener('htmx:afterSwap', nextHandlers.afterSwap);
+  document.body.addEventListener('htmx:afterRequest', nextHandlers.afterRequest);
+  document.body.addEventListener('palpiteProgressRefresh', nextHandlers.progressRefresh);
+  document.body.addEventListener('htmx:responseError', nextHandlers.responseError);
+  document.body.addEventListener('click', nextHandlers.globalClick);
+  document.body.addEventListener('input', nextHandlers.autoSaveInput);
+  document.addEventListener('keydown', nextHandlers.keydown);
+  window.addEventListener('beforeunload', nextHandlers.beforeUnload);
 }
 
 function initGlobalKeyListener() {

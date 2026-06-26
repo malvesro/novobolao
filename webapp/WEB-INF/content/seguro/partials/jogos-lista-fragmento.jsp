@@ -5,6 +5,9 @@
                     <%@ taglib prefix="opendev" uri="http://www.opendev.com.br/tld" %>
 
                         <c:set var="dataExibidaAnterior" value="" />
+                        <fmt:message key="match.loadmore.action.nextDate" var="loadMoreNextDateLabel" />
+                        <fmt:message key="admin.match.loadmore.state.end" var="adminLoadMoreEndLabel" />
+                        <fmt:message key="match.loadmore.state.end" var="palpiteLoadMoreEndLabel" />
                         <c:forEach var="jogo" items="${jogos}" varStatus="loop">
                             <fmt:formatDate var="dataJogoFormatada" value="${jogo.data}" pattern="dd/MM/yyyy" />
                             <fmt:formatDate var="horaJogoFormatada" value="${jogo.hora}" pattern="HH:mm" />
@@ -23,7 +26,9 @@
                                 </c:if>
 
                                 <c:if test="${empty dataExibidaAnterior or dataExibidaAnterior ne dataJogoFormatada}">
-                                    <div id="jogos_${dataJogoFormatada}_portlet" class="portlet collapsible-portlet">
+                                    <div id="jogos_${dataJogoFormatada}_portlet"
+                                         class="portlet collapsible-portlet"
+                                         data-match-date-group="${dataJogoFormatada}">
                                         <div class="title collapsible-portlet__header">
                                             <img alt="Alternar exibição" src="${base}/img/arrow_down.png"
                                                 class="collapse-toggle icon-inline-top icon-button"
@@ -41,12 +46,14 @@
                                                             <th scope="col">
                                                                 <fmt:message key="match.hour" />
                                                             </th>
-                                                            <th scope="col">
-                                                                <fmt:message key="match.where" />
-                                                            </th>
-                                                            <th scope="col">
-                                                                <fmt:message key="match.group" />
-                                                            </th>
+                                                            <c:if test="${not adminResultadoView}">
+                                                                <th scope="col">
+                                                                    <fmt:message key="match.where" />
+                                                                </th>
+                                                                <th scope="col">
+                                                                    <fmt:message key="match.group" />
+                                                                </th>
+                                                            </c:if>
                                                             <th scope="colgroup" colspan="3">
                                                                 <fmt:message key="match.teams" />
                                                             </th>
@@ -57,7 +64,9 @@
                                                                 <th scope="col"></th>
                                                             </c:if>
                                                             <c:if test="${adminResultadoView}">
-                                                                <th scope="col"></th>
+                                                                <th scope="col" class="match-table__actions-header">
+                                                                    <fmt:message key="admin.match.actions" />
+                                                                </th>
                                                             </c:if>
                                                         </tr>
                                                     </thead>
@@ -163,9 +172,23 @@
                                                         hx-swap="outerHTML" hx-indicator="#loading-more-indicator">
                                                         <img id="loading-more-indicator" src="${base}/img/loading.gif"
                                                             class="htmx-indicator icon-inline" alt="" />
-                                                        Carregar Próxima Data
+                                                        <c:out value="${loadMoreNextDateLabel}" />
                                                     </button>
                                                 </div>
                                             </c:if>
                                     </c:if>
                         </c:forEach>
+                        <c:if test="${empty jogos}">
+                            <div id="load-more-container" class="load-more-section load-more-section--end" role="status" aria-live="polite">
+                                <p class="load-more-feedback">
+                                    <c:choose>
+                                        <c:when test="${adminResultadoView}">
+                                            <c:out value="${adminLoadMoreEndLabel}" />
+                                        </c:when>
+                                        <c:otherwise>
+                                            <c:out value="${palpiteLoadMoreEndLabel}" />
+                                        </c:otherwise>
+                                    </c:choose>
+                                </p>
+                            </div>
+                        </c:if>

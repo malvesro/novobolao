@@ -2589,8 +2589,434 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     - revisão multiagente (arquitetura + reviewer): recomendações confirmadas e cobertura adequada sem bloqueios.
     Log de sessão: `.ia/logs/session-20260626-tarefa88-hardening-pos87.md`.
 
+89. **[Concluído] Evolução UX da tela Admin de atualização de resultados — layout operacional sem perda de visibilidade horizontal (26/06/2026):**
+    Objetivo: eliminar fricção de uso causada por overflow horizontal nas linhas da tabela de jogos, garantindo visibilidade contínua de ações críticas (`Excluir`, status de salvamento e retry), sem sacrificar velocidade de operação do administrador.
+    Contexto observado:
+    - linha atual concentra muitos campos editáveis no mesmo eixo horizontal (data, hora, local, fase, equipes, placar, ações e status);
+    - botão lateral e mensagens podem sair do viewport, exigindo rolagem horizontal constante;
+    - feedback de status compete por espaço com campos essenciais de edição.
+    Proposta de layout-alvo:
+    1) **Linha principal compacta e operacional**: `Hora | Equipe A [placar] Equipe B | Ações`;
+    2) **Ações sempre visíveis** em coluna sticky à direita;
+    3) **Detalhes estruturais sob demanda** (expand/collapse): data, local, fase e ajustes de equipes;
+    4) **Feedback de status em camadas**: estado curto inline (`Salvo`, `Erro`, `Pendente`) + detalhes na barra global de status;
+    5) **Fallback responsivo** para telas menores (modo card/lista vertical, reduzindo dependência de scroll horizontal).
+    Ganhos esperados:
+    - redução do tempo de localização do botão de ação por linha;
+    - redução de erro operacional (não perceber status/ação fora da tela);
+    - melhor legibilidade e menor carga cognitiva por linha;
+    - menor necessidade de rolagem horizontal repetitiva;
+    - aumento da previsibilidade visual em desktop e viewport reduzido.
+    Skills previstas: `ui-ux-pro-max`, `modern-css`, `htmx v1.0.0`, `architecture-guardian v1.0.0`, `security-audit v1.0.0`.
+    * **[Concluído] 89.1 — Diagnóstico técnico-UX com baseline mensurável:**
+      Levantar baseline objetivo da tela atual para comparação pós-implementação.
+      Itens mínimos:
+      - largura efetiva ocupada por cada célula/controle da linha admin;
+      - frequência e distância de scroll horizontal para alcançar ações;
+      - tempo médio para executar sequência operacional (editar placar + excluir quando elegível);
+      - pontos de truncamento e colisão de conteúdo.
+      Entregável: baseline documentado no log da tarefa com evidências visuais e métricas simples antes/depois.
+    * **[Concluído] 89.2 — Definição formal de hierarquia de informação da linha admin:**
+      Classificar campos por prioridade de uso (operacional vs estrutural) e desenhar contrato de exibição.
+      Diretriz:
+      - Nível 1 (sempre visível): hora, equipes, placar, ações e estado resumido;
+      - Nível 2 (sob demanda): data, local, fase e ajustes estruturais.
+      Entregável: especificação textual do novo contrato de leitura/edição por linha.
+    * **[Concluído] 89.3 — Redesenho da coluna de ações com sticky lateral robusto:**
+      Garantir que o bloco de ações da linha permaneça visível durante scroll horizontal.
+      Itens:
+      - aplicar `position: sticky` na célula de ações (com `right: 0`);
+      - preservar contraste, borda e fundo para evitar sobreposição visual;
+      - manter acessibilidade (`aria-live`, foco visível, navegação por teclado).
+      Entregável: ações sempre acessíveis sem deslocamento lateral extra.
+    * **[Concluído] 89.4 — Compactação de feedback de estado por linha (sem perder clareza):**
+      Substituir mensagens longas inline por microestado objetivo na linha.
+      Estratégia:
+      - usar chips curtos (`Salvo`, `Erro`, `Pendente`, `Bloqueado`);
+      - concentrar texto detalhado no status global da página e/ou tooltip contextual;
+      - manter suporte a retry em caso de erro.
+      Entregável: redução de ruído horizontal com feedback operacional intacto.
+    * **[Concluído] 89.5 — Introdução de painel de detalhes estruturais expandível por linha:**
+      Mover campos estruturais de baixa frequência para área expansível sem quebrar HTMX.
+      Itens:
+      - controle abrir/fechar por linha com estado previsível;
+      - carregamento/atualização parcial compatível com fluxo atual;
+      - fallback para renderização completa sem JavaScript avançado.
+      Entregável: linha principal enxuta com edição estrutural acessível sob demanda.
+    * **[Concluído] 89.6 — Reorganização do bloco de placar com foco em legibilidade:**
+      Ajustar agrupamento visual de equipes + placar para leitura imediata.
+      Itens:
+      - alinhamento consistente dos inputs de gols;
+      - redução de espaçamentos desperdiçados;
+      - largura mínima estável para evitar quebra irregular.
+      Entregável: leitura do confronto e edição de placar em um único foco visual.
+    * **[Concluído] 89.7 — Estratégia de truncamento inteligente e dicas contextuais:**
+      Tratar conteúdos extensos (ex.: locais longos) sem estourar layout.
+      Itens:
+      - aplicar truncamento (`ellipsis`) em colunas de texto longo;
+      - manter tooltip/título com texto completo;
+      - preservar dados integrais para leitores de tela.
+      Entregável: linha íntegra sem perda de informação.
+    * **[Concluído] 89.8 — Modo responsivo alternativo para viewport reduzido:**
+      Definir comportamento específico quando tabela não couber de forma operacional.
+      Itens:
+      - modo responsivo faseado para larguras menores (sticky desativado <=960px e preservação de legibilidade operacional), mantendo migração para card/lista vertical como evolução opcional;
+      - ordem de leitura priorizando ação e placar;
+      - testes em breakpoints críticos.
+      Entregável: usabilidade preservada em viewport reduzido com fallback de layout e ações visíveis.
+    * **[Concluído] 89.9 — Hardening de acessibilidade e ergonomia:**
+      Garantir qualidade de interação após mudanças de layout.
+      Itens:
+      - ordem de tabulação coerente;
+      - foco visível em botões e inputs;
+      - labels/aria para ações, mensagens e toggles;
+      - contraste e tamanho de alvo adequados.
+      Entregável: conformidade básica de acessibilidade operacional da tela admin.
+    * **[Concluído] 89.10 — Ajustes de frontend HTMX e estados de erro/sucesso:**
+      Validar que os eventos (`beforeRequest`, `afterRequest`, `responseError`) permanecem consistentes no novo layout.
+      Itens:
+      - preservar atualização de estado por linha;
+      - manter retry funcional;
+      - evitar regressão de mensagens globais.
+      Entregável: contrato HTMX estável após mudança visual/estrutural.
+    * **[Concluído] 89.11 — Cobertura de testes e validação de regressão visual/funcional:**
+      Atualizar testes frontend/backend conforme novo layout e contratos de status.
+      Mínimo:
+      - testes de renderização condicional dos blocos (principal/detalhes);
+      - testes de presença e visibilidade da ação sticky;
+      - regressão de mensagens/estados de erro e sucesso.
+      Entregável: suíte ajustada com cobertura dos novos fluxos UX.
+    * **[Concluído] 89.12 — Validação final de ganhos e rastreabilidade:**
+      Consolidar evidências de melhoria com comparação baseline vs pós-implementação.
+      Validações previstas:
+      - `npm run test:frontend`;
+      - `mvn -Dfrontend.skip=true -Dtest=AdminActionTest test` (ou suíte equivalente impactada);
+      - `npm run build`;
+      - `mvn -Dfrontend.skip=true test` e `mvn -Dfrontend.skip=true clean package` no fechamento.
+      Validações executadas:
+      - `npm run test:frontend -- tests/frontend/jogos.test.js` (25 testes, verde);
+      - `npm run test:frontend` (29 testes, verde);
+      - `npm run build` (verde);
+      - `mvn -Dfrontend.skip=true -Dtest=AdminActionTest,JogoServiceImplTest test` (35 testes, verde);
+      - `mvn -Dfrontend.skip=true test` (129 testes, verde);
+      - `mvn -Dfrontend.skip=true clean package` (BUILD SUCCESS);
+      - revisão final multiagente (arquitetura/UX + tester + security): aprovado com ressalvas baixas não bloqueantes.
+      Entregável: checklist de ganhos esperados confirmado, `passo-a-passo.md` atualizado e log de sessão em `.ia/logs/`.
+    Auto-Analise: A tarefa 89 foi concluída com foco em ergonomia operacional da linha admin, mantendo ações críticas visíveis, reduzindo ruído horizontal e preservando contratos HTMX/segurança no backend. As validações automatizadas e a revisão multiagente final confirmaram ausência de regressões funcionais, restando apenas oportunidade evolutiva de adotar modo card/lista completo em ciclo futuro. | [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
 61. **[Concluído] Correção de falso aviso de saída na tela admin após salvar resultado (18/06/2026):**
     Objetivo: impedir aviso de "dados não salvos" ao navegar para outra tela quando o resultado já foi efetivamente gravado.
     * **[Concluído] 61.1 — Diagnóstico de estado pendente no frontend admin:** identificado cenário em `src/frontend/pages/jogos.js` em que `pendingAdminRequests` podia permanecer aberto após `htmx:afterRequest` sem `detail.elt`.
     * **[Concluído] 61.2 — Ajuste de liquidação de pendência:** `handleAfterRequest()` passou a liquidar fluxo admin com base em `requestConfig.path` mesmo sem elemento trigger, evitando warning falso em `beforeunload`.
     * **[Concluído] 61.3 — Regressão automatizada:** novo teste frontend em `tests/frontend/jogos.test.js` cobrindo `afterRequest` admin sem `detail.elt` e validando limpeza do bloqueio de saída.
+
+90. **[Concluído] Versionamento da aplicação para release 1.4.0 (26/06/2026):**
+    Objetivo: atualizar a versão do sistema de `1.3.0` para `1.4.0`, mantendo rastreabilidade da evolução.
+    * **[Concluído] 90.1 — Atualizar versão no `pom.xml`:** ajuste de `<version>1.3.0</version>` para `<version>1.4.0</version>`.
+    * **[Concluído] 90.2 — Validar consistência de versionamento:** confirmado que `src/main/resources/version.properties` utiliza `${project.version}`, propagando automaticamente a nova versão no build.
+    * **[Concluído] 90.3 — Rastreabilidade:** log de sessão criado em `.ia/logs/session-20260626-versionamento-1.4.0.md`.
+    Auto-Analise: Atualização de baixo risco e baixo impacto, concentrada no versionamento do artefato Maven, sem alteração de comportamento funcional. | [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
+91. **[Concluído] Redesign UX clean da tela Admin de atualização de resultados (26/06/2026):**
+    Objetivo: corrigir a percepção de layout confuso e baixa usabilidade na listagem administrativa de jogos, adotando uma estrutura visual mais natural, escaneável e orientada à tarefa principal (editar placar com confiança e rapidez).
+    Problemas observados no estado atual:
+    - coluna de ações visualmente dominante e com ruído excessivo;
+    - repetição de CTA de mesma prioridade em todas as linhas;
+    - truncamento/baixa legibilidade de status por linha;
+    - hierarquia visual fraca entre conteúdo principal (jogo/placar) e secundário (detalhes/exclusão).
+    Direção UX-alvo:
+    1) foco primário no confronto + placar + status;
+    2) ações secundárias discretas e previsíveis;
+    3) painel de detalhes estrutural com leitura limpa e progressiva;
+    4) layout consistente em desktop e viewport reduzido sem sensação de “quebra”.
+    Skills previstas: `ui-ux-pro-max`, `architecture-guardian v1.0.0`, `htmx v1.0.0`, `security-audit v1.0.0`.
+    * **[Concluído] 91.1 — Diagnóstico UX e definição de arquitetura de informação da linha admin:**
+      Consolidar contrato de hierarquia visual por linha:
+      - Primário: hora, equipes, placar, status;
+      - Secundário: detalhes estruturais e exclusão (quando elegível).
+      Entregável: mapa de prioridades e decisão de simplificação do bloco de ações.
+    * **[Concluído] 91.2 — Criar backlog incremental de redesign (subtarefas executáveis):**
+      Quebrar a implementação em unidades pequenas:
+      - simplificação de markup da coluna de ações;
+      - refinamento visual de status (chip sem truncamento agressivo);
+      - botão de detalhes em estilo secundário e texto contextual;
+      - reorganização do painel estrutural para leitura em grid claro.
+      Entregável: subtarefas rastreáveis com baixo risco de regressão.
+    * **[Concluído] 91.3 — Refatorar markup JSP da linha admin para foco operacional:**
+      Ajustar `admin-match-row.jsp` para reduzir ruído:
+      - manter fluxo HTMX existente para resultado/edição estrutural/exclusão;
+      - reduzir peso visual das ações recorrentes;
+      - aproximar status do contexto de edição.
+      Entregável: linha mais limpa e intuitiva sem quebrar contratos backend.
+    * **[Concluído] 91.4 — Redesenhar CSS da tabela admin com linguagem visual clean:**
+      Revisar estilos de ações/status/painel:
+      - remover aparência de “card dentro de card” na célula de ações;
+      - aumentar legibilidade e contraste sem saturação visual;
+      - padronizar escala tipográfica e espaçamentos.
+      Entregável: estilo consistente e menos poluído.
+    * **[Concluído] 91.5 — Ajustar microcomportamentos JS para feedback mais natural:**
+      Validar `jogos.js` para manter:
+      - status por linha coerente com estado real (`dirty/saving/saved/error/locked`);
+      - toggle de detalhes com rótulos e foco previsíveis;
+      - compatibilidade com atalhos (ESC) e beforeunload.
+      Entregável: interação fluida sem ambiguidade de estado.
+    * **[Concluído] 91.6 — Expandir cobertura de testes de regressão (frontend):**
+      Atualizar `tests/frontend/jogos.test.js` para cobrir:
+      - contrato de markup do novo layout clean;
+      - preservação do fluxo HTMX de exclusão/edição;
+      - sinais de estado admin e acessibilidade mínima (aria/labels).
+      Entregável: proteção automatizada contra regressões de UX funcional.
+    * **[Concluído] 91.7 — Revisão multiagente (arquitetura, testes e segurança):**
+      Executar rodada final com agentes:
+      - Architect/Reviewer: qualidade UX e aderência arquitetural;
+      - Tester: suficiência da suíte para aceite;
+      - Security: ausência de regressão em exclusão/admin/csrf.
+      Entregável: parecer final consolidado com riscos residuais.
+    * **[Concluído] 91.8 — Validação técnica e rastreabilidade final:**
+      Rodar:
+      - `npm run test:frontend -- tests/frontend/jogos.test.js`;
+      - `npm run test:frontend`;
+      - `mvn -Dfrontend.skip=true -Dtest=AdminActionTest,JogoServiceImplTest test`;
+      - `npm run build`;
+      - `mvn -Dfrontend.skip=true clean package`.
+      Atualizar `passo-a-passo.md` e criar log em `.ia/logs/`.
+      Entregável: aceite auditável com evidências.
+    * **[Concluído] 91.9 — Hardening pós-review multiagente (UX + arquitetura + segurança):**
+      Ajustes aplicados após recomendações dos agentes:
+      - redução de superfície de payload HTMX na linha admin, substituindo `hx-include="closest tr"` por includes explícitos por ação (`id`, campos estritamente necessários e token CSRF);
+      - melhoria de legibilidade/contraste dos estados da linha admin e criação de estilo dedicado para `admin-row-status--dirty`;
+      - remoção do fluxo legado paralelo de atualização por `fetch` em `jogos.js`, mantendo padrão único HTMX-driven;
+      - preservação de estado de painel estrutural aberto após swap de linha via controle em memória no frontend (`openAdminDetailsRows` + reabertura pós-swap);
+      - expansão de contratos de teste para os novos IDs/`hx-include` explícitos e validação das novas proteções.
+      Entregável: redução de risco funcional e de manutenção sem quebra do contrato backend.
+      Validações executadas no fechamento:
+      - `npm run test:frontend -- tests/frontend/jogos.test.js` (26 testes, verde);
+      - `npm run test:frontend` (30 testes, verde);
+      - `mvn -Dfrontend.skip=true -Dtest=AdminActionTest,JogoServiceImplTest test` (35 testes, verde);
+      - `npm run build` (verde);
+      - `mvn -Dfrontend.skip=true clean package` (BUILD SUCCESS).
+    Auto-Analise: A tarefa 91 foi concluída com redesign UX clean orientado ao fluxo operacional de admin e hardening pós-revisão multiagente. O resultado preserva contratos HTMX/segurança, reduz acoplamento de payload na edição estrutural, melhora legibilidade visual e mantém cobertura automatizada suficiente para evitar regressões de comportamento crítico. | [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
+92. **[Concluído] Refino UX de controles aplicáveis na coluna de ações da tela Admin de resultados (26/06/2026):**
+    Objetivo: eliminar ruído visual na coluna de ações de `/admin/jogos.action`, ocultando controles/indicadores não aplicáveis por linha e removendo duplicidade de mensagens de bloqueio.
+    Motivação (feedback visual do usuário):
+    - chip de status vazio ocupando espaço e parecendo controle ativo;
+    - repetição de mensagem de bloqueio (`Liberado às HH:mm`) em múltiplos pontos da mesma linha;
+    - percepção de excesso de controles sem aplicabilidade imediata.
+    Direção UX-alvo:
+    1) renderização condicional estrita por estado da linha;
+    2) no máximo uma mensagem de bloqueio visível por contexto;
+    3) nenhum placeholder visual sem conteúdo útil;
+    4) manutenção dos contratos HTMX/segurança e dos fluxos admin existentes.
+    Skills previstas: `ui-ux-pro-max`, `architecture-guardian v1.0.0`, `htmx v1.0.0`, `security-audit v1.0.0`.
+    * **[Concluído] 92.1 — Diagnóstico de aplicabilidade dos controles por estado da linha:**
+      Mapear estado por estado (editável, bloqueado, elegível para exclusão, em erro/salvando/salvo) e definir quais controles devem ou não aparecer.
+      Entregável: matriz de decisão de renderização condicional.
+    * **[Concluído] 92.2 — Planejamento detalhado de subtarefas com risco baixo:**
+      Quebrar execução em ajustes de JSP/CSS/JS/testes para evitar regressões amplas.
+      Entregável: plano incremental com critérios de aceite verificáveis.
+    * **[Concluído] 92.3 — Ajustar markup da linha admin para ocultar controles não aplicáveis:**
+      Em `admin-match-row.jsp`:
+      - evitar exibição de elementos de status sem mensagem;
+      - remover duplicidade de mensagem de bloqueio na linha;
+      - manter botões somente quando aplicáveis (`Excluir` apenas elegível; `Detalhes/Ocultar` por estado de expansão).
+      Implementação aplicada:
+      - removida renderização duplicada de bloqueio (`admin-result-locked-inline` e hint expandido), mantendo ponto único de status;
+      - no estado bloqueado de placar, inputs admin foram substituídos por visualização somente leitura (`score-value`), evitando controle desabilitado sem aplicabilidade.
+      Entregável: coluna de ações sem placeholders vazios.
+    * **[Concluído] 92.4 — Refinar CSS para não reservar espaço de controles ausentes:**
+      Em `estilo.css`:
+      - esconder status vazio sem impacto de layout;
+      - ajustar espaçamento da linha quando há apenas uma ação visível;
+      - manter legibilidade e densidade visual consistente.
+      Implementação aplicada:
+      - incluída regra `.admin-row-status:empty { display: none; }`;
+      - removidos estilos órfãos de bloqueio inline/hint que causavam duplicidade visual.
+      Entregável: coluna de ações mais limpa e proporcional ao conteúdo.
+    * **[Concluído] 92.5 — Ajustar microcomportamentos JS para coerência visual do estado:**
+      Em `jogos.js`:
+      - garantir que status só apareça quando houver mensagem real;
+      - preservar `Detalhes/Ocultar` e foco/ESC sem criar controles fantasmas.
+      Implementação aplicada:
+      - sem alterações adicionais necessárias; `updateAdminRowStatus` já limpa texto/atributos em vazio e o CSS passou a ocultar status sem conteúdo, mantendo coerência.
+      Entregável: comportamento alinhado à regra “mostrar só quando aplicável”.
+    * **[Concluído] 92.6 — Atualizar/expandir testes de regressão frontend:**
+      Em `tests/frontend/jogos.test.js`:
+      - validar ausência de contrato visual duplicado para bloqueio;
+      - validar presença de regras CSS/markup para ocultação de status vazio;
+      - preservar contratos HTMX de edição/exclusão.
+      Implementação aplicada:
+      - contrato atualizado para ausência de `admin-result-locked-inline`;
+      - contrato atualizado para presença de `.admin-row-status:empty`;
+      - cobertura reforçada para estado bloqueado sem inputs desabilitados.
+      Entregável: proteção automatizada contra regressão de UX funcional.
+    * **[Concluído] 92.7 — Revisão multiagente de aceite (arquitetura, testes e segurança):**
+      Consolidar parecer de Architect/Tester/Security sobre o refinamento aplicado.
+      Resultado consolidado:
+      - Architect (Volta): **Aprovado** (risco residual baixo);
+      - Tester (Averroes): checklist de cobertura atendido com atualização de contratos e regressão verde;
+      - Security (Aquinas): **Aprovado**, sem regressão de autorização/CSRF/HTMX.
+      Entregável: veredito com riscos residuais explícitos.
+    * **[Concluído] 92.8 — Validação final e rastreabilidade obrigatória:**
+      Rodar:
+      - `npm run test:frontend -- tests/frontend/jogos.test.js`;
+      - `npm run test:frontend`;
+      - `mvn -Dfrontend.skip=true -Dtest=AdminActionTest,JogoServiceImplTest test`;
+      - `npm run build`;
+      - `mvn -Dfrontend.skip=true clean package`.
+      Atualizar `passo-a-passo.md` e gerar log em `.ia/logs/`.
+      Validações executadas:
+      - `npm run test:frontend -- tests/frontend/jogos.test.js` (26 testes, verde);
+      - `npm run test:frontend` (30 testes, verde);
+      - `mvn -Dfrontend.skip=true -Dtest=AdminActionTest,JogoServiceImplTest test` (35 testes, verde);
+      - `npm run build` (verde);
+      - `mvn -Dfrontend.skip=true clean package` (BUILD SUCCESS).
+      Entregável: fechamento auditável da tarefa.
+    Auto-Analise: O refinamento UX da coluna de ações eliminou controles não aplicáveis no estado bloqueado, removeu duplicidade de mensagem e suprimiu placeholders visuais vazios, preservando os contratos HTMX, segurança e navegabilidade do fluxo admin. A validação automatizada e multiagente confirmou estabilidade funcional com risco residual baixo. | [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
+93. **[Concluído] Correção do bug de toggle inconsistente do painel estrutural após edição de horário (26/06/2026):**
+    Objetivo: corrigir o cenário em que, após editar o horário de uma partida, o painel de edição estrutural permanece visível com botão em estado inconsistente (`Detalhes`/`Ocultar`) e não respeita o fechamento esperado.
+    Sintoma reportado:
+    - após alteração de horário (com swap HTMX da linha), a tabela estrutural aparece com estado visual inconsistente;
+    - clicar em `Detalhes`/`Ocultar` não oculta o painel de forma confiável.
+    Causa raiz:
+    - sincronização incompleta entre estado em memória (`openAdminDetailsRows`) e estado visual do painel após `htmx:afterSwap`;
+    - o frontend só reabria painel quando estado era `true`, mas não forçava fechamento visual quando estado era `false`, permitindo inconsistência pós-fragmento.
+    Skills aplicadas: `architecture-guardian v1.0.0`, `htmx v1.0.0`, `ui-ux-pro-max`, `security-audit v1.0.0`.
+    * **[Concluído] 93.1 — Reproduzir e mapear o fluxo de evento:**
+      Confirmado ponto de falha no ciclo `change` (horário) → swap HTMX da linha → sincronização de toggle.
+    * **[Concluído] 93.2 — Ajustar sincronização pós-swap no JS:**
+      Em `src/frontend/pages/jogos.js`, `reopenAdminDetailsIfNeeded` passou a sempre sincronizar estado visual com o estado de memória:
+      - `true` => mantém/abre painel;
+      - `false` => força fechamento e rótulo `Detalhes`.
+    * **[Concluído] 93.3 — Cobertura de regressão frontend do bug:**
+      Em `tests/frontend/jogos.test.js`, adicionado teste que simula linha vindo aberta após swap e valida fechamento automático quando o estado persistido não está expandido.
+    * **[Concluído] 93.4 — Validação técnica e de build:**
+      - `npm run test:frontend -- tests/frontend/jogos.test.js` (26 testes, verde);
+      - `npm run test:frontend` (30 testes, verde);
+      - `mvn -Dfrontend.skip=true -Dtest=AdminActionTest,JogoServiceImplTest test` (35 testes, verde);
+      - `npm run build` (verde);
+      - `mvn -Dfrontend.skip=true clean package` (BUILD SUCCESS).
+    * **[Concluído] 93.5 — Revisão multiagente de aceite:**
+      - Architect: aprovado (risco residual baixo);
+      - Tester: matriz de regressão contemplada no ajuste de sincronização + teste novo;
+      - Security: sem regressão de autorização/CSRF/HTMX.
+    Auto-Analise: A correção eliminou a inconsistência entre estado visual e estado lógico do painel estrutural após swap HTMX, restaurando previsibilidade do `Detalhes`/`Ocultar` sem alterar contratos de segurança ou backend. Cobertura automatizada e validação multiagente indicam estabilidade com baixo risco residual. | [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
+94. **[Concluído] Hardening UX/HTMX dos botões e fluxos da tela de atualizar resultados (26/06/2026):**
+    Objetivo: eliminar falhas silenciosas restantes na paginação incremental (`Carregar Próxima Data`) e reforçar previsibilidade de feedback ao usuário em cenários de erro/fim de dados, mantendo arquitetura em camadas e contratos de segurança.
+    Escopo funcional:
+    - tratar explicitamente erros HTMX do `load-more` (admin e palpites) com mensagem e ação de retry;
+    - evitar desaparecimento silencioso do fluxo incremental sem contexto ao usuário;
+    - ampliar testes de regressão frontend para o novo contrato de feedback.
+    Skills aplicadas: `architecture-guardian v1.0.0`, `htmx v1.0.0`, `ui-ux-pro-max`, `security-audit v1.0.0`.
+    * **[Concluído] 94.1 — Registrar subtarefas e estratégia incremental no plano oficial:**
+      Abrir tarefa de hardening para tratar riscos residuais identificados na revisão funcional dos botões da tela.
+      Entregável: tarefa/subtarefas registradas no `passo-a-passo.md` antes da implementação.
+    * **[Concluído] 94.2 — Correção do tratamento de erro HTMX no botão "Carregar Próxima Data":**
+      Implementar fallback explícito em `jogos.js` para respostas de erro no `load-more`, com mensagem global + estado local de retry sem quebrar o contrato HTMX.
+    * **[Concluído] 94.3 — Estado explícito de fim de dados no fragmento incremental:**
+      Ajustar `jogos-lista-fragmento.jsp` para apresentar mensagem clara quando não existir próxima data com jogos dentro dos filtros ativos.
+    * **[Concluído] 94.4 — Cobertura de testes de regressão frontend:**
+      Incluir cenários para erro de `load-more` (admin/palpites), validação de retry e preservação de estado de pendência administrativa.
+    * **[Concluído] 94.5 — Validação técnica + revisão multiagente + rastreabilidade final:**
+      Executar testes/build, consolidar pareceres de arquitetura/testes/segurança com multiagentes e registrar log de sessão em `.ia/logs/`.
+      Validações executadas:
+      - `npm run test:frontend -- tests/frontend/jogos.test.js` (30 testes, verde);
+      - `npm run test:frontend` (34 testes, verde);
+      - `mvn -Dfrontend.skip=true -Dtest=AdminActionTest,JogoServiceImplTest test` (35 testes, verde);
+      - `npm run build` (verde);
+      - `mvn -Dfrontend.skip=true -DskipTests package` (BUILD SUCCESS).
+    * **[Concluído] 94.6 — Hardening pós-review multiagente (arquitetura + segurança):**
+      Ajustes adicionais aplicados após pareceres dos agentes:
+      - canonicalização estrita do path de retry do `load-more` com allowlist de rota/query em `jogos.js`, reduzindo risco de path abuse;
+      - mitigação de duplicidade de anúncio global de erro no fluxo HTMX (`responseError` + `afterRequest`);
+      - simetria i18n do wrapper com inclusão de `data-msg-load-more-next-date`;
+      - consistência visual (`.button-secondary` + `.button--secondary`) e melhoria de contraste no feedback de `load-more`;
+      - escape explícito de campos textuais de equipe na linha admin (`admin-match-row.jsp`) para reduzir superfície de XSS armazenado.
+    * **[Concluído] 94.8 — Correção adicional de compatibilidade com context path e fechamento NO-GO de revisão:**
+      Após revisão multiagente final, corrigido ponto residual em ambiente com contexto de aplicação não-raiz:
+      - `normalizeLoadMorePath` evoluído com `normalizeBasePath` + `stripAppBasePath` para aceitar paths de retry com prefixo `APP_BASE_URL` (ex.: `/novobolao/admin/...`) e manter saída canônica segura;
+      - testes frontend ampliados para:
+        - cenário de retry com context path e limpeza de query não permitida;
+        - cenário de não duplicidade de anúncio global no par `responseError` + `afterRequest`.
+      Resultado: veredito final multiagente convergiu para **GO/Aprovado** (arquitetura, testes e segurança).
+    * **[Concluído] 94.7 — Log de sessão e fechamento de rastreabilidade:**
+      Log criado em `.ia/logs/session-20260626-tarefa94-hardening-load-more-admin-palpites.md`.
+    Auto-Analise: A tarefa 94 foi concluída com correção funcional do load-more em erro/fim de dados, reforço de usabilidade e hardening de segurança pós-revisão multiagente. A solução preserva contratos HTMX, mantém validações server-side e amplia previsibilidade de feedback para o usuário sem regressão de build/testes. | [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
+95. **[Concluído] Correção de consistência visual da linha ao alterar data do jogo na tela admin (26/06/2026):**
+    Objetivo: ao editar a data de um jogo em `/admin/jogos.action`, remover a linha do agrupamento da data antiga e manter exibição coerente com a nova data (movendo para o agrupamento novo quando ele já estiver carregado em tela).
+    Sintoma reportado:
+    - após alterar `data` de um jogo, a linha permanece no bloco visual da data antiga, gerando inconsistência na leitura por dia;
+    - quando a nova data já está carregada na página, a linha não é reposicionada automaticamente.
+    Escopo funcional:
+    - manter contrato HTMX de edição estrutural sem regressão de segurança;
+    - sincronizar agrupamento visual por data após swap da linha;
+    - limpar agrupamento antigo quando ficar vazio.
+    Skills aplicadas: `architecture-guardian v1.0.0`, `htmx v1.0.0`, `ui-ux-pro-max`, `security-audit v1.0.0`.
+    * **[Concluído] 95.1 — Registro de rastreabilidade no plano oficial:**
+      Criar tarefa/subtarefas antes da implementação para garantir trilha auditável da correção.
+    * **[Concluído] 95.2 — Implementação de movimento de linha por mudança de data:**
+      Ajustar JSP/JS para detectar mudança de data na edição estrutural e:
+      - remover a linha do agrupamento antigo;
+      - mover a linha para agrupamento da nova data quando este existir na tela;
+      - remover portlet de data antiga quando ficar sem jogos.
+    * **[Concluído] 95.3 — Cobertura de regressão frontend:**
+      Adicionar testes para:
+      - linha removida da data antiga ao mudar data;
+      - linha reposicionada quando novo agrupamento está carregado;
+      - manutenção do comportamento quando nova data não está carregada.
+    * **[Concluído] 95.4 — Validação final e log de sessão:**
+      Executar suíte frontend + validações alvo e registrar log em `.ia/logs/`.
+      Validações executadas:
+      - `npm run test:frontend` (3 arquivos, 36 testes, verde);
+      - `mvn -Dfrontend.skip=true -Dtest=AdminActionTest,JogoServiceImplTest test` (35 testes, verde);
+      - `npm run build` (verde);
+      - `mvn -Dfrontend.skip=true test` (129 testes, verde);
+      - `mvn -Dfrontend.skip=true -DskipTests package` (BUILD SUCCESS).
+      Log de sessão: `.ia/logs/session-20260626-tarefa95-consistencia-linha-alteracao-data-admin.md`.
+    * **[Concluído] 95.5 — Validação pós-implementação com abordagem multiagente (26/06/2026):**
+      Rodada complementar de validação por papéis (Architect, Tester, Reviewer e Security), com reexecução das evidências mais sensíveis da correção.
+      Validações executadas:
+      - `npm run test:frontend -- tests/frontend/jogos.test.js` (32 testes, verde);
+      - `mvn -Dfrontend.skip=true -Dtest=AdminActionTest,JogoServiceImplTest test` (35 testes, verde);
+      - `npm run build` (verde).
+      Log de sessão: `.ia/logs/session-20260626-validacao-multiagente-tarefa95.md`.
+    Auto-Analise: A correção remove a inconsistência de agrupamento por data na tela admin sem quebrar o contrato HTMX existente, cobrindo o fluxo de mudança de data com fallback explícito quando a nova data ainda não está carregada. Foram aplicados ajustes de robustez (evitar listeners duplicados e seleção resiliente de agrupamentos), com suíte frontend/backend e build em verde no fechamento. | [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
+96. **[Concluído] Correção de abertura indevida em massa do painel de edição estrutural no admin (26/06/2026):**
+    Objetivo: impedir que painéis de edição estrutural de múltiplas linhas apareçam abertos ao alterar data/horário de um único jogo em `/admin/jogos.action`, preservando previsibilidade do botão `Detalhes/Ocultar`.
+    Sintoma reportado:
+    - ao alterar `data` ou `hora` de um jogo, painéis de outras linhas aparecem visíveis indevidamente;
+    - em cenários reportados, botão permanece com rótulo `Detalhes` enquanto o painel está visível.
+    Hipótese de causa raiz:
+    - regras CSS em blocos `noscript` dentro de fragmentos HTMX forçando `.admin-structural-panel[hidden]` para `display:block`, quebrando o contrato semântico do atributo `hidden` após swaps parciais.
+    Escopo funcional:
+    - remover regras de fallback que conflitam com `hidden` no fluxo com JavaScript/HTMX ativo;
+    - reforçar CSS canônico para manter `display:none` quando `[hidden]`;
+    - ampliar teste de contrato para evitar regressão.
+    Skills aplicadas: `architecture-guardian v1.0.0`, `htmx v1.0.0`, `ui-ux-pro-max`, `security-audit v1.0.0`.
+    * **[Concluído] 96.1 — Registro de rastreabilidade no plano oficial:**
+      Criar tarefa/subtarefas detalhadas antes de implementar.
+    * **[Concluído] 96.2 — Correção de markup dos fragmentos admin/seguro:**
+      Remover blocos `noscript` que forçam exibição de painéis estruturais com atributo `hidden`.
+    * **[Concluído] 96.3 — Hardening CSS do contrato visual `[hidden]`:**
+      Incluir regra explícita para `.admin-structural-panel[hidden]` mantendo `display:none !important`.
+    * **[Concluído] 96.4 — Cobertura de regressão frontend (contrato):**
+      Adicionar validações automatizadas garantindo:
+      - ausência de regras `noscript` conflitantes para `admin-structural-panel`;
+      - presença da regra CSS canônica de ocultação.
+    * **[Concluído] 96.5 — Validação técnica e revisão multiagente final:**
+      Executar testes/build e consolidar parecer por papéis (Architect/Tester/Reviewer/Security), com log em `.ia/logs/`.
+      Validações executadas:
+      - `npm run test:frontend -- tests/frontend/jogos.test.js` (32 testes, verde);
+      - `npm run test:frontend` (36 testes, verde);
+      - `npm run build` (verde).
+      Revisão multiagente (Architect/UX/Tester/Security):
+      - Architect: correção aderente ao contrato HTMX e ao atributo semântico `hidden`;
+      - UX: eliminado estado inconsistente “painel visível com botão Detalhes”;
+      - Tester: cobertura de contrato expandida para evitar regressão por CSS/fragmento;
+      - Security: sem regressão de segurança; ajuste restrito a apresentação/estado visual.
+      Log de sessão: `.ia/logs/session-20260626-tarefa96-correcao-abertura-paineis-admin.md`.
+    Auto-Analise: A tarefa 96 corrige a causa raiz de exibição indevida em massa dos painéis estruturais ao remover overrides CSS conflitantes em fragmentos HTMX e reforçar o contrato de ocultação no stylesheet principal. A solução tem baixo impacto, mantém comportamento esperado de `Detalhes/Ocultar` por linha e foi validada com testes e revisão multiagente. | [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]

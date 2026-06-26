@@ -8,12 +8,22 @@
 <fmt:message key="admin.result.state.dirty" var="msgAdminDirty" />
 <fmt:message key="admin.result.state.saved" var="msgAdminSaved" />
 <fmt:message key="admin.result.state.error" var="msgAdminError" />
+<fmt:message key="admin.result.state.saving.short" var="msgAdminRowSaving" />
+<fmt:message key="admin.result.state.saved.short" var="msgAdminRowSaved" />
+<fmt:message key="admin.result.state.error.short" var="msgAdminRowError" />
+<fmt:message key="admin.result.state.dirty.short" var="msgAdminRowDirty" />
+<fmt:message key="admin.result.state.locked.short" var="msgAdminRowLocked" />
 <fmt:message key="match.tip.session.saved" var="msgSessionSaved" />
 <fmt:message key="match.tip.session.error" var="msgSessionError" />
 <fmt:message key="admin.result.session.saved" var="msgAdminSessionSaved" />
 <fmt:message key="admin.result.session.error" var="msgAdminSessionError" />
 <fmt:message key="admin.match.delete.state.saved" var="msgAdminDeleteSaved" />
 <fmt:message key="admin.match.delete.state.error" var="msgAdminDeleteError" />
+<fmt:message key="match.loadmore.state.error" var="msgLoadMoreError" />
+<fmt:message key="match.loadmore.action.retry" var="msgLoadMoreRetry" />
+<fmt:message key="match.loadmore.action.nextDate" var="msgLoadMoreNextDate" />
+<fmt:message key="admin.result.date.move.visible" var="msgAdminDateMovedVisible" />
+<fmt:message key="admin.result.date.move.hidden" var="msgAdminDateMovedHidden" />
 
 <c:if test="${telaPalpites}">
 	<%-- Barra de Progresso Sticky (Modernização UX 2026) --%>
@@ -31,12 +41,22 @@
 						data-msg-admin-dirty="${msgAdminDirty}"
 						data-msg-admin-saved="${msgAdminSaved}"
 						data-msg-admin-error="${msgAdminError}"
+						data-msg-admin-row-saving="${msgAdminRowSaving}"
+						data-msg-admin-row-saved="${msgAdminRowSaved}"
+						data-msg-admin-row-error="${msgAdminRowError}"
+						data-msg-admin-row-dirty="${msgAdminRowDirty}"
+						data-msg-admin-row-locked="${msgAdminRowLocked}"
 						data-msg-session-saved="${msgSessionSaved}"
 						data-msg-session-error="${msgSessionError}"
 						data-msg-admin-session-saved="${msgAdminSessionSaved}"
 						data-msg-admin-session-error="${msgAdminSessionError}"
 						data-msg-admin-delete-saved="${msgAdminDeleteSaved}"
-						data-msg-admin-delete-error="${msgAdminDeleteError}">
+						data-msg-admin-delete-error="${msgAdminDeleteError}"
+						data-msg-load-more-error="${msgLoadMoreError}"
+						data-msg-load-more-retry="${msgLoadMoreRetry}"
+						data-msg-load-more-next-date="${msgLoadMoreNextDate}"
+						data-msg-admin-date-moved-visible="${msgAdminDateMovedVisible}"
+						data-msg-admin-date-moved-hidden="${msgAdminDateMovedHidden}">
 						<%-- Removido form externo que causava aninhamento inválido --%>
 
 							<c:set var="dataJogo" />
