@@ -3,12 +3,18 @@ package com.opendev.bolao.service.impl;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.domain.Sort;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -19,8 +25,11 @@ import org.apache.commons.logging.LogFactory;
 
 import com.opendev.bolao.repository.EquipeRepository;
 import com.opendev.bolao.repository.JogoRepository;
+import com.opendev.bolao.repository.BolaoIndividualRepository;
+import com.opendev.bolao.repository.PalpiteRepository;
 import com.opendev.bolao.repository.ParticipanteRepository;
 import com.opendev.bolao.email.Email;
+import com.opendev.bolao.exception.BusinessException;
 import com.opendev.bolao.model.Equipe;
 import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.model.Participante;
@@ -40,7 +49,9 @@ public class JogoServiceImpl implements JogoService {
 	
 	private JogoRepository jogoRepository;
 	private EquipeRepository equipeRepository;
-	   private ParticipanteRepository participanteRepository;
+	private ParticipanteRepository participanteRepository;
+	private BolaoIndividualRepository bolaoIndividualRepository;
+	private PalpiteRepository palpiteRepository;
 
 	   @PersistenceContext
 	   private EntityManager entityManager;
@@ -95,6 +106,102 @@ public class JogoServiceImpl implements JogoService {
 			getJogoRepository().save(jogo);
             this.cacheJogosDeHoje = null;
 		});
+	}
+
+	public void apagarJogoAdministrativo(Long idJogo, String operador) {
+		if (idJogo == null || idJogo.longValue() <= 0L) {
+			throw new BusinessException(BusinessException.Code.INVALID_INPUT, "ID de jogo inválido para exclusão.");
+		}
+
+		Jogo jogo = getJogoRepository().findById(idJogo)
+				.orElseThrow(() -> new BusinessException(BusinessException.Code.NOT_FOUND, "Jogo não encontrado para exclusão."));
+
+		validarElegibilidadeExclusaoAdministrativa(jogo, idJogo);
+
+		long quantidadePalpites = getPalpiteRepository().countByIdJogo(idJogo);
+		logger.info("[ADMIN][EXCLUIR-JOGO] operador=" + operador
+				+ " jogoId=" + idJogo
+				+ " palpitesVinculados=" + quantidadePalpites
+				+ " resultado=ALLOW");
+		try {
+			getJogoRepository().deleteById(idJogo);
+		} catch (EmptyResultDataAccessException ex) {
+			logger.warn("[ADMIN][EXCLUIR-JOGO] operador=" + operador
+					+ " jogoId=" + idJogo
+					+ " resultado=DENY motivo=NOT_FOUND");
+			throw new BusinessException(BusinessException.Code.NOT_FOUND, "Jogo não encontrado para exclusão.", ex);
+		} catch (DataIntegrityViolationException ex) {
+			logger.warn("[ADMIN][EXCLUIR-JOGO] operador=" + operador
+					+ " jogoId=" + idJogo
+					+ " resultado=DENY motivo=FK_CONFLICT");
+			throw new BusinessException(BusinessException.Code.CONFLICT, "Exclusão bloqueada por integridade referencial.", ex);
+		}
+
+		this.cacheJogosDeHoje = null;
+		GraficoDesempenhoCacheControl.invalidarCacheGlobal();
+		Participante.expirarCacheDeClassificacao();
+	}
+
+	public boolean podeExcluirJogoAdministrativo(Long idJogo) {
+		if (idJogo == null || idJogo.longValue() <= 0L) {
+			return false;
+		}
+		Optional<Jogo> jogo = getJogoRepository().findById(idJogo);
+		if (jogo.isEmpty()) {
+			return false;
+		}
+		try {
+			validarElegibilidadeExclusaoAdministrativa(jogo.get(), idJogo);
+			return true;
+		} catch (BusinessException ex) {
+			return false;
+		}
+	}
+
+	public Map<Long, Boolean> mapearElegibilidadeExclusaoAdministrativa(List<Jogo> jogos) {
+		if (jogos == null || jogos.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		List<Long> ids = new ArrayList<>();
+		for (Jogo jogo : jogos) {
+			if (jogo != null && jogo.getId() != null && jogo.getId().longValue() > 0L) {
+				ids.add(jogo.getId());
+			}
+		}
+		if (ids.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Set<Long> idsComBolaoVinculado = new HashSet<>(getBolaoIndividualRepository().findJogoIdsVinculados(ids));
+		Map<Long, Boolean> elegibilidadePorJogo = new HashMap<>();
+		for (Jogo jogo : jogos) {
+			if (jogo == null || jogo.getId() == null) {
+				continue;
+			}
+			boolean elegivel = !jogo.jaFoiAtualizado()
+					&& !jogo.jaOcorreu()
+					&& !idsComBolaoVinculado.contains(jogo.getId());
+			elegibilidadePorJogo.put(jogo.getId(), Boolean.valueOf(elegivel));
+		}
+		return elegibilidadePorJogo;
+	}
+
+	private void validarElegibilidadeExclusaoAdministrativa(Jogo jogo, Long idJogo) {
+		boolean jogoVinculadoBolaoIndividual = getBolaoIndividualRepository().existsByJogoId(idJogo);
+		validarElegibilidadeExclusaoAdministrativa(jogo, jogoVinculadoBolaoIndividual);
+	}
+
+	private void validarElegibilidadeExclusaoAdministrativa(Jogo jogo, boolean jogoVinculadoBolaoIndividual) {
+		if (jogo.jaFoiAtualizado()) {
+			throw new BusinessException(BusinessException.Code.DELETE_NOT_ALLOWED, "Exclusão permitida apenas para jogos sem resultado.");
+		}
+		if (jogo.jaOcorreu()) {
+			throw new BusinessException(BusinessException.Code.DELETE_NOT_ALLOWED, "Exclusão permitida apenas para jogos da data atual ou futura.");
+		}
+		if (jogoVinculadoBolaoIndividual) {
+			throw new BusinessException(BusinessException.Code.DELETE_NOT_ALLOWED, "Exclusão bloqueada: jogo vinculado a bolão individual.");
+		}
 	}
 
     public Optional<Jogo> buscarPorId(Long id) {
@@ -218,5 +325,21 @@ public class JogoServiceImpl implements JogoService {
     public void setParticipanteRepository(ParticipanteRepository participanteRepository) {
         this.participanteRepository = participanteRepository;
     }
+
+	public BolaoIndividualRepository getBolaoIndividualRepository() {
+		return bolaoIndividualRepository;
+	}
+
+	public void setBolaoIndividualRepository(BolaoIndividualRepository bolaoIndividualRepository) {
+		this.bolaoIndividualRepository = bolaoIndividualRepository;
+	}
+
+	public PalpiteRepository getPalpiteRepository() {
+		return palpiteRepository;
+	}
+
+	public void setPalpiteRepository(PalpiteRepository palpiteRepository) {
+		this.palpiteRepository = palpiteRepository;
+	}
 
 }

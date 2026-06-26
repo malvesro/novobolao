@@ -96,6 +96,25 @@ class JogoTest {
     }
 
     @Test
+    void devePermitirExclusaoAdministrativaApenasParaJogoFuturoSemResultado() {
+        Jogo jogoFuturoSemResultado = criarJogo(ZonedDateTime.now(BolaoTime.getZoneId()).plusMinutes(45));
+        jogoFuturoSemResultado.setGolsEquipe1(null);
+        jogoFuturoSemResultado.setGolsEquipe2(null);
+
+        Jogo jogoPassado = criarJogo(ZonedDateTime.now(BolaoTime.getZoneId()).minusMinutes(5));
+        jogoPassado.setGolsEquipe1(null);
+        jogoPassado.setGolsEquipe2(null);
+
+        Jogo jogoComResultado = criarJogo(ZonedDateTime.now(BolaoTime.getZoneId()).plusMinutes(45));
+        jogoComResultado.setGolsEquipe1(1);
+        jogoComResultado.setGolsEquipe2(0);
+
+        assertThat(jogoFuturoSemResultado.getPodeExcluirAdministrativo()).isTrue();
+        assertThat(jogoPassado.getPodeExcluirAdministrativo()).isFalse();
+        assertThat(jogoComResultado.getPodeExcluirAdministrativo()).isFalse();
+    }
+
+    @Test
     void devePermitirVisualizarPalpitesDoGrupoQuandoJanelaEncerrada() {
         // Janela de palpites encerrada: falta menos de 1h para o jogo (podeDarPalpite = false)
         ZonedDateTime menosDeUmaHora = ZonedDateTime.now(BolaoTime.getZoneId()).plusMinutes(30);

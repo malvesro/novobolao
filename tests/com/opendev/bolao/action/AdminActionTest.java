@@ -9,6 +9,7 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.security.Principal;
 
 import org.apache.struts2.ActionSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -414,6 +415,89 @@ class AdminActionTest {
         assertThat(result).isEqualTo(ActionSupport.NONE);
         verify(httpResponse).setStatus(HttpServletResponse.SC_BAD_REQUEST);
         verify(jogoService, never()).atualizarResultado(anyLong(), anyInt(), anyInt());
+    }
+
+    @Test
+    void deveExcluirJogoHtmxComSucessoRetornandoNoContent() {
+        adminAction.setId(10L);
+        when(httpRequest.getMethod()).thenReturn("POST");
+        when(httpRequest.getUserPrincipal()).thenReturn((Principal) () -> "admin");
+
+        String result = adminAction.excluirJogoHtmx();
+
+        assertThat(result).isEqualTo(ActionSupport.NONE);
+        verify(jogoService).apagarJogoAdministrativo(10L, "admin");
+        verify(httpResponse).setStatus(HttpServletResponse.SC_OK);
+    }
+
+    @Test
+    void deveRetornarMethodNotAllowedQuandoExcluirJogoHtmxNaoForPost() {
+        adminAction.setId(10L);
+        when(httpRequest.getMethod()).thenReturn("GET");
+
+        String result = adminAction.excluirJogoHtmx();
+
+        assertThat(result).isEqualTo(ActionSupport.NONE);
+        verify(httpResponse).setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+        verify(jogoService, never()).apagarJogoAdministrativo(anyLong(), anyString());
+    }
+
+    @Test
+    void deveRetornarBadRequestQuandoExcluirJogoHtmxReceberIdInvalido() {
+        adminAction.setId(null);
+        when(httpRequest.getMethod()).thenReturn("POST");
+
+        String result = adminAction.excluirJogoHtmx();
+
+        assertThat(result).isEqualTo(ActionSupport.NONE);
+        verify(httpResponse).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        verify(jogoService, never()).apagarJogoAdministrativo(anyLong(), anyString());
+    }
+
+    @Test
+    void deveRetornarConflictQuandoExcluirJogoHtmxReceberBloqueioDeNegocio() {
+        adminAction.setId(99L);
+        when(httpRequest.getMethod()).thenReturn("POST");
+        doThrow(new com.opendev.bolao.exception.BusinessException(
+                com.opendev.bolao.exception.BusinessException.Code.DELETE_NOT_ALLOWED,
+                "Exclusão permitida apenas para jogos sem resultado."))
+                .when(jogoService).apagarJogoAdministrativo(eq(99L), anyString());
+
+        String result = adminAction.excluirJogoHtmx();
+
+        assertThat(result).isEqualTo(ActionSupport.NONE);
+        verify(httpResponse).setStatus(HttpServletResponse.SC_CONFLICT);
+        assertThat(adminAction.getAdminDeleteErrorMessage()).contains("sem resultado");
+    }
+
+    @Test
+    void deveRetornarNotFoundQuandoExcluirJogoHtmxReceberErroTipadoNotFound() {
+        adminAction.setId(77L);
+        when(httpRequest.getMethod()).thenReturn("POST");
+        doThrow(new com.opendev.bolao.exception.BusinessException(
+                com.opendev.bolao.exception.BusinessException.Code.NOT_FOUND,
+                "Jogo não encontrado para exclusão."))
+                .when(jogoService).apagarJogoAdministrativo(eq(77L), anyString());
+
+        String result = adminAction.excluirJogoHtmx();
+
+        assertThat(result).isEqualTo(ActionSupport.NONE);
+        verify(httpResponse).setStatus(HttpServletResponse.SC_NOT_FOUND);
+    }
+
+    @Test
+    void deveRetornarBadRequestQuandoExcluirJogoHtmxReceberErroTipadoInvalidInput() {
+        adminAction.setId(88L);
+        when(httpRequest.getMethod()).thenReturn("POST");
+        doThrow(new com.opendev.bolao.exception.BusinessException(
+                com.opendev.bolao.exception.BusinessException.Code.INVALID_INPUT,
+                "ID de jogo inválido para exclusão."))
+                .when(jogoService).apagarJogoAdministrativo(eq(88L), anyString());
+
+        String result = adminAction.excluirJogoHtmx();
+
+        assertThat(result).isEqualTo(ActionSupport.NONE);
+        verify(httpResponse).setStatus(HttpServletResponse.SC_BAD_REQUEST);
     }
 
     private Jogo criarJogoComInicio(ZonedDateTime dataHoraInicio) {

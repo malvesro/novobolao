@@ -4,8 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.sql.Time;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -17,8 +20,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.opendev.bolao.model.Equipe;
 import com.opendev.bolao.model.Jogo;
+import com.opendev.bolao.exception.BusinessException;
+import com.opendev.bolao.repository.BolaoIndividualRepository;
 import com.opendev.bolao.repository.EquipeRepository;
 import com.opendev.bolao.repository.JogoRepository;
+import com.opendev.bolao.repository.PalpiteRepository;
+import com.opendev.bolao.util.BolaoTime;
 import com.opendev.bolao.util.GraficoDesempenhoCacheControl;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,6 +36,12 @@ class JogoServiceImplTest {
 
     @Mock
     private EquipeRepository equipeRepository;
+
+    @Mock
+    private BolaoIndividualRepository bolaoIndividualRepository;
+
+    @Mock
+    private PalpiteRepository palpiteRepository;
 
     @InjectMocks
     private JogoServiceImpl jogoService;
@@ -99,5 +112,103 @@ class JogoServiceImplTest {
 
         assertThat(GraficoDesempenhoCacheControl.obterVersaoAtual()).isGreaterThan(versaoAntes);
         verify(jogoRepository).save(jogo);
+    }
+
+    @Test
+    void deveApagarJogoAdministrativoQuandoElegivel() {
+        Jogo jogoFuturo = criarJogoSemResultado(ZonedDateTime.now(BolaoTime.getZoneId()).plusMinutes(20));
+        when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogoFuturo));
+        when(bolaoIndividualRepository.existsByJogoId(1L)).thenReturn(false);
+        when(palpiteRepository.countByIdJogo(1L)).thenReturn(0L);
+
+        jogoService.apagarJogoAdministrativo(1L, "admin");
+
+        verify(jogoRepository).deleteById(1L);
+    }
+
+    @Test
+    void deveBloquearApagarJogoAdministrativoQuandoJogoJaFoiAtualizado() {
+        jogo.setGolsEquipe1(2);
+        jogo.setGolsEquipe2(1);
+        when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogo));
+
+        org.junit.jupiter.api.Assertions.assertThrows(BusinessException.class,
+                () -> jogoService.apagarJogoAdministrativo(1L, "admin"));
+
+        verify(jogoRepository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    void deveBloquearApagarJogoAdministrativoQuandoJogoJaOcorreu() {
+        Jogo jogoPassado = criarJogoSemResultado(ZonedDateTime.now(BolaoTime.getZoneId()).minusMinutes(5));
+        when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogoPassado));
+
+        org.junit.jupiter.api.Assertions.assertThrows(BusinessException.class,
+                () -> jogoService.apagarJogoAdministrativo(1L, "admin"));
+
+        verify(jogoRepository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    void deveBloquearApagarJogoAdministrativoQuandoExisteBolaoIndividualVinculado() {
+        Jogo jogoFuturo = criarJogoSemResultado(ZonedDateTime.now(BolaoTime.getZoneId()).plusMinutes(20));
+        when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogoFuturo));
+        when(bolaoIndividualRepository.existsByJogoId(1L)).thenReturn(true);
+
+        org.junit.jupiter.api.Assertions.assertThrows(BusinessException.class,
+                () -> jogoService.apagarJogoAdministrativo(1L, "admin"));
+
+        verify(jogoRepository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    void deveSinalizarElegibilidadeCanonicaDeExclusaoQuandoJogoForElegivel() {
+        Jogo jogoFuturo = criarJogoSemResultado(ZonedDateTime.now(BolaoTime.getZoneId()).plusMinutes(20));
+        when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogoFuturo));
+        when(bolaoIndividualRepository.existsByJogoId(1L)).thenReturn(false);
+
+        boolean elegivel = jogoService.podeExcluirJogoAdministrativo(1L);
+
+        assertThat(elegivel).isTrue();
+    }
+
+    @Test
+    void deveNegarElegibilidadeCanonicaQuandoJogoTiverBolaoIndividualVinculado() {
+        Jogo jogoFuturo = criarJogoSemResultado(ZonedDateTime.now(BolaoTime.getZoneId()).plusMinutes(20));
+        when(jogoRepository.findById(1L)).thenReturn(Optional.of(jogoFuturo));
+        when(bolaoIndividualRepository.existsByJogoId(1L)).thenReturn(true);
+
+        boolean elegivel = jogoService.podeExcluirJogoAdministrativo(1L);
+
+        assertThat(elegivel).isFalse();
+    }
+
+    @Test
+    void deveMapearElegibilidadeExclusaoAdministrativaEmLoteSemNMaisUm() {
+        Jogo jogoElegivel = criarJogoSemResultado(ZonedDateTime.now(BolaoTime.getZoneId()).plusMinutes(20));
+        jogoElegivel.setId(1L);
+
+        Jogo jogoVinculado = criarJogoSemResultado(ZonedDateTime.now(BolaoTime.getZoneId()).plusMinutes(30));
+        jogoVinculado.setId(2L);
+
+        when(bolaoIndividualRepository.findJogoIdsVinculados(anyCollection())).thenReturn(List.of(2L));
+
+        Map<Long, Boolean> elegibilidade = jogoService
+                .mapearElegibilidadeExclusaoAdministrativa(Arrays.asList(jogoElegivel, jogoVinculado));
+
+        assertThat(elegibilidade).containsEntry(1L, true);
+        assertThat(elegibilidade).containsEntry(2L, false);
+        verify(bolaoIndividualRepository, times(1)).findJogoIdsVinculados(anyCollection());
+        verify(bolaoIndividualRepository, never()).existsByJogoId(anyLong());
+    }
+
+    private Jogo criarJogoSemResultado(ZonedDateTime dataHora) {
+        Jogo jogoTemporal = new Jogo();
+        jogoTemporal.setId(1L);
+        jogoTemporal.setData(java.util.Date.from(dataHora.toInstant()));
+        jogoTemporal.setHora(Time.valueOf(dataHora.toLocalTime()));
+        jogoTemporal.setGolsEquipe1(null);
+        jogoTemporal.setGolsEquipe2(null);
+        return jogoTemporal;
     }
 }

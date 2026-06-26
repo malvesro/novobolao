@@ -2383,46 +2383,55 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
       Registro de sessão em `.ia/logs/session-20260626-tarefa82-admin-filtro-data-atual.md`.
     Auto-Analise: Implementação concluída em pequenas iterações com multiagentes, cobrindo backend, JSP/HTMX e testes sem regressão funcional detectada. A carga padrão admin agora prioriza a data atual, com filtro robusto e carregamento incremental coerente ao estado ativo. | [Risco: Medio] | [Compatibilidade: OK] | [Veredito: Aprovado]
 
-83. **[Pendente] Evolução da tela administrativa de atualização de resultados — exclusão controlada de jogos sem resultado (data atual ou futura) (26/06/2026):**
+83. **[Concluído] Evolução da tela administrativa de atualização de resultados — exclusão controlada de jogos sem resultado (data atual ou futura) (26/06/2026):**
     Objetivo: permitir ao administrador remover registros de jogos ainda não concluídos, restringindo estritamente a exclusão a jogos sem resultado e com data atual/futura.
     Escopo funcional:
     - adicionar ação de exclusão na tela `/admin/jogos.action`;
     - bloquear exclusão de jogos já iniciados/concluídos ou com resultado informado;
     - manter integridade referencial e segurança da operação.
     Skills previstas: `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`, `security-audit v1.0.0`, `htmx v1.0.0`.
-    * **[Pendente] 83.1 — Definição formal da regra de negócio de exclusão:**
+    * **[Concluído] 83.1 — Definição formal da regra de negócio de exclusão (26/06/2026):**
       Especificar critérios exatos para “pode excluir”:
       - jogo sem resultado (`golsEquipe1/golsEquipe2` nulos);
       - jogo com data/hora >= agora (data atual ou futura, considerando timezone oficial do domínio);
       - operação permitida apenas para perfil admin autorizado.
-      Entregável: regra documentada em linguagem de domínio e mapeada para método canônico no modelo/serviço.
-    * **[Pendente] 83.2 — Análise de impacto de dados e integridade referencial:**
+      Entregável: regra implementada no domínio/serviço com `Jogo.getPodeExcluirAdministrativo()` e validação canônica em `JogoServiceImpl.apagarJogoAdministrativo(..)`.
+    * **[Concluído] 83.2 — Análise de impacto de dados e integridade referencial (26/06/2026):**
       Mapear dependências de `Jogo` (palpites, ranking, cache, auditoria, relações FK) para decidir estratégia de exclusão:
       - bloqueio com mensagem de negócio quando houver dependências impeditivas; ou
       - remoção transacional com limpeza controlada de vínculos permitidos.
-      Entregável: decisão técnica explícita, incluindo risco de perda de histórico e comportamento esperado.
-    * **[Pendente] 83.3 — Contrato backend da operação de exclusão (Action/Service/DAO):**
+      Entregável: decisão aplicada de bloqueio para vínculos em bolão individual (`BOI_BOLAO_INDIVIDUAL`) e exclusão controlada com invalidação de cache e tratamento de integridade (`DataIntegrityViolationException`).
+    * **[Concluído] 83.3 — Contrato backend da operação de exclusão (Action/Service/DAO) (26/06/2026):**
       Criar endpoint/admin action HTMX dedicado (ex.: `excluirJogoHtmx`) com validações server-side obrigatórias e retorno padronizado (success/error + mensagem i18n).
-      Entregável: fluxo transacional seguro, idempotente e com tratamento de concorrência básica.
-    * **[Pendente] 83.4 — Controle de autorização e hardening de segurança:**
+      Entregável: endpoint `/admin/excluirJogo.action` com fluxo Action -> Service -> Repository, respostas HTTP 200/400/404/405/409/500 e mensagens de erro de negócio (ajuste de 204->200 para compatibilidade com `hx-swap="delete"` do HTMX).
+    * **[Concluído] 83.4 — Controle de autorização e hardening de segurança (26/06/2026):**
       Garantir proteção por RBAC (`/admin/**`), validação de método HTTP adequado, token CSRF e rejeição de tentativas fora das regras.
-      Entregável: defesa em profundidade (UI + backend), sem depender apenas de ocultação de botão no frontend.
-    * **[Pendente] 83.5 — Ajustes de UI/UX na linha administrativa da tabela:**
+      Entregável: proteção em profundidade implementada (RBAC + method security + POST obrigatório + validação de ID + CSRF incluído no HTMX).
+    * **[Concluído] 83.5 — Ajustes de UI/UX na linha administrativa da tabela (26/06/2026):**
       Incluir ação “Excluir” na linha admin apenas quando `jogoPodeSerExcluido=true`, com confirmação explícita e feedback de sucesso/erro via HTMX.
-      Entregável: remoção da linha da tabela após sucesso (ou refresh parcial consistente), mantendo acessibilidade (`aria-*`) e mensagens claras.
-    * **[Pendente] 83.6 — Regras de auditoria e observabilidade da exclusão:**
+      Entregável: botão condicional em `admin-match-row.jsp` com `hx-post`, `hx-confirm`, `hx-swap="delete"` e feedback global de sucesso/erro em `jogos.js`.
+    * **[Concluído] 83.6 — Regras de auditoria e observabilidade da exclusão (26/06/2026):**
       Registrar no log técnico o operador, jogo-alvo e resultado da operação (permitida/bloqueada), sem vazar dados sensíveis.
-      Entregável: trilha de auditoria mínima para investigação de incidentes operacionais.
-    * **[Pendente] 83.7 — Cobertura de testes de negócio e action:**
+      Entregável: trilha de auditoria aplicada em `AdminAction` e `JogoServiceImpl` (operador sanitizado, jogoId, status e motivo).
+    * **[Concluído] 83.7 — Cobertura de testes de negócio e action (26/06/2026):**
       Criar/atualizar testes em `JogoTest`, `JogoServiceImplTest` e `AdminActionTest` cobrindo:
       - exclusão permitida (sem resultado, data atual/futura);
       - bloqueio por jogo no passado;
       - bloqueio por jogo com resultado;
       - bloqueio por autorização;
       - comportamento com dependências relacionais.
-      Entregável: regressão automatizada para cenários críticos de integridade.
-    * **[Pendente] 83.8 — Validação final, documentação e rastreabilidade:**
+      Entregável: testes de domínio, serviço, action e frontend atualizados com cenários de sucesso/bloqueio/contrato HTMX.
+    * **[Concluído] 83.8 — Validação final, documentação e rastreabilidade (26/06/2026):**
       Executar suíte alvo, atualizar `passo-a-passo.md`, registrar log de sessão em `.ia/logs/` e criar ADR caso a decisão de integridade/exclusão implique trade-off arquitetural relevante.
+      Validações executadas:
+      - `mvn -Dfrontend.skip=true -Dtest=JogoTest,JogoServiceImplTest,AdminActionTest test` (verde);
+      - `npm run test:frontend -- tests/frontend/jogos.test.js` (verde);
+      - `mvn -Dfrontend.skip=true test` (124 testes, verde);
+      - `npm run test:frontend` (24 testes, verde);
+      - `npm run build` (verde);
+      - `mvn -Dfrontend.skip=true clean package` (BUILD SUCCESS).
+      Log de sessão: `.ia/logs/session-20260626-tarefa83-exclusao-controlada-admin.md`.
+    Auto-Analise: Implementação da exclusão administrativa concluída com execução incremental e revisão multiagente, preservando arquitetura em camadas, hardening de segurança e integridade referencial. A experiência HTMX foi mantida consistente com feedback imediato e cobertura de regressão ampliada no backend e frontend. | [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
 
 84. **[Concluído] Priorização arquitetural dos riscos funcionais pós-tarefa 82 (26/06/2026):**
     Objetivo: reduzir risco de regressão funcional na busca admin/palpites após a tarefa 82, atacando primeiro inconsistências de domínio (Copa 2026), depois coerência de filtro incremental e por fim cobertura de borda.
@@ -2490,6 +2499,95 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
       Log de sessão: `.ia/logs/session-20260626-tarefa85-load-more-admin.md`.
       Entregável: fechamento auditável com evidências funcionais, arquiteturais e de segurança.
     Auto-Analise: A correção da tarefa 85 foi concluída em iterações pequenas com multiagentes, atacando a causa raiz no contrato HTMX/UI↔Action e removendo a falha silenciosa no primeiro clique do load-more admin. A solução preserva a arquitetura em camadas, mantém validação defensiva dos filtros e adiciona cobertura de regressão específica do bug. Persistem apenas oportunidades evolutivas (mensagem explícita de fim de dados e teste de integração de renderização HTMX) sem bloquear a entrega funcional. | [Risco: Medio] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
+86. **[Concluído] Refinamento UX da ação Excluir na tela admin de atualização de resultados (26/06/2026):**
+    Objetivo: remover ruído visual e reduzir fricção operacional ocultando o botão `Excluir` para jogos não elegíveis, em vez de exibir estado desabilitado com mensagem por linha.
+    Escopo funcional:
+    - exibir botão `Excluir` somente quando `jogoPodeSerExcluido=true`;
+    - remover hint textual por linha associado ao estado desabilitado da exclusão;
+    - preservar integralmente regras de segurança e validação no backend.
+    Skills previstas: `ui-ux-pro-max`, `htmx v1.0.0`, `architecture-guardian v1.0.0`, `security-audit v1.0.0`.
+    * **[Concluído] 86.1 — Análise UX e alinhamento arquitetural da mudança (26/06/2026):**
+      Validar impacto da remoção do estado desabilitado na clareza da interface e confirmar preservação de defesa em profundidade no backend.
+      Entregável: checklist multiagente validando ocultação apenas na camada de apresentação, mantendo backend como fonte canônica de elegibilidade e segurança.
+    * **[Concluído] 86.2 — Ajuste de renderização condicional no fragmento admin (26/06/2026):**
+      Alterar `admin-match-row.jsp` para renderizar o botão de exclusão apenas quando elegível, removendo atributos `disabled` e hint linha-a-linha da exclusão.
+      Entregável: botão `Excluir` e `hidden input` de ID renderizados apenas sob `<c:if test="${jogoPodeSerExcluido}">`, com remoção da mensagem `admin.match.delete.disabled`.
+    * **[Concluído] 86.3 — Revisão de contrato frontend e mensagens associadas (26/06/2026):**
+      Garantir que `jogos.js` continue tratando sucesso/erro de exclusão sem depender da existência de botão desabilitado, e limpar textos/labels obsoletos quando aplicável.
+      Entregável: contrato frontend preservado para exclusão admin e limpeza de chave de mensagem obsoleta do estado desabilitado.
+    * **[Concluído] 86.4 — Cobertura de testes e validação final (26/06/2026):**
+      Atualizar testes de contrato de markup/frontend e executar suíte alvo + build para confirmar ausência de regressão.
+      Validações executadas:
+      - `npm run test:frontend -- tests/frontend/jogos.test.js` (20 testes, verde);
+      - `mvn -Dfrontend.skip=true -Dtest=AdminActionTest test` (23 testes, verde);
+      - `npm run test:frontend` (24 testes, verde);
+      - `mvn -Dfrontend.skip=true test` (124 testes, verde);
+      - `npm run build` (verde);
+      - `mvn -Dfrontend.skip=true clean package` (BUILD SUCCESS);
+      - revisão final multiagente: GO com ressalvas (sem bloqueio para release).
+      Entregável: evidências automatizadas + atualização de rastreabilidade e log de sessão.
+      Risco residual registrado: pequena divergência entre elegibilidade visual e elegibilidade canônica (regras adicionais no backend), sem bloqueio funcional.
+      Log de sessão: `.ia/logs/session-20260626-tarefa86-ux-ocultar-botao-excluir.md`.
+    Auto-Analise: A melhoria de UX foi implementada com foco em clareza operacional, removendo o estado desabilitado e ocultando a ação não elegível sem reduzir a segurança da operação. A validação com multiagentes e suíte completa confirmou ausência de regressões críticas, mantendo o backend como fonte de verdade para autorização e regras de exclusão. | [Risco: Medio] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
+87. **[Concluído] Mitigação dos riscos residuais pós-tarefa 86 (alinhamento elegibilidade + feedback de erro HTMX) (26/06/2026):**
+    Objetivo: reduzir fricção operacional identificada na revisão multiagente, alinhando melhor a elegibilidade visual da ação `Excluir` com a regra canônica do backend e ajustando feedback textual de erro no fluxo `htmx:responseError`.
+    Escopo funcional:
+    - evitar exposição de botão `Excluir` em cenários já conhecidos como não elegíveis pela regra canônica;
+    - corrigir mensagem global/linha para erro de exclusão no caminho `responseError`;
+    - manter fluxo Action -> Service -> Repository e segurança atual sem regressão.
+    Skills previstas: `architecture-guardian v1.0.0`, `security-audit v1.0.0`, `htmx v1.0.0`, `ui-ux-pro-max`.
+    * **[Concluído] 87.1 — Estratégia arquitetural de elegibilidade visual canônica (26/06/2026):**
+      Definir abordagem para reduzir divergência entre `jogo.podeExcluirAdministrativo` (UI) e verificações adicionais do backend (ex.: vínculo em bolão individual).
+      Entregável: estratégia aplicada com checagem canônica no serviço (`JogoService.podeExcluirJogoAdministrativo`) e projeção para camada web sem acesso direto da JSP à persistência.
+    * **[Concluído] 87.2 — Implementação backend/web para harmonização de elegibilidade (26/06/2026):**
+      Expor checagem de elegibilidade canônica no serviço e aplicar no carregamento de jogos administrativos (lista inicial, load-more e recargas de linha).
+      Entregável: botão `Excluir` oculto também para casos canonicamente bloqueados já detectáveis antes do clique, com cálculo aplicado em `carregarJogos`, `buscarMaisJogosHtmx` e recargas de linha.
+    * **[Concluído] 87.3 — Correção de feedback de erro no fluxo HTMX `responseError` (26/06/2026):**
+      Ajustar `jogos.js` para mensagens específicas de exclusão (`msgAdminDeleteError`) também no caminho de erro de resposta HTTP.
+      Entregável: UX de erro consistente entre `afterRequest` e `responseError`, sem fallback indevido para mensagem de atualização de resultado.
+    * **[Concluído] 87.4 — Testes, validação multiagente e rastreabilidade final (26/06/2026):**
+      Atualizar testes de serviço/frontend, executar suíte alvo + build e realizar revisão final com multiagentes.
+      Validações executadas:
+      - `mvn -Dfrontend.skip=true -Dtest=JogoTest,JogoServiceImplTest,AdminActionTest test` (45 testes, verde);
+      - `npm run test:frontend -- tests/frontend/jogos.test.js` (20 testes, verde);
+      - `npm run test:frontend` (24 testes, verde);
+      - `mvn -Dfrontend.skip=true test` (127 testes, verde);
+      - `npm run build` (verde);
+      - `mvn -Dfrontend.skip=true clean package` (BUILD SUCCESS);
+      - revisão final multiagente: GO com ressalvas não bloqueantes (sem regressão funcional).
+      Entregável: evidências automatizadas e documentação/log atualizados.
+      Log de sessão: `.ia/logs/session-20260626-tarefa87-mitigacoes-pos86.md`.
+    Auto-Analise: A tarefa 87 foi concluída com foco em reduzir fricção operacional e consistência de UX sem abrir mão da segurança canônica no backend. A solução mitigou os riscos funcionais priorizados e passou por validação automatizada ampla e revisão multiagente final, restando apenas oportunidades de hardening de performance/manutenibilidade para ciclo posterior. | [Risco: Medio] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
+88. **[Concluído] Hardening técnico pós-tarefa 87 (performance e desacoplamento) (26/06/2026):**
+    Objetivo: tratar recomendações não bloqueantes da revisão final multiagente para melhorar eficiência e manutenção sem alterar comportamento funcional.
+    Escopo funcional:
+    - reduzir custo de I/O/N+1 na elegibilidade canônica de exclusão em listagens admin;
+    - reduzir acoplamento de estado de apresentação no domínio `Jogo`;
+    - tornar mapeamento de status HTTP de exclusão resiliente a mudanças de mensagem.
+    Skills previstas: `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`, `security-audit v1.0.0`.
+    * **[Concluído] 88.1 — Otimização em lote da elegibilidade canônica de exclusão:**
+      Evitar `findById` por item durante renderização admin, adotando estratégia batch (query dedicada/consulta agregada) para reduzir latência.
+      Entregável: eliminação de padrão N+1 no cálculo de elegibilidade visual.
+      Implementação: adicionado método batch `mapearElegibilidadeExclusaoAdministrativa(List<Jogo>)` no serviço e query agregada `findJogoIdsVinculados(...)` no repositório de bolão individual; removido cálculo per-item na action.
+    * **[Concluído] 88.2 — Desacoplamento domínio vs apresentação para elegibilidade:**
+      Substituir override transitório no `Jogo` por mecanismo mais explícito na camada web/view-model.
+      Entregável: redução de mistura de responsabilidades no modelo de domínio.
+      Implementação: removido override transitório `podeExcluirAdministrativoForcado` do domínio `Jogo`; view administrativa passou a consumir o mapa `elegibilidadeExclusaoPorJogo` exposto pela `AdminAction`.
+    * **[Concluído] 88.3 — Robustez de status HTTP para exclusão administrativa:**
+      Trocar mapeamento por parsing textual de exceção por sinalização tipada/códigos de erro de negócio.
+      Entregável: contrato de erro estável e menos sensível a i18n/refactors.
+      Implementação: `BusinessException` evoluída com `Code` tipado; `AdminAction.mapearStatusExclusao(...)` passou a mapear por código (400/404/409), eliminando parsing textual.
+    Validações executadas:
+    - `mvn -Dfrontend.skip=true -Dtest=JogoTest,JogoServiceImplTest,AdminActionTest test` (47 testes, verde);
+    - `mvn -Dfrontend.skip=true test` (129 testes, verde);
+    - `npm run test:frontend` (24 testes, verde);
+    - `npm run build` (verde);
+    - `mvn -Dfrontend.skip=true clean package` (BUILD SUCCESS);
+    - revisão multiagente (arquitetura + reviewer): recomendações confirmadas e cobertura adequada sem bloqueios.
+    Log de sessão: `.ia/logs/session-20260626-tarefa88-hardening-pos87.md`.
 
 61. **[Concluído] Correção de falso aviso de saída na tela admin após salvar resultado (18/06/2026):**
     Objetivo: impedir aviso de "dados não salvos" ao navegar para outra tela quando o resultado já foi efetivamente gravado.

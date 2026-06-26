@@ -12,6 +12,8 @@
 <fmt:message key="match.tip.session.error" var="msgSessionError" />
 <fmt:message key="admin.result.session.saved" var="msgAdminSessionSaved" />
 <fmt:message key="admin.result.session.error" var="msgAdminSessionError" />
+<fmt:message key="admin.match.delete.state.saved" var="msgAdminDeleteSaved" />
+<fmt:message key="admin.match.delete.state.error" var="msgAdminDeleteError" />
 
 <c:if test="${telaPalpites}">
 	<%-- Barra de Progresso Sticky (Modernização UX 2026) --%>
@@ -32,7 +34,9 @@
 						data-msg-session-saved="${msgSessionSaved}"
 						data-msg-session-error="${msgSessionError}"
 						data-msg-admin-session-saved="${msgAdminSessionSaved}"
-						data-msg-admin-session-error="${msgAdminSessionError}">
+						data-msg-admin-session-error="${msgAdminSessionError}"
+						data-msg-admin-delete-saved="${msgAdminDeleteSaved}"
+						data-msg-admin-delete-error="${msgAdminDeleteError}">
 						<%-- Removido form externo que causava aninhamento inválido --%>
 
 							<c:set var="dataJogo" />

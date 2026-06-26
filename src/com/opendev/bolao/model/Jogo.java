@@ -240,6 +240,14 @@ public class Jogo implements Serializable, Comparable<Jogo> {
         return jaOcorreu();
     }
 
+    /**
+     * Regra administrativa de exclusão:
+     * apenas jogos ainda não iniciados e sem resultado informado.
+     */
+    public boolean getPodeExcluirAdministrativo() {
+        return !jaOcorreu() && !jaFoiAtualizado();
+    }
+
     public int getFase() {
         return fase;
 	}

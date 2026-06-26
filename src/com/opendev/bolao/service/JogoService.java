@@ -1,6 +1,7 @@
 package com.opendev.bolao.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Date;
 import java.sql.Time;
@@ -29,5 +30,11 @@ public interface JogoService {
     public List buscarJogosDeHoje();
     
     public void atualizarDadosEstruturaisJogo(Long idJogo, Date data, Time hora, String local, int fase, Long idEquipe1, Long idEquipe2);
+
+    public boolean podeExcluirJogoAdministrativo(Long idJogo);
+
+    public Map<Long, Boolean> mapearElegibilidadeExclusaoAdministrativa(List<Jogo> jogos);
+
+    public void apagarJogoAdministrativo(Long idJogo, String operador);
 
 }

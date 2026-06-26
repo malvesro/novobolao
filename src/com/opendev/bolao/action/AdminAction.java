@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.sql.Time;
+import java.security.Principal;
 
 import com.opendev.bolao.model.Jogo;
 import com.opendev.bolao.service.EquipeService;
@@ -75,6 +76,8 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 	private String filtroGrupo;
 	private boolean filtroJogosNaoOcorreram;
 	private List<String> filtroAvisos = new ArrayList<>();
+	private String adminDeleteErrorMessage;
+	private Map<Long, Boolean> elegibilidadeExclusaoPorJogo = Collections.emptyMap();
 
 	
 	public String carregarInfoEquipes() {
@@ -140,6 +143,47 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 		}
 	}
 
+	public String excluirJogoHtmx() {
+		HttpServletRequest request = getHttpRequest();
+		HttpServletResponse response = getHttpResponse();
+		markSkipTemplate();
+		markAdminResultadoView();
+		if (request == null || response == null) {
+			return NONE;
+		}
+		if (!"POST".equalsIgnoreCase(request.getMethod())) {
+			response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+			LOGGER.warn("[ADMIN][EXCLUIR-JOGO] método HTTP inválido: {}", request.getMethod());
+			return NONE;
+		}
+		if (this.id == null || this.id.longValue() <= 0L) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			LOGGER.warn("[ADMIN][EXCLUIR-JOGO] ID inválido para exclusão: {}", this.id);
+			return NONE;
+		}
+
+		String operador = obterOperadorAuditoria(request);
+		try {
+			getJogoService().apagarJogoAdministrativo(this.id, operador);
+			// HTMX nao executa swap em respostas 204 (No Content).
+			// Para manter hx-swap="delete" funcional, retornamos 200.
+			response.setStatus(HttpServletResponse.SC_OK);
+			LOGGER.info("[ADMIN][EXCLUIR-JOGO] operador={} jogoId={} resultado=SUCCESS", operador, this.id);
+			return NONE;
+		} catch (com.opendev.bolao.exception.BusinessException ex) {
+			int status = mapearStatusExclusao(ex);
+			this.adminDeleteErrorMessage = ex.getMessage();
+			response.setStatus(status);
+			LOGGER.warn("[ADMIN][EXCLUIR-JOGO] operador={} jogoId={} resultado=DENY status={} motivo={}",
+					operador, this.id, status, ex.getMessage());
+			return NONE;
+		} catch (Exception ex) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			LOGGER.error("[ADMIN][EXCLUIR-JOGO] operador={} jogoId={} resultado=ERROR", operador, this.id, ex);
+			return NONE;
+		}
+	}
+
 
 	public String criarNovoJogoHtmx() {
 		HttpServletResponse response = getHttpResponse();
@@ -172,6 +216,7 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 			}
 			this.jogo = getJogoService().buscarPorId(this.id).orElseThrow(() -> new IllegalArgumentException("Jogo não encontrado"));
 			this.jogos = List.of(this.jogo);
+			aplicarElegibilidadeCanonicaExclusaoAdmin(this.jogos);
 			this.equipes = getEquipeService().buscarApenasPaisesReais();
 			markSkipTemplate();
 			return SUCCESS;
@@ -222,6 +267,7 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 			// Após salvar, recarregamos o jogo para devolver a linha da tabela atualizada
 			this.jogo = getJogoService().buscarPorId(this.id).orElseThrow(() -> new IllegalArgumentException("Jogo não encontrado"));
 			this.jogos = List.of(this.jogo);
+			aplicarElegibilidadeCanonicaExclusaoAdmin(this.jogos);
 			this.equipes = getEquipeService().buscarApenasPaisesReais(); // Necessário para os combos na linha
 			markSkipTemplate();
 			LOGGER.info("[HTMX-ADMIN][EDICAO-ESTRUTURAL] Sucesso ao salvar ID={}, retornando fragmento de linha.", this.id);
@@ -242,6 +288,7 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 		try {
 			this.jogo = getJogoService().buscarPorId(this.id).orElseThrow(() -> new IllegalArgumentException("Jogo não encontrado"));
 			this.jogos = List.of(this.jogo);
+			aplicarElegibilidadeCanonicaExclusaoAdmin(this.jogos);
 			this.equipes = getEquipeService().buscarApenasPaisesReais(); // Necessário para os combos na linha
 			markSkipTemplate();
 			return SUCCESS;
@@ -287,6 +334,7 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 				FiltroBuscaJogos novoFiltro = montarFiltroDoDiaComRestricoes(proximaDataDisponivel, filtroAdminAtivo);
 				this.filtro = novoFiltro;
 				this.jogos = getJogoService().buscarUsandoFiltro(novoFiltro);
+				aplicarElegibilidadeCanonicaExclusaoAdmin(this.jogos);
 				this.equipes = getEquipeService().buscarApenasPaisesReais();
 				LOGGER.info("[HTMX-ADMIN][LOAD-MORE] Encontrados {} jogos para a data {}", this.jogos.size(), proximaDataDisponivel);
 			} else {
@@ -333,6 +381,7 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 		if (this.mostrarTodos) {
 			this.filtro = null;
 			this.jogos = getJogoService().buscarTodos();
+			aplicarElegibilidadeCanonicaExclusaoAdmin(this.jogos);
 			markAdminFiltroContext(false, null, true);
 			return;
 		}
@@ -341,6 +390,7 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 		if (filtroAdmin != null) {
 			this.filtro = filtroAdmin;
 			this.jogos = getJogoService().buscarUsandoFiltro(filtroAdmin);
+			aplicarElegibilidadeCanonicaExclusaoAdmin(this.jogos);
 			markAdminFiltroContext(false, null, false);
 			return;
 		}
@@ -352,7 +402,27 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 		filtroDataAtual.setDataFinal(hoje);
 		this.filtro = filtroDataAtual;
 		this.jogos = getJogoService().buscarUsandoFiltro(filtroDataAtual);
+		aplicarElegibilidadeCanonicaExclusaoAdmin(this.jogos);
 		markAdminFiltroContext(true, hoje, false);
+	}
+
+	private void aplicarElegibilidadeCanonicaExclusaoAdmin(List jogosLista) {
+		if (jogosLista == null || jogosLista.isEmpty()) {
+			this.elegibilidadeExclusaoPorJogo = Collections.emptyMap();
+			return;
+		}
+		List<Jogo> jogosTipados = new ArrayList<>();
+		for (Object item : jogosLista) {
+			if (item instanceof Jogo jogoItem) {
+				jogosTipados.add(jogoItem);
+			}
+		}
+		if (jogosTipados.isEmpty()) {
+			this.elegibilidadeExclusaoPorJogo = Collections.emptyMap();
+			return;
+		}
+		Map<Long, Boolean> resultado = getJogoService().mapearElegibilidadeExclusaoAdministrativa(jogosTipados);
+		this.elegibilidadeExclusaoPorJogo = resultado == null ? Collections.emptyMap() : resultado;
 	}
 
 	private FiltroBuscaJogos obterFiltroAdmin() {
@@ -757,6 +827,44 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 
 	public List<String> getFiltroAvisos() {
 		return filtroAvisos;
+	}
+
+	public String getAdminDeleteErrorMessage() {
+		return adminDeleteErrorMessage;
+	}
+
+	public Map<Long, Boolean> getElegibilidadeExclusaoPorJogo() {
+		return this.elegibilidadeExclusaoPorJogo;
+	}
+
+	private int mapearStatusExclusao(com.opendev.bolao.exception.BusinessException ex) {
+		if (ex == null || ex.getCode() == null) {
+			return HttpServletResponse.SC_CONFLICT;
+		}
+		if (ex.getCode() == com.opendev.bolao.exception.BusinessException.Code.NOT_FOUND) {
+			return HttpServletResponse.SC_NOT_FOUND;
+		}
+		if (ex.getCode() == com.opendev.bolao.exception.BusinessException.Code.INVALID_INPUT) {
+			return HttpServletResponse.SC_BAD_REQUEST;
+		}
+		if (ex.getCode() == com.opendev.bolao.exception.BusinessException.Code.CONFLICT) {
+			return HttpServletResponse.SC_CONFLICT;
+		}
+		if (ex.getCode() == com.opendev.bolao.exception.BusinessException.Code.DELETE_NOT_ALLOWED) {
+			return HttpServletResponse.SC_CONFLICT;
+		}
+		return HttpServletResponse.SC_CONFLICT;
+	}
+
+	private String obterOperadorAuditoria(HttpServletRequest request) {
+		if (request == null) {
+			return "desconhecido";
+		}
+		Principal principal = request.getUserPrincipal();
+		if (principal == null || ValidacaoUtils.isVazia(principal.getName())) {
+			return "desconhecido";
+		}
+		return SanitizationUtils.cleanText(principal.getName(), 64);
 	}
 
 	private boolean isHtmxRequest() {

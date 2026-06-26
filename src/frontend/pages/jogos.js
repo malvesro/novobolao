@@ -555,7 +555,8 @@ function isAdminRequest(event, trigger) {
 
   return path.includes('/admin/atualizarResultadoJogo.action')
     || path.includes('/admin/salvarEdicaoEstrutural.action')
-    || path.includes('/admin/jogosMaisJogosPartial.action');
+    || path.includes('/admin/jogosMaisJogosPartial.action')
+    || path.includes('/admin/excluirJogo.action');
 }
 
 function getRequestConfig(event) {
@@ -745,13 +746,26 @@ function handleAfterRequest(event) {
     const adminRow = trigger instanceof HTMLElement
       ? trigger.closest('.match-row--admin-direct')
       : null;
+    const path = event?.detail?.requestConfig?.path || '';
     finishAdminPending(event);
+    if (event.detail.successful && path.includes('/admin/excluirJogo.action')) {
+      announceGlobalStatus(getUiMessage('msgAdminDeleteSaved', 'Jogo excluido com sucesso.'), 'success');
+      return;
+    }
     if (!event.detail.successful && adminRow) {
-      const adminError = getUiMessage('msgAdminError', 'Erro ao salvar resultado.');
+      const adminError = path.includes('/admin/excluirJogo.action')
+        ? getUiMessage('msgAdminDeleteError', 'Falha ao excluir jogo.')
+        : getUiMessage('msgAdminError', 'Erro ao salvar resultado.');
       updateAdminRowStatus(adminRow, adminError, 'error');
       setAdminRetryVisible(adminRow, true);
-      announceGlobalStatus(getUiMessage('msgAdminSessionError', 'Erro ao atualizar resultado.'), 'error');
-      debugWarn('Falha ao atualizar resultado no admin.', { rowId: adminRow.id });
+      const globalError = path.includes('/admin/excluirJogo.action')
+        ? getUiMessage('msgAdminDeleteError', 'Falha ao excluir jogo.')
+        : getUiMessage('msgAdminSessionError', 'Erro ao atualizar resultado.');
+      announceGlobalStatus(globalError, 'error');
+      const debugMessage = path.includes('/admin/excluirJogo.action')
+        ? 'Falha ao excluir jogo no admin.'
+        : 'Falha ao atualizar resultado no admin.';
+      debugWarn(debugMessage, { rowId: adminRow.id });
     }
     return;
   }
@@ -1095,6 +1109,7 @@ function initPalpiteInline() {
     const xhr = event.detail.xhr;
     const target = event.detail.target instanceof HTMLElement ? event.detail.target : event.target;
     const trigger = event?.detail?.elt;
+    const path = event?.detail?.requestConfig?.path || '';
     if (!(target instanceof HTMLElement)) {
       return;
     }
@@ -1114,11 +1129,17 @@ function initPalpiteInline() {
         finishAdminPending(event);
       }
       const adminRow = target.closest('.match-row--admin-direct') || document.getElementById(target.id);
+      const adminRowError = path.includes('/admin/excluirJogo.action')
+        ? getUiMessage('msgAdminDeleteError', 'Falha ao excluir jogo.')
+        : getUiMessage('msgAdminError', 'Erro ao salvar resultado.');
       if (adminRow) {
-        updateAdminRowStatus(adminRow, getUiMessage('msgAdminError', 'Erro ao salvar resultado.'), 'error');
+        updateAdminRowStatus(adminRow, adminRowError, 'error');
         setAdminRetryVisible(adminRow, true);
       }
-      announceGlobalStatus(getUiMessage('msgAdminSessionError', 'Erro ao atualizar resultado.'), 'error');
+      const adminGlobalError = path.includes('/admin/excluirJogo.action')
+        ? getUiMessage('msgAdminDeleteError', 'Falha ao excluir jogo.')
+        : getUiMessage('msgAdminSessionError', 'Erro ao atualizar resultado.');
+      announceGlobalStatus(adminGlobalError, 'error');
       return;
     }
 

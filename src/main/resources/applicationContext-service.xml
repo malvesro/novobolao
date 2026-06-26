@@ -54,6 +54,8 @@
 		<property name="jogoRepository" ref="jogoRepository" />
 		<property name="equipeRepository" ref="equipeRepository" />
 		<property name="participanteRepository" ref="participanteRepository" />
+		<property name="bolaoIndividualRepository" ref="bolaoIndividualRepository" />
+		<property name="palpiteRepository" ref="palpiteRepository" />
 	</bean>
 	<bean id="jogoService" parent="transactionProxyTemplate">
 		<property name="proxyInterfaces">

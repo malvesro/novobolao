@@ -542,4 +542,33 @@ describe('jogos.js estados criticos', () => {
     expect(fragmentMarkup).toContain('<c:param name="filtroJogosNaoOcorreram" value="true" />');
   });
 
+  it('deve classificar endpoint de exclusao como request administrativa no jogos.js', () => {
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    const projectRoot = path.resolve(currentDir, '..', '..');
+    const jogosJsPath = path.join(projectRoot, 'src/frontend/pages/jogos.js');
+
+    const jogosJsSource = fs.readFileSync(jogosJsPath, 'utf8');
+
+    expect(jogosJsSource).toContain("path.includes('/admin/excluirJogo.action')");
+    expect(jogosJsSource).toContain("const adminRowError = path.includes('/admin/excluirJogo.action')");
+    expect(jogosJsSource).toContain("const adminGlobalError = path.includes('/admin/excluirJogo.action')");
+  });
+
+  it('deve manter contrato HTMX do botao de exclusao administrativa na linha do jogo', () => {
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    const projectRoot = path.resolve(currentDir, '..', '..');
+    const adminRowPath = path.join(projectRoot, 'webapp/WEB-INF/content/admin/partials/admin-match-row.jsp');
+
+    const adminRowMarkup = fs.readFileSync(adminRowPath, 'utf8');
+
+    expect(adminRowMarkup).toContain('hx-post="${base}/admin/excluirJogo.action"');
+    expect(adminRowMarkup).toContain('hx-target="closest tr"');
+    expect(adminRowMarkup).toContain('hx-swap="delete"');
+    expect(adminRowMarkup).toContain('hx-confirm="${adminDeleteConfirmLabel}"');
+    expect(adminRowMarkup).toContain('hx-include="#csrfTokenField, #jogoDeleteId_${jogo.id}"');
+    expect(adminRowMarkup).toContain('<c:if test="${jogoPodeSerExcluido}">');
+    expect(adminRowMarkup).not.toContain("${not jogoPodeSerExcluido ? 'disabled=\"disabled\"' : ''}");
+    expect(adminRowMarkup).not.toContain('admin.match.delete.disabled');
+  });
+
 });

@@ -16,6 +16,7 @@
         <security:protect-pointcut expression="execution(* com.opendev.bolao.service.EquipeService.buscarApenasPaisesReais(..))" access="hasAnyRole('ADMIN', 'USER')" />
         <security:protect-pointcut expression="execution(* com.opendev.bolao.service.JogoService.criarNovoJogo(..))" access="hasRole('ADMIN')" />
         <security:protect-pointcut expression="execution(* com.opendev.bolao.service.JogoService.atualizarResultado(..))" access="hasRole('ADMIN')" />
+        <security:protect-pointcut expression="execution(* com.opendev.bolao.service.JogoService.apagarJogoAdministrativo(..))" access="hasRole('ADMIN')" />
         <security:protect-pointcut expression="execution(* com.opendev.bolao.service.ParticipanteService.buscarTodos(..))" access="hasRole('ADMIN')" />
         <security:protect-pointcut expression="execution(* com.opendev.bolao.service.ParticipanteService.apagar(..))" access="hasRole('ADMIN')" />
         <security:protect-pointcut expression="execution(* com.opendev.bolao.service.ParticipanteService.atualizarAutorizacao(..))" access="hasRole('ADMIN')" />

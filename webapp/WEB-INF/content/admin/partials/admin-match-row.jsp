@@ -16,6 +16,9 @@
 <fmt:message key="admin.result.locked.untilStart.aria" var="adminResultLockedAriaLabel">
     <fmt:param value="${horaJogoFormatada}" />
 </fmt:message>
+<fmt:message key="admin.match.delete.confirm" var="adminDeleteConfirmLabel" />
+<fmt:message key="admin.match.delete.action" var="adminDeleteActionLabel" />
+<c:set var="jogoPodeSerExcluido" value="${elegibilidadeExclusaoPorJogo[jogo.id] eq true}" />
 
 <tr class="${jogo.rowStyleClass} match-row--admin-direct" id="jogoTr_${jogo.id}" data-jogo-id="${jogo.id}">
     <td class="match-table__time">
@@ -184,6 +187,19 @@
             <span id="admin-save-status_${jogo.id}" class="admin-row-status ${not jogo.podeAtualizarResultado ? 'admin-row-status--locked' : ''}" role="status" aria-live="polite">
                 <c:if test="${not jogo.podeAtualizarResultado}">${adminResultLockedShortLabel}</c:if>
             </span>
+            <c:if test="${jogoPodeSerExcluido}">
+                <button type="button"
+                        class="button button-ghost admin-row-delete"
+                        hx-post="${base}/admin/excluirJogo.action"
+                        hx-target="closest tr"
+                        hx-swap="delete"
+                        hx-confirm="${adminDeleteConfirmLabel}"
+                        hx-include="#csrfTokenField, #jogoDeleteId_${jogo.id}"
+                        aria-label="${adminDeleteActionLabel}">
+                    <c:out value="${adminDeleteActionLabel}" />
+                </button>
+                <input type="hidden" id="jogoDeleteId_${jogo.id}" name="id" value="${jogo.id}" />
+            </c:if>
             <button type="button" class="button button-ghost admin-row-retry" data-js="retry-admin-save" hidden>${retryLabel}</button>
             <c:if test="${not jogo.podeAtualizarResultado}">
                 <span class="admin-result-locked-hint" aria-label="${adminResultLockedAriaLabel}">

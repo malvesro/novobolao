@@ -66,4 +66,12 @@ public interface PalpiteRepository extends JpaRepository<Palpite, PalpiteId> {
      * @return Lista de palpites.
      */
     List<Palpite> findByIdParticipante(Long idParticipante);
+
+    /**
+     * Conta a quantidade de palpites vinculados a um jogo.
+     *
+     * @param idJogo ID do jogo.
+     * @return quantidade de palpites.
+     */
+    long countByIdJogo(Long idJogo);
 }
