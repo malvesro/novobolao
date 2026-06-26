@@ -947,4 +947,34 @@ describe('jogos.js estados criticos', () => {
     expect(cssSource).toContain('display: none !important;');
   });
 
+  it('deve manter card de convite para o grupo do WhatsApp na tela principal com link clicavel e QR Code', () => {
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    const projectRoot = path.resolve(currentDir, '..', '..');
+    const principalPath = path.join(projectRoot, 'webapp/WEB-INF/content/seguro/principal.jsp');
+
+    const principalMarkup = fs.readFileSync(principalPath, 'utf8');
+
+    expect(principalMarkup).toContain('class="whatsapp-invite-card"');
+    expect(principalMarkup).toContain('home.whatsapp.title');
+    expect(principalMarkup).toContain('home.whatsapp.description');
+    expect(principalMarkup).toContain('home.whatsapp.cta');
+    expect(principalMarkup).toContain('https://chat.whatsapp.com/DHVbMfWS87TEeORUs6R8pK?s=sw&amp;p=a&amp;mlu=4');
+    expect(principalMarkup).toContain('target="_blank"');
+    expect(principalMarkup).toContain('rel="noopener noreferrer"');
+    expect(principalMarkup).toContain('/img/qrcode.png');
+  });
+
+  it('deve manter estilos responsivos do card WhatsApp na tela principal', () => {
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    const projectRoot = path.resolve(currentDir, '..', '..');
+    const cssPath = path.join(projectRoot, 'webapp/css/estilo.css');
+
+    const cssSource = fs.readFileSync(cssPath, 'utf8');
+
+    expect(cssSource).toContain('.whatsapp-invite-card');
+    expect(cssSource).toContain('.whatsapp-invite-card__cta');
+    expect(cssSource).toContain('.whatsapp-invite-card__qr-image');
+    expect(cssSource).toContain('@media (max-width: 900px)');
+  });
+
 });

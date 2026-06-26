@@ -1,6 +1,37 @@
 <%@include file="/WEB-INF/content/template/menu.jspf" %>
 
 <div class="dashboard-section">
+    <c:set var="whatsappGroupUrl" value="https://chat.whatsapp.com/DHVbMfWS87TEeORUs6R8pK?s=sw&amp;p=a&amp;mlu=4" />
+    <fmt:message key="home.whatsapp.title" var="homeWhatsappTitle" />
+    <fmt:message key="home.whatsapp.description" var="homeWhatsappDescription" />
+    <fmt:message key="home.whatsapp.cta" var="homeWhatsappCta" />
+    <fmt:message key="home.whatsapp.qr.alt" var="homeWhatsappQrAlt" />
+    <fmt:message key="home.whatsapp.qr.caption" var="homeWhatsappQrCaption" />
+    <fmt:message key="home.whatsapp.qr.linkAria" var="homeWhatsappQrLinkAria" />
+    <section class="whatsapp-invite-card" role="region" aria-labelledby="homeWhatsappTitle">
+        <div class="whatsapp-invite-card__content">
+            <h3 id="homeWhatsappTitle" class="whatsapp-invite-card__title">${homeWhatsappTitle}</h3>
+            <p class="whatsapp-invite-card__description">${homeWhatsappDescription}</p>
+            <a class="whatsapp-invite-card__cta"
+               href="${whatsappGroupUrl}"
+               target="_blank"
+               rel="noopener noreferrer">
+                ${homeWhatsappCta}
+            </a>
+        </div>
+        <a class="whatsapp-invite-card__qr-link"
+           href="${whatsappGroupUrl}"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="${homeWhatsappQrLinkAria}">
+            <img class="whatsapp-invite-card__qr-image"
+                 src="${pageContext.request.contextPath}/img/qrcode.png"
+                 alt="${homeWhatsappQrAlt}" />
+            <span class="whatsapp-invite-card__qr-caption">${homeWhatsappQrCaption}</span>
+        </a>
+    </section>
+    <span class="spacer-sm"></span>
+
     <c:if test="${empty jogosDeHoje}">
         <opendev:portlet id="jogos_hoje_vazio" title="Jogos de Hoje">
             <div class="info">

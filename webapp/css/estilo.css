@@ -3207,6 +3207,92 @@ body.drawer-open {
 	/* Remove legacy background image */
 }
 
+.whatsapp-invite-card {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 0.9rem 1rem;
+	border: 1px solid rgba(0, 201, 119, 0.35);
+	border-radius: 10px;
+	background: linear-gradient(135deg, rgba(12, 35, 58, 0.95), rgba(7, 25, 44, 0.92));
+}
+
+.whatsapp-invite-card__content {
+	display: flex;
+	flex-direction: column;
+	gap: 0.45rem;
+	min-width: 0;
+}
+
+.whatsapp-invite-card__title {
+	margin: 0;
+	font-size: 1rem;
+	color: #eaf5ff;
+}
+
+.whatsapp-invite-card__description {
+	margin: 0;
+	font-size: 0.88rem;
+	line-height: 1.35;
+	color: #b8ccde;
+}
+
+.whatsapp-invite-card__cta {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: fit-content;
+	padding: 0.38rem 0.8rem;
+	border-radius: 999px;
+	border: 1px solid rgba(0, 201, 119, 0.55);
+	background: rgba(8, 112, 72, 0.36);
+	color: #e6fff4;
+	font-weight: 700;
+	text-decoration: none;
+	transition: filter 0.15s ease;
+}
+
+.whatsapp-invite-card__cta:hover,
+.whatsapp-invite-card__cta:focus {
+	filter: brightness(1.08);
+	outline: none;
+}
+
+.whatsapp-invite-card__qr-link {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.35rem;
+	text-decoration: none;
+}
+
+.whatsapp-invite-card__qr-image {
+	width: 110px;
+	height: 110px;
+	border-radius: 8px;
+	border: 1px solid rgba(0, 201, 119, 0.45);
+	background: #ffffff;
+	padding: 0.2rem;
+}
+
+.whatsapp-invite-card__qr-caption {
+	font-size: 0.74rem;
+	color: #b8ccde;
+	text-align: center;
+}
+
+@media (max-width: 900px) {
+	.whatsapp-invite-card {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.whatsapp-invite-card__qr-link {
+		align-self: center;
+	}
+}
+
 /* ===========================================================
    Tarefa 64.1 - UX Grid Estavel para Linha de Palpites
    Trilhos fixos para reduzir "flutuacao" visual de inputs.

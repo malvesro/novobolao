@@ -3020,3 +3020,48 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
       - Security: sem regressão de segurança; ajuste restrito a apresentação/estado visual.
       Log de sessão: `.ia/logs/session-20260626-tarefa96-correcao-abertura-paineis-admin.md`.
     Auto-Analise: A tarefa 96 corrige a causa raiz de exibição indevida em massa dos painéis estruturais ao remover overrides CSS conflitantes em fragmentos HTMX e reforçar o contrato de ocultação no stylesheet principal. A solução tem baixo impacto, mantém comportamento esperado de `Detalhes/Ocultar` por linha e foi validada com testes e revisão multiagente. | [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
+97. **[Concluído] Inclusão de card do grupo WhatsApp na tela principal (26/06/2026):**
+    Objetivo: adicionar, na página `/seguro/principal.action`, um bloco acima de `JOGOS DE HOJE` e à direita do menu contendo:
+    - texto de convite para o grupo oficial;
+    - link clicável do grupo do WhatsApp;
+    - imagem do QR Code (`qrcode.png`) para entrada rápida.
+    Requisito funcional:
+    - link deve apontar para `https://chat.whatsapp.com/DHVbMfWS87TEeORUs6R8pK?s=sw&p=a&mlu=4`;
+    - CTA clicável com abertura em nova aba;
+    - imagem de QR Code carregada de `webapp/img/qrcode.png`.
+    Direção UX:
+    - texto proposto: **“Participe do grupo oficial do WhatsApp do Bolão”**;
+    - subtítulo curto com benefício (avisos/novidades);
+    - bloco visual limpo, com boa leitura desktop/mobile.
+    Skills aplicadas: `ui-ux-pro-max`, `architecture-guardian v1.0.0`, `security-audit v1.0.0`.
+    * **[Concluído] 97.1 — Registro da tarefa e subtarefas no plano oficial:**
+      Criar trilha auditável antes da implementação.
+    * **[Concluído] 97.2 — Implementar bloco na `principal.jsp`:**
+      Inserir card acima do portlet `Jogos de Hoje`, com:
+      - título e texto explicativo em PT-BR;
+      - link clicável com `target="_blank"` e `rel="noopener noreferrer"`;
+      - QR Code com `alt` descritivo.
+    * **[Concluído] 97.3 — Estilização responsiva no `estilo.css`:**
+      Criar classes dedicadas para:
+      - layout horizontal em desktop (texto + QR);
+      - empilhamento em mobile;
+      - contraste e espaçamento alinhados ao tema atual.
+    * **[Concluído] 97.4 — Cobertura de contrato frontend (markup/CSS):**
+      Adicionar teste de regressão de contrato garantindo:
+      - presença do link oficial;
+      - presença da referência ao `qrcode.png`;
+      - presença das classes CSS do card.
+    * **[Concluído] 97.5 — Validação técnica e revisão multiagente final:**
+      Executar testes/build e consolidar parecer por papéis (Architect/UX/Tester/Security), com log em `.ia/logs/`.
+      Validações executadas:
+      - `npm run test:frontend -- tests/frontend/jogos.test.js` (34 testes, verde);
+      - `npm run test:frontend` (38 testes, verde);
+      - `npm run build` (verde).
+      Revisão multiagente (Architect/UX/Tester/Security):
+      - Architect: inclusão isolada em `principal.jsp`, sem impacto em fluxos de ações/serviços;
+      - UX: card visível e natural acima de `JOGOS DE HOJE`, CTA claro e QR Code com legenda;
+      - Tester: contratos de markup/CSS cobertos para evitar regressão do bloco;
+      - Security: link externo endurecido com `target=\"_blank\"` + `rel=\"noopener noreferrer\"`, sem entrada de usuário.
+      Log de sessão: `.ia/logs/session-20260626-tarefa97-card-whatsapp-principal.md`.
+    Auto-Analise: A tarefa 97 adiciona o acesso ao grupo oficial do WhatsApp no ponto solicitado da home, com CTA clicável, QR Code e layout responsivo coerente com o visual atual do sistema. A implementação é de baixo risco, sem alterar regras de negócio, e foi validada por testes e revisão multiagente. | [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
