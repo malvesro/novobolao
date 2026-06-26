@@ -37,12 +37,12 @@
     <a href="${rulesUrl}">
       <span><fmt:message key="menu.geral.rules" /></span>
     </a>
-    <%--
-    <c:url var="chatUrl" value="/seguro/batePapo.action" />
-    <a href="${chatUrl}">
-      <span><fmt:message key="menu.geral.chat" /></span>
-    </a>
-    --%>
+    <sec:authorize access="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')">
+      <c:url var="chatUrl" value="/seguro/batePapo.action" />
+      <a href="${chatUrl}">
+        <span><fmt:message key="menu.geral.chat" /></span>
+      </a>
+    </sec:authorize>
     </span>
   </div>
   <sec:authorize access="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')">

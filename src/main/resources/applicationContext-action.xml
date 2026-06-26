@@ -37,4 +37,10 @@
     	<property name="participanteService" ref="participanteService" />
     </bean>
 
+    <bean name="chatAction"
+        class="com.opendev.bolao.action.ChatAction"
+        scope="prototype">
+        <property name="chatService" ref="chatService" />
+    </bean>
+
 </beans>

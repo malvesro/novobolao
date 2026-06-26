@@ -116,15 +116,17 @@
 		</property>
 	</bean>
 
-	<!-- Servicos do Bate-Papo -->
-	<bean id="formatadorMensagem" class="com.opendev.bolao.chat.FormatadorMensagem" scope="singleton" lazy-init="true" />
-	<bean id="batePapo" class="com.opendev.bolao.chat.BatePapo" scope="singleton" lazy-init="true">
-		<property name="formatadorMensagem">
-			<ref bean="formatadorMensagem" />
+	<bean id="chatServiceImpl"
+		class="com.opendev.bolao.service.impl.ChatServiceImpl">
+		<property name="chatMensagemRepository" ref="chatMensagemRepository" />
+		<property name="participanteRepository" ref="participanteRepository" />
+	</bean>
+	<bean id="chatService" parent="transactionProxyTemplate">
+		<property name="proxyInterfaces">
+			<list><value>com.opendev.bolao.service.ChatService</value></list>
 		</property>
-		<property name="participanteService">
-			<ref bean="participanteService" />
+		<property name="target">
+			<ref bean="chatServiceImpl" />
 		</property>
 	</bean>
-
 </beans>

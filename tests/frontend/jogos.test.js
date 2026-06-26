@@ -977,4 +977,43 @@ describe('jogos.js estados criticos', () => {
     expect(cssSource).toContain('@media (max-width: 900px)');
   });
 
+  it('deve manter contrato HTMX da tela de chat 2.0 com envio e polling incremental', () => {
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    const projectRoot = path.resolve(currentDir, '..', '..');
+    const chatPagePath = path.join(projectRoot, 'webapp/WEB-INF/content/seguro/batePapo.jsp');
+    const chatFragmentPath = path.join(projectRoot, 'webapp/WEB-INF/content/seguro/partials/chat-mensagens-fragmento.jsp');
+
+    const chatMarkup = fs.readFileSync(chatPagePath, 'utf8');
+    const fragmentMarkup = fs.readFileSync(chatFragmentPath, 'utf8');
+
+    expect(chatMarkup).toContain('id="chat-send-form"');
+    expect(chatMarkup).toContain('hx-post="${base}/seguro/chatEnviarMensagemPartial.action"');
+    expect(chatMarkup).toContain('hx-get="${base}/seguro/chatMensagensPartial.action"');
+    expect(chatMarkup).toContain('id="chat-ultimo-id"');
+    expect(chatMarkup).toContain('id="chat-messages-list"');
+    expect(chatMarkup).toContain('id="chat-participantes-list"');
+    expect(fragmentMarkup).toContain('hx-swap-oob="true"');
+    expect(fragmentMarkup).toContain('id="chat-feedback"');
+    expect(fragmentMarkup).toContain('chat-feedback--error');
+  });
+
+  it('deve carregar inicializador de chat no bundle principal', () => {
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    const projectRoot = path.resolve(currentDir, '..', '..');
+    const mainJsPath = path.join(projectRoot, 'src/frontend/main.js');
+    const chatJsPath = path.join(projectRoot, 'src/frontend/pages/chat.js');
+    const cssPath = path.join(projectRoot, 'webapp/css/estilo.css');
+
+    const mainSource = fs.readFileSync(mainJsPath, 'utf8');
+    const chatSource = fs.readFileSync(chatJsPath, 'utf8');
+    const cssSource = fs.readFileSync(cssPath, 'utf8');
+
+    expect(mainSource).toContain("import { initChatPage } from './pages/chat.js';");
+    expect(mainSource).toContain('initChatPage();');
+    expect(chatSource).toContain('htmx:afterSwap');
+    expect(chatSource).toContain('chat-messages-list');
+    expect(cssSource).toContain('.chat-layout');
+    expect(cssSource).toContain('.chat-message--self');
+  });
+
 });

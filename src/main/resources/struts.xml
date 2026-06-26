@@ -134,8 +134,26 @@
 			<result name="success">/WEB-INF/content/seguro/jogos.jsp</result>
 		</action>
 
-		<action name="batePapo" class="participanteAction" method="batePapo">
+		<action name="batePapo" class="chatAction" method="exibirChat">
 			<result name="success">/WEB-INF/content/seguro/batePapo.jsp</result>
+			<result name="login" type="redirectAction">
+				<param name="actionName">login</param>
+				<param name="namespace">/</param>
+			</result>
+		</action>
+
+		<action name="chatMensagensPartial" class="chatAction" method="carregarMensagensParcial">
+			<result name="success">/WEB-INF/content/seguro/partials/chat-mensagens-fragmento.jsp</result>
+			<result name="login" type="httpheader">
+				<param name="status">401</param>
+			</result>
+		</action>
+
+		<action name="chatEnviarMensagemPartial" class="chatAction" method="enviarMensagemParcial">
+			<result name="success">/WEB-INF/content/seguro/partials/chat-mensagens-fragmento.jsp</result>
+			<result name="login" type="httpheader">
+				<param name="status">401</param>
+			</result>
 		</action>
 
 		<action name="trocaSenha" class="participanteAction" method="trocaSenha">

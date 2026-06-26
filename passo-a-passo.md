@@ -3065,3 +3065,146 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
       - Security: link externo endurecido com `target=\"_blank\"` + `rel=\"noopener noreferrer\"`, sem entrada de usuário.
       Log de sessão: `.ia/logs/session-20260626-tarefa97-card-whatsapp-principal.md`.
     Auto-Analise: A tarefa 97 adiciona o acesso ao grupo oficial do WhatsApp no ponto solicitado da home, com CTA clicável, QR Code e layout responsivo coerente com o visual atual do sistema. A implementação é de baixo risco, sem alterar regras de negócio, e foi validada por testes e revisão multiagente. | [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
+98. **[Concluído] Finalização da tela e funcionalidades de Chat 2.0 (26/06/2026):**
+    Objetivo: concluir a funcionalidade de chat hoje incompleta/desativada, entregando uma experiência funcional, segura e compatível com a arquitetura atual do projeto.
+    Diagnóstico consolidado (multiagente):
+    - tela `/seguro/batePapo.action` existe, mas exibe apenas aviso de manutenção;
+    - item de menu do chat está comentado;
+    - classes legadas (`BatePapo`, `Mensagem`, `FormatadorMensagem`) e beans Spring ainda existem, porém sem integração funcional moderna;
+    - não há endpoints HTMX/REST ativos nem persistência de histórico para uso real;
+    - CSS legado de chat permanece no tema, mas sem fluxo operacional.
+    Proposta de entrega:
+    - **MVP funcional** com HTMX + endpoints Struts + persistência em banco + atualização incremental por polling curto;
+    - evolução opcional para WebSocket em fase posterior, após estabilização funcional e operacional do MVP.
+    Plano técnico detalhado: `.ia/planos/plano-chat-2-0-finalizacao-20260626.md`.
+    Skills previstas: `architecture-guardian v1.0.0`, `htmx v1.0.0`, `security-audit v1.0.0`, `ui-ux-pro-max`.
+    * **[Concluído] 98.1 — Refinamento de requisitos e critérios de aceite (BA):**
+      Definir escopo fechado do MVP:
+      - envio/recebimento de mensagens;
+      - limite de tamanho e frequência de envio;
+      - política de histórico (janela de mensagens);
+      - comportamento em erro/reconexão.
+      Entregável: checklist de aceite aprovado no plano da tarefa.
+    * **[Concluído] 98.2 — Definição arquitetural e decisão de transporte (Architect):**
+      Formalizar decisão de MVP por HTMX polling incremental (vs WebSocket imediato), com justificativa de risco/custo.
+      Entregável: decisão registrada (ADR complementar se houver mudança estratégica).
+    * **[Concluído] 98.3 — Modelagem de dados do chat (Data Modeler):**
+      Projetar entidades/tabelas mínimas:
+      - sala (opcional única no MVP),
+      - mensagem,
+      - apelido por participante (sessão/perfil).
+      Entregável: script SQL/migração e mapeamentos de domínio.
+    * **[Concluído] 98.4 — Repositório e serviço de domínio do chat (Developer):**
+      Implementar camada Service/Repository para:
+      - publicar mensagem;
+      - listar mensagens iniciais;
+      - buscar incrementais por `lastMessageId`.
+      Entregável: API de domínio coberta por testes unitários.
+    * **[Concluído] 98.5 — Endpoints Struts/HTMX do chat (Developer):**
+      Criar ações para:
+      - renderização da tela principal do chat;
+      - partial de lista de mensagens;
+      - envio de mensagem;
+      - atualização incremental.
+      Entregável: endpoints funcionais com status HTTP coerentes.
+    * **[Concluído] 98.6 — Reativação de navegação no menu (UX/Developer):**
+      Reabilitar item de menu "Sala de Bate-Papo" com controle por perfil autenticado.
+      Entregável: acesso navegacional consistente.
+    * **[Concluído] 98.7 — Redesign UX da tela de chat (UX):**
+      Construir layout operacional:
+      - lista de mensagens com distinção visual (autor, horário, sistema);
+      - área de composição com feedback de estado;
+      - estados vazio/carregando/erro.
+      Entregável: UI limpa, legível e responsiva.
+    * **[Concluído] 98.8 — Atualização incremental HTMX (Developer):**
+      Implementar polling incremental por `lastMessageId` com fallback visual em caso de falha temporária.
+      Entregável: novas mensagens sem recarga total da página.
+    * **[Concluído] 98.9 — Segurança e antiabuso (Security):**
+      Aplicar:
+      - validação/normalização server-side;
+      - escape de saída e bloqueio de HTML malicioso;
+      - limite de tamanho e frequência por usuário;
+      - logs seguros sem dados sensíveis.
+      Entregável: checklist OWASP do chat atendido.
+    * **[Concluído] 98.10 — Gestão de presença e apelido (BA/UX/Developer):**
+      Definir e implementar escopo de presença no MVP:
+      - participantes online da sala;
+      - apelido opcional sem quebrar auditoria por login.
+      Entregável: regra funcional clara e estável.
+    * **[Concluído] 98.11 — Migração/limpeza do legado de chat (Architect/Developer):**
+      Após MVP estável:
+      - descontinuar classes/beans legados não utilizados;
+      - remover CSS órfão do chat legado;
+      - manter apenas componentes aderentes ao novo fluxo.
+      Entregável: redução de débito técnico sem regressão.
+    * **[Concluído] 98.12 — Testes unitários e integração backend (Tester):**
+      Cobrir serviço e actions do chat:
+      - envio válido/inválido;
+      - incremental por `lastMessageId`;
+      - autorização e limites.
+      Entregável: suíte backend verde.
+    * **[Concluído] 98.13 — Testes frontend/contrato (Tester):**
+      Cobrir:
+      - renderização da tela;
+      - envio de mensagem;
+      - atualização incremental HTMX;
+      - estados de erro.
+      Entregável: suíte frontend verde.
+    * **[Concluído] 98.14 — Teste de carga leve e estabilidade (Tester/Architect):**
+      Simular uso concorrente moderado para validar polling, banco e tempo de resposta.
+      Entregável: baseline de performance e ajustes mínimos documentados.
+    * **[Concluído] 98.15 — Revisão multiagente final (Architect/Reviewer/Tester/Security/UX):**
+      Consolidar parecer de prontidão com riscos residuais e recomendação GO/NO-GO.
+      Entregável: veredito técnico completo.
+    * **[Concluído] 98.16 — Rastreabilidade e documentação final:**
+      Atualizar:
+      - `README.md` (se necessário),
+      - `passo-a-passo.md`,
+      - logs de sessão em `.ia/logs/`,
+      - ADR (quando aplicável).
+      Entregável: trilha auditável completa da implementação.
+    Conclusão registrada:
+    - fluxo arquitetural entregue em camadas (`ChatAction` -> `ChatService` -> `ChatMensagemRepository` -> `ChatMensagem`);
+    - UI de chat reativada com HTMX polling incremental e envio assíncrono;
+    - segurança aplicada com validação server-side, bloqueio de HTML, rate limit e status HTTP coerentes;
+    - legado de runtime do chat removido (beans/classes antigas), mantendo stack moderna do projeto;
+    - validações executadas com sucesso: `mvn test`, `npm run test:frontend`, `npm run build`;
+    - ADR: `.ia/historico/ADR-20260626-chat-2-0-mvp-htmx-polling.md`;
+    - Log: `.ia/logs/session-20260626-tarefa98-chat-2-0-execucao.md`.
+    Auto-Analise: A tarefa 98 foi concluída com entrega funcional do Chat 2.0 no stack vigente, respeitando governança, segurança e rastreabilidade. A solução reduz acoplamento ao separar action/serviço dedicados e remove dependências operacionais do chat legado, mantendo evolução futura para WebSocket como etapa opcional. | [Risco: Medio] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
+99. **[Concluído] Hardening de cobertura e validação final do Chat 2.0 (26/06/2026):**
+    Objetivo: elevar a prontidão do Chat 2.0 para GO sem ressalvas, fechando lacunas de testes de erro/comportamento apontadas na revisão multiagente da tarefa 98.
+    * **[Concluído] 99.1 — Cobertura backend de exceções inesperadas na Action (Tester):**
+      Incluir testes para `ChatAction` validando retorno HTTP `500` e mensagem fallback quando ocorrer erro inesperado no serviço (envio e polling).
+    * **[Concluído] 99.2 — Cobertura backend de bordas e resiliência no Service (Tester):**
+      Incluir testes para:
+      - limite de tamanho de mensagem/apelido;
+      - `ultimoId` nulo/negativo no incremental;
+      - falha de persistência (`repository.save`) no envio de mensagem.
+    * **[Concluído] 99.3 — Cobertura frontend comportamental de erro (Tester/UX):**
+      Validar no `chat.js`:
+      - preservação de texto digitado em falha de envio;
+      - reação de UI a estado de erro sem quebrar interações;
+      - ausência de efeito colateral quando `htmx:afterSwap` ocorrer fora do alvo do chat.
+    * **[Concluído] 99.4 — Revalidação multiagente final de prontidão (Architect/Security/Reviewer/Tester):**
+      Reexecutar validação técnica e emitir parecer GO/NO-GO atualizado.
+    * **[Concluído] 99.5 — Rastreabilidade final da rodada de hardening:**
+      Atualizar `passo-a-passo.md`, log de sessão e resultado consolidado da rodada.
+    * **[Concluído] 99.6 — Correção de aderência ADR (apelido por sessão):**
+      Ajustar o Chat 2.0 para que o apelido seja isolado por sessão HTTP (sem compartilhamento entre sessões do mesmo login), preservando o login técnico para autoria/auditoria.
+    * **[Concluído] 99.7 — Correção de contrato Struts na action principal do chat:**
+      Adicionar mapeamento explícito de resultado `login` em `/seguro/batePapo.action`, mantendo consistência com retornos da `ChatAction`.
+    * **[Concluído] 99.8 — Complemento de cobertura de testes (bordas + UX):**
+      Incluir testes para documentar comportamento acima do limite de tamanho (mensagem/apelido) e garantir continuidade de interação do atalho `Ctrl+Enter` após estado de erro no frontend.
+    * **[Concluído] 99.9 — Revalidação multiagente pós-correções:**
+      Reexecutar validação arquitetural/segurança/testes e emitir parecer final GO/NO-GO sem ressalvas.
+    Conclusão registrada:
+    - correções arquiteturais aplicadas (apelido por sessão e contrato `login` no Struts para `/seguro/batePapo`);
+    - cobertura ampliada de backend/frontend com cenários de borda (>limite), continuidade de atalho pós-erro e feedback visual em `htmx:responseError`;
+    - reforço defensivo de limpeza de estruturas de presença/apelido por sessão sem regressão do rate limit;
+    - revalidação multiagente concluída com parecer final favorável para o escopo da tarefa;
+    - validações executadas com sucesso: `mvn -q test`, `npm run test:frontend`, `npm run build`.
+    Evidências:
+    - Log: `.ia/logs/session-20260626-tarefa99-hardening-chat-2-0.md`.
