@@ -369,6 +369,40 @@ class ParticipanteActionLoadTest {
     }
 
     @Test
+    void prepararInfoPalpitesDeveAceitarGrupoIComoValido() {
+        action.setUsarFiltro(true);
+        action.setDataInicial("10/06/2026");
+        action.setDataFinal("20/06/2026");
+        action.setFiltroGrupo("i");
+        when(equipeService.buscarApenasPaisesReais()).thenReturn(new ArrayList<>());
+        when(jogoService.buscarUsandoFiltro(any(FiltroBuscaJogos.class))).thenReturn(new ArrayList<>());
+        when(jogoService.contarJogosUsandoFiltro(any())).thenReturn(104L);
+
+        action.prepararInfoPalpites();
+
+        ArgumentCaptor<FiltroBuscaJogos> filtroCaptor = ArgumentCaptor.forClass(FiltroBuscaJogos.class);
+        verify(jogoService).buscarUsandoFiltro(filtroCaptor.capture());
+        assertThat(filtroCaptor.getValue().getGrupo()).isEqualTo("I");
+    }
+
+    @Test
+    void prepararInfoPalpitesDeveAceitarGrupoLComoValido() {
+        action.setUsarFiltro(true);
+        action.setDataInicial("10/06/2026");
+        action.setDataFinal("20/06/2026");
+        action.setFiltroGrupo("L");
+        when(equipeService.buscarApenasPaisesReais()).thenReturn(new ArrayList<>());
+        when(jogoService.buscarUsandoFiltro(any(FiltroBuscaJogos.class))).thenReturn(new ArrayList<>());
+        when(jogoService.contarJogosUsandoFiltro(any())).thenReturn(104L);
+
+        action.prepararInfoPalpites();
+
+        ArgumentCaptor<FiltroBuscaJogos> filtroCaptor = ArgumentCaptor.forClass(FiltroBuscaJogos.class);
+        verify(jogoService).buscarUsandoFiltro(filtroCaptor.capture());
+        assertThat(filtroCaptor.getValue().getGrupo()).isEqualTo("L");
+    }
+
+    @Test
     void prepararInfoPalpitesDevePopularAutorizacoesCanonicamentePorJogo() {
         action.setUsarFiltro(true);
         action.setDataInicial("16/06/2026");

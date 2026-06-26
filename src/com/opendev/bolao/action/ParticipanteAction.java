@@ -620,7 +620,7 @@ public class ParticipanteAction extends ActionSupport {
             return null;
         }
         String canonico = grupo.trim().toUpperCase();
-        if (canonico.matches("^[A-H]$")) {
+        if (canonico.matches("^[A-L]$")) {
             return canonico;
         }
         return null;

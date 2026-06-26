@@ -2352,6 +2352,145 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
       Registros de evidência em `.ia/logs/session-20260626-tarefa81-3-headless-tests.md` e `.ia/logs/session-20260626-tarefa81-governanca-tecnica.md`.
     Auto-Analise: Recomendações não bloqueantes concluídas com mudanças pontuais e baixo risco: estratégia de i18n formalizada para reduzir drift, acessibilidade/i18n alinhada no JSP e execução de testes estabilizada para ambiente headless sem perda de cobertura. | [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
 
+82. **[Concluído] Evolução da tela administrativa de atualização de resultados — filtro de busca + carga inicial por data atual (26/06/2026):**
+    Objetivo: alinhar a UX operacional de `/admin/jogos.action` ao padrão da tela de Palpites e Resultados, reduzindo volume inicial de dados e acelerando a localização de partidas pelo administrador.
+    Escopo funcional:
+    - incluir filtro de busca na tela de atualização de resultados;
+    - trazer por padrão apenas jogos da data atual no primeiro carregamento.
+    Skills previstas: `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`, `htmx v1.0.0`, `security-audit v1.0.0`.
+    Dependências de contexto:
+    - tarefa 41 (renderização admin da atualização de resultados);
+    - tarefa 42 (filtro operacional até hoje no admin);
+    - tarefa 43 (desacoplamento de JSP admin, ainda pendente).
+    * **[Concluído] 82.1 — Análise de impacto e contrato funcional detalhado (26/06/2026):**
+      Contrato consolidado para `/admin/jogos.action`: padrão da primeira carga em **somente data atual** (timezone canônico), com precedência de filtros explícitos quando `usarFiltro=true` ou parâmetros de filtro forem informados.
+    * **[Concluído] 82.2 — Estratégia de backend para carga inicial “somente hoje” (26/06/2026):**
+      `AdminAction.carregarJogos` evoluído para aplicar `dataInicial=dataFinal=hoje` quando não há `mostrarTodos` e não há filtro explícito, preservando `mostrarTodos=true` sem regressão.
+    * **[Concluído] 82.3 — Extensão do filtro de busca na camada web/admin (26/06/2026):**
+      `AdminAction` passou a suportar parâmetros de filtro (`usarFiltro`, `dataInicial`, `dataFinal`, `filtroFase`, `filtroEquipe`, `filtroGrupo`, `filtroJogosNaoOcorreram`) com validação/sanitização server-side (whitelist de fase, validação de equipe, normalização de grupo e fallback seguro com `filtroAvisos`).
+    * **[Concluído] 82.4 — Ajustes de JSP/fragmentos da tela admin (26/06/2026):**
+      `WEB-INF/content/seguro/jogos.jsp` passou a exibir o portlet de filtro também em `adminResultadoView`, roteando formulário para `/admin/jogos.action` e mantendo comportamento existente da tela de palpites.
+    * **[Concluído] 82.5 — Compatibilidade com fluxo incremental e botão "Carregar Próxima Data" (26/06/2026):**
+      `jogos-lista-fragmento.jsp` atualizado para propagar estado de filtros ativos no `hx-get` de `/admin/jogosMaisJogosPartial.action`; backend ajustado para buscar a próxima data compatível com as restrições, evitando reintrodução de jogos fora do recorte.
+    * **[Concluído] 82.6 — Observabilidade e segurança operacional (26/06/2026):**
+      Logs técnicos de filtro admin adicionados/refinados em `AdminAction` para rastrear sanitização e fallback sem exposição de payload sensível.
+    * **[Concluído] 82.7 — Cobertura de testes unitários/integração da action admin (26/06/2026):**
+      `AdminActionTest` ampliado com cenários de: carga padrão da data atual, filtro admin válido, filtro inválido com fallback seguro e paginação incremental respeitando filtros ativos.
+    * **[Concluído] 82.8 — Validação final, documentação e rastreabilidade (26/06/2026):**
+      Validações executadas com sucesso:
+      - `mvn -Dfrontend.skip=true -Dtest=AdminActionTest test` → 14 testes, 0 falhas.
+      - `mvn -Dfrontend.skip=true -Dtest=AdminActionTest,ParticipanteActionLoadTest test` → 29 testes, 0 falhas.
+      Registro de sessão em `.ia/logs/session-20260626-tarefa82-admin-filtro-data-atual.md`.
+    Auto-Analise: Implementação concluída em pequenas iterações com multiagentes, cobrindo backend, JSP/HTMX e testes sem regressão funcional detectada. A carga padrão admin agora prioriza a data atual, com filtro robusto e carregamento incremental coerente ao estado ativo. | [Risco: Medio] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
+83. **[Pendente] Evolução da tela administrativa de atualização de resultados — exclusão controlada de jogos sem resultado (data atual ou futura) (26/06/2026):**
+    Objetivo: permitir ao administrador remover registros de jogos ainda não concluídos, restringindo estritamente a exclusão a jogos sem resultado e com data atual/futura.
+    Escopo funcional:
+    - adicionar ação de exclusão na tela `/admin/jogos.action`;
+    - bloquear exclusão de jogos já iniciados/concluídos ou com resultado informado;
+    - manter integridade referencial e segurança da operação.
+    Skills previstas: `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`, `security-audit v1.0.0`, `htmx v1.0.0`.
+    * **[Pendente] 83.1 — Definição formal da regra de negócio de exclusão:**
+      Especificar critérios exatos para “pode excluir”:
+      - jogo sem resultado (`golsEquipe1/golsEquipe2` nulos);
+      - jogo com data/hora >= agora (data atual ou futura, considerando timezone oficial do domínio);
+      - operação permitida apenas para perfil admin autorizado.
+      Entregável: regra documentada em linguagem de domínio e mapeada para método canônico no modelo/serviço.
+    * **[Pendente] 83.2 — Análise de impacto de dados e integridade referencial:**
+      Mapear dependências de `Jogo` (palpites, ranking, cache, auditoria, relações FK) para decidir estratégia de exclusão:
+      - bloqueio com mensagem de negócio quando houver dependências impeditivas; ou
+      - remoção transacional com limpeza controlada de vínculos permitidos.
+      Entregável: decisão técnica explícita, incluindo risco de perda de histórico e comportamento esperado.
+    * **[Pendente] 83.3 — Contrato backend da operação de exclusão (Action/Service/DAO):**
+      Criar endpoint/admin action HTMX dedicado (ex.: `excluirJogoHtmx`) com validações server-side obrigatórias e retorno padronizado (success/error + mensagem i18n).
+      Entregável: fluxo transacional seguro, idempotente e com tratamento de concorrência básica.
+    * **[Pendente] 83.4 — Controle de autorização e hardening de segurança:**
+      Garantir proteção por RBAC (`/admin/**`), validação de método HTTP adequado, token CSRF e rejeição de tentativas fora das regras.
+      Entregável: defesa em profundidade (UI + backend), sem depender apenas de ocultação de botão no frontend.
+    * **[Pendente] 83.5 — Ajustes de UI/UX na linha administrativa da tabela:**
+      Incluir ação “Excluir” na linha admin apenas quando `jogoPodeSerExcluido=true`, com confirmação explícita e feedback de sucesso/erro via HTMX.
+      Entregável: remoção da linha da tabela após sucesso (ou refresh parcial consistente), mantendo acessibilidade (`aria-*`) e mensagens claras.
+    * **[Pendente] 83.6 — Regras de auditoria e observabilidade da exclusão:**
+      Registrar no log técnico o operador, jogo-alvo e resultado da operação (permitida/bloqueada), sem vazar dados sensíveis.
+      Entregável: trilha de auditoria mínima para investigação de incidentes operacionais.
+    * **[Pendente] 83.7 — Cobertura de testes de negócio e action:**
+      Criar/atualizar testes em `JogoTest`, `JogoServiceImplTest` e `AdminActionTest` cobrindo:
+      - exclusão permitida (sem resultado, data atual/futura);
+      - bloqueio por jogo no passado;
+      - bloqueio por jogo com resultado;
+      - bloqueio por autorização;
+      - comportamento com dependências relacionais.
+      Entregável: regressão automatizada para cenários críticos de integridade.
+    * **[Pendente] 83.8 — Validação final, documentação e rastreabilidade:**
+      Executar suíte alvo, atualizar `passo-a-passo.md`, registrar log de sessão em `.ia/logs/` e criar ADR caso a decisão de integridade/exclusão implique trade-off arquitetural relevante.
+
+84. **[Concluído] Priorização arquitetural dos riscos funcionais pós-tarefa 82 (26/06/2026):**
+    Objetivo: reduzir risco de regressão funcional na busca admin/palpites após a tarefa 82, atacando primeiro inconsistências de domínio (Copa 2026), depois coerência de filtro incremental e por fim cobertura de borda.
+    Recomendação de severidade (ordem de execução):
+    - **P0 (Alta):** filtro de grupo ainda limitado a `A-H` em backend (`AdminAction` e `ParticipanteAction`), divergente do domínio 2026 (`A-L`), com risco de perda silenciosa de resultado para grupos `I-L`.
+    - **P1 (Média):** parâmetro `filtroSemPalpite` propagado na UI/admin sem processamento efetivo no backend de `AdminAction`, gerando contrato inconsistente entre interface e consulta.
+    - **P1 (Média):** preservar estado de período no load-more admin para evitar salto de recorte ao carregar próxima data em cenários com `dataInicial/dataFinal`.
+    - **P2 (Média-Baixa):** lacunas de testes de borda (grupos `I-L`, combinação de filtros com load-more, persistência de estado em filtros não aplicados no backend).
+    Skills previstas: `architecture-guardian v1.0.0`, `senior-java-dev-legacy v1.0.0`, `security-audit v1.0.0`.
+    * **[Concluído] 84.1 — Correção canônica do domínio de grupos (P0) (26/06/2026):**
+      Atualizar validação/normalização de grupo de `^[A-H]$` para `^[A-L]$` nos pontos de entrada (`AdminAction` e `ParticipanteAction`), mantendo sanitização e fallback seguro.
+      Entregável: backend aceitando grupos `A-L` sem quebra de segurança e sem impacto no contrato atual.
+    * **[Concluído] 84.2 — Alinhamento de contrato do filtroSemPalpite no admin (P1) (26/06/2026):**
+      Decisão aplicada: opção **(b)**. O filtro `filtroSemPalpite` foi removido da UI administrativa (`adminResultadoView`) e da propagação HTMX do botão "Carregar Próxima Data" no contexto admin, permanecendo funcional apenas na tela de palpites (não-admin), onde já existe processamento backend canônico.
+      Entregável: contrato UI↔backend consistente, eliminando falso-positivo funcional no admin.
+    * **[Concluído] 84.3 — Preservação explícita de período no load-more admin (P1) (26/06/2026):**
+      Garantir que `dataInicial`/`dataFinal` permaneçam canônicos no `hx-get` e na reconstrução do filtro incremental (`buscarMaisJogosHtmx`) sem reset implícito de recorte.
+      Entregável: botão "Carregar Próxima Data" respeitando integralmente o período ativo.
+    * **[Concluído] 84.4 — Cobertura de testes de borda focada em risco (P2) (26/06/2026):**
+      Expandir `AdminActionTest` e `ParticipanteAction` tests para cenários críticos:
+      - grupo `I` e `L` válidos;
+      - filtroSemPalpite no admin conforme decisão de contrato;
+      - load-more admin preservando período + grupo + fase.
+      Entregável: regressão automatizada para os quatro riscos pós-82.
+    * **[Concluído] 84.5 — Validação final e rastreabilidade (P2) (26/06/2026):**
+      Validações executadas:
+      - `npm run test:frontend` (suíte frontend verde após ajuste do teste i18n);
+      - `mvn -Dfrontend.skip=true -Dtest=AdminActionTest,ParticipanteActionLoadTest test` (testes-alvo da tarefa 84);
+      - `mvn -Dfrontend.skip=true test` (regressão backend);
+      - `npm run build` e `mvn -Dfrontend.skip=true clean package` (build completo).
+      Log de sessão: `.ia/logs/session-20260626-tarefa84-riscos-funcionais-pos82.md`.
+      Entregável: fechamento auditável da priorização com evidências de teste.
+    Auto-Analise: A tarefa 84 foi concluída com execução multiagente em pequenas iterações, cobrindo correção de domínio (grupos `A-L`), coerência contratual do filtro admin, preservação de período no carregamento incremental e estabilização do teste frontend de contrato i18n. A entrega reduz risco de regressão funcional sem ampliar escopo arquitetural além do necessário. | [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
+85. **[Concluído] Correção de UX/fluxo no botão "Carregar Próxima Data" da tela de atualizar resultados (26/06/2026):**
+    Objetivo: corrigir o bug em `/admin/jogos.action` onde, ao clicar em "Carregar Próxima Data", os jogos seguintes não são carregados e o botão desaparece, gerando sensação de falha silenciosa.
+    Sintoma reportado:
+    - em contexto admin com carga padrão da data atual, o primeiro clique no botão incremental retorna lista vazia e remove o botão da interface.
+    Análise arquitetural/UX esperada:
+    - separar claramente "filtro padrão de carregamento inicial" (somente hoje) de "filtro explícito do usuário";
+    - preservar previsibilidade de navegação incremental (botão deve avançar datas quando existir próxima data compatível);
+    - evitar regressão na semântica HTMX e no contrato de parâmetros.
+    Skills previstas: `architecture-guardian v1.0.0`, `htmx v1.0.0`, `ui-ux-pro-max`, `senior-java-dev-legacy v1.0.0`.
+    * **[Concluído] 85.1 — Diagnóstico de causa raiz com foco em contrato UI↔Action (26/06/2026):**
+      Causa raiz confirmada: o fluxo incremental admin propagava período implícito da carga padrão (data atual) como se fosse filtro explícito no `hx-get`, restringindo indevidamente `buscarMaisJogosHtmx` e retornando vazio no primeiro clique.
+      Evidência: revisão multiagente (Architect/Reviewer/Tester/Security) e análise de código em `AdminAction` + `jogos-lista-fragmento.jsp`.
+    * **[Concluído] 85.2 — Ajuste arquitetural do fluxo incremental admin (26/06/2026):**
+      `AdminAction.buscarMaisJogosHtmx` passou a normalizar o filtro incremental (`normalizarFiltroIncrementalAdmin`), ignorando o período implícito somente quando não há filtro explícito do usuário.
+      O fragmento admin HTMX foi ajustado para não propagar `dataInicial/dataFinal` quando `adminFiltroAteHojeAtivo=true`, preservando filtros realmente explícitos.
+      Entregável validado: próximo dia carregado corretamente sem regressão de filtros ativos.
+    * **[Concluído] 85.3 — Ajuste de UX no estado incremental (26/06/2026):**
+      Com o contrato UI↔Action corrigido, o comportamento “clicar e sumir sem carregar” foi eliminado no cenário de primeira interação após carga padrão.
+      Resultado UX: navegação incremental previsível para o administrador, com feedback de loading preservado no componente HTMX.
+    * **[Concluído] 85.4 — Cobertura de testes de regressão (backend + frontend) (26/06/2026):**
+      Cobertura adicionada/validada em:
+      - `tests/com/opendev/bolao/action/AdminActionTest.java` (cenário crítico: primeiro clique do load-more admin após carga padrão avança para próxima data corretamente);
+      - `tests/frontend/jogos.test.js` (contrato de markup HTMX admin, sem propagação de período implícito e com preservação de filtros explícitos).
+      Entregável: regressão automatizada protegendo o bug corrigido.
+    * **[Concluído] 85.5 — Validação final e rastreabilidade (26/06/2026):**
+      Validações executadas:
+      - `mvn -Dfrontend.skip=true -Dtest=AdminActionTest test` (19 testes, 0 falhas);
+      - `npm run test:frontend` (22 testes, 0 falhas);
+      - `mvn -Dfrontend.skip=true test` (115 testes, 0 falhas);
+      - `npm run build` e `mvn -Dfrontend.skip=true clean package` (build completo com WAR gerado).
+      Log de sessão: `.ia/logs/session-20260626-tarefa85-load-more-admin.md`.
+      Entregável: fechamento auditável com evidências funcionais, arquiteturais e de segurança.
+    Auto-Analise: A correção da tarefa 85 foi concluída em iterações pequenas com multiagentes, atacando a causa raiz no contrato HTMX/UI↔Action e removendo a falha silenciosa no primeiro clique do load-more admin. A solução preserva a arquitetura em camadas, mantém validação defensiva dos filtros e adiciona cobertura de regressão específica do bug. Persistem apenas oportunidades evolutivas (mensagem explícita de fim de dados e teste de integração de renderização HTMX) sem bloquear a entrega funcional. | [Risco: Medio] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
 61. **[Concluído] Correção de falso aviso de saída na tela admin após salvar resultado (18/06/2026):**
     Objetivo: impedir aviso de "dados não salvos" ao navegar para outra tela quando o resultado já foi efetivamente gravado.
     * **[Concluído] 61.1 — Diagnóstico de estado pendente no frontend admin:** identificado cenário em `src/frontend/pages/jogos.js` em que `pendingAdminRequests` podia permanecer aberto após `htmx:afterRequest` sem `detail.elt`.

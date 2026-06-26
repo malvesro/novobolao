@@ -481,7 +481,7 @@ describe('jogos.js estados criticos', () => {
     expect(matchRowMarkup).not.toContain('hx-trigger="click once"');
     expect(matchRowMarkup).toContain('data-group-loaded=""');
     expect(matchRowMarkup).toContain('aria-controls="group-row_${jogo.id}"');
-    expect(matchRowMarkup).toContain('aria-label="Ver palpites do grupo"');
+    expect(matchRowMarkup).toContain("<fmt:message key='match.tip.group.view' />");
     expect(matchRowMarkup).toContain('aria-label="Fechar painel de palpites do grupo"');
     expect(palpiteCellMarkup).toContain('id="palpite-cell_${matchId}"');
     expect(palpiteCellMarkup).not.toContain('form class="palpite-inputs"');
@@ -523,6 +523,23 @@ describe('jogos.js estados criticos', () => {
     expect(fragmentMarkup).toContain("palpiteBloqueioMotivo eq 'roleMissing'");
     expect(fragmentMarkup).not.toContain("hasRole('ADMIN')");
     expect(fragmentMarkup).not.toContain("hasRole('USER')");
+  });
+
+  it('deve preservar contrato do load-more admin sem propagar periodo implicito da carga padrao', () => {
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    const projectRoot = path.resolve(currentDir, '..', '..');
+    const fragmentPath = path.join(projectRoot, 'webapp/WEB-INF/content/seguro/partials/jogos-lista-fragmento.jsp');
+
+    const fragmentMarkup = fs.readFileSync(fragmentPath, 'utf8');
+
+    expect(fragmentMarkup).toContain('/admin/jogosMaisJogosPartial.action');
+    expect(fragmentMarkup).toContain('<c:if test="${not adminFiltroAteHojeAtivo and not empty filtro and not empty filtro.dataInicialFormatada}">');
+    expect(fragmentMarkup).toContain('<c:if test="${not adminFiltroAteHojeAtivo and not empty filtro and not empty filtro.dataFinalFormatada}">');
+    expect(fragmentMarkup).toContain('<c:if test="${usarFiltro}">');
+    expect(fragmentMarkup).toContain('<c:param name="filtroFase" value="${filtro.fase}" />');
+    expect(fragmentMarkup).toContain('<c:param name="filtroEquipe" value="${filtro.idEquipe}" />');
+    expect(fragmentMarkup).toContain('<c:param name="filtroGrupo" value="${filtro.grupo}" />');
+    expect(fragmentMarkup).toContain('<c:param name="filtroJogosNaoOcorreram" value="true" />');
   });
 
 });

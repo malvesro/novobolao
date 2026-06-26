@@ -128,8 +128,30 @@
                                                         pattern="dd/MM/yyyy" />
                                                     <c:choose>
                                                         <c:when test="${adminResultadoView}">
-                                                            <c:set var="hxGetUrl"
-                                                                value="${base}/admin/jogosMaisJogosPartial.action?data=${ultimaData}" />
+                                                            <c:url var="hxGetUrl" value="/admin/jogosMaisJogosPartial.action">
+                                                                <c:param name="data" value="${ultimaData}" />
+                                                                <c:if test="${usarFiltro}">
+                                                                    <c:param name="usarFiltro" value="true" />
+                                                                </c:if>
+                                                                <c:if test="${not adminFiltroAteHojeAtivo and not empty filtro and not empty filtro.dataInicialFormatada}">
+                                                                    <c:param name="dataInicial" value="${filtro.dataInicialFormatada}" />
+                                                                </c:if>
+                                                                <c:if test="${not adminFiltroAteHojeAtivo and not empty filtro and not empty filtro.dataFinalFormatada}">
+                                                                    <c:param name="dataFinal" value="${filtro.dataFinalFormatada}" />
+                                                                </c:if>
+                                                                <c:if test="${not empty filtro and not empty filtro.idEquipe}">
+                                                                    <c:param name="filtroEquipe" value="${filtro.idEquipe}" />
+                                                                </c:if>
+                                                                <c:if test="${not empty filtro and not empty filtro.grupo}">
+                                                                    <c:param name="filtroGrupo" value="${filtro.grupo}" />
+                                                                </c:if>
+                                                                <c:if test="${not empty filtro and not empty filtro.fase}">
+                                                                    <c:param name="filtroFase" value="${filtro.fase}" />
+                                                                </c:if>
+                                                                <c:if test="${not empty filtro and filtro.soJogosQueNaoOcorreram}">
+                                                                    <c:param name="filtroJogosNaoOcorreram" value="true" />
+                                                                </c:if>
+                                                            </c:url>
                                                         </c:when>
                                                         <c:otherwise>
                                                             <c:set var="hxGetUrl"

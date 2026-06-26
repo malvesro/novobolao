@@ -39,11 +39,19 @@
 							<c:set var="rowIndex" value="0" />
 
 
-							<c:if test="${telaPalpites}">
+							<c:set var="mostrarFiltroJogos" value="${telaPalpites or adminResultadoView}" />
+							<c:if test="${mostrarFiltroJogos}">
 								<div class="match-filter-portlet">
 									<opendev:portlet id="filtro_jogos" title="Filtro de Busca" icon="/img/view.png">
-										<c:url var="aplicarFiltroJogosActionURL" value="/seguro/palpites.action" />
-										<form action="${aplicarFiltroJogosActionURL}" method="get">
+										<c:choose>
+											<c:when test="${adminResultadoView}">
+												<c:url var="aplicarFiltroJogosActionURL" value="/admin/jogos.action" />
+											</c:when>
+											<c:otherwise>
+												<c:url var="aplicarFiltroJogosActionURL" value="/seguro/palpites.action" />
+											</c:otherwise>
+										</c:choose>
+										<form id="filtro_jogos_form" action="${aplicarFiltroJogosActionURL}" method="get">
 											<input type="hidden" name="usarFiltro" value="true" />
 											<div class="match-filter">
 												<table class="match-filter__table" role="presentation">
@@ -194,26 +202,28 @@
 															</select>
 														</td>
 													</tr>
-													<tr>
-														<td><br /></td>
-														<td class="widget match-filter__row">
-															<c:choose>
-																<c:when
-																	test="${not empty filtro and filtro.soSemPalpite}">
-																	<input type="checkbox" id="filtro_sem_palpite_cb"
-																		name="filtroSemPalpite" value="true"
-																		checked="checked" />
-																</c:when>
-																<c:otherwise>
-																	<input type="checkbox" id="filtro_sem_palpite_cb"
-																		name="filtroSemPalpite" value="true" />
-																</c:otherwise>
-															</c:choose>
-															<label for="filtro_sem_palpite_cb">
-																<fmt:message key="filter.withouttip" />
-															</label>
-														</td>
-													</tr>
+													<c:if test="${telaPalpites}">
+														<tr>
+															<td><br /></td>
+															<td class="widget match-filter__row">
+																<c:choose>
+																	<c:when
+																		test="${not empty filtro and filtro.soSemPalpite}">
+																		<input type="checkbox" id="filtro_sem_palpite_cb"
+																			name="filtroSemPalpite" value="true"
+																			checked="checked" />
+																	</c:when>
+																	<c:otherwise>
+																		<input type="checkbox" id="filtro_sem_palpite_cb"
+																			name="filtroSemPalpite" value="true" />
+																	</c:otherwise>
+																</c:choose>
+																<label for="filtro_sem_palpite_cb">
+																	<fmt:message key="filter.withouttip" />
+																</label>
+															</td>
+														</tr>
+													</c:if>
 													<tr>
 														<td><br /></td>
 														<td class="widget match-filter__row">
@@ -246,21 +256,25 @@
 										</form>
 									</opendev:portlet>
 								</div>
-								<c:if test="${not empty filtroAvisos}">
-									<div class="info-banner performance-notice">
-										<p>
-											<img src="${base}/img/information.gif" class="icon-inline" alt="" />
-											Alguns parâmetros do filtro foram ajustados para manter a consistência da busca:
-										</p>
-										<ul class="simple-list">
-											<c:forEach var="avisoFiltro" items="${filtroAvisos}">
-												<li><c:out value="${avisoFiltro}" /></li>
-											</c:forEach>
-										</ul>
-									</div>
-									<span class="spacer spacer-sm"></span>
-								</c:if>
+							</c:if>
+							<c:if test="${mostrarFiltroJogos and not empty filtroAvisos}">
+								<div class="info-banner performance-notice">
+									<p>
+										<img src="${base}/img/information.gif" class="icon-inline" alt="" />
+										Alguns parâmetros do filtro foram ajustados para manter a consistência da busca:
+									</p>
+									<ul class="simple-list">
+										<c:forEach var="avisoFiltro" items="${filtroAvisos}">
+											<li><c:out value="${avisoFiltro}" /></li>
+										</c:forEach>
+									</ul>
+								</div>
 								<span class="spacer spacer-sm"></span>
+							</c:if>
+							<c:if test="${mostrarFiltroJogos}">
+								<span class="spacer spacer-sm"></span>
+							</c:if>
+							<c:if test="${telaPalpites}">
 								<div id="palpites_info" class="legenda tips-info">
 									<p><img alt="" src="${base}/img/information.gif" class="icon-inline"
 											aria-hidden="true" />
@@ -270,7 +284,7 @@
 								<span class="spacer spacer-sm"></span>
 							</c:if>
 
-								<c:if test="${not usarFiltro and empty param.dataInicial}">
+								<c:if test="${telaPalpites and not usarFiltro and empty param.dataInicial}">
 									<div class="info-banner performance-notice">
 										<p>
 											<img src="${base}/img/information.gif" class="icon-inline" alt="" />
@@ -285,9 +299,9 @@
 									<c:if test="${adminFiltroAteHojeAtivo}">
 										<fmt:formatDate var="adminDataLimiteFormatada" value="${adminFiltroDataLimite}" pattern="dd/MM/yyyy" />
 										<div class="info-banner performance-notice">
-											<p>
-												<img src="${base}/img/information.gif" class="icon-inline" alt="" />
-												Exibindo por padrão os jogos do início da Copa até hoje (${adminDataLimiteFormatada}) para facilitar correções de resultados.
+										<p>
+											<img src="${base}/img/information.gif" class="icon-inline" alt="" />
+												Exibindo por padrão somente jogos da data atual (${adminDataLimiteFormatada}) para facilitar correções de resultados.
 												<a href="${pageContext.request.contextPath}/admin/jogos.action?mostrarTodos=true" class="link-action">Ver todos os jogos</a>
 											</p>
 										</div>
@@ -298,7 +312,7 @@
 											<p>
 												<img src="${base}/img/information.gif" class="icon-inline" alt="" />
 												Exibindo todos os jogos.
-												<a href="${pageContext.request.contextPath}/admin/jogos.action" class="link-action">Voltar para jogos até hoje</a>
+												<a href="${pageContext.request.contextPath}/admin/jogos.action" class="link-action">Voltar para jogos da data atual</a>
 											</p>
 										</div>
 										<span class="spacer spacer-sm"></span>

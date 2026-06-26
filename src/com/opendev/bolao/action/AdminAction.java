@@ -2,11 +2,14 @@ package com.opendev.bolao.action;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.sql.Time;
 
 import com.opendev.bolao.model.Jogo;
@@ -17,6 +20,7 @@ import com.opendev.bolao.util.BolaoTime;
 import com.opendev.bolao.util.ConversaoUtils;
 import com.opendev.bolao.util.FiltroBuscaJogos;
 import com.opendev.bolao.util.SanitizationUtils;
+import com.opendev.bolao.util.ValidacaoUtils;
 import org.apache.struts2.ActionSupport;
 import org.apache.struts2.action.ServletRequestAware;
 import org.apache.struts2.action.ServletResponseAware;
@@ -31,6 +35,7 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 
 	private static final long serialVersionUID = 1L;
 	private static final String PARTICIPANTES_FRAGMENT_RESULT = "fragment";
+	private static final Set<Integer> FASES_FILTRO_PERMITIDAS = new HashSet<>(java.util.Arrays.asList(11, 12, 13, 16, 8, 4, 2, 3, 1));
 	/**
 	 * Flag de request para forçar a renderização da linha administrativa na tela
 	 * compartilhada de jogos. Evita que a view de admin reutilize, por engano, o
@@ -61,6 +66,15 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 	private String local;
 	private Integer fase;
 	private boolean mostrarTodos;
+	private FiltroBuscaJogos filtro;
+	private boolean usarFiltro;
+	private String dataInicial;
+	private String dataFinal;
+	private Integer filtroFase;
+	private Long filtroEquipe;
+	private String filtroGrupo;
+	private boolean filtroJogosNaoOcorreram;
+	private List<String> filtroAvisos = new ArrayList<>();
 
 	
 	public String carregarInfoEquipes() {
@@ -244,7 +258,7 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 		// Marcamos explicitamente o contexto administrativo para o include correto
 		// (`admin-match-row.jsp`) e para manter os inputs de resultado ativos.
 		markAdminResultadoView();
-		carregarJogosComFiltroPadraoAteHoje();
+		carregarJogosComFiltroAdmin();
 		return SUCCESS;
 	}
 
@@ -265,13 +279,13 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 			LocalDate diaSeguinteLocal = dataLocalReferencia.plusDays(1);
 			Date diaSeguinte = Date.from(diaSeguinteLocal.atStartOfDay(BolaoTime.getZoneId()).toInstant());
 
-			Date proximaDataDisponivel = getJogoService().buscarPrimeiraDataComJogosApos(diaSeguinte);
+			FiltroBuscaJogos filtroAdminAtivo = obterFiltroAdmin();
+			filtroAdminAtivo = normalizarFiltroIncrementalAdmin(dataReferencia, filtroAdminAtivo);
+			Date proximaDataDisponivel = buscarProximaDataDisponivelComFiltro(diaSeguinte, filtroAdminAtivo);
 
 			if (proximaDataDisponivel != null) {
-				FiltroBuscaJogos novoFiltro = new FiltroBuscaJogos();
-				novoFiltro.setDataInicial(proximaDataDisponivel);
-				novoFiltro.setDataFinal(proximaDataDisponivel);
-
+				FiltroBuscaJogos novoFiltro = montarFiltroDoDiaComRestricoes(proximaDataDisponivel, filtroAdminAtivo);
+				this.filtro = novoFiltro;
 				this.jogos = getJogoService().buscarUsandoFiltro(novoFiltro);
 				this.equipes = getEquipeService().buscarApenasPaisesReais();
 				LOGGER.info("[HTMX-ADMIN][LOAD-MORE] Encontrados {} jogos para a data {}", this.jogos.size(), proximaDataDisponivel);
@@ -287,24 +301,234 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 		return SUCCESS;
 	}
 
+	private FiltroBuscaJogos normalizarFiltroIncrementalAdmin(Date dataReferencia, FiltroBuscaJogos filtroAdminAtivo) {
+		if (filtroAdminAtivo == null || dataReferencia == null) {
+			return filtroAdminAtivo;
+		}
+		if (isUsarFiltro()) {
+			return filtroAdminAtivo;
+		}
+		boolean possuiRestricoesExplicitas = filtroAdminAtivo.getFase() != null
+				|| filtroAdminAtivo.getIdEquipe() != null
+				|| !ValidacaoUtils.isVazia(filtroAdminAtivo.getGrupo())
+				|| filtroAdminAtivo.isSoJogosQueNaoOcorreram();
+		if (possuiRestricoesExplicitas) {
+			return filtroAdminAtivo;
+		}
+		if (!isMesmoDiaNoFusoBolao(filtroAdminAtivo.getDataInicial(), dataReferencia)
+				|| !isMesmoDiaNoFusoBolao(filtroAdminAtivo.getDataFinal(), dataReferencia)) {
+			return filtroAdminAtivo;
+		}
+		LOGGER.info("[HTMX-ADMIN][LOAD-MORE] Ignorando período implícito da carga padrão para permitir avanço incremental.");
+		return null;
+	}
+
 	/**
 	 * Regra padrão da tela administrativa de resultados:
-	 * 1) Exibir jogos desde o início da Copa até "hoje" (São Paulo);
-	 * 2) Manter opção explícita para listar calendário completo (`mostrarTodos=true`).
+	 * 1) Exibir jogos da data atual (São Paulo), quando não houver filtro explícito;
+	 * 2) Manter opção explícita para listar calendário completo (`mostrarTodos=true`);
+	 * 3) Aplicar filtro informado manualmente quando existir.
 	 */
-	private void carregarJogosComFiltroPadraoAteHoje() {
+	private void carregarJogosComFiltroAdmin() {
 		if (this.mostrarTodos) {
+			this.filtro = null;
 			this.jogos = getJogoService().buscarTodos();
 			markAdminFiltroContext(false, null, true);
 			return;
 		}
 
+		FiltroBuscaJogos filtroAdmin = obterFiltroAdmin();
+		if (filtroAdmin != null) {
+			this.filtro = filtroAdmin;
+			this.jogos = getJogoService().buscarUsandoFiltro(filtroAdmin);
+			markAdminFiltroContext(false, null, false);
+			return;
+		}
+
 		Date hoje = Date.from(LocalDate.now(BolaoTime.getZoneId())
 				.atStartOfDay(BolaoTime.getZoneId()).toInstant());
-		FiltroBuscaJogos filtroAteHoje = new FiltroBuscaJogos();
-		filtroAteHoje.setDataFinal(hoje);
-		this.jogos = getJogoService().buscarUsandoFiltro(filtroAteHoje);
+		FiltroBuscaJogos filtroDataAtual = new FiltroBuscaJogos();
+		filtroDataAtual.setDataInicial(hoje);
+		filtroDataAtual.setDataFinal(hoje);
+		this.filtro = filtroDataAtual;
+		this.jogos = getJogoService().buscarUsandoFiltro(filtroDataAtual);
 		markAdminFiltroContext(true, hoje, false);
+	}
+
+	private FiltroBuscaJogos obterFiltroAdmin() {
+		this.filtroAvisos = new ArrayList<>();
+		if (!isFiltroAdminSolicitado()) {
+			return null;
+		}
+
+		FiltroBuscaJogos filtroAdmin = new FiltroBuscaJogos();
+		Date dataInicialFiltro = converterDataFiltroOuNulo(getDataInicial(), "dataInicial");
+		Date dataFinalFiltro = converterDataFiltroOuNulo(getDataFinal(), "dataFinal");
+		if (dataInicialFiltro != null && dataFinalFiltro != null && dataFinalFiltro.before(dataInicialFiltro)) {
+			LOGGER.warn("[FILTRO][ADMIN][JOGOS] intervalo invertido detectado; aplicando swap dataInicial={} dataFinal={}",
+					getDataInicial(), getDataFinal());
+			this.filtroAvisos.add("O intervalo de datas estava invertido e foi ajustado automaticamente.");
+			Date tmp = dataInicialFiltro;
+			dataInicialFiltro = dataFinalFiltro;
+			dataFinalFiltro = tmp;
+		}
+
+		filtroAdmin.setDataInicial(dataInicialFiltro);
+		filtroAdmin.setDataFinal(dataFinalFiltro);
+
+		if (getFiltroFase() != null) {
+			if (FASES_FILTRO_PERMITIDAS.contains(getFiltroFase())) {
+				filtroAdmin.setFase(getFiltroFase());
+			} else {
+				LOGGER.warn("[FILTRO][ADMIN][JOGOS] fase fora da whitelist ignorada: {}", getFiltroFase());
+				this.filtroAvisos.add("A fase selecionada é inválida e foi ignorada.");
+			}
+		}
+
+		if (getFiltroEquipe() != null) {
+			if (isEquipeFiltroPermitida(getFiltroEquipe())) {
+				filtroAdmin.setIdEquipe(getFiltroEquipe());
+			} else {
+				LOGGER.warn("[FILTRO][ADMIN][JOGOS] equipe fora da lista permitida ignorada: {}", getFiltroEquipe());
+				this.filtroAvisos.add("A equipe selecionada não é válida para este filtro e foi ignorada.");
+			}
+		}
+
+		String grupoCanonico = normalizarGrupoFiltro(getFiltroGrupo());
+		if (!ValidacaoUtils.isVazia(grupoCanonico)) {
+			filtroAdmin.setGrupo(grupoCanonico);
+		} else if (!ValidacaoUtils.isVazia(getFiltroGrupo())) {
+			LOGGER.warn("[FILTRO][ADMIN][JOGOS] grupo inválido ignorado: '{}'", getFiltroGrupo());
+			this.filtroAvisos.add("O grupo informado é inválido e foi ignorado.");
+		}
+
+		filtroAdmin.setSoJogosQueNaoOcorreram(isFiltroJogosNaoOcorreram());
+		return filtroAdmin;
+	}
+
+	private Date converterDataFiltroOuNulo(String dataTexto, String campo) {
+		if (ValidacaoUtils.isVazia(dataTexto)) {
+			return null;
+		}
+		Date dataConvertida = ConversaoUtils.converterParaData(dataTexto);
+		boolean invalida = dataConvertida == null
+				|| !dataTexto.equals(ConversaoUtils.converterParaString(dataConvertida));
+		if (invalida) {
+			LOGGER.warn("[FILTRO][ADMIN][JOGOS] {} inválida ignorada: '{}'", campo, dataTexto);
+			if ("dataInicial".equals(campo)) {
+				this.filtroAvisos.add("A data inicial informada é inválida e foi ignorada.");
+			} else {
+				this.filtroAvisos.add("A data final informada é inválida e foi ignorada.");
+			}
+			return null;
+		}
+		return dataConvertida;
+	}
+
+	private boolean isFiltroAdminSolicitado() {
+		return isUsarFiltro()
+				|| !ValidacaoUtils.isVazia(getDataInicial())
+				|| !ValidacaoUtils.isVazia(getDataFinal())
+				|| getFiltroFase() != null
+				|| getFiltroEquipe() != null
+				|| !ValidacaoUtils.isVazia(getFiltroGrupo())
+				|| isFiltroJogosNaoOcorreram();
+	}
+
+	private boolean isEquipeFiltroPermitida(Long equipeId) {
+		if (equipeId == null || getEquipeService() == null) {
+			return false;
+		}
+		List equipesPermitidas = getEquipeService().buscarApenasPaisesReais();
+		if (equipesPermitidas == null) {
+			return false;
+		}
+		for (Object item : equipesPermitidas) {
+			if (item instanceof com.opendev.bolao.model.Equipe equipe
+					&& equipe.getId() != null
+					&& equipe.getId().equals(equipeId)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private String normalizarGrupoFiltro(String grupo) {
+		if (ValidacaoUtils.isVazia(grupo)) {
+			return null;
+		}
+		String canonico = grupo.trim().toUpperCase();
+		if (canonico.matches("^[A-L]$")) {
+			return canonico;
+		}
+		return null;
+	}
+
+	private Date buscarProximaDataDisponivelComFiltro(Date dataInicioBusca, FiltroBuscaJogos filtroBase) {
+		Date cursor = dataInicioBusca;
+		for (int tentativa = 0; tentativa < 366; tentativa++) {
+			Date proximaDataDisponivel = getJogoService().buscarPrimeiraDataComJogosApos(cursor);
+			if (proximaDataDisponivel == null) {
+				return null;
+			}
+			if (filtroBase != null && excedeDataFinal(proximaDataDisponivel, filtroBase.getDataFinal())) {
+				return null;
+			}
+			if (filtroBase == null) {
+				return proximaDataDisponivel;
+			}
+			FiltroBuscaJogos filtroDia = montarFiltroDoDiaComRestricoes(proximaDataDisponivel, filtroBase);
+			List jogosDaData = getJogoService().buscarUsandoFiltro(filtroDia);
+			if (jogosDaData != null && !jogosDaData.isEmpty()) {
+				return proximaDataDisponivel;
+			}
+
+			LocalDate dataLocal = Instant.ofEpochMilli(proximaDataDisponivel.getTime())
+					.atZone(BolaoTime.getZoneId())
+					.toLocalDate();
+			cursor = Date.from(dataLocal.plusDays(1).atStartOfDay(BolaoTime.getZoneId()).toInstant());
+		}
+		return null;
+	}
+
+	private boolean excedeDataFinal(Date dataCandidata, Date dataFinalLimite) {
+		if (dataCandidata == null || dataFinalLimite == null) {
+			return false;
+		}
+		LocalDate candidataLocal = Instant.ofEpochMilli(dataCandidata.getTime())
+				.atZone(BolaoTime.getZoneId())
+				.toLocalDate();
+		LocalDate limiteLocal = Instant.ofEpochMilli(dataFinalLimite.getTime())
+				.atZone(BolaoTime.getZoneId())
+				.toLocalDate();
+		return candidataLocal.isAfter(limiteLocal);
+	}
+
+	private boolean isMesmoDiaNoFusoBolao(Date primeiraData, Date segundaData) {
+		if (primeiraData == null || segundaData == null) {
+			return false;
+		}
+		LocalDate primeiroDia = Instant.ofEpochMilli(primeiraData.getTime())
+				.atZone(BolaoTime.getZoneId())
+				.toLocalDate();
+		LocalDate segundoDia = Instant.ofEpochMilli(segundaData.getTime())
+				.atZone(BolaoTime.getZoneId())
+				.toLocalDate();
+		return primeiroDia.equals(segundoDia);
+	}
+
+	private FiltroBuscaJogos montarFiltroDoDiaComRestricoes(Date dia, FiltroBuscaJogos filtroBase) {
+		FiltroBuscaJogos filtroDia = new FiltroBuscaJogos();
+		filtroDia.setDataInicial(dia);
+		filtroDia.setDataFinal(dia);
+		if (filtroBase == null) {
+			return filtroDia;
+		}
+		filtroDia.setFase(filtroBase.getFase());
+		filtroDia.setIdEquipe(filtroBase.getIdEquipe());
+		filtroDia.setGrupo(filtroBase.getGrupo());
+		filtroDia.setSoJogosQueNaoOcorreram(filtroBase.isSoJogosQueNaoOcorreram());
+		return filtroDia;
 	}
     
 	public String carregarParticipantes() {
@@ -462,6 +686,77 @@ public class AdminAction extends ActionSupport implements ServletRequestAware, S
 	@StrutsParameter
 	public void setMostrarTodos(boolean mostrarTodos) {
 		this.mostrarTodos = mostrarTodos;
+	}
+
+	public boolean isUsarFiltro() {
+		return usarFiltro;
+	}
+
+	@StrutsParameter
+	public void setUsarFiltro(boolean usarFiltro) {
+		this.usarFiltro = usarFiltro;
+	}
+
+	public String getDataInicial() {
+		return dataInicial;
+	}
+
+	@StrutsParameter
+	public void setDataInicial(String dataInicial) {
+		this.dataInicial = SanitizationUtils.cleanText(dataInicial, 16);
+	}
+
+	public String getDataFinal() {
+		return dataFinal;
+	}
+
+	@StrutsParameter
+	public void setDataFinal(String dataFinal) {
+		this.dataFinal = SanitizationUtils.cleanText(dataFinal, 16);
+	}
+
+	public Integer getFiltroFase() {
+		return filtroFase;
+	}
+
+	@StrutsParameter
+	public void setFiltroFase(Integer filtroFase) {
+		this.filtroFase = filtroFase;
+	}
+
+	public Long getFiltroEquipe() {
+		return filtroEquipe;
+	}
+
+	@StrutsParameter
+	public void setFiltroEquipe(Long filtroEquipe) {
+		this.filtroEquipe = filtroEquipe;
+	}
+
+	public String getFiltroGrupo() {
+		return filtroGrupo;
+	}
+
+	@StrutsParameter
+	public void setFiltroGrupo(String filtroGrupo) {
+		this.filtroGrupo = SanitizationUtils.cleanText(filtroGrupo, 5);
+	}
+
+	public boolean isFiltroJogosNaoOcorreram() {
+		return filtroJogosNaoOcorreram;
+	}
+
+	@StrutsParameter
+	public void setFiltroJogosNaoOcorreram(boolean filtroJogosNaoOcorreram) {
+		this.filtroJogosNaoOcorreram = filtroJogosNaoOcorreram;
+	}
+
+	public FiltroBuscaJogos getFiltro() {
+		return filtro;
+	}
+
+	public List<String> getFiltroAvisos() {
+		return filtroAvisos;
 	}
 
 	private boolean isHtmxRequest() {
