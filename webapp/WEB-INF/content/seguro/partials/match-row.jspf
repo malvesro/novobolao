@@ -164,7 +164,7 @@
                         data-target="#group-row_${jogo.id}"
                         data-group-loaded=""
                         aria-expanded="false"
-                        aria-label="Ver palpites do grupo"
+                        aria-label="<fmt:message key='match.tip.group.view' />"
                         aria-controls="group-row_${jogo.id}"
                         title="<fmt:message key='match.tip.group.view' />">
                     👥

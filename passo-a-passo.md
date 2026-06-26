@@ -2331,6 +2331,27 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
       `mvn test -Dtest=ParticipanteActionTest,JogoTest -Dfrontend.skip=true` — 22 testes, 0 falhas. Registro em `.ia/logs/session-20260625-tarefa80-followups-restricao-grupo.md`.
     Auto-Analise: Follow-ups concluídos sem alteração de regra de negócio. Cobertura server-side reforçada, rastreabilidade alinhada, UX do botão desabilitado refinada. | [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
 
+81. **[Concluído] Follow-ups de governança técnica pós-validação dos commits `9615664` e `43c4c26` (26/06/2026):**
+    Objetivo: executar melhorias de consistência e robustez identificadas na revisão arquitetural, preservando o histórico Git (sem reclassificação de commit já publicado).
+    Skills aplicadas: `architecture-guardian v1.0.0`, `security-audit v1.0.0`.
+    * **[Concluído] 81.1 — Consolidar estratégia de i18n para eliminar risco de drift (26/06/2026):**
+      Estratégia de baixo risco definida para preservar compatibilidade do build legado sem alterar regra de negócio:
+      1. **Fonte canônica:** `src/main/resources/messages.properties` passa a ser o único arquivo de edição funcional para novas chaves e ajustes de texto.
+      2. **Arquivo legado mantido por compatibilidade:** `src/messages.properties` permanece versionado como espelho obrigatório enquanto existir fluxo legado dependente desse caminho.
+      3. **Sincronização obrigatória de manutenção:** toda alteração no canônico deve ser replicada no legado no mesmo PR/commit, com validação objetiva via diff de chaves/conteúdo antes da conclusão da tarefa.
+      4. **Critério de segurança operacional:** fica vedada remoção imediata do arquivo legado nesta fase para evitar quebra de empacotamento/execução em ambientes antigos não totalmente mapeados.
+      Evidência técnica desta decisão (estado atual): há divergência real entre os arquivos (quantidade de chaves e textos), confirmando risco concreto de drift e justificando a estratégia conservadora.
+    * **[Concluído] 81.2 — Padronizar acessibilidade i18n no botão de palpites do grupo (26/06/2026):**
+      `webapp/WEB-INF/content/seguro/partials/match-row.jspf` atualizado para usar i18n também no `aria-label` do botão habilitado (`match.tip.group.view`), mantendo consistência com `title` e com o estado desabilitado.
+    * **[Concluído] 81.3 — Tornar suíte de testes resiliente a ambiente sem X11 (26/06/2026):**
+      `pom.xml` ajustado no `maven-surefire-plugin` com `java.awt.headless=true` via `systemPropertyVariables`, eliminando dependência de X11 na execução de testes sem suprimir cobertura funcional.
+    * **[Concluído] 81.4 — Validar regressão e rastreabilidade (26/06/2026):**
+      Validações executadas com sucesso:
+      - `mvn -Dfrontend.skip=true -Dtest=ParticipanteActionTest,GraficosJFreeChartTest test` → 13 testes, 0 falhas.
+      - `mvn -Dfrontend.skip=true -Dtest=ParticipanteActionTest,JogoTest test` → 22 testes, 0 falhas.
+      Registros de evidência em `.ia/logs/session-20260626-tarefa81-3-headless-tests.md` e `.ia/logs/session-20260626-tarefa81-governanca-tecnica.md`.
+    Auto-Analise: Recomendações não bloqueantes concluídas com mudanças pontuais e baixo risco: estratégia de i18n formalizada para reduzir drift, acessibilidade/i18n alinhada no JSP e execução de testes estabilizada para ambiente headless sem perda de cobertura. | [Risco: Baixo] | [Compatibilidade: OK] | [Veredito: Aprovado]
+
 61. **[Concluído] Correção de falso aviso de saída na tela admin após salvar resultado (18/06/2026):**
     Objetivo: impedir aviso de "dados não salvos" ao navegar para outra tela quando o resultado já foi efetivamente gravado.
     * **[Concluído] 61.1 — Diagnóstico de estado pendente no frontend admin:** identificado cenário em `src/frontend/pages/jogos.js` em que `pendingAdminRequests` podia permanecer aberto após `htmx:afterRequest` sem `detail.elt`.
