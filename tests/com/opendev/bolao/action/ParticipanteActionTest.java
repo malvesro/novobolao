@@ -1,9 +1,13 @@
 package com.opendev.bolao.action;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.InputStream;
+import java.sql.Time;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,8 +25,13 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.opendev.bolao.grafico.GraficoBarraLideres;
 import com.opendev.bolao.grafico.GraficoComparativoDesempenho;
+import com.opendev.bolao.model.Jogo;
+import com.opendev.bolao.model.Palpite;
 import com.opendev.bolao.model.Participante;
+import com.opendev.bolao.service.JogoService;
+import com.opendev.bolao.service.PalpiteService;
 import com.opendev.bolao.service.ParticipanteService;
+import com.opendev.bolao.util.BolaoTime;
 import com.opendev.bolao.util.GraficoDesempenhoCacheControl;
 import com.opendev.bolao.util.MensagemErro;
 
@@ -212,5 +221,87 @@ class ParticipanteActionTest {
         assertThat(response.getHeader("Cache-Control")).isEqualTo("private, no-store");
         assertThat(response.getHeader("X-Grafico-Cache-Version"))
                 .isEqualTo(String.valueOf(GraficoDesempenhoCacheControl.obterVersaoAtual()));
+    }
+
+    @Test
+    @DisplayName("listarPalpitesDoJogoHtmx deve retornar lista vazia quando jogoId for nulo")
+    void deveRetornarListaVaziaQuandoJogoIdForNulo() {
+        PalpiteService palpiteService = Mockito.mock(PalpiteService.class);
+        ParticipanteAction action = new ParticipanteAction();
+        action.setPalpiteService(palpiteService);
+
+        String resultado = action.listarPalpitesDoJogoHtmx();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(action.getPalpites()).isEmpty();
+        verify(palpiteService, never()).buscarPalpitesDoJogo(Mockito.any());
+    }
+
+    @Test
+    @DisplayName("listarPalpitesDoJogoHtmx deve retornar lista vazia quando jogo nao existir")
+    void deveRetornarListaVaziaQuandoJogoNaoExistir() {
+        JogoService jogoService = Mockito.mock(JogoService.class);
+        PalpiteService palpiteService = Mockito.mock(PalpiteService.class);
+        when(jogoService.buscarPorId(99L)).thenReturn(Optional.empty());
+
+        ParticipanteAction action = new ParticipanteAction();
+        action.setJogoService(jogoService);
+        action.setPalpiteService(palpiteService);
+        action.setJogoId(99L);
+
+        String resultado = action.listarPalpitesDoJogoHtmx();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(action.getPalpites()).isEmpty();
+        verify(palpiteService, never()).buscarPalpitesDoJogo(Mockito.any());
+    }
+
+    @Test
+    @DisplayName("listarPalpitesDoJogoHtmx deve bloquear palpites quando janela ainda estiver aberta")
+    void deveBloquearPalpitesDoGrupoQuandoJanelaAberta() {
+        JogoService jogoService = Mockito.mock(JogoService.class);
+        PalpiteService palpiteService = Mockito.mock(PalpiteService.class);
+        Jogo jogo = criarJogo(ZonedDateTime.now(BolaoTime.getZoneId()).plusHours(5));
+        when(jogoService.buscarPorId(10L)).thenReturn(Optional.of(jogo));
+
+        ParticipanteAction action = new ParticipanteAction();
+        action.setJogoService(jogoService);
+        action.setPalpiteService(palpiteService);
+        action.setJogoId(10L);
+
+        String resultado = action.listarPalpitesDoJogoHtmx();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(action.getPalpites()).isEmpty();
+        verify(palpiteService, never()).buscarPalpitesDoJogo(Mockito.any());
+    }
+
+    @Test
+    @DisplayName("listarPalpitesDoJogoHtmx deve retornar palpites quando janela estiver encerrada")
+    void deveRetornarPalpitesQuandoJanelaEncerrada() {
+        JogoService jogoService = Mockito.mock(JogoService.class);
+        PalpiteService palpiteService = Mockito.mock(PalpiteService.class);
+        Jogo jogo = criarJogo(ZonedDateTime.now(BolaoTime.getZoneId()).plusMinutes(30));
+        List<Palpite> palpitesEsperados = List.of(new Palpite());
+        when(jogoService.buscarPorId(10L)).thenReturn(Optional.of(jogo));
+        when(palpiteService.buscarPalpitesDoJogo(10L)).thenReturn(palpitesEsperados);
+
+        ParticipanteAction action = new ParticipanteAction();
+        action.setJogoService(jogoService);
+        action.setPalpiteService(palpiteService);
+        action.setJogoId(10L);
+
+        String resultado = action.listarPalpitesDoJogoHtmx();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(action.getPalpites()).isEqualTo(palpitesEsperados);
+        verify(palpiteService).buscarPalpitesDoJogo(10L);
+    }
+
+    private Jogo criarJogo(ZonedDateTime dataHora) {
+        Jogo jogo = new Jogo();
+        jogo.setData(java.util.Date.from(dataHora.toInstant()));
+        jogo.setHora(Time.valueOf(dataHora.toLocalTime()));
+        return jogo;
     }
 }

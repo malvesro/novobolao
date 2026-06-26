@@ -2650,6 +2650,23 @@ div.legenda span.abrev {
 	border-color: var(--color-primary);
 }
 
+.btn-grupo-toggle--disabled,
+.btn-grupo-toggle:disabled {
+	background: #f7fafc;
+	border-color: #e2e8f0;
+	color: #a0aec0;
+	cursor: not-allowed;
+	opacity: 0.65;
+	transform: none;
+}
+
+.btn-grupo-toggle--disabled:hover,
+.btn-grupo-toggle:disabled:hover {
+	background: #f7fafc;
+	border-color: #e2e8f0;
+	transform: none;
+}
+
 .hidden {
 	display: none !important;
 }

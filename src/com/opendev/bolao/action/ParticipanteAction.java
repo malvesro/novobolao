@@ -725,7 +725,12 @@ public class ParticipanteAction extends ActionSupport {
         // Defesa em profundidade: só permite visualizar palpites do grupo
         // quando a janela de palpites estiver encerrada (1h antes do jogo).
         Jogo jogo = getJogoService().buscarPorId(this.jogoId).orElse(null);
-        if (jogo == null || !jogo.getPodeVerPalpitesGrupo()) {
+        if (jogo == null) {
+            LOGGER.warn("[HTMX][GRUPO] Jogo nao encontrado ao listar palpites do grupo: jogoId={}", this.jogoId);
+            this.palpites = Collections.emptyList();
+            return SUCCESS;
+        }
+        if (!jogo.getPodeVerPalpitesGrupo()) {
             LOGGER.warn("[HTMX][GRUPO] Tentativa de acesso a palpites do grupo com janela aberta: jogoId={}", this.jogoId);
             this.palpites = Collections.emptyList();
             return SUCCESS;

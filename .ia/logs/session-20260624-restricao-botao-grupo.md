@@ -12,7 +12,7 @@
 
 ### Analise do Codigo Existente
 
-O metodo `getPodeVerPalpitesGrupo()` ja existia em `Jogo.java` (linhas 212-214) com a logica correta `return !getPodeDarPalpite();`, que retorna `true` quando a janela de palpites esta encerrada (falta <=1h para o jogo comecar).
+O metodo `getPodeVerPalpitesGrupo()` ja existia em `Jogo.java` com a logica `return !getPodeDarPalpite();`. No commit final foi adicionada guarda explicita para `getDataHora() == null` (retorna `false`) e Javadoc de regra de negocio/seguranca.
 
 ### Arquivos Alterados
 
@@ -27,31 +27,36 @@ O metodo `getPodeVerPalpitesGrupo()` ja existia em `Jogo.java` (linhas 212-214) 
      - `match.tip.group.disabled.label=Palpites do grupo indisponiveis`
      - `match.tip.group.disabled.tooltip=Os palpites do grupo ficarao visiveis quando a janela de palpites for encerrada (1 hora antes do jogo).`
 
-3. **src/com/opendev/bolao/action/ParticipanteAction.java**
+3. **src/com/opendev/bolao/model/Jogo.java**
+   - Reforco em `getPodeVerPalpitesGrupo()`: retorna `false` quando `getDataHora()` e nula; Javadoc documentando regra de negocio e seguranca.
+
+4. **src/com/opendev/bolao/action/ParticipanteAction.java**
    - Adicionada validacao server-side (defesa em profundidade) no metodo `listarPalpitesDoJogoHtmx()`:
      - Busca o `Jogo` pelo `jogoId`.
      - Valida `jogo.getPodeVerPalpitesGrupo()` antes de retornar os palpites.
      - Se a janela ainda estiver aberta, retorna lista vazia com log `WARN [HTMX][GRUPO]`.
 
-4. **tests/com/opendev/bolao/model/JogoTest.java**
-   - Adicionados 3 novos testes unitarios:
-     - `devePermitirVisualizarPalpitesDoGrupoQuandoJanelaEncerrada`: valida que `getPodeVerPalpitesGrupo()` retorna `true` quando falta <1h.
-     - `deveBloquearVisualizacaoDePalpitesDoGrupoQuandoJanelaAberta`: valida que retorna `false` quando falta >1h.
-     - `deveRetornarRelacaoInversaEntrePodeDarPalpiteEPodeVerPalpitesGrupo`: valida a relacao inversa entre os dois metodos.
+5. **tests/com/opendev/bolao/model/JogoTest.java**
+   - Adicionados 5 novos testes unitarios:
+     - `devePermitirVisualizarPalpitesDoGrupoQuandoJanelaEncerrada`
+     - `deveBloquearVisualizacaoDePalpitesDoGrupoQuandoJanelaAberta`
+     - `deveRetornarRelacaoInversaEntrePodeDarPalpiteEPodeVerPalpitesGrupo`
+     - `devePermitirVisualizarPalpitesDeJogoJaOcorrido`
+     - `deveBloquearVisualizacaoDePalpitesQuandoDataHoraForNula`
 
 ### Decisoes Tecnicas
 
-- **Nao foi necessario alterar Jogo.java** — o metodo `getPodeVerPalpitesGrupo()` ja existia com a logica correta.
+- **Guarda de seguranca em Jogo.java** para `dataHora` nula, evitando exposicao indevida.
 - **Tooltip i18n** em vez de title fixo para manter internacionalizacao consistente.
 - **Defesa em profundidade** no backend: mesmo que o frontend seja burlado, o servidor nao retorna palpites se a janela estiver aberta.
-- **Testes:** 3 novos cenarios para garantir que a regra nao regrida.
+- **Testes:** 5 novos cenarios para garantir que a regra nao regrida (total: 11 testes na classe).
 
 ## 3. Validacao (Build/Teste)
 
 - Comando: `mvn test -Dtest=JogoTest -Dfrontend.skip=true`
 - Resultado: Sucesso
-- Tests run: 9, Failures: 0, Errors: 0, Skipped: 0
-- Observacoes: Os 3 novos testes + 6 existentes passaram. Nao ha quebra de regressao.
+- Tests run: 11, Failures: 0, Errors: 0, Skipped: 0
+- Observacoes: Os 5 novos testes + 6 existentes passaram. Nao ha quebra de regressao.
 
 ## 4. Analise Humana (Veredito)
 
@@ -59,4 +64,4 @@ O metodo `getPodeVerPalpitesGrupo()` ja existia em `Jogo.java` (linhas 212-214) 
 - [ ] Codigo ajustado manualmente (detalhar abaixo).
 - [ ] Alucinacao detectada (prompt refinado).
 
-**Observacoes:** implementacao completa seguindo o plano. Atualizado passo-a-passo.md com task 79, registrado neste log de sessao.
+**Observacoes:** implementacao completa seguindo o plano. Atualizado passo-a-passo.md com task 79, registrado neste log de sessao. Follow-ups da revisao arquitetural registrados na tarefa 80 do passo-a-passo.md.
