@@ -251,7 +251,7 @@ Apresentar:
 
 # 7. Workflow Multi-Agent
 
-Quando suportado pela plataforma utilizar o seguinte fluxo.
+Quando suportado pela plataforma utilizar o seguinte fluxo preferindo executar tarefas com multiagentes de forma paralela, seja estratégico: 
 
 ## Architect
 
