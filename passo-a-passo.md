@@ -3208,3 +3208,16 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
     - validações executadas com sucesso: `mvn -q test`, `npm run test:frontend`, `npm run build`.
     Evidências:
     - Log: `.ia/logs/session-20260626-tarefa99-hardening-chat-2-0.md`.
+
+100. **[Concluído] Correção de vazamento de SecurityContext nos testes unitários (27/06/2026):**
+     Objetivo: evitar que o SecurityContextHolder persista autenticações de testes anteriores (como no ExceptionHandlingTest), impedindo falhas intermitentes no ChatActionTest.
+     * **[Concluído] 100.1 — Diagnóstico de vazamento de contexto nos testes:**
+       Confirmado que o ExceptionHandlingTest configura uma autenticação simulada no SecurityContextHolder global mas não a limpa ao finalizar.
+     * **[Concluído] 100.2 — Implementar limpeza de SecurityContextHolder no ExceptionHandlingTest:**
+       Introduzir método `@AfterEach` para limpar o contexto após a execução do teste.
+     * **[Concluído] 100.3 — Garantir limpeza defensiva no ChatActionTest:**
+       Introduzir `SecurityContextHolder.clearContext()` no `@AfterEach` de ChatActionTest.
+     * **[Concluído] 100.4 — Validação dos testes consolidados:**
+       Executar a suíte completa com `mvn -Dfrontend.skip=true test` e garantir sucesso de todos os testes.
+     * **[Concluído] 100.5 — Registrar histórico no log de sessão:**
+       Criar log em `.ia/logs/session-20260627-correcao-vazamento-testes.md`.

@@ -44,4 +44,10 @@ class ExceptionHandlingTest {
             assertThat(e.getMessage()).isEqualTo("Erro inesperado ao processar a troca de senha.");
         }
     }
+
+    @org.junit.jupiter.api.AfterEach
+    void tearDown() {
+        org.springframework.security.core.context.SecurityContextHolder.clearContext();
+    }
 }
+

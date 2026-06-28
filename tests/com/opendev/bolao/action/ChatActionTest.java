@@ -43,6 +43,7 @@ class ChatActionTest {
     @AfterEach
     void tearDown() {
         RequestContextHolder.resetRequestAttributes();
+        org.springframework.security.core.context.SecurityContextHolder.clearContext();
     }
 
     @Test
