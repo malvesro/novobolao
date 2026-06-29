@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -211,6 +212,11 @@ public class ChatAction extends ActionSupport implements ServletRequestAware, Se
         if (ValidacaoUtils.isVazia(login)) {
             return LOGIN;
         }
+        if (!isGet()) {
+            setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+            this.chatErro = texto("chat.error.method", "Método HTTP inválido para envio.");
+            return SUCCESS;
+        }
         if (!isAjaxRequest()) {
             setStatus(HttpServletResponse.SC_FORBIDDEN);
             this.chatErro = texto("chat.error.csrf", "Requisição inválida para consulta de histórico.");
@@ -228,9 +234,8 @@ public class ChatAction extends ActionSupport implements ServletRequestAware, Se
                     dataFim,
                     80
             );
-            if (this.mensagensConsulta == null || this.mensagensConsulta.isEmpty()) {
-                setStatus(HttpServletResponse.SC_NO_CONTENT);
-                return NONE;
+            if (this.mensagensConsulta == null) {
+                this.mensagensConsulta = Collections.emptyList();
             }
             return SUCCESS;
         } catch (BusinessException e) {
@@ -276,6 +281,10 @@ public class ChatAction extends ActionSupport implements ServletRequestAware, Se
 
     private boolean isPost() {
         return request != null && "POST".equalsIgnoreCase(request.getMethod());
+    }
+
+    private boolean isGet() {
+        return request != null && "GET".equalsIgnoreCase(request.getMethod());
     }
 
     private boolean isAjaxRequest() {
@@ -339,7 +348,14 @@ public class ChatAction extends ActionSupport implements ServletRequestAware, Se
         if (ValidacaoUtils.isVazia(valor)) {
             return null;
         }
-        LocalDate data = LocalDate.parse(valor.trim());
+        LocalDate data;
+        try {
+            data = LocalDate.parse(valor.trim());
+        } catch (DateTimeParseException e) {
+            throw new BusinessException(
+                    BusinessException.Code.INVALID_INPUT,
+                    texto("chat.error.query.invalidDate", "Data inválida no filtro de consulta."));
+        }
         ZoneId zoneId = ZoneId.of("America/Sao_Paulo");
         if (inicio) {
             return Date.from(data.atStartOfDay(zoneId).toInstant());

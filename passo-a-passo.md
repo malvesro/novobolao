@@ -3504,3 +3504,68 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
       - `webapp/WEB-INF/content/seguro/partials/chat-consulta-fragmento.jsp`
       Padrão adotado: `dd/MM/yyyy HH:mm:ss` (e `dd/MM/yyyy HH:mm` para histórico de menções).
       Validação: `npm run -s build` concluído com sucesso.
+
+106. **[Concluído] Integração de Rebase com Resolução Profunda de Conflitos (29/06/2026):**
+     Objetivo: integrar `origin/novo-chat` com rebase preservando funcionalidades críticas do chat (reply, consulta, menções persistentes, ACK idempotente, polling resiliente e hardening de produção).
+     Estratégia em loops paralelos:
+     - Trilha A (Backend/Config): resolver conflitos de `Action/Service/XML` com consistência arquitetural.
+     - Trilha B (Frontend/UX): resolver conflitos de `JSP/JS/CSS/messages/assets`.
+     - Trilha C (Tester/Reviewer): sanear conflitos remanescentes em testes e validar regressão.
+     * **[Concluído] 106.1 — Diagnóstico profundo e classificação dos conflitos:**
+       Conflitos classificados por criticidade semântica (backend/config), UX/front e documentação/rastreabilidade.
+     * **[Concluído] 106.2 — Resolução paralela Backend/Config (multiagente):**
+       Consolidado fluxo canônico de chat 2.2 com menções persistentes em banco, ACK e endpoints de consulta/badge.
+     * **[Concluído] 106.3 — Resolução paralela Frontend/UX (multiagente):**
+       Preservado comportamento de reply/citação, data+hora no histórico e resiliência de polling/menções.
+     * **[Concluído] 106.4 — Saneamento final dos conflitos remanescentes (Tester/Reviewer):**
+       Resolvidos conflitos em `ChatServiceImplTest`, `passo-a-passo.md` e plano de evolução, além de ajuste de compatibilidade no `ChatActionTest` após mudança de assinatura.
+     * **[Concluído] 106.5 — Continuidade do rebase e validação técnica final:**
+       Rebase concluído com sucesso e bateria executada:
+       - `mvn -Dfrontend.skip=true test` (185 testes, 0 falhas)
+       - `npm run -s test:frontend` (55 testes, 0 falhas)
+       - `npm run -s build`
+       - `git diff --check`
+       Evidência principal: integração final sem conflitos e branch local atualizado.
+
+107. **[Em Progresso] Chat 2.2.1 — Hardening de Funcionamento e Governança dos Loops (29/06/2026):**
+     Objetivo: manter estabilidade funcional do chat em produção (HF gratuito + Aiven), reduzir riscos críticos de UX/segurança e alinhar rastreabilidade entre plano e estado real do código.
+     Estratégia de execução paralela (multiagente):
+     - Trilha A (Architect/Reviewer): auditoria profunda de riscos e priorização por impacto x esforço.
+     - Trilha B (Developer): correções de hardening com baixo risco de regressão.
+     - Trilha C (Tester): validação técnica e regressão completa.
+     * **[Concluído] 107.1 — Auditoria profunda com multiagentes (arquitetura + UX + segurança):**
+       Achados consolidados:
+       - lacuna entre estado real do código e subtarefas pendentes da 105;
+       - risco de XSS em atributo de ação de reply;
+       - inconsistência de UX na consulta vazia e erro de entrada em data da consulta.
+     * **[Concluído] 107.2 — Hardening de segurança (XSS) no fluxo de reply:**
+       Escapados atributos `data-chat-reply-author` em:
+       - `webapp/WEB-INF/content/seguro/batePapo.jsp`
+       - `webapp/WEB-INF/content/seguro/partials/chat-mensagens-fragmento.jsp`
+       Critério atendido: eliminação de injeção por quebra de atributo HTML no botão de responder.
+     * **[Concluído] 107.3 — Hardening funcional da consulta histórica (UX + contrato HTTP):**
+       Ajustes implementados:
+       - consulta parcial exige método `GET` (retorna 405 em método inválido);
+       - data inválida no filtro retorna erro de entrada (400) com mensagem funcional;
+       - consulta sem resultado mantém renderização do fragmento (200), evitando “resultado antigo preso”.
+       Arquivo principal: `src/com/opendev/bolao/action/ChatAction.java`.
+     * **[Concluído] 107.4 — Ampliação de testes para os novos cenários críticos:**
+       Atualizados testes em `tests/com/opendev/bolao/action/ChatActionTest.java` cobrindo:
+       - 405 para método inválido em consulta;
+       - 400 para data inválida;
+       - renderização de estado vazio de consulta sem 204.
+       Atualizadas mensagens:
+       - `src/main/resources/messages.properties`
+       - `src/messages.properties`
+     * **[Concluído] 107.5 — Regressão técnica completa pós-hardening:**
+       Evidências (29/06/2026):
+       - `mvn -Dfrontend.skip=true test` -> 187 testes, 0 falhas;
+       - `npm run -s test:frontend` -> 55 testes, 0 falhas;
+       - `npm run -s build` -> sucesso (com aviso conhecido de chunk `apexcharts`);
+       - `git diff --check` -> sem inconsistências.
+     * **[Pendente] 107.6 — Loop A avançado (citação semântica dedicada, além de reply):**
+       Entregar contrato/UX de citação formal com cobertura backend/frontend.
+     * **[Pendente] 107.7 — Loop C avançado (consulta com paginação/cursor):**
+       Entregar paginação histórica sem quebrar incremental e com testes de regressão.
+     * **[Pendente] 107.8 — Hardening estrutural de menções em produção HF/Aiven:**
+       Endereçar recuperação automática de modo degradado e concorrência (`exists + save`) com testes dedicados.

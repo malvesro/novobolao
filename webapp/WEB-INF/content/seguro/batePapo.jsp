@@ -45,7 +45,7 @@
                             <button type="button"
                                     class="chat-message__reply-action"
                                     data-chat-reply-id="${mensagem.id}"
-                                    data-chat-reply-author="${mensagem.nomeExibicao}"
+                                    data-chat-reply-author="${fn:escapeXml(mensagem.nomeExibicao)}"
                                     data-chat-reply-text="${fn:escapeXml(mensagem.texto)}">
                                 <fmt:message key="chat.reply.action" />
                             </button>

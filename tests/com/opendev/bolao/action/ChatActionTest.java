@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -386,6 +387,7 @@ class ChatActionTest {
     @Test
     void deveConsultarHistoricoParcialComAjax() {
         request.setUserPrincipal(() -> "admin");
+        request.setMethod("GET");
         request.addHeader("HX-Request", "true");
         action.setChatBuscaTermo("gol");
         action.setChatBuscaAutor("admin");
@@ -401,8 +403,25 @@ class ChatActionTest {
     }
 
     @Test
+    void deveManterRenderizacaoDoFragmentoQuandoConsultaNaoTemResultados() {
+        request.setUserPrincipal(() -> "admin");
+        request.setMethod("GET");
+        request.addHeader("HX-Request", "true");
+        action.setChatBuscaTermo("inexistente");
+        when(chatService.buscarHistoricoFiltrado(eq("admin"), eq("inexistente"), isNull(), any(), any(), eq(80)))
+                .thenReturn(List.of());
+
+        String resultado = action.consultarHistoricoParcial();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(action.getMensagensConsulta()).isEmpty();
+    }
+
+    @Test
     void deveRetornar403QuandoConsultaHistoricoNaoForAjax() {
         request.setUserPrincipal(() -> "admin");
+        request.setMethod("GET");
         action.setChatBuscaTermo("gol");
 
         String resultado = action.consultarHistoricoParcial();
@@ -412,15 +431,28 @@ class ChatActionTest {
     }
 
     @Test
-    void deveRetornar500QuandoDataConsultaForInvalida() {
+    void deveRetornar405QuandoConsultaHistoricoUsarMetodoInvalido() {
         request.setUserPrincipal(() -> "admin");
+        request.setMethod("POST");
+        request.addHeader("HX-Request", "true");
+
+        String resultado = action.consultarHistoricoParcial();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(response.getStatus()).isEqualTo(405);
+    }
+
+    @Test
+    void deveRetornar400QuandoDataConsultaForInvalida() {
+        request.setUserPrincipal(() -> "admin");
+        request.setMethod("GET");
         request.addHeader("HX-Request", "true");
         action.setChatBuscaDataInicio("2026-99-99");
 
         String resultado = action.consultarHistoricoParcial();
 
         assertThat(resultado).isEqualTo("success");
-        assertThat(response.getStatus()).isEqualTo(500);
-        assertThat(action.getChatErro()).isEqualTo("Não foi possível consultar o histórico agora.");
+        assertThat(response.getStatus()).isEqualTo(400);
+        assertThat(action.getChatErro()).isEqualTo("Data inválida no filtro de consulta.");
     }
 }
