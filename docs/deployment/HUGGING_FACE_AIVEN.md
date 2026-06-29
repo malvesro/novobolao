@@ -34,7 +34,7 @@ Embora o Hugging Face ofereça 16GB de RAM, mantemos as otimizações para garan
 No Hugging Face Spaces, você deve configurar as credenciais na aba **Settings > Variables and Secrets**. 
 
 ### 1. Banco de Dados (Aiven MySQL)
-Estas variáveis permitem que a aplicação conecte ao banco externo e realize a inicialização automática.
+Estas variáveis permitem que a aplicação conecte ao banco externo com inicialização controlada por tipo (schema vs seed), reduzindo risco de perda de dados em produção.
 
 | Variável | Tipo | Exemplo / Valor |
 | :--- | :--- | :--- |
@@ -43,7 +43,17 @@ Estas variáveis permitem que a aplicação conecte ao banco externo e realize a
 | `DB_NAME` | Variable | `defaultdb` |
 | `DB_USER` | Variable | `avnadmin` |
 | `DB_PASSWORD`| **Secret** | (Sua senha do Aiven) |
-| `DB_INITIALIZE`| Variable | `true` (mude para `false` após a primeira carga) |
+| `DB_INIT_SCHEMA` | Variable | `true` somente no bootstrap inicial; depois `false` |
+| `DB_INIT_SEED` | Variable | `false` em produção |
+| `DB_INIT_COPA_2026_SEED` | Variable | `false` em produção (nunca habilitar em produção) |
+
+> ✅ **Padrão seguro para produção (HF/Aiven):**
+> - `DB_INIT_SCHEMA=false` após estrutura já criada
+> - `DB_INIT_SEED=false`
+> - `DB_INIT_COPA_2026_SEED=false`
+>
+> Em ambiente local de desenvolvimento (`docker-compose.yml`), os seeds podem ser habilitados explicitamente.
+> A variável legada `DB_INITIALIZE` permanece apenas para compatibilidade e controla somente o schema.
 
 > ⚠️ **SSL Obrigatório:** O Aiven exige SSL. A aplicação já está configurada com `useSSL=true&requireSSL=true`. O hostname e a porta exatos estão disponíveis no console da Aiven em **Services > Overview > Connection information**.
 

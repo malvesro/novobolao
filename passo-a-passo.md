@@ -3222,7 +3222,7 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
      * **[Concluído] 100.5 — Registrar histórico no log de sessão:**
        Criar log em `.ia/logs/session-20260627-correcao-vazamento-testes.md`.
 
-101. **[Pendente] Evolução do Chat 2.1 — Simplificação de Usabilidade, Notificações Globais (@autor e @Todos) e Melhorias de UX (27/06/2026):**
+101. **[Concluído] Evolução do Chat 2.1 — Simplificação de Usabilidade, Notificações Globais (@autor e @Todos) e Melhorias de UX (27/06/2026):**
      Objetivo: implementar as otimizações de usabilidade e o mecanismo de notificações transversais de menção no sistema.
      * **[Concluído] 101.1 — Elaboração do plano de evolução técnica e design (Architect):**
        Criar o plano detalhado em `.ia/planos/plano-evolucao-chat-2-1-usabilidade.md`.
@@ -3248,28 +3248,259 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
        * **[Concluído] 101.10 — Desenvolvimento do modal Toast e suas animações CSS (UX/Developer):**
          Inserir o markup `mention-toast-fragment.jsp` e estilizá-lo com Glassmorphism e fade-out controlados via CSS transitions.
      * **Iteração D: Ajustes de Comportamento na UI do Chat (Paralelizável)**
-       * **[Pendente] 101.11 — Refatoração do Auto-Scroll Lock em leitura retrospectiva (UX/Developer):**
+       * **[Concluído] 101.11 — Refatoração do Auto-Scroll Lock em leitura retrospectiva (UX/Developer):**
          Reescrever e revisar `chat.js` no client-side para congelar o scroll caso o participante esteja navegando em trecho histórico, garantindo que o fonte versionado e os assets gerados estejam consistentes.
-       * **[Pendente] 101.12 — Desenvolvimento do helper de autocomplete para o trigger de @ (UX/Developer):**
+       * **[Concluído] 101.12 — Desenvolvimento do helper de autocomplete para o trigger de @ (UX/Developer):**
          Projetar, implementar e revisar sugestor contextual ao digitar o caractere de menção no textarea, removendo duplicidades de teste e validando acessibilidade básica do listbox.
-       * **[Pendente] 101.13 — Validação final combinada, regressão e Go/No-go (Tester/Reviewer/Security):**
+       * **[Concluído] 101.13 — Validação final combinada, regressão e Go/No-go (Tester/Reviewer/Security):**
          Executar compilação consolidada (`mvn test` ou recorte justificado), testes frontend, `npm run build`, `git diff --check` e revisão final. A validação anterior fica reaberta até os achados do working tree serem saneados.
      * **Iteração E: Saneamento profissional do working tree antes do fechamento (Obrigatória)**
-       * **[Pendente] 101.14 — Congelar inventário técnico do working tree (Architect/Reviewer):**
+       * **[Concluído] 101.14 — Congelar inventário técnico do working tree (Architect/Reviewer):**
          Classificar todos os arquivos modificados, deletados e não versionados entre código-fonte, configuração, testes, documentação, logs e assets gerados. Confirmar que `webapp/assets/js/main-D_IJEZcB.js` foi substituído corretamente por `webapp/assets/js/main-Buq_AqZs.js` e que o manifesto Vite aponta para o asset novo.
-       * **[Pendente] 101.15 — Alinhar fonte JavaScript e assets Vite (Developer/Reviewer):**
+       * **[Concluído] 101.15 — Alinhar fonte JavaScript e assets Vite (Developer/Reviewer):**
          Garantir que `src/frontend/pages/chat.js`, `webapp/assets/js/app-bundle.js`, `webapp/assets/js/main-*.js` e `webapp/assets/.vite/manifest.json` representem a mesma lógica de scroll lock e autocomplete. Reexecutar `npm run build` após os ajustes e revisar apenas os artefatos esperados.
-       * **[Pendente] 101.16 — Corrigir suíte frontend do chat (Tester):**
+       * **[Concluído] 101.16 — Corrigir suíte frontend do chat (Tester):**
          Corrigir o uso de variável `form` fora de escopo em `tests/frontend/chat.test.js`, remover casos duplicados de autocomplete, validar scroll lock, autocomplete, preservação de texto em erro HTMX e feedback visual.
-       * **[Pendente] 101.17 — Saneamento de higiene de diff e formatos (Developer/Reviewer):**
+       * **[Concluído] 101.17 — Saneamento de higiene de diff e formatos (Developer/Reviewer):**
          Eliminar falhas de `git diff --check`, incluindo espaços finais, linha em branco excedente no EOF e conversões indevidas de fim de linha em XMLs Spring. Preservar o estilo do arquivo sem refatorações fora do escopo.
-       * **[Pendente] 101.18 — Revisão de contrato backend e segurança das menções (Security/Reviewer):**
+       * **[Concluído] 101.18 — Revisão de contrato backend e segurança das menções (Security/Reviewer):**
          Revisar `ChatNotificationService`, DTO, `ChatServiceImpl`, `ChatAction`, `struts.xml` e fragmento JSP para garantir autenticação obrigatória, retorno 204 sem conteúdo, limpeza segura de notificações, limite de fila, concorrência, escape de saída com JSTL e ausência de vazamento de dados sensíveis em logs.
-       * **[Pendente] 101.19 — Revisão arquitetural da integração Spring/Struts (Architect):**
+       * **[Concluído] 101.19 — Revisão arquitetural da integração Spring/Struts (Architect):**
          Confirmar que `ChatAction` apenas orquestra o fluxo, `ChatServiceImpl` concentra regra de negócio, `ChatNotificationService` permanece desacoplado da camada web e os XMLs Spring injetam dependências sem criar ciclos ou escopos incorretos.
-       * **[Pendente] 101.20 — Revalidação técnica completa e evidências (Tester):**
+       * **[Concluído] 101.20 — Revalidação técnica completa e evidências (Tester):**
          Executar, no mínimo, testes focados de backend (`ChatActionTest`, `ChatServiceImplTest`), suíte frontend relevante e build Vite. Executar suíte maior se o impacto ou os ajustes indicarem risco de regressão. Registrar comandos e resultados no log final.
-       * **[Pendente] 101.21 — Atualizar rastreabilidade e documentação final (Reviewer):**
+       * **[Concluído] 101.21 — Atualizar rastreabilidade e documentação final (Reviewer):**
          Atualizar `.ia/planos/plano-evolucao-chat-2-1-usabilidade.md`, `passo-a-passo.md` e logs de sessão para refletir o estado real. Corrigir a divergência entre log de "completado" e subtarefas pendentes, sem mascarar validações que ainda não foram executadas.
-       * **[Pendente] 101.22 — Preparação de commit rastreável sem executar commit automaticamente (Reviewer):**
+       * **[Concluído] 101.22 — Preparação de commit rastreável sem executar commit automaticamente (Reviewer):**
          Revisar `git diff --stat`, `git diff --name-status`, arquivos não versionados e ausência de secrets. Preparar sugestão de conventional commit com emoji em Português do Brasil, incluindo código e artefatos de rastreabilidade no mesmo commit, aguardando autorização explícita do usuário.
+     * **[Concluído] Evidências finais (29/06/2026):** validações executadas com sucesso (`npm run -s test:frontend -- tests/frontend/chat.test.js`, `mvn -Dfrontend.skip=true -Dtest=ChatActionTest,ChatServiceImplTest test`, `npm run -s build`, `git diff --check`), com revisão multiagente (Architect/Tester/Security) e ajustes finais de segurança/arquitetura aplicados no fluxo de menções. Log consolidado: `.ia/logs/session-20260629-chat-2-1-saneamento-final.md`.
+
+102. **[Concluído] Evolução UX do Chat 2.1.1 — Adoção, Clareza Operacional e Notificações Persistentes (29/06/2026):**
+     Objetivo: elevar usabilidade e incentivo de uso do chat com melhorias de baixo/médio esforço já priorizadas na revisão UX sênior.
+     Skills previstas: `ui-ux-pro-max v1.0.0`, `modern-javascript-patterns v1.0.0`, `htmx v1.0.0`, `architecture-guardian v1.0.0`, `security-audit v1.0.0`.
+     * **[Concluído] 102.1 — Badge de menções pendentes no menu global (cross-screen):**
+       Exibir contagem de menções pendentes junto ao item “Sala de Bate-Papo”, com atualização periódica assíncrona sem refresh total da página e sem degradar segurança/autorização do endpoint.
+     * **[Concluído] 102.2 — Indicador “Novas mensagens” durante leitura retrospectiva:**
+       Quando o usuário estiver fora do fim da lista, exibir CTA persistente de novas mensagens (ex.: “Novas mensagens · Ir para o final”), evitando perda de contexto com auto-scroll bloqueado.
+     * **[Concluído] 102.3 — Feedback de envio e previsibilidade de limite:**
+       Adicionar estado visual de envio (botão desabilitado + rótulo “Enviando...”) e contador de caracteres (`x/300`) no composer.
+     * **[Concluído] 102.4 — Ajuda de menção visível no fluxo principal:**
+       Tornar a dica `@login`/`@Todos` visível no formulário (não apenas `sr-only`), preservando acessibilidade e simplicidade visual.
+     * **[Concluído] 102.5 — Persistência de menções (mini central leve):**
+       Disponibilizar histórico recente de menções para reduzir perda de contexto após fade do toast, com retenção curta e UX discreta.
+     * **[Concluído] 102.6 — Cobertura de testes ampliada (frontend + backend):**
+       Reavaliar e ampliar testes conforme impacto:
+       - frontend: badge/estado de envio/contador/indicador de novas mensagens;
+       - backend: contrato de contagem e histórico de menções + consistência de limpeza/persistência.
+     * **[Concluído] 102.7 — Validação técnica final e revisão:**
+       Executar ao menos: `npm run -s test:frontend -- tests/frontend/chat.test.js`, `mvn -Dfrontend.skip=true -Dtest=ChatActionTest,ChatServiceImplTest test`, `npm run -s build`, `git diff --check`, com parecer final de qualidade/segurança.
+     * **[Concluído] 102.8 — Rastreabilidade e documentação:**
+       Atualizar `passo-a-passo.md`, plano correlato e log de sessão em `.ia/logs/` com evidências das melhorias e resultados de testes.
+     * **[Concluído] Evidências finais (29/06/2026):**
+       Implementação e validação concluídas com execução paralela multiagente (Architect/Tester/Security), cobertura ampliada para contratos de menções (badge + histórico), suíte dedicada de notificação em memória (`ChatNotificationServiceImplTest`) e mitigação de risco operacional no polling HTMX (remoção de `load` nos fragments retornados). Validações executadas com sucesso: `npm run -s test:frontend -- tests/frontend/chat.test.js`, `mvn -Dfrontend.skip=true test`, `npm run -s build`, `git diff --check`. Log consolidado: `.ia/logs/session-20260629-chat-2-1-1-ux-finalizacao.md`.
+
+103. **[Concluído] Hardening UX/Arquitetura do Chat 2.1.2 — Semântica de Leitura, Resiliência Operacional e Escalabilidade (29/06/2026):**
+     Objetivo: remover riscos residuais da revisão UX sênior para tornar o fluxo de menções mais previsível, seguro e preparado para operação com maior carga/múltiplas instâncias.
+     Justificativa técnica:
+     - o endpoint atual de menções pendentes usa GET com efeito colateral (consumo/limpeza), reduzindo previsibilidade e semântica HTTP;
+     - há risco operacional de inconsistência de notificações em múltiplas abas e múltiplas instâncias;
+     - faltam mecanismos explícitos de degradação UX e observabilidade de saúde do subsistema de menções.
+     Contexto obrigatório de produção (Hugging Face gratuito):
+     - considerar variação de CPU/memória, cold starts e reinícios de instância com perda de estado em memória;
+     - evitar configurações agressivas de polling que ampliem custo computacional em ambiente compartilhado;
+     - garantir degradação graciosa quando houver indisponibilidade temporária ou reset de runtime.
+     Skills previstas: `architecture-guardian v1.0.0`, `security-audit v1.0.0`, `htmx v1.0.0`, `ui-ux-pro-max v1.0.0`, `modern-javascript-patterns v1.0.0`.
+     Estratégia de execução paralela (multiagentes):
+     - Trilha A (Backend Contrato): Developer + Security.
+     - Trilha B (Frontend UX/HTMX): Developer + UX.
+     - Trilha C (Resiliência/Infra): Architect + Developer.
+     - Trilha D (Testes/Revisão): Tester + Reviewer.
+     * **[Concluído] 103.1 — Redesenhar contrato de menções para semântica segura (Trilha A):**
+       Separar leitura de confirmação:
+       - `GET` deve apenas consultar (`sem limpeza`);
+       - `POST` dedicado para ACK explícito das menções exibidas/consumidas.
+       Critérios: manter 401/403 corretos, CSRF obrigatório no ACK e compatibilidade com fluxo HTMX atual.
+     * **[Concluído] 103.2 — Controle de concorrência entre abas e idempotência de ACK (Trilha A):**
+       Garantir que confirmações duplicadas ou fora de ordem não causem perda indevida e que múltiplas abas tenham comportamento previsível.
+       Critérios: ACK idempotente por identificador de menção e documentação do comportamento.
+     * **[Concluído] 103.3 — Persistência/compartilhamento de estado para cenário multi-instância (Trilha C):**
+       Avaliar e implementar estratégia mínima para ambiente com mais de uma instância (ex.: store compartilhado ou fallback documentado com sticky session).
+       Critérios: decisão registrada (ADR se houver mudança estrutural) e impacto operacional explícito.
+     * **[Concluído] 103.4 — UX de degradação e recuperação no menu global (Trilha B):**
+       Exibir estado discreto quando menções estiverem indisponíveis (erro de polling/servidor), com retentativa progressiva (backoff) e sem ruído visual excessivo.
+       Critérios: acessibilidade (`aria-live` apropriado) e não bloqueio da navegação.
+     * **[Concluído] 103.5 — Observabilidade e limites operacionais do subsistema de menções (Trilha C):**
+       Instrumentar métricas e logs estruturados mínimos:
+       - tamanho das filas pendentes/histórico;
+       - taxa de ACK;
+       - taxa de falha dos endpoints de menção;
+       - indicadores de crescimento anômalo em memória.
+       Critérios: logs sem conteúdo sensível de mensagens.
+     * **[Concluído] 103.6 — Cobertura de testes ampliada para novo contrato e concorrência (Trilha D):**
+       Expandir testes backend/frontend para:
+       - GET sem efeito colateral;
+       - POST ACK (sucesso, idempotência, erro, CSRF);
+       - concorrência básica multiaba;
+       - estado de degradação e recuperação no frontend.
+     * **[Concluído] 103.7 — Revalidação técnica final com suíte completa (Trilha D):**
+       Executar no mínimo:
+       - `npm run -s test:frontend -- tests/frontend/chat.test.js`;
+       - `mvn -Dfrontend.skip=true test`;
+       - `npm run -s build`;
+       - `git diff --check`.
+       Registrar resultados e parecer GO/NO-GO.
+     * **[Concluído] 103.8 — Rastreabilidade final e governança (Trilha D):**
+       Atualizar `passo-a-passo.md`, plano correlato e log em `.ia/logs/` com:
+       - decisões técnicas;
+       - riscos mitigados;
+       - riscos aceitos;
+       - evidências de testes.
+     * **[Concluído] 103.9 — Perfil operacional para HF gratuito (Trilha C):**
+       Definir e aplicar perfil de execução leve para produção no Hugging Face gratuito:
+       - orçamento de polling (intervalo mínimo, jitter e teto de tentativas em erro);
+       - timeout de requisição e política de retry conservadora;
+       - fallback para estado “indisponível temporariamente” sem travar navegação.
+       Critérios: parâmetros versionados e documentados, sem regressão funcional do chat.
+     * **[Concluído] 103.10 — Recuperação pós-restart/cold start com UX explícita (Trilha B):**
+       Implementar tratamento claro para perda de estado em memória após restart:
+       - mensagem curta de contexto (ex.: notificações recentes podem ter sido reiniciadas);
+       - recarregamento seguro da tela de chat sem comportamento confuso de badge/toast.
+       Critérios: linguagem simples, acessível e sem excesso de alertas.
+     * **[Concluído] 103.11 — Validação orientada a restrição de runtime (Trilha D):**
+       Executar cenário controlado simulando degradação (erro 5xx/timeout/reset de estado) e validar:
+       - estabilidade da UI;
+       - ausência de rajada de requisições;
+       - recuperação automática em polling posterior.
+       Critérios: evidências registradas em log com comandos/resultados e veredito de prontidão para HF gratuito.
+     * **[Concluído] Evidências parciais da rodada 103.6 (29/06/2026):**
+       Execução paralela multiagente concluída (Trilha A Backend + Trilha B Frontend) com contrato GET sem efeito colateral e ACK explícito via POST. Ajustes de UX para degradação/recuperação do polling aplicados no menu global com backoff progressivo. Validações executadas com sucesso: `npm run -s test:frontend -- tests/frontend/chat.test.js` (10/10), `mvn -Dfrontend.skip=true test` (173 testes, 0 falhas), `npm run -s build`, `git diff --check`. Log da rodada: `.ia/logs/session-20260629-chat-2-1-2-ack-polling-hardening.md`.
+     * **[Concluído] Evidências finais de fechamento da 103 (29/06/2026):**
+       Pendências remanescentes concluídas com execução paralela multiagente, incluindo sinalização de runtime degradado/cold-start via headers, observabilidade estruturada sem payload sensível e UX discreta de sincronização inicial com otimização de polling por visibilidade/jitter. Validações executadas com sucesso: `npm run -s test:frontend -- tests/frontend/chat.test.js` (13/13), `mvn -Dfrontend.skip=true test` (175 testes, 0 falhas), `npm run -s build`, `git diff --check`. Log da rodada: `.ia/logs/session-20260629-chat-2-1-3-103-fechamento-104-parcial.md`.
+
+104. **[Concluído] Hardening Final Chat 2.1.3 — Entrega Confiável Cross-Screen, Estado Durável e Eficiência Operacional (29/06/2026):**
+     Objetivo: eliminar riscos críticos/prioritários remanescentes da revisão UX/Arquitetura, garantindo previsibilidade no recebimento de menções em outras telas, robustez em produção (Hugging Face gratuito) e cobertura de testes ampliada.
+     Justificativa técnica:
+     - atualmente há risco de menções não chegarem fora da tela de chat por acoplamento à presença em memória do runtime;
+     - estado de menções/presença em memória local ainda é vulnerável a restart/cold start e cenários multi-instância;
+     - há risco de retenção indevida no ciclo de ACK frontend (`mentionAckInFlight`);
+     - polling global ainda pode ser otimizado para reduzir custo computacional e rajadas síncronas.
+     Relação com pendências anteriores:
+     - esta tarefa consolida e detalha a execução das pendências `103.3`, `103.5` e `103.10` com foco prático em produção.
+     Contexto obrigatório de produção (Hugging Face gratuito):
+     - considerar CPU compartilhada, cold starts e comportamento de sleep/restart;
+     - reduzir volume de polling em abas inativas;
+     - manter UX clara quando houver reset de estado de runtime.
+     Skills previstas: `architecture-guardian v1.0.0`, `security-audit v1.0.0`, `ui-ux-pro-max v1.0.0`, `modern-javascript-patterns v1.0.0`, `htmx v1.0.0`.
+     Estratégia de execução paralela (multiagentes):
+     - Trilha A (Arquitetura/Estado Durável): Architect + Developer.
+     - Trilha B (Frontend UX/Performance): Developer + UX.
+     - Trilha C (Segurança e Privacidade): Security + Reviewer.
+     - Trilha D (Testes e Regressão): Tester + Reviewer.
+     - Trilha E (Operação HF e Observabilidade): Architect + Tester.
+     * **[Concluído] 104.1 — Corrigir ciclo de vida do ACK no frontend (Trilha B):**
+       Ajustar `chat.js` para liberar sempre `mentionAckInFlight` (sucesso/erro) com fluxo idempotente e sem vazamento de memória.
+       Critérios: nenhum bloqueio indevido de ACK repetido por chave equivalente; sem regressão no refresh dos pollers.
+     * **[Concluído] 104.2 — Garantir entrega de menções cross-screen sem dependência de “presença no chat” (Trilha A):**
+       Revisar regra de destinatários para que usuário autenticado elegível receba menções independentemente de estar com a tela de chat aberta.
+       Critérios: contrato explícito documentado (quem pode receber, quando e por quanto tempo), sem regressão de segurança/autorização.
+     * **[Concluído] 104.3 — Persistência compartilhada para pendências/histórico de menções (Trilha A):**
+       Implementar store durável para pendências de menção (DB ou estratégia equivalente compatível com stack atual), removendo dependência exclusiva de `ConcurrentMap`.
+       Critérios: ACK idempotente por `mensagemId + destinatário`, comportamento determinístico em restart/multi-instância.
+     * **[Concluído] 104.4 — UX de recuperação pós-restart/cold start (Trilha B):**
+       Implementar mensagem curta e discreta explicando eventual reinicialização de notificações, sem alarmismo e sem bloquear navegação.
+       Critérios: copy em i18n, acessibilidade (`aria-live`) e exibição não intrusiva.
+     * **[Concluído] 104.5 — Otimização de polling para ambiente restrito (Trilha E):**
+       Introduzir estratégia de eficiência:
+       - pausa/redução de polling com `Page Visibility` em aba inativa;
+       - jitter para reduzir sincronismo de requisições;
+       - limites conservadores de retry/timeout.
+       Critérios: sem piorar tempo de percepção de novas menções em aba ativa.
+     * **[Concluído] 104.6 — Observabilidade estruturada do subsistema de menções (Trilha E):**
+       Adicionar logs e indicadores mínimos:
+       - backlog de pendências por usuário (agregado);
+       - taxa de ACK, falha de endpoints e latência de polling;
+       - detecção de crescimento anômalo.
+       Critérios: sem payload sensível de mensagens nos logs.
+     * **[Concluído] 104.7 — Hardening de segurança e privacidade (Trilha C):**
+       Validar CSRF/autorização do ACK e revisão de dados expostos em logs/telemetria.
+       Critérios: checklist OWASP do fluxo de menções atualizado e evidenciado em log de sessão.
+     * **[Concluído] 104.8 — Novos testes unitários backend (Trilha D):**
+       Cobrir no mínimo:
+       - entrega de menções para usuário elegível fora da tela de chat;
+       - persistência de pendências após reinicialização simulada;
+       - ACK idempotente e concorrência básica (ordem invertida/duplicada).
+       Sugestão de foco: `ChatServiceImplTest`, `ChatNotificationServiceImplTest`, `ChatActionTest`.
+     * **[Concluído] 104.9 — Novos testes frontend (Trilha D):**
+       Cobrir no mínimo:
+       - limpeza garantida de `mentionAckInFlight` em sucesso;
+       - polling reduzido em aba oculta e retomada em aba visível;
+       - UX de recuperação pós-cold start sem regressão de acessibilidade.
+       Sugestão de foco: `tests/frontend/chat.test.js`.
+     * **[Concluído] 104.10 — Testes de integração e regressão final (Trilha D):**
+       Executar no mínimo:
+       - `npm run -s test:frontend -- tests/frontend/chat.test.js`;
+       - `mvn -Dfrontend.skip=true test`;
+       - `npm run -s build`;
+       - `git diff --check`.
+       Critérios: sem falhas e sem regressões funcionais no chat/menções.
+     * **[Concluído] 104.11 — Decisão arquitetural e governança (Trilha A/C):**
+       Registrar ADR se houver mudança estrutural de estado durável/política de entrega de menções.
+       Critérios: incluir alternativas avaliadas, impactos e plano de rollback.
+     * **[Concluído] 104.12 — Rastreabilidade final da rodada (Trilha D):**
+       Atualizar `passo-a-passo.md`, plano correlato e log de sessão em `.ia/logs/` com:
+       - decisões e riscos mitigados;
+       - riscos aceitos;
+       - evidências completas de testes.
+     * **[Concluído] Evidências finais de fechamento da 104 (29/06/2026):**
+       Execução paralela multiagente concluída (Trilha A/C/D/E) com entrega cross-screen desacoplada da presença no chat, persistência durável de menções em banco (`CHT_CHAT_MENCAO`), ACK idempotente por `mensagemId + destinatario`, hardening de segurança no ACK e ADR arquitetural registrada. Validações finais executadas com sucesso: `mvn -Dfrontend.skip=true test` (177 testes, 0 falhas), `npm run -s test:frontend` (53 testes, 0 falhas), `npm run -s build`, `git diff --check`. ADR: `.ia/historico/ADR-20260629-chat-2-1-3-entrega-cross-screen-e-estado-duravel.md`. Log final: `.ia/logs/session-20260629-chat-2-1-3-104-finalizacao.md`.
+
+105. **[Em Progresso] Chat 2.2 — Engenharia de Loops para Citação, Consulta Avançada e Respostas Encadeadas (29/06/2026):**
+     Objetivo: evoluir a comunicação entre participantes com foco em citação de mensagens, consulta avançada de histórico e respostas vinculadas (reply-to), usando execução paralela multiagente com critérios de pronto mensuráveis.
+     Contexto:
+     - ciclo 98-104 entregou base robusta do chat 2.1.3;
+     - lacunas residuais para experiência conversacional: citação formal, reply encadeado e busca/filtros no histórico.
+     * **[Concluído] 105.1 — Avaliar tarefas/subtarefas já executadas para comunicação do chat:**
+       Avaliação consolidada registrada em `.ia/loops/chat/avaliacao-tarefas-chat-comunicacao.md`, com mapeamento de cobertura e gaps para citação/consulta/resposta.
+     * **[Concluído] 105.2 — Criar skill dedicada para orquestração de loops de evolução do chat:**
+       Skill criada em `.ia/skills/chat-loops-orquestracao/SKILL.md` com referências auxiliares em `references/`, alinhada ao padrão Agent Skills (`name`/`description` em frontmatter, gatilhos de uso, anti-gatilhos, fluxo enxuto e evals de casos).
+       Observação operacional: o path `.agents/skills/` está em modo somente leitura no ambiente atual; skill entregue em path gravável para migração quando autorizado.
+     * **[Concluído] 105.3 — Definir plano de execução por loops para Chat 2.2:**
+       Plano registrado em `.ia/planos/plano-chat-loops-2-2.md` com trilhas paralelas A/B/C/D/E e critérios de pronto.
+     * **[Pendente] 105.4 — Loop A (Citação com contexto):**
+       Implementar citação semântica com contexto visual da mensagem citada no composer e no histórico.
+     * **[Pendente] 105.5 — Loop B (Respostas encadeadas):**
+       Implementar `replyToMessageId` no contrato backend/frontend com fallback seguro para mensagem pai indisponível.
+     * **[Pendente] 105.6 — Loop C (Consulta avançada):**
+       Adicionar busca por termo e filtros por autor/período com paginação histórica.
+    * **[Concluído] 105.7 — Loop D (Segurança e privacidade):**
+      Hardening concluído para execução segura em produção HF/Aiven, separando inicialização de estrutura e seeds:
+      - `DB_INIT_SCHEMA` (schema idempotente);
+      - `DB_INIT_SEED` (seed base, desabilitado por padrão);
+      - `DB_INIT_COPA_2026_SEED` (seed destrutivo, desabilitado por padrão).
+      Compatibilidade retroativa preservada: `DB_INITIALIZE` passa a controlar apenas schema.
+      Documentação operacional atualizada para produção com seeds desativados.
+      Evidências:
+      - `src/main/resources/applicationContext-resources.xml`
+      - `docker-compose.yml`
+      - `.env.example`
+      - `docs/deployment/HUGGING_FACE_AIVEN.md`
+      - `.ia/logs/session-20260629-chat22-hardening-init-db-producao.md`
+    * **[Concluído] 105.8 — Loop E (Testes e regressão final):**
+      Executar e evidenciar no mínimo:
+      - `mvn -Dfrontend.skip=true test`;
+      - `npm run -s test:frontend`;
+      - `npm run -s build`;
+      - `git diff --check`.
+      Critério: 100% dos checkpoints dos loops concluídos e validados por executor + reviewer.
+      Evidências em 29/06/2026:
+      - `mvn -Dfrontend.skip=true test` -> 185 testes, 0 falhas;
+      - `npm run -s test:frontend` -> 55 testes, 0 falhas;
+      - `npm run -s build` -> build Vite concluído com sucesso;
+      - `git diff --check` -> sem inconsistências de whitespace.
+    * **[Concluído] 105.9 — Correção de timestamp no histórico do chat (29/06/2026):**
+      Ajustada a renderização de horário para incluir data completa no histórico e no contexto de resposta/citação:
+      - `webapp/WEB-INF/content/seguro/batePapo.jsp`
+      - `webapp/WEB-INF/content/seguro/partials/chat-mensagens-fragmento.jsp`
+      - `webapp/WEB-INF/content/seguro/partials/chat-consulta-fragmento.jsp`
+      Padrão adotado: `dd/MM/yyyy HH:mm:ss` (e `dd/MM/yyyy HH:mm` para histórico de menções).
+      Validação: `npm run -s build` concluído com sucesso.

@@ -6,16 +6,16 @@
            http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean name="participanteAction"
-    	class="com.opendev.bolao.action.ParticipanteAction"
-    	scope="prototype">
-    	<property name="palpiteService" ref="palpiteService" />
-    	<property name="palpiteAuthorizationService" ref="palpiteAuthorizationService" />
-    	<property name="participanteService" ref="participanteService" />
-    	<property name="jogoService" ref="jogoService" />
-    	<property name="equipeService" ref="equipeService" />
-    	<property name="otpService" ref="otpService" />
+        class="com.opendev.bolao.action.ParticipanteAction"
+        scope="prototype">
+        <property name="palpiteService" ref="palpiteService" />
+        <property name="palpiteAuthorizationService" ref="palpiteAuthorizationService" />
+        <property name="participanteService" ref="participanteService" />
+        <property name="jogoService" ref="jogoService" />
+        <property name="equipeService" ref="equipeService" />
+        <property name="otpService" ref="otpService" />
     </bean>
-    
+
     <bean name="validacaoCadastroAction"
         class="com.opendev.bolao.action.ValidacaoCadastroAction"
         scope="prototype">
@@ -28,20 +28,19 @@
         scope="prototype">
         <property name="recuperacaoSenhaService" ref="recuperacaoSenhaService" />
     </bean>
-    
+
     <bean name="adminAction"
-    	class="com.opendev.bolao.action.AdminAction"
-    	scope="prototype">
-  <property name="equipeService" ref="equipeService" />
-    	<property name="jogoService" ref="jogoService" />
-    	<property name="participanteService" ref="participanteService" />
+        class="com.opendev.bolao.action.AdminAction"
+        scope="prototype">
+        <property name="equipeService" ref="equipeService" />
+        <property name="jogoService" ref="jogoService" />
+        <property name="participanteService" ref="participanteService" />
     </bean>
 
     <bean name="chatAction"
         class="com.opendev.bolao.action.ChatAction"
         scope="prototype">
         <property name="chatService" ref="chatService" />
-        <property name="chatNotificationService" ref="chatNotificationService" />
     </bean>
 
 </beans>

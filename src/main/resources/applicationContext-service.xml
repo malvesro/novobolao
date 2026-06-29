@@ -30,6 +30,8 @@
 			<props>
 				<prop key="buscar*">PROPAGATION_REQUIRED,readOnly</prop>
 				<prop key="criar*">PROPAGATION_REQUIRED</prop>
+				<prop key="confirmar*">PROPAGATION_REQUIRED</prop>
+				<prop key="registrar*">PROPAGATION_REQUIRED</prop>
 				<prop key="apagar*">PROPAGATION_REQUIRED</prop>
 				<prop key="atualizar*">PROPAGATION_REQUIRED</prop>
 			</props>
@@ -65,7 +67,7 @@
 			<ref bean="jogoServiceImpl" />
 		</property>
 	</bean>
-	
+
 	<bean id="palpiteServiceImpl"
 		class="com.opendev.bolao.service.impl.PalpiteServiceImpl">
 		<property name="jogoRepository" ref="jogoRepository" />
@@ -124,7 +126,9 @@
 	</bean>
 
 	<bean id="chatNotificationService"
-		class="com.opendev.bolao.service.impl.ChatNotificationServiceImpl" />
+		class="com.opendev.bolao.service.impl.ChatNotificationServiceImpl">
+		<property name="chatMencaoRepository" ref="chatMencaoRepository" />
+	</bean>
 
 	<bean id="chatService" parent="transactionProxyTemplate">
 		<property name="proxyInterfaces">

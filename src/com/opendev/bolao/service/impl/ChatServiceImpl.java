@@ -8,6 +8,7 @@ import com.opendev.bolao.repository.ParticipanteRepository;
 import com.opendev.bolao.service.ChatNotificationService;
 import com.opendev.bolao.service.ChatService;
 import com.opendev.bolao.service.dto.ChatMensagemView;
+import com.opendev.bolao.service.dto.MentionNotification;
 import com.opendev.bolao.util.SanitizationUtils;
 import com.opendev.bolao.util.ValidacaoUtils;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -95,17 +97,28 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatMensagemView criarMensagem(String loginAtual, String chaveSessao, String texto, String ipOrigem) {
+        return criarMensagem(loginAtual, chaveSessao, texto, ipOrigem, null);
+    }
+
+    @Override
+    public ChatMensagemView criarMensagem(String loginAtual,
+                                          String chaveSessao,
+                                          String texto,
+                                          String ipOrigem,
+                                          Long replyToMensagemId) {
         String loginSeguro = sanitizarLoginObrigatorio(loginAtual);
         String chaveSessaoSegura = sanitizarChaveSessao(chaveSessao, loginSeguro);
         atualizarPresenca(loginSeguro);
         aplicarRateLimitEnvio(loginSeguro);
 
         String textoSeguro = sanitizarMensagem(texto);
+        Long replyToIdSeguro = sanitizarReplyToMensagemId(replyToMensagemId);
         ChatMensagem novaMensagem = new ChatMensagem();
         novaMensagem.setLoginAutor(loginSeguro);
         novaMensagem.setNomeExibicao(resolverNomeExibicao(loginSeguro, chaveSessaoSegura));
         novaMensagem.setTexto(textoSeguro);
         novaMensagem.setDataEnvio(new Date());
+        novaMensagem.setReplyToMensagemId(replyToIdSeguro);
 
         Set<String> destinatarios = extrairDestinatariosMencao(textoSeguro, loginSeguro);
         ChatMensagem salva = chatMensagemRepository.save(novaMensagem);
@@ -114,7 +127,34 @@ public class ChatServiceImpl implements ChatService {
                     novaMensagem.getNomeExibicao(), textoSeguro, salva.getId(), destinatarios);
         }
         LOGGER.info("[CHAT][SEND] user={} ip={} messageId={} status=SUCCESS", loginSeguro, ipOrigem, salva.getId());
-        return mapearParaView(salva, loginSeguro);
+        return mapearParaView(salva, loginSeguro, Collections.emptyMap());
+    }
+
+    @Override
+    public List<ChatMensagemView> buscarHistoricoFiltrado(String loginAtual,
+                                                          String termo,
+                                                          String autorLogin,
+                                                          Date dataInicio,
+                                                          Date dataFim,
+                                                          int limite) {
+        String loginSeguro = sanitizarLoginObrigatorio(loginAtual);
+        atualizarPresenca(loginSeguro);
+        aplicarRateLimitPolling(loginSeguro);
+
+        int limiteSeguro = Math.min(Math.max(limite, 1), 120);
+        String termoSeguro = sanitizarTermoFiltro(termo);
+        String autorSeguro = sanitizarAutorFiltro(autorLogin);
+        validarJanelaDatasFiltro(dataInicio, dataFim);
+
+        List<ChatMensagem> mensagens = new ArrayList<>(chatMensagemRepository.buscarHistoricoFiltrado(
+                termoSeguro,
+                autorSeguro,
+                dataInicio,
+                dataFim,
+                PageRequest.of(0, limiteSeguro)
+        ).getContent());
+        mensagens.sort(Comparator.comparing(ChatMensagem::getId));
+        return mapearParaView(mensagens, loginSeguro);
     }
 
     private Set<String> extrairDestinatariosMencao(String texto, String autorLogin) {
@@ -122,10 +162,10 @@ public class ChatServiceImpl implements ChatService {
             return Collections.emptySet();
         }
 
-        limparEstruturasEmMemoria();
         Set<String> destinatarios = new HashSet<>();
         Matcher matcher = MENTION_PATTERN.matcher(texto);
         String loginAutorSeguro = autorLogin.trim().toLowerCase(Locale.ROOT);
+        boolean mencionaTodos = false;
 
         while (matcher.find()) {
             String alvo = matcher.group(1);
@@ -137,26 +177,25 @@ public class ChatServiceImpl implements ChatService {
                 continue;
             }
             if ("todos".equalsIgnoreCase(loginDestino)) {
-                for (String login : ultimaAtividadePorLogin.keySet()) {
-                    if (!ValidacaoUtils.isVazia(login) && !login.equals(loginAutorSeguro) && estaOnline(login)) {
-                        destinatarios.add(login);
-                    }
-                }
+                mencionaTodos = true;
                 continue;
             }
-            if (estaOnline(loginDestino) && participanteRepository.findByLogin(loginDestino).isPresent()) {
+            if (participanteRepository.existsByLoginAndHabilitadoTrue(loginDestino)) {
                 destinatarios.add(loginDestino);
             }
         }
-        return destinatarios;
-    }
 
-    private boolean estaOnline(String login) {
-        if (ValidacaoUtils.isVazia(login)) {
-            return false;
+        if (mencionaTodos) {
+            List<Participante> habilitados = participanteRepository.findAllByHabilitadoTrueAndLoginNot(loginAutorSeguro);
+            for (Participante participante : habilitados) {
+                if (participante == null || ValidacaoUtils.isVazia(participante.getLogin())) {
+                    continue;
+                }
+                destinatarios.add(participante.getLogin().trim().toLowerCase(Locale.ROOT));
+            }
         }
-        Long ultimoAcesso = ultimaAtividadePorLogin.get(login.trim().toLowerCase(Locale.ROOT));
-        return ultimoAcesso != null && ultimoAcesso >= System.currentTimeMillis() - TTL_PRESENCA_MS;
+
+        return destinatarios;
     }
 
     @Override
@@ -165,6 +204,57 @@ public class ChatServiceImpl implements ChatService {
             return;
         }
         ultimaAtividadePorLogin.put(loginAtual.trim().toLowerCase(Locale.ROOT), System.currentTimeMillis());
+    }
+
+    @Override
+    public List<MentionNotification> buscarMencoesPendentes(String loginAtual) {
+        if (chatNotificationService == null) {
+            return Collections.emptyList();
+        }
+        return chatNotificationService.buscarMencoesPendentes(loginAtual);
+    }
+
+    @Override
+    public int confirmarMencoesPendentes(String loginAtual, List<Long> mensagemIds) {
+        if (chatNotificationService == null || mensagemIds == null || mensagemIds.isEmpty()) {
+            return 0;
+        }
+        Set<Long> ids = new HashSet<>();
+        for (Long mensagemId : mensagemIds) {
+            if (mensagemId != null && mensagemId > 0) {
+                ids.add(mensagemId);
+            }
+        }
+        if (ids.isEmpty()) {
+            return 0;
+        }
+        return chatNotificationService.confirmarMencoesPendentes(loginAtual, ids);
+    }
+
+    @Override
+    public int contarMencoesPendentes(String loginAtual) {
+        if (chatNotificationService == null) {
+            return 0;
+        }
+        return chatNotificationService.contarMencoesPendentes(loginAtual);
+    }
+
+    @Override
+    public List<MentionNotification> buscarHistoricoMencoes(String loginAtual, int limite) {
+        if (chatNotificationService == null) {
+            return Collections.emptyList();
+        }
+        return chatNotificationService.buscarHistoricoMencoes(loginAtual, limite);
+    }
+
+    @Override
+    public boolean isMencoesColdStartAtivo() {
+        return chatNotificationService != null && chatNotificationService.isColdStartAtivo();
+    }
+
+    @Override
+    public boolean isMencoesModoDegradado() {
+        return chatNotificationService != null && chatNotificationService.isModoMemoriaLocal();
     }
 
     private String sanitizarLoginObrigatorio(String loginAtual) {
@@ -197,7 +287,46 @@ public class ChatServiceImpl implements ChatService {
         return limpo;
     }
 
+    private Long sanitizarReplyToMensagemId(Long replyToMensagemId) {
+        if (replyToMensagemId == null) {
+            return null;
+        }
+        if (replyToMensagemId <= 0) {
+            throw new BusinessException(BusinessException.Code.INVALID_INPUT, "Mensagem citada inválida.");
+        }
+        if (!chatMensagemRepository.existsById(replyToMensagemId)) {
+            throw new BusinessException(BusinessException.Code.INVALID_INPUT, "Mensagem citada não encontrada.");
+        }
+        return replyToMensagemId;
+    }
 
+    private String sanitizarTermoFiltro(String termo) {
+        if (ValidacaoUtils.isVazia(termo)) {
+            return null;
+        }
+        String limpo = SanitizationUtils.cleanText(termo, 60);
+        if (ValidacaoUtils.isVazia(limpo)) {
+            return null;
+        }
+        return limpo.trim();
+    }
+
+    private String sanitizarAutorFiltro(String autorLogin) {
+        if (ValidacaoUtils.isVazia(autorLogin)) {
+            return null;
+        }
+        String valor = autorLogin.trim().toLowerCase(Locale.ROOT);
+        if (!valor.matches("^[a-z0-9._-]{1,32}$")) {
+            throw new BusinessException(BusinessException.Code.INVALID_INPUT, "Filtro de autor inválido.");
+        }
+        return valor;
+    }
+
+    private void validarJanelaDatasFiltro(Date dataInicio, Date dataFim) {
+        if (dataInicio != null && dataFim != null && dataInicio.after(dataFim)) {
+            throw new BusinessException(BusinessException.Code.INVALID_INPUT, "Intervalo de datas inválido.");
+        }
+    }
 
     private void aplicarRateLimitEnvio(String loginSeguro) {
         Deque<Long> trilha = trilhasEnvioPorLogin.computeIfAbsent(loginSeguro, k -> new ArrayDeque<>());
@@ -253,24 +382,67 @@ public class ChatServiceImpl implements ChatService {
         if (mensagens == null || mensagens.isEmpty()) {
             return Collections.emptyList();
         }
+        Map<Long, ChatMensagem> mensagensPaiPorId = carregarMensagensPaiPorId(mensagens);
         List<ChatMensagemView> views = new ArrayList<>(mensagens.size());
         for (ChatMensagem mensagem : mensagens) {
-            views.add(mapearParaView(mensagem, loginAtual));
+            views.add(mapearParaView(mensagem, loginAtual, mensagensPaiPorId));
         }
         return views;
     }
 
-    private ChatMensagemView mapearParaView(ChatMensagem mensagem, String loginAtual) {
+    private Map<Long, ChatMensagem> carregarMensagensPaiPorId(List<ChatMensagem> mensagens) {
+        Set<Long> replyIds = new HashSet<>();
+        for (ChatMensagem mensagem : mensagens) {
+            if (mensagem != null && mensagem.getReplyToMensagemId() != null && mensagem.getReplyToMensagemId() > 0) {
+                replyIds.add(mensagem.getReplyToMensagemId());
+            }
+        }
+        if (replyIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        List<ChatMensagem> mensagensPai = chatMensagemRepository.findAllById(replyIds);
+        Map<Long, ChatMensagem> mapa = new HashMap<>(mensagensPai.size());
+        for (ChatMensagem mensagemPai : mensagensPai) {
+            if (mensagemPai != null && mensagemPai.getId() != null) {
+                mapa.put(mensagemPai.getId(), mensagemPai);
+            }
+        }
+        return mapa;
+    }
+
+    private ChatMensagemView mapearParaView(ChatMensagem mensagem,
+                                            String loginAtual,
+                                            Map<Long, ChatMensagem> mensagensPaiPorId) {
         String loginMensagem = mensagem.getLoginAutor() == null ? "" : mensagem.getLoginAutor();
         String loginAtualSeguro = loginAtual == null ? "" : loginAtual;
         boolean autoriaAtual = Objects.equals(loginMensagem, loginAtualSeguro);
+        Long replyToId = mensagem.getReplyToMensagemId();
+        ChatMensagem mensagemPai = replyToId == null ? null : mensagensPaiPorId.get(replyToId);
+        String replyToNomeExibicao = mensagemPai != null ? mensagemPai.getNomeExibicao() : null;
+        String replyToTextoPreview = mensagemPai != null ? buildPreviewResposta(mensagemPai.getTexto()) : null;
+        Date replyToDataEnvio = mensagemPai != null ? mensagemPai.getDataEnvio() : null;
         return new ChatMensagemView(
                 mensagem.getId(),
                 loginMensagem,
                 mensagem.getNomeExibicao(),
                 mensagem.getTexto(),
                 mensagem.getDataEnvio(),
-                autoriaAtual);
+                autoriaAtual,
+                replyToId,
+                replyToNomeExibicao,
+                replyToTextoPreview,
+                replyToDataEnvio);
+    }
+
+    private String buildPreviewResposta(String texto) {
+        if (ValidacaoUtils.isVazia(texto)) {
+            return "";
+        }
+        String limpo = SanitizationUtils.cleanText(texto, 120).trim();
+        if (limpo.length() <= 100) {
+            return limpo;
+        }
+        return limpo.substring(0, 100).trim() + "...";
     }
 
     public void setChatMensagemRepository(ChatMensagemRepository chatMensagemRepository) {

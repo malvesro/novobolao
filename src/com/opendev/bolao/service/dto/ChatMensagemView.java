@@ -13,6 +13,10 @@ public class ChatMensagemView {
     private final String texto;
     private final Date dataEnvio;
     private final boolean autoriaDoUsuarioAtual;
+    private final Long replyToMensagemId;
+    private final String replyToNomeExibicao;
+    private final String replyToTextoPreview;
+    private final Date replyToDataEnvio;
 
     public ChatMensagemView(Long id,
                             String loginAutor,
@@ -20,12 +24,29 @@ public class ChatMensagemView {
                             String texto,
                             Date dataEnvio,
                             boolean autoriaDoUsuarioAtual) {
+        this(id, loginAutor, nomeExibicao, texto, dataEnvio, autoriaDoUsuarioAtual, null, null, null, null);
+    }
+
+    public ChatMensagemView(Long id,
+                            String loginAutor,
+                            String nomeExibicao,
+                            String texto,
+                            Date dataEnvio,
+                            boolean autoriaDoUsuarioAtual,
+                            Long replyToMensagemId,
+                            String replyToNomeExibicao,
+                            String replyToTextoPreview,
+                            Date replyToDataEnvio) {
         this.id = id;
         this.loginAutor = loginAutor;
         this.nomeExibicao = nomeExibicao;
         this.texto = texto;
         this.dataEnvio = dataEnvio;
         this.autoriaDoUsuarioAtual = autoriaDoUsuarioAtual;
+        this.replyToMensagemId = replyToMensagemId;
+        this.replyToNomeExibicao = replyToNomeExibicao;
+        this.replyToTextoPreview = replyToTextoPreview;
+        this.replyToDataEnvio = replyToDataEnvio;
     }
 
     public Long getId() {
@@ -50,5 +71,21 @@ public class ChatMensagemView {
 
     public boolean isAutoriaDoUsuarioAtual() {
         return autoriaDoUsuarioAtual;
+    }
+
+    public Long getReplyToMensagemId() {
+        return replyToMensagemId;
+    }
+
+    public String getReplyToNomeExibicao() {
+        return replyToNomeExibicao;
+    }
+
+    public String getReplyToTextoPreview() {
+        return replyToTextoPreview;
+    }
+
+    public Date getReplyToDataEnvio() {
+        return replyToDataEnvio;
     }
 }

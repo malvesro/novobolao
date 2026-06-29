@@ -19,7 +19,8 @@ import java.util.Date;
 @Entity
 @Table(name = "CHT_CHAT_MENSAGEM", indexes = {
         @Index(name = "IDX_CHT_DATA_ENVIO", columnList = "CHT_DATA_ENVIO"),
-        @Index(name = "IDX_CHT_LOGIN", columnList = "CHT_LOGIN_AUTOR")
+        @Index(name = "IDX_CHT_LOGIN", columnList = "CHT_LOGIN_AUTOR"),
+        @Index(name = "IDX_CHT_REPLY_TO", columnList = "CHT_REPLY_TO_ID")
 })
 public class ChatMensagem implements Serializable {
 
@@ -42,6 +43,9 @@ public class ChatMensagem implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CHT_DATA_ENVIO", nullable = false)
     private Date dataEnvio;
+
+    @Column(name = "CHT_REPLY_TO_ID")
+    private Long replyToMensagemId;
 
     public Long getId() {
         return id;
@@ -81,5 +85,13 @@ public class ChatMensagem implements Serializable {
 
     public void setDataEnvio(Date dataEnvio) {
         this.dataEnvio = dataEnvio;
+    }
+
+    public Long getReplyToMensagemId() {
+        return replyToMensagemId;
+    }
+
+    public void setReplyToMensagemId(Long replyToMensagemId) {
+        this.replyToMensagemId = replyToMensagemId;
     }
 }

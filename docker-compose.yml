@@ -61,6 +61,10 @@ services:
       DB_NAME: "${MYSQL_DATABASE:-bolao}"
       DB_USER: "${MYSQL_USER:-user_bolao}"
       DB_PASSWORD: "${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}"
+      # Ambiente local/dev: seed habilitado explicitamente.
+      DB_INIT_SCHEMA: "${DB_INIT_SCHEMA:-true}"
+      DB_INIT_SEED: "${DB_INIT_SEED:-true}"
+      DB_INIT_COPA_2026_SEED: "${DB_INIT_COPA_2026_SEED:-true}"
       SMTP_HOST: "${SMTP_HOST:-}"
       SMTP_PORT: "${SMTP_PORT:-587}"
       SMTP_AUTH: "${SMTP_AUTH:-true}"

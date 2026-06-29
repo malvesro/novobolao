@@ -1,6 +1,7 @@
 package com.opendev.bolao.repository;
 
 import java.util.Optional;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import com.opendev.bolao.model.Participante;
@@ -29,4 +30,8 @@ public interface ParticipanteRepository extends JpaRepository<Participante, Long
      * @return Um Optional contendo o participante se encontrado.
      */
     Optional<Participante> findByEmail(String email);
+
+    boolean existsByLoginAndHabilitadoTrue(String login);
+
+    List<Participante> findAllByHabilitadoTrueAndLoginNot(String login);
 }

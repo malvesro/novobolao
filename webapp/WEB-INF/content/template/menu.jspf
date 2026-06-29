@@ -39,14 +39,31 @@
     </a>
     <sec:authorize access="hasAnyRole('ROLE_USER', 'ROLE_ADMIN')">
       <c:url var="chatUrl" value="/seguro/batePapo.action" />
+      <fmt:message key="chat.notification.polling.degraded" var="chatMentionsPollingDegradedTemplate" />
+      <fmt:message key="chat.notification.polling.recovered" var="chatMentionsPollingRecoveredMessage" />
       <a href="${chatUrl}">
         <span><fmt:message key="menu.geral.chat" /></span>
       </a>
+      <span id="chat-mentions-health"
+            class="chat-mentions-health"
+            role="status"
+            aria-live="polite"
+            hidden="hidden"
+            data-polling-degraded-template="${chatMentionsPollingDegradedTemplate}"
+            data-polling-recovered-message="${chatMentionsPollingRecoveredMessage}"
+            data-polling-warmup-recovered-message="Notificacoes de mencoes sincronizadas nesta sessao."></span>
+      <c:url var="chatMentionsBadgeUrl" value="/seguro/chatMencoesBadgePartial.action" />
+      <div id="chat-mentions-badge-poller"
+           class="chat-mentions-badge-poller"
+           hx-get="${chatMentionsBadgeUrl}"
+           hx-trigger="mentions:refresh, load, every 15s"
+           hx-swap="outerHTML">
+      </div>
       <c:url var="chatMentionsNotificationUrl" value="/seguro/chatMencoesNotification.action" />
       <div id="chat-mentions-poller"
            class="chat-mentions-poller"
            hx-get="${chatMentionsNotificationUrl}"
-           hx-trigger="load, every 15s"
+           hx-trigger="mentions:refresh, load, every 15s"
            hx-swap="outerHTML">
       </div>
     </sec:authorize>

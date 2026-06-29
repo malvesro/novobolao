@@ -13,11 +13,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -156,10 +158,9 @@ class ChatServiceImplTest {
     }
 
     @Test
-    void deveRegistrarNotificacaoParaUsuarioMencionado() {
+    void deveRegistrarNotificacaoParaUsuarioMencionadoSemDependenciaDePresencaNoChat() {
         stubParticipanteAdmin();
-        when(participanteRepository.findByLogin("amigo")).thenReturn(Optional.of(new Participante()));
-        chatService.atualizarPresenca("amigo");
+        when(participanteRepository.existsByLoginAndHabilitadoTrue("amigo")).thenReturn(true);
         when(chatMensagemRepository.save(any(ChatMensagem.class))).thenAnswer(invocation -> {
             ChatMensagem mensagem = invocation.getArgument(0);
             mensagem.setId(1L);
@@ -172,9 +173,12 @@ class ChatServiceImplTest {
     }
 
     @Test
-    void deveRegistrarNotificacaoParaTodosUsuariosOnline() {
+    void deveRegistrarNotificacaoParaTodosUsuariosHabilitadosForaDaTelaDeChat() {
         stubParticipanteAdmin();
-        chatService.atualizarPresenca("outro");
+        Participante outro = new Participante();
+        outro.setLogin("outro");
+        when(participanteRepository.findAllByHabilitadoTrueAndLoginNot("admin"))
+                .thenReturn(List.of(outro));
         when(chatMensagemRepository.save(any(ChatMensagem.class))).thenAnswer(invocation -> {
             ChatMensagem mensagem = invocation.getArgument(0);
             mensagem.setId(1L);
@@ -184,6 +188,22 @@ class ChatServiceImplTest {
         chatService.criarMensagem("admin", "sessao-admin", "@Todos bom dia", "127.0.0.1");
 
         verify(chatNotificationService).registrarMencoes(eq("admin"), eq("Administrador"), eq("@Todos bom dia"), eq(1L), argThat(destinatarios -> destinatarios.contains("outro") && destinatarios.size() == 1));
+    }
+
+    @Test
+    void naoDeveNotificarMencaoDiretaParaLoginInexistenteOuDesabilitado() {
+        stubParticipanteAdmin();
+        when(participanteRepository.existsByLoginAndHabilitadoTrue("inativo")).thenReturn(false);
+        when(chatMensagemRepository.save(any(ChatMensagem.class))).thenAnswer(invocation -> {
+            ChatMensagem mensagem = invocation.getArgument(0);
+            mensagem.setId(1L);
+            return mensagem;
+        });
+
+        chatService.criarMensagem("admin", "sessao-admin", "Olá @inativo", "127.0.0.1");
+
+        verify(chatNotificationService).registrarMencoes(eq("admin"), eq("Administrador"), eq("Olá @inativo"), eq(1L),
+                argThat(Set::isEmpty));
     }
 
     @Test
@@ -249,6 +269,98 @@ class ChatServiceImplTest {
 
         assertThat(resultado.getTexto()).hasSize(300);
         assertThat(resultado.getTexto()).isEqualTo(texto301.substring(0, 300));
+    }
+
+    @Test
+    void deveContarMencoesPendentesViaServicoDeNotificacao() {
+        when(chatNotificationService.contarMencoesPendentes("admin")).thenReturn(4);
+
+        int total = chatService.contarMencoesPendentes("admin");
+
+        assertThat(total).isEqualTo(4);
+        verify(chatNotificationService).contarMencoesPendentes("admin");
+    }
+
+    @Test
+    void deveRegistrarMensagemComoRespostaQuandoReplyToValido() {
+        stubParticipanteAdmin();
+        when(chatMensagemRepository.existsById(42L)).thenReturn(true);
+        when(chatMensagemRepository.save(any(ChatMensagem.class))).thenAnswer(invocation -> {
+            ChatMensagem mensagem = invocation.getArgument(0);
+            mensagem.setId(100L);
+            return mensagem;
+        });
+
+        ChatMensagemView resultado = chatService.criarMensagem(
+                "admin", "sessao-admin", "Respondendo", "127.0.0.1", 42L);
+
+        assertThat(resultado.getId()).isEqualTo(100L);
+        verify(chatMensagemRepository).save(argThat(m -> m.getReplyToMensagemId() != null && m.getReplyToMensagemId().equals(42L)));
+    }
+
+    @Test
+    void deveRejeitarReplyToInexistente() {
+        when(chatMensagemRepository.existsById(999L)).thenReturn(false);
+
+        assertThatThrownBy(() -> chatService.criarMensagem(
+                "admin", "sessao-admin", "Oi", "127.0.0.1", 999L))
+                .isInstanceOf(BusinessException.class)
+                .extracting("code")
+                .isEqualTo(BusinessException.Code.INVALID_INPUT);
+    }
+
+    @Test
+    void deveMapearContextoDaMensagemPaiNoIncremental() {
+        ChatMensagem resposta = criarMensagem(11L, "admin", "Resposta");
+        resposta.setReplyToMensagemId(10L);
+        ChatMensagem mensagemPai = criarMensagem(10L, "user", "Mensagem original de referência");
+        when(chatMensagemRepository.findByIdGreaterThanOrderByIdAsc(any(Long.class), any(Pageable.class)))
+                .thenReturn(List.of(resposta));
+        when(chatMensagemRepository.findAllById(argThat(ids -> {
+            for (Long id : ids) {
+                if (Long.valueOf(10L).equals(id)) {
+                    return true;
+                }
+            }
+            return false;
+        })))
+                .thenReturn(List.of(mensagemPai));
+
+        List<ChatMensagemView> resultado = chatService.buscarMensagensIncrementais("admin", 5L);
+
+        assertThat(resultado).hasSize(1);
+        ChatMensagemView view = resultado.get(0);
+        assertThat(view.getReplyToMensagemId()).isEqualTo(10L);
+        assertThat(view.getReplyToNomeExibicao()).isEqualTo("user");
+        assertThat(view.getReplyToTextoPreview()).contains("Mensagem original");
+    }
+
+    @Test
+    void deveConsultarHistoricoComFiltros() {
+        ChatMensagem mensagem = criarMensagem(50L, "admin", "Busca por termo");
+        when(chatMensagemRepository.buscarHistoricoFiltrado(eq("termo"), eq("admin"), any(), any(), any()))
+                .thenReturn(new PageImpl<>(List.of(mensagem)));
+
+        List<ChatMensagemView> resultado = chatService.buscarHistoricoFiltrado(
+                "admin", "termo", "admin", new Date(System.currentTimeMillis() - 1_000L), new Date(), 20);
+
+        assertThat(resultado).hasSize(1);
+        assertThat(resultado.get(0).getTexto()).contains("Busca");
+    }
+
+    @Test
+    void deveBuscarHistoricoRecenteDeMencoesViaServicoDeNotificacao() {
+        List<com.opendev.bolao.service.dto.MentionNotification> historico = List.of(
+                new com.opendev.bolao.service.dto.MentionNotification("autor", "Autor", 10L, "oi @admin")
+        );
+        when(chatNotificationService.buscarHistoricoMencoes("admin", 10)).thenReturn(historico);
+
+        List<com.opendev.bolao.service.dto.MentionNotification> resultado =
+                chatService.buscarHistoricoMencoes("admin", 10);
+
+        assertThat(resultado).hasSize(1);
+        assertThat(resultado.get(0).getAutorLogin()).isEqualTo("autor");
+        verify(chatNotificationService).buscarHistoricoMencoes("admin", 10);
     }
 
 

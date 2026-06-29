@@ -30,10 +30,23 @@
 		<property name="leakDetectionThreshold" value="60000" />
 	</bean>
 	
-	<!-- Automatic Database Initialization (Cloud-friendly) -->
-	<jdbc:initialize-database data-source="defaultDataSource" enabled="${DB_INITIALIZE:true}">
+	<!--
+	  Inicializacao de banco com hardening para producao:
+	  - DB_INIT_SCHEMA: aplica apenas estrutura (idempotente).
+	  - DB_INIT_SEED: carrega seed base.
+	  - DB_INIT_COPA_2026_SEED: carrega seed de jogos/palpites (pode conter reset de dados).
+	  Compatibilidade retroativa:
+	  - DB_INITIALIZE antigo segue suportado apenas para schema.
+	-->
+	<jdbc:initialize-database data-source="defaultDataSource" enabled="${DB_INIT_SCHEMA:${DB_INITIALIZE:true}}">
 		<jdbc:script location="classpath:database/schema.sql" />
+	</jdbc:initialize-database>
+
+	<jdbc:initialize-database data-source="defaultDataSource" enabled="${DB_INIT_SEED:false}">
 		<jdbc:script location="classpath:database/data.sql" />
+	</jdbc:initialize-database>
+
+	<jdbc:initialize-database data-source="defaultDataSource" enabled="${DB_INIT_COPA_2026_SEED:false}">
 		<jdbc:script location="classpath:database/copa-2026-data.sql" encoding="UTF-8" />
 	</jdbc:initialize-database>
 

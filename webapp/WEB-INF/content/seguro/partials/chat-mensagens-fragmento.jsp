@@ -9,10 +9,32 @@
             <strong><c:out value="${mensagem.nomeExibicao}" /></strong>
             <span class="chat-message__login">(@<c:out value="${mensagem.loginAutor}" />)</span>
             <span class="chat-message__time">
-                <fmt:formatDate value="${mensagem.dataEnvio}" pattern="HH:mm:ss" />
+                <fmt:formatDate value="${mensagem.dataEnvio}" pattern="dd/MM/yyyy HH:mm:ss" />
             </span>
         </div>
+        <c:if test="${mensagem.replyToMensagemId ne null}">
+            <div class="chat-message__reply-context">
+                <p class="chat-message__reply-meta">
+                    <strong><fmt:message key="chat.reply.context.prefix" /> <c:out value="${mensagem.replyToNomeExibicao}" /></strong>
+                    <c:if test="${mensagem.replyToDataEnvio ne null}">
+                        <span class="chat-message__time">
+                            <fmt:formatDate value="${mensagem.replyToDataEnvio}" pattern="dd/MM/yyyy HH:mm:ss" />
+                        </span>
+                    </c:if>
+                </p>
+                <p class="chat-message__reply-text"><c:out value="${mensagem.replyToTextoPreview}" /></p>
+            </div>
+        </c:if>
         <p class="chat-message__text"><c:out value="${mensagem.texto}" /></p>
+        <div class="chat-message__actions">
+            <button type="button"
+                    class="chat-message__reply-action"
+                    data-chat-reply-id="${mensagem.id}"
+                    data-chat-reply-author="${mensagem.nomeExibicao}"
+                    data-chat-reply-text="${fn:escapeXml(mensagem.texto)}">
+                <fmt:message key="chat.reply.action" />
+            </button>
+        </div>
     </li>
 </c:forEach>
 

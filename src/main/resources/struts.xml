@@ -163,6 +163,27 @@
 			</result>
 		</action>
 
+		<action name="chatMencoesBadgePartial" class="chatAction" method="verificarMencoesBadgePartial">
+			<result name="success">/WEB-INF/content/seguro/partials/chat-mention-badge-fragment.jsp</result>
+			<result name="login" type="httpheader">
+				<param name="status">401</param>
+			</result>
+		</action>
+
+		<action name="chatMencoesAckPartial" class="chatAction" method="confirmarMencoesParcial">
+			<result name="success">/WEB-INF/content/seguro/partials/chat-mention-badge-fragment.jsp</result>
+			<result name="login" type="httpheader">
+				<param name="status">401</param>
+			</result>
+		</action>
+
+		<action name="chatHistoricoConsultaPartial" class="chatAction" method="consultarHistoricoParcial">
+			<result name="success">/WEB-INF/content/seguro/partials/chat-consulta-fragmento.jsp</result>
+			<result name="login" type="httpheader">
+				<param name="status">401</param>
+			</result>
+		</action>
+
 		<action name="trocaSenha" class="participanteAction" method="trocaSenha">
 			<result name="success">/WEB-INF/content/seguro/trocaSenha.jsp</result>
 		</action>

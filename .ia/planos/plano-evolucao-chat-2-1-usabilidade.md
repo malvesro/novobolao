@@ -120,3 +120,53 @@ Esta seção complementa a Tarefa 101 após a revisão do working tree em 28/06/
 4. Executar `git diff --check`.
 5. Executar suíte ampliada se qualquer ajuste tocar contratos compartilhados.
 6. Registrar comandos, resultados, arquivos alterados e veredito no log final de sessão.
+
+---
+
+## 5. Fechamento de Execução (29/06/2026)
+
+Status: **Concluído**.
+
+Resumo do fechamento:
+1. Scroll lock e autocomplete do chat concluídos e alinhados com a suíte frontend consolidada.
+2. Revisão de segurança multiagente concluída com correções aplicadas:
+   - mitigação de condição de corrida na drenagem de notificações (`ChatNotificationServiceImpl`);
+   - endurecimento de escape no fragmento JSP de toast;
+   - resposta de menções vazia com `HTTP 204` sem renderização de fragmento (`Action.NONE`).
+3. Revisão arquitetural concluída com ajuste de camadas:
+   - removido acoplamento direto `ChatAction -> ChatNotificationService`;
+   - consulta de menções passou a orquestrar via `ChatService`.
+4. Alinhamento fonte/assets Vite concluído com novo build (`main-DNBzsxCo.js`) e manifesto atualizado.
+5. Higiene de diff concluída (`git diff --check` sem ocorrências).
+
+Validações executadas:
+- `npm run -s test:frontend -- tests/frontend/chat.test.js`
+- `mvn -Dfrontend.skip=true -Dtest=ChatActionTest,ChatServiceImplTest test`
+- `npm run -s build`
+- `git diff --check`
+
+Rastreabilidade final:
+- `passo-a-passo.md` atualizado (subtarefas 101.11–101.22 concluídas);
+- log consolidado: `.ia/logs/session-20260629-chat-2-1-saneamento-final.md`.
+
+---
+
+## 6. Complemento de Fechamento da Tarefa 102 (29/06/2026)
+
+Status: **Concluído**.
+
+Resumo do fechamento complementar:
+1. Revisão multiagente identificou lacuna de cobertura no serviço de notificações em memória e risco operacional no desenho de polling HTMX.
+2. Cobertura ampliada com suíte dedicada `ChatNotificationServiceImplTest` (drenagem de pendências, limites de retenção, ordem do histórico e truncamento de preview).
+3. `ChatActionTest` ampliado com cenários faltantes dos endpoints de menção (login ausente e exceções com fallback `500`).
+4. Mitigado risco de rajada de requisições por re-render removendo `load` dos fragments retornados de menções, mantendo `load` apenas no contêiner inicial.
+
+Validações executadas:
+- `npm run -s test:frontend -- tests/frontend/chat.test.js` (8 testes OK)
+- `mvn -Dfrontend.skip=true test` (168 testes OK)
+- `npm run -s build`
+- `git diff --check`
+
+Rastreabilidade:
+- `passo-a-passo.md` atualizado (tarefa 102 consolidada);
+- log consolidado: `.ia/logs/session-20260629-chat-2-1-1-ux-finalizacao.md`.

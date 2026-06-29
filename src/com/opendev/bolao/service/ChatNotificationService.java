@@ -14,4 +14,14 @@ public interface ChatNotificationService {
                           Set<String> destinatarios);
 
     List<MentionNotification> buscarMencoesPendentes(String loginAtual);
+
+    int confirmarMencoesPendentes(String loginAtual, Set<Long> mensagemIds);
+
+    int contarMencoesPendentes(String loginAtual);
+
+    List<MentionNotification> buscarHistoricoMencoes(String loginAtual, int limite);
+
+    boolean isColdStartAtivo();
+
+    boolean isModoMemoriaLocal();
 }

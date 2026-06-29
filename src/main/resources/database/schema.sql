@@ -135,6 +135,90 @@ CREATE TABLE IF NOT EXISTS `NOT_NOTICIA` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Notícias do sistema';
 
 -- ============================================================================
+-- Tabela: CHT_CHAT_MENSAGEM (Mensagens do chat)
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS `CHT_CHAT_MENSAGEM` (
+  `CHT_ID` BIGINT NOT NULL AUTO_INCREMENT,
+  `CHT_LOGIN_AUTOR` VARCHAR(32) NOT NULL COMMENT 'Login autor da mensagem',
+  `CHT_NOME_EXIBICAO` VARCHAR(80) NOT NULL COMMENT 'Nome de exibição do autor',
+  `CHT_TEXTO` VARCHAR(300) NOT NULL COMMENT 'Mensagem sanitizada',
+  `CHT_DATA_ENVIO` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Data/hora de envio',
+  `CHT_REPLY_TO_ID` BIGINT NULL COMMENT 'Mensagem pai referenciada como resposta',
+  PRIMARY KEY (`CHT_ID`),
+  INDEX `IDX_CHT_DATA_ENVIO` (`CHT_DATA_ENVIO`),
+  INDEX `IDX_CHT_LOGIN` (`CHT_LOGIN_AUTOR`),
+  INDEX `IDX_CHT_REPLY_TO` (`CHT_REPLY_TO_ID`),
+  CONSTRAINT `FK_CHT_REPLY_TO` FOREIGN KEY (`CHT_REPLY_TO_ID`)
+    REFERENCES `CHT_CHAT_MENSAGEM` (`CHT_ID`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Mensagens persistidas do chat';
+
+SET @cht_reply_col_exists := (
+  SELECT COUNT(*)
+  FROM INFORMATION_SCHEMA.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'CHT_CHAT_MENSAGEM'
+    AND COLUMN_NAME = 'CHT_REPLY_TO_ID'
+);
+SET @cht_reply_col_sql := IF(
+  @cht_reply_col_exists = 0,
+  'ALTER TABLE `CHT_CHAT_MENSAGEM` ADD COLUMN `CHT_REPLY_TO_ID` BIGINT NULL COMMENT ''Mensagem pai referenciada como resposta''',
+  'SELECT 1'
+);
+PREPARE stmt_chm_col FROM @cht_reply_col_sql;
+EXECUTE stmt_chm_col;
+DEALLOCATE PREPARE stmt_chm_col;
+
+SET @cht_reply_idx_exists := (
+  SELECT COUNT(*)
+  FROM INFORMATION_SCHEMA.STATISTICS
+  WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'CHT_CHAT_MENSAGEM'
+    AND INDEX_NAME = 'IDX_CHT_REPLY_TO'
+);
+SET @cht_reply_idx_sql := IF(
+  @cht_reply_idx_exists = 0,
+  'ALTER TABLE `CHT_CHAT_MENSAGEM` ADD INDEX `IDX_CHT_REPLY_TO` (`CHT_REPLY_TO_ID`)',
+  'SELECT 1'
+);
+PREPARE stmt_chm_idx FROM @cht_reply_idx_sql;
+EXECUTE stmt_chm_idx;
+DEALLOCATE PREPARE stmt_chm_idx;
+
+SET @cht_reply_fk_exists := (
+  SELECT COUNT(*)
+  FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS
+  WHERE CONSTRAINT_SCHEMA = DATABASE()
+    AND CONSTRAINT_NAME = 'FK_CHT_REPLY_TO'
+    AND TABLE_NAME = 'CHT_CHAT_MENSAGEM'
+);
+SET @cht_reply_fk_sql := IF(
+  @cht_reply_fk_exists = 0,
+  'ALTER TABLE `CHT_CHAT_MENSAGEM` ADD CONSTRAINT `FK_CHT_REPLY_TO` FOREIGN KEY (`CHT_REPLY_TO_ID`) REFERENCES `CHT_CHAT_MENSAGEM` (`CHT_ID`) ON DELETE SET NULL ON UPDATE CASCADE',
+  'SELECT 1'
+);
+PREPARE stmt_chm_fk FROM @cht_reply_fk_sql;
+EXECUTE stmt_chm_fk;
+DEALLOCATE PREPARE stmt_chm_fk;
+
+-- ============================================================================
+-- Tabela: CHT_CHAT_MENCAO (Pendências e histórico de menções do chat)
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS `CHT_CHAT_MENCAO` (
+  `CHM_ID` BIGINT NOT NULL AUTO_INCREMENT,
+  `CHM_DEST_LOGIN` VARCHAR(32) NOT NULL COMMENT 'Login destinatário da menção',
+  `CHM_AUTOR_LOGIN` VARCHAR(32) NOT NULL COMMENT 'Login de quem mencionou',
+  `CHM_AUTOR_NOME` VARCHAR(80) NOT NULL COMMENT 'Nome de exibição de quem mencionou',
+  `CHM_CHT_ID` BIGINT NOT NULL COMMENT 'ID da mensagem do chat de origem',
+  `CHM_PREVIEW` VARCHAR(120) NOT NULL COMMENT 'Prévia sanitizada da mensagem',
+  `CHM_DATA_CRIACAO` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Data/hora de criação da menção',
+  `CHM_DATA_CONFIRMACAO` TIMESTAMP NULL COMMENT 'Data/hora de confirmação da menção (ACK)',
+  PRIMARY KEY (`CHM_ID`),
+  UNIQUE KEY `UK_CHT_MENCAO_DEST_MSG` (`CHM_DEST_LOGIN`, `CHM_CHT_ID`),
+  INDEX `IDX_CHT_MENCAO_DEST_PEND` (`CHM_DEST_LOGIN`, `CHM_DATA_CONFIRMACAO`, `CHM_DATA_CRIACAO`),
+  INDEX `IDX_CHT_MENCAO_DEST_DATA` (`CHM_DEST_LOGIN`, `CHM_DATA_CRIACAO`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Menções pendentes e histórico persistidos para entrega cross-screen';
+
+-- ============================================================================
 -- Restaurar configurações
 -- ============================================================================
 SET FOREIGN_KEY_CHECKS = 1;

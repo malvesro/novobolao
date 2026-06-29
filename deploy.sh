@@ -2,6 +2,22 @@
 
 set -euo pipefail
 
+prepare_docker_buildx_writable_dirs() {
+    local default_buildx_dir="${BUILDX_CONFIG:-${HOME}/.docker/buildx}"
+    local default_activity_dir="${default_buildx_dir}/activity"
+    if [ -d "$default_activity_dir" ] && [ -w "$default_activity_dir" ]; then
+        return 0
+    fi
+
+    local fallback_buildx_dir="${PWD}/.tmp/buildx"
+    export BUILDX_CONFIG="${BUILDX_CONFIG:-$fallback_buildx_dir}"
+    mkdir -p "$BUILDX_CONFIG/activity"
+
+    echo "ℹ️  Docker buildx em modo fallback: BUILDX_CONFIG=$BUILDX_CONFIG"
+}
+
+prepare_docker_buildx_writable_dirs
+
 echo "========================================="
 echo "🚀 Iniciando build e deploy do sistema"
 echo "========================================="
@@ -28,4 +44,3 @@ echo "========================================="
 
 # Para acompanhar logs:
 # docker compose logs -f app
-``
