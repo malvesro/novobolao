@@ -156,6 +156,13 @@
 			</result>
 		</action>
 
+		<action name="chatMencoesNotification" class="chatAction" method="verificarMencoesPartial">
+			<result name="success">/WEB-INF/content/seguro/partials/chat-mention-toast-fragment.jsp</result>
+			<result name="login" type="httpheader">
+				<param name="status">401</param>
+			</result>
+		</action>
+
 		<action name="trocaSenha" class="participanteAction" method="trocaSenha">
 			<result name="success">/WEB-INF/content/seguro/trocaSenha.jsp</result>
 		</action>

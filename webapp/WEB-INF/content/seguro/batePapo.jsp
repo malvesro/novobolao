@@ -64,20 +64,20 @@
           hx-post="${base}/seguro/chatEnviarMensagemPartial.action"
           hx-target="#chat-messages-list"
           hx-swap="beforeend"
-          hx-include="#chat-ultimo-id, #chat-apelido"
+          hx-include="#chat-ultimo-id"
           hx-on::after-request="if(event.detail.successful){this.querySelector('textarea[name=chatMensagem]').value='';}">
         <div class="chat-form__row">
-            <label for="chat-apelido"><fmt:message key="chat.apelido" /></label>
-            <input type="text" id="chat-apelido" name="chatApelido" maxlength="40" />
-        </div>
-        <div class="chat-form__row">
+
             <label for="chat-mensagem"><fmt:message key="chat.message.label" /></label>
             <textarea id="chat-mensagem"
                       name="chatMensagem"
                       maxlength="300"
                       rows="3"
                       required
+                      aria-describedby="chat-mention-help"
                       placeholder="<fmt:message key='chat.message.placeholder' />"></textarea>
+            <div id="chat-autocomplete" class="chat-autocomplete" role="listbox" aria-label="Sugestões de menção" hidden></div>
+            <p id="chat-mention-help" class="sr-only">Use arroba seguido de login ou Todos para mencionar um usuário.</p>
         </div>
         <div class="chat-form__actions">
             <button type="submit" class="button button--primary">

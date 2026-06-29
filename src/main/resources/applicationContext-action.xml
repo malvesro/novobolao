@@ -41,6 +41,7 @@
         class="com.opendev.bolao.action.ChatAction"
         scope="prototype">
         <property name="chatService" ref="chatService" />
+        <property name="chatNotificationService" ref="chatNotificationService" />
     </bean>
 
 </beans>

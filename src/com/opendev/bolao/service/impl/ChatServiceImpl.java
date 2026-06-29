@@ -5,6 +5,7 @@ import com.opendev.bolao.model.ChatMensagem;
 import com.opendev.bolao.model.Participante;
 import com.opendev.bolao.repository.ChatMensagemRepository;
 import com.opendev.bolao.repository.ParticipanteRepository;
+import com.opendev.bolao.service.ChatNotificationService;
 import com.opendev.bolao.service.ChatService;
 import com.opendev.bolao.service.dto.ChatMensagemView;
 import com.opendev.bolao.util.SanitizationUtils;
@@ -19,19 +20,22 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChatServiceImpl implements ChatService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatServiceImpl.class);
     private static final int LIMITE_MENSAGEM = 300;
-    private static final int LIMITE_APELIDO = 40;
     private static final int JANELA_INICIAL = 50;
     private static final int JANELA_INCREMENTAL = 50;
     private static final int LIMITE_ENVIO_POR_JANELA = 10;
@@ -42,12 +46,13 @@ public class ChatServiceImpl implements ChatService {
 
     private ChatMensagemRepository chatMensagemRepository;
     private ParticipanteRepository participanteRepository;
+    private ChatNotificationService chatNotificationService;
 
-    private final ConcurrentMap<String, String> apelidosPorSessao = new ConcurrentHashMap<>();
-    private final ConcurrentMap<String, Long> ultimaAtividadeApelidoPorSessao = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Long> ultimaAtividadePorLogin = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Deque<Long>> trilhasEnvioPorLogin = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Deque<Long>> trilhasPollingPorLogin = new ConcurrentHashMap<>();
+
+    private static final Pattern MENTION_PATTERN = Pattern.compile("(?i)(?:^|\\s)@([a-z0-9._-]+)");
 
     @Override
     public List<ChatMensagemView> buscarMensagensIniciais(String loginAtual) {
@@ -89,19 +94,11 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatMensagemView criarMensagem(String loginAtual, String chaveSessao, String apelido, String texto, String ipOrigem) {
+    public ChatMensagemView criarMensagem(String loginAtual, String chaveSessao, String texto, String ipOrigem) {
         String loginSeguro = sanitizarLoginObrigatorio(loginAtual);
         String chaveSessaoSegura = sanitizarChaveSessao(chaveSessao, loginSeguro);
         atualizarPresenca(loginSeguro);
         aplicarRateLimitEnvio(loginSeguro);
-
-        if (!ValidacaoUtils.isVazia(apelido)) {
-            String apelidoSeguro = sanitizarApelido(apelido);
-            if (!ValidacaoUtils.isVazia(apelidoSeguro)) {
-                apelidosPorSessao.put(chaveSessaoSegura, apelidoSeguro);
-                ultimaAtividadeApelidoPorSessao.put(chaveSessaoSegura, System.currentTimeMillis());
-            }
-        }
 
         String textoSeguro = sanitizarMensagem(texto);
         ChatMensagem novaMensagem = new ChatMensagem();
@@ -110,9 +107,56 @@ public class ChatServiceImpl implements ChatService {
         novaMensagem.setTexto(textoSeguro);
         novaMensagem.setDataEnvio(new Date());
 
+        Set<String> destinatarios = extrairDestinatariosMencao(textoSeguro, loginSeguro);
         ChatMensagem salva = chatMensagemRepository.save(novaMensagem);
+        if (chatNotificationService != null) {
+            chatNotificationService.registrarMencoes(loginSeguro,
+                    novaMensagem.getNomeExibicao(), textoSeguro, salva.getId(), destinatarios);
+        }
         LOGGER.info("[CHAT][SEND] user={} ip={} messageId={} status=SUCCESS", loginSeguro, ipOrigem, salva.getId());
         return mapearParaView(salva, loginSeguro);
+    }
+
+    private Set<String> extrairDestinatariosMencao(String texto, String autorLogin) {
+        if (ValidacaoUtils.isVazia(texto) || ValidacaoUtils.isVazia(autorLogin)) {
+            return Collections.emptySet();
+        }
+
+        limparEstruturasEmMemoria();
+        Set<String> destinatarios = new HashSet<>();
+        Matcher matcher = MENTION_PATTERN.matcher(texto);
+        String loginAutorSeguro = autorLogin.trim().toLowerCase(Locale.ROOT);
+
+        while (matcher.find()) {
+            String alvo = matcher.group(1);
+            if (ValidacaoUtils.isVazia(alvo)) {
+                continue;
+            }
+            String loginDestino = alvo.trim().toLowerCase(Locale.ROOT);
+            if (loginDestino.equals(loginAutorSeguro)) {
+                continue;
+            }
+            if ("todos".equalsIgnoreCase(loginDestino)) {
+                for (String login : ultimaAtividadePorLogin.keySet()) {
+                    if (!ValidacaoUtils.isVazia(login) && !login.equals(loginAutorSeguro) && estaOnline(login)) {
+                        destinatarios.add(login);
+                    }
+                }
+                continue;
+            }
+            if (estaOnline(loginDestino) && participanteRepository.findByLogin(loginDestino).isPresent()) {
+                destinatarios.add(loginDestino);
+            }
+        }
+        return destinatarios;
+    }
+
+    private boolean estaOnline(String login) {
+        if (ValidacaoUtils.isVazia(login)) {
+            return false;
+        }
+        Long ultimoAcesso = ultimaAtividadePorLogin.get(login.trim().toLowerCase(Locale.ROOT));
+        return ultimoAcesso != null && ultimoAcesso >= System.currentTimeMillis() - TTL_PRESENCA_MS;
     }
 
     @Override
@@ -153,17 +197,7 @@ public class ChatServiceImpl implements ChatService {
         return limpo;
     }
 
-    private String sanitizarApelido(String apelido) {
-        String valor = apelido == null ? "" : apelido;
-        if (SanitizationUtils.containsHtml(valor)) {
-            throw new BusinessException(BusinessException.Code.INVALID_INPUT, "Apelido inválido.");
-        }
-        String limpo = SanitizationUtils.cleanText(valor, LIMITE_APELIDO);
-        if (limpo != null && limpo.length() > LIMITE_APELIDO) {
-            limpo = limpo.substring(0, LIMITE_APELIDO);
-        }
-        return limpo;
-    }
+
 
     private void aplicarRateLimitEnvio(String loginSeguro) {
         Deque<Long> trilha = trilhasEnvioPorLogin.computeIfAbsent(loginSeguro, k -> new ArrayDeque<>());
@@ -202,14 +236,6 @@ public class ChatServiceImpl implements ChatService {
     }
 
     private String resolverNomeExibicao(String loginSeguro, String chaveSessao) {
-        if (!ValidacaoUtils.isVazia(chaveSessao)) {
-            String apelidoMemoria = apelidosPorSessao.get(chaveSessao);
-            if (!ValidacaoUtils.isVazia(apelidoMemoria)) {
-                ultimaAtividadeApelidoPorSessao.put(chaveSessao, System.currentTimeMillis());
-                return apelidoMemoria;
-            }
-        }
-
         Optional<Participante> participante = participanteRepository.findByLogin(loginSeguro);
         if (participante.isPresent() && !ValidacaoUtils.isVazia(participante.get().getNome())) {
             return participante.get().getNome().trim();
@@ -221,9 +247,6 @@ public class ChatServiceImpl implements ChatService {
     private void limparEstruturasEmMemoria() {
         long limite = System.currentTimeMillis() - TTL_PRESENCA_MS;
         ultimaAtividadePorLogin.entrySet().removeIf(entry -> entry.getValue() == null || entry.getValue() < limite);
-        ultimaAtividadeApelidoPorSessao.entrySet()
-                .removeIf(entry -> entry.getValue() == null || entry.getValue() < limite);
-        apelidosPorSessao.keySet().removeIf(chave -> !ultimaAtividadeApelidoPorSessao.containsKey(chave));
     }
 
     private List<ChatMensagemView> mapearParaView(List<ChatMensagem> mensagens, String loginAtual) {
@@ -256,5 +279,9 @@ public class ChatServiceImpl implements ChatService {
 
     public void setParticipanteRepository(ParticipanteRepository participanteRepository) {
         this.participanteRepository = participanteRepository;
+    }
+
+    public void setChatNotificationService(ChatNotificationService chatNotificationService) {
+        this.chatNotificationService = chatNotificationService;
     }
 }

@@ -42,6 +42,13 @@
       <a href="${chatUrl}">
         <span><fmt:message key="menu.geral.chat" /></span>
       </a>
+      <c:url var="chatMentionsNotificationUrl" value="/seguro/chatMencoesNotification.action" />
+      <div id="chat-mentions-poller"
+           class="chat-mentions-poller"
+           hx-get="${chatMentionsNotificationUrl}"
+           hx-trigger="load, every 15s"
+           hx-swap="outerHTML">
+      </div>
     </sec:authorize>
     </span>
   </div>

@@ -5,6 +5,7 @@ function mountChatFixture() {
     <form id="chat-send-form">
       <textarea name="chatMensagem"></textarea>
     </form>
+    <div id="chat-autocomplete" class="chat-autocomplete" role="listbox" aria-label="Sugestões de menção" hidden></div>
     <div id="chat-feedback" class="chat-feedback" role="status" aria-live="polite"></div>
     <p class="chat-empty">vazio</p>
     <ul id="chat-messages-list" style="max-height:100px;overflow:auto;">
@@ -66,6 +67,61 @@ describe('chat.js comportamento', () => {
 
     expect(document.querySelectorAll('.chat-empty').length).toBe(0);
     expect(list.scrollTop).toBe(300);
+  });
+
+  it('deve preservar a posição de scroll quando o usuário desliza para cima', async () => {
+    const list = document.getElementById('chat-messages-list');
+    Object.defineProperty(list, 'scrollHeight', { value: 500, configurable: true });
+    Object.defineProperty(list, 'clientHeight', { value: 100, configurable: true });
+    list.scrollTop = 100;
+
+    const { initChatPage } = await import('../../src/frontend/pages/chat.js');
+    initChatPage();
+
+    list.scrollTop = 50;
+    list.dispatchEvent(new Event('scroll'));
+    document.dispatchEvent(new CustomEvent('htmx:afterSwap', {
+      detail: { target: list },
+      bubbles: true,
+    }));
+
+    expect(list.scrollTop).toBe(50);
+  });
+
+  it('deve exibir sugestões de autocomplete ao digitar @', async () => {
+    document.body.insertAdjacentHTML('beforeend', '<div class="chat-message__login">(@admin)</div>');
+    const { initChatPage } = await import('../../src/frontend/pages/chat.js');
+    initChatPage();
+
+    const textarea = document.querySelector('textarea[name="chatMensagem"]');
+    textarea.value = 'Olá @';
+    textarea.selectionStart = textarea.value.length;
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+
+    const suggestions = document.getElementById('chat-autocomplete');
+    expect(suggestions).not.toBeNull();
+    expect(suggestions.hidden).toBe(false);
+    expect(suggestions.textContent).toContain('admin');
+    expect(suggestions.textContent).toContain('Todos');
+  });
+
+  it('deve inserir sugestão de autocomplete ao pressionar Enter', async () => {
+    document.body.insertAdjacentHTML('beforeend', '<div class="chat-message__login">(@admin)</div>');
+    const { initChatPage } = await import('../../src/frontend/pages/chat.js');
+    initChatPage();
+
+    const textarea = document.querySelector('textarea[name="chatMensagem"]');
+    textarea.value = 'Olá @a';
+    textarea.selectionStart = textarea.value.length;
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+
+    textarea.dispatchEvent(new KeyboardEvent('keydown', {
+      key: 'Enter',
+      bubbles: true,
+      cancelable: true,
+    }));
+
+    expect(textarea.value).toContain('@admin');
   });
 
   it('deve preservar texto digitado quando ocorrer erro de envio HTMX', async () => {

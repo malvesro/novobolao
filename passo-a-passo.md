@@ -3221,3 +3221,55 @@ Referência Diretrizes: `.ia/diretrizes/seguranca.md`
        Executar a suíte completa com `mvn -Dfrontend.skip=true test` e garantir sucesso de todos os testes.
      * **[Concluído] 100.5 — Registrar histórico no log de sessão:**
        Criar log em `.ia/logs/session-20260627-correcao-vazamento-testes.md`.
+
+101. **[Pendente] Evolução do Chat 2.1 — Simplificação de Usabilidade, Notificações Globais (@autor e @Todos) e Melhorias de UX (27/06/2026):**
+     Objetivo: implementar as otimizações de usabilidade e o mecanismo de notificações transversais de menção no sistema.
+     * **[Concluído] 101.1 — Elaboração do plano de evolução técnica e design (Architect):**
+       Criar o plano detalhado em `.ia/planos/plano-evolucao-chat-2-1-usabilidade.md`.
+     * **Iteração A: Alinhamento de Identidade Real no Chat (Paralelizável)**
+       * **[Concluído] 101.2 — Remoção visual do apelido na tela e form do Chat (UX/Developer):**
+         Remover o input `chatApelido` no `batePapo.jsp`, removendo o campo nas chamadas HTMX (atributos `hx-include`).
+       * **[Concluído] 101.3 — Modificação do fluxo de nome de exibição no backend (Developer):**
+         Atualizar `ChatServiceImpl.criarMensagem` para resolver e gravar o nome real do participante (`Participante.getNome()`), abolindo o mapa temporário `apelidosPorSessao`.
+       * **[Concluído] 101.4 — Atualização e refatoração da suíte de testes unitários do chat (Tester/Reviewer):**
+         Corrigir e validar os cenários de mock no `ChatActionTest.java` e `ChatServiceImplTest.java` para refletir as novas restrições de nomes canônicos.
+     * **Iteração B: Motor do Parseador de Menções e Cache de Notificações (Paralelizável)**
+       * **[Concluído] 101.5 — Desenho da API em memória para controle de alertas pendentes (Architect):**
+         Especificar o comportamento do novo `ChatNotificationService` sincronizado e do DTO de notificação.
+       * **[Concluído] 101.6 — Implementação do processador de Regex das menções (Developer):**
+         Desenvolver parser RegExp em `ChatServiceImpl` mapeando `@login` e `@todos` (@Todos) ao registrar novas mensagens.
+       * **[Concluído] 101.7 — Auditoria defensiva contra XSS nas menções e nicknames (Security):**
+         Assegurar a sanitização no parsing impedindo execução de scripts inseridos nas referências de citação.
+     * **Iteração C: Canal de Notificação Global e Toast Visual (Paralelizável)**
+       * **[Concluído] 101.8 — Implementação do endpoint da notificação parcial (Developer):**
+         Inserir lógica de retorno de conteúdo dinâmico ou HTTP 204 em `/seguro/chatMencoesNotification.action` (Struts/JSP).
+       * **[Concluído] 101.9 — Acoplamento do check-in invisível HTMX no menu (Developer/UX):**
+         Configurar a tag de polling de 15 segundos em `menu.jspf` vinculada ao novo endpoint.
+       * **[Concluído] 101.10 — Desenvolvimento do modal Toast e suas animações CSS (UX/Developer):**
+         Inserir o markup `mention-toast-fragment.jsp` e estilizá-lo com Glassmorphism e fade-out controlados via CSS transitions.
+     * **Iteração D: Ajustes de Comportamento na UI do Chat (Paralelizável)**
+       * **[Pendente] 101.11 — Refatoração do Auto-Scroll Lock em leitura retrospectiva (UX/Developer):**
+         Reescrever e revisar `chat.js` no client-side para congelar o scroll caso o participante esteja navegando em trecho histórico, garantindo que o fonte versionado e os assets gerados estejam consistentes.
+       * **[Pendente] 101.12 — Desenvolvimento do helper de autocomplete para o trigger de @ (UX/Developer):**
+         Projetar, implementar e revisar sugestor contextual ao digitar o caractere de menção no textarea, removendo duplicidades de teste e validando acessibilidade básica do listbox.
+       * **[Pendente] 101.13 — Validação final combinada, regressão e Go/No-go (Tester/Reviewer/Security):**
+         Executar compilação consolidada (`mvn test` ou recorte justificado), testes frontend, `npm run build`, `git diff --check` e revisão final. A validação anterior fica reaberta até os achados do working tree serem saneados.
+     * **Iteração E: Saneamento profissional do working tree antes do fechamento (Obrigatória)**
+       * **[Pendente] 101.14 — Congelar inventário técnico do working tree (Architect/Reviewer):**
+         Classificar todos os arquivos modificados, deletados e não versionados entre código-fonte, configuração, testes, documentação, logs e assets gerados. Confirmar que `webapp/assets/js/main-D_IJEZcB.js` foi substituído corretamente por `webapp/assets/js/main-Buq_AqZs.js` e que o manifesto Vite aponta para o asset novo.
+       * **[Pendente] 101.15 — Alinhar fonte JavaScript e assets Vite (Developer/Reviewer):**
+         Garantir que `src/frontend/pages/chat.js`, `webapp/assets/js/app-bundle.js`, `webapp/assets/js/main-*.js` e `webapp/assets/.vite/manifest.json` representem a mesma lógica de scroll lock e autocomplete. Reexecutar `npm run build` após os ajustes e revisar apenas os artefatos esperados.
+       * **[Pendente] 101.16 — Corrigir suíte frontend do chat (Tester):**
+         Corrigir o uso de variável `form` fora de escopo em `tests/frontend/chat.test.js`, remover casos duplicados de autocomplete, validar scroll lock, autocomplete, preservação de texto em erro HTMX e feedback visual.
+       * **[Pendente] 101.17 — Saneamento de higiene de diff e formatos (Developer/Reviewer):**
+         Eliminar falhas de `git diff --check`, incluindo espaços finais, linha em branco excedente no EOF e conversões indevidas de fim de linha em XMLs Spring. Preservar o estilo do arquivo sem refatorações fora do escopo.
+       * **[Pendente] 101.18 — Revisão de contrato backend e segurança das menções (Security/Reviewer):**
+         Revisar `ChatNotificationService`, DTO, `ChatServiceImpl`, `ChatAction`, `struts.xml` e fragmento JSP para garantir autenticação obrigatória, retorno 204 sem conteúdo, limpeza segura de notificações, limite de fila, concorrência, escape de saída com JSTL e ausência de vazamento de dados sensíveis em logs.
+       * **[Pendente] 101.19 — Revisão arquitetural da integração Spring/Struts (Architect):**
+         Confirmar que `ChatAction` apenas orquestra o fluxo, `ChatServiceImpl` concentra regra de negócio, `ChatNotificationService` permanece desacoplado da camada web e os XMLs Spring injetam dependências sem criar ciclos ou escopos incorretos.
+       * **[Pendente] 101.20 — Revalidação técnica completa e evidências (Tester):**
+         Executar, no mínimo, testes focados de backend (`ChatActionTest`, `ChatServiceImplTest`), suíte frontend relevante e build Vite. Executar suíte maior se o impacto ou os ajustes indicarem risco de regressão. Registrar comandos e resultados no log final.
+       * **[Pendente] 101.21 — Atualizar rastreabilidade e documentação final (Reviewer):**
+         Atualizar `.ia/planos/plano-evolucao-chat-2-1-usabilidade.md`, `passo-a-passo.md` e logs de sessão para refletir o estado real. Corrigir a divergência entre log de "completado" e subtarefas pendentes, sem mascarar validações que ainda não foram executadas.
+       * **[Pendente] 101.22 — Preparação de commit rastreável sem executar commit automaticamente (Reviewer):**
+         Revisar `git diff --stat`, `git diff --name-status`, arquivos não versionados e ausência de secrets. Preparar sugestão de conventional commit com emoji em Português do Brasil, incluindo código e artefatos de rastreabilidade no mesmo commit, aguardando autorização explícita do usuário.

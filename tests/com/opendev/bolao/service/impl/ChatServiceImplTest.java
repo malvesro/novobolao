@@ -5,6 +5,7 @@ import com.opendev.bolao.model.ChatMensagem;
 import com.opendev.bolao.model.Participante;
 import com.opendev.bolao.repository.ChatMensagemRepository;
 import com.opendev.bolao.repository.ParticipanteRepository;
+import com.opendev.bolao.service.ChatNotificationService;
 import com.opendev.bolao.service.dto.ChatMensagemView;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,6 +35,9 @@ class ChatServiceImplTest {
 
     @Mock
     private ParticipanteRepository participanteRepository;
+
+    @Mock
+    private ChatNotificationService chatNotificationService;
 
     @InjectMocks
     private ChatServiceImpl chatService;
@@ -56,7 +61,7 @@ class ChatServiceImplTest {
 
     @Test
     void deveRejeitarMensagemComHtml() {
-        assertThatThrownBy(() -> chatService.criarMensagem("admin", "sessao-admin", null, "<script>alert(1)</script>", "127.0.0.1"))
+        assertThatThrownBy(() -> chatService.criarMensagem("admin", "sessao-admin", "<script>alert(1)</script>", "127.0.0.1"))
                 .isInstanceOf(BusinessException.class)
                 .extracting("code")
                 .isEqualTo(BusinessException.Code.INVALID_INPUT);
@@ -72,10 +77,10 @@ class ChatServiceImplTest {
         });
 
         for (int i = 0; i < 10; i++) {
-            chatService.criarMensagem("admin", "sessao-admin", null, "Mensagem " + i, "127.0.0.1");
+            chatService.criarMensagem("admin", "sessao-admin", "Mensagem " + i, "127.0.0.1");
         }
 
-        assertThatThrownBy(() -> chatService.criarMensagem("admin", "sessao-admin", null, "Mensagem 11", "127.0.0.1"))
+        assertThatThrownBy(() -> chatService.criarMensagem("admin", "sessao-admin", "Mensagem 11", "127.0.0.1"))
                 .isInstanceOf(BusinessException.class)
                 .extracting("code")
                 .isEqualTo(BusinessException.Code.CONFLICT);
@@ -97,7 +102,7 @@ class ChatServiceImplTest {
 
     @Test
     void deveRejeitarMensagemVazia() {
-        assertThatThrownBy(() -> chatService.criarMensagem("admin", "sessao-admin", null, "   ", "127.0.0.1"))
+        assertThatThrownBy(() -> chatService.criarMensagem("admin", "sessao-admin", "   ", "127.0.0.1"))
                 .isInstanceOf(BusinessException.class)
                 .extracting("code")
                 .isEqualTo(BusinessException.Code.INVALID_INPUT);
@@ -129,7 +134,7 @@ class ChatServiceImplTest {
             return mensagem;
         });
 
-        ChatMensagemView resultado = chatService.criarMensagem("admin", "sessao-admin", null, texto300, "127.0.0.1");
+        ChatMensagemView resultado = chatService.criarMensagem("admin", "sessao-admin", texto300, "127.0.0.1");
 
         assertThat(resultado.getId()).isEqualTo(1L);
         assertThat(resultado.getTexto()).hasSize(300);
@@ -137,18 +142,64 @@ class ChatServiceImplTest {
     }
 
     @Test
-    void deveAceitarApelidoComLimiteExatoDe40Caracteres() {
-        String apelido40 = "N".repeat(40);
+    void deveUsarNomeDoParticipanteComoNomeDeExibicao() {
+        stubParticipanteAdmin();
         when(chatMensagemRepository.save(any(ChatMensagem.class))).thenAnswer(invocation -> {
             ChatMensagem mensagem = invocation.getArgument(0);
             mensagem.setId(1L);
             return mensagem;
         });
 
-        ChatMensagemView resultado = chatService.criarMensagem("admin", "sessao-admin", apelido40, "Mensagem válida", "127.0.0.1");
+        ChatMensagemView resultado = chatService.criarMensagem("admin", "sessao-admin", "Mensagem válida", "127.0.0.1");
 
-        assertThat(resultado.getNomeExibicao()).isEqualTo(apelido40);
-        assertThat(resultado.getNomeExibicao()).hasSize(40);
+        assertThat(resultado.getNomeExibicao()).isEqualTo("Administrador");
+    }
+
+    @Test
+    void deveRegistrarNotificacaoParaUsuarioMencionado() {
+        stubParticipanteAdmin();
+        when(participanteRepository.findByLogin("amigo")).thenReturn(Optional.of(new Participante()));
+        chatService.atualizarPresenca("amigo");
+        when(chatMensagemRepository.save(any(ChatMensagem.class))).thenAnswer(invocation -> {
+            ChatMensagem mensagem = invocation.getArgument(0);
+            mensagem.setId(1L);
+            return mensagem;
+        });
+
+        chatService.criarMensagem("admin", "sessao-admin", "Olá @amigo", "127.0.0.1");
+
+        verify(chatNotificationService).registrarMencoes(eq("admin"), eq("Administrador"), eq("Olá @amigo"), eq(1L), argThat(destinatarios -> destinatarios.contains("amigo") && destinatarios.size() == 1));
+    }
+
+    @Test
+    void deveRegistrarNotificacaoParaTodosUsuariosOnline() {
+        stubParticipanteAdmin();
+        chatService.atualizarPresenca("outro");
+        when(chatMensagemRepository.save(any(ChatMensagem.class))).thenAnswer(invocation -> {
+            ChatMensagem mensagem = invocation.getArgument(0);
+            mensagem.setId(1L);
+            return mensagem;
+        });
+
+        chatService.criarMensagem("admin", "sessao-admin", "@Todos bom dia", "127.0.0.1");
+
+        verify(chatNotificationService).registrarMencoes(eq("admin"), eq("Administrador"), eq("@Todos bom dia"), eq(1L), argThat(destinatarios -> destinatarios.contains("outro") && destinatarios.size() == 1));
+    }
+
+    @Test
+    void deveUsarLoginComoNomeDeExibicaoCasoParticipanteNaoTenhaNome() {
+        Participante p = new Participante();
+        p.setNome(null);
+        when(participanteRepository.findByLogin("user")).thenReturn(Optional.of(p));
+        when(chatMensagemRepository.save(any(ChatMensagem.class))).thenAnswer(invocation -> {
+            ChatMensagem mensagem = invocation.getArgument(0);
+            mensagem.setId(1L);
+            return mensagem;
+        });
+
+        ChatMensagemView resultado = chatService.criarMensagem("user", "sessao-user", "Olá", "127.0.0.1");
+
+        assertThat(resultado.getNomeExibicao()).isEqualTo("user");
     }
 
     @Test
@@ -179,7 +230,7 @@ class ChatServiceImplTest {
         when(chatMensagemRepository.save(any(ChatMensagem.class)))
                 .thenThrow(new RuntimeException("Falha no banco"));
 
-        assertThatThrownBy(() -> chatService.criarMensagem("admin", "sessao-admin", null, "Mensagem válida", "127.0.0.1"))
+        assertThatThrownBy(() -> chatService.criarMensagem("admin", "sessao-admin", "Mensagem válida", "127.0.0.1"))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("Falha no banco");
     }
@@ -194,53 +245,12 @@ class ChatServiceImplTest {
             return mensagem;
         });
 
-        ChatMensagemView resultado = chatService.criarMensagem("admin", "sessao-admin", null, texto301, "127.0.0.1");
+        ChatMensagemView resultado = chatService.criarMensagem("admin", "sessao-admin", texto301, "127.0.0.1");
 
         assertThat(resultado.getTexto()).hasSize(300);
         assertThat(resultado.getTexto()).isEqualTo(texto301.substring(0, 300));
     }
 
-    @Test
-    void deveDocumentarComportamentoAtualTruncandoApelidoAcimaDoLimite() {
-        String apelido41 = "N".repeat(41);
-        when(chatMensagemRepository.save(any(ChatMensagem.class))).thenAnswer(invocation -> {
-            ChatMensagem mensagem = invocation.getArgument(0);
-            mensagem.setId(1L);
-            return mensagem;
-        });
-
-        ChatMensagemView resultado = chatService.criarMensagem("admin", "sessao-admin", apelido41, "Mensagem válida", "127.0.0.1");
-
-        assertThat(resultado.getNomeExibicao()).hasSize(40);
-        assertThat(resultado.getNomeExibicao()).isEqualTo(apelido41.substring(0, 40));
-    }
-
-    @Test
-    void deveIsolarApelidoPorSessaoDoMesmoLogin() {
-        stubParticipanteAdmin();
-        when(chatMensagemRepository.save(any(ChatMensagem.class))).thenAnswer(invocation -> {
-            ChatMensagem mensagem = invocation.getArgument(0);
-            mensagem.setId(1L);
-            return mensagem;
-        });
-
-        ChatMensagemView primeiraMensagemSessaoA = chatService.criarMensagem(
-                "admin", "sessao-A", "NickA", "Mensagem A1", "127.0.0.1");
-        ChatMensagemView primeiraMensagemSessaoB = chatService.criarMensagem(
-                "admin", "sessao-B", null, "Mensagem B1", "127.0.0.1");
-        ChatMensagemView segundaMensagemSessaoA = chatService.criarMensagem(
-                "admin", "sessao-A", null, "Mensagem A2", "127.0.0.1");
-        ChatMensagemView segundaMensagemSessaoB = chatService.criarMensagem(
-                "admin", "sessao-B", "NickB", "Mensagem B2", "127.0.0.1");
-        ChatMensagemView terceiraMensagemSessaoB = chatService.criarMensagem(
-                "admin", "sessao-B", null, "Mensagem B3", "127.0.0.1");
-
-        assertThat(primeiraMensagemSessaoA.getNomeExibicao()).isEqualTo("NickA");
-        assertThat(primeiraMensagemSessaoB.getNomeExibicao()).isEqualTo("Administrador");
-        assertThat(segundaMensagemSessaoA.getNomeExibicao()).isEqualTo("NickA");
-        assertThat(segundaMensagemSessaoB.getNomeExibicao()).isEqualTo("NickB");
-        assertThat(terceiraMensagemSessaoB.getNomeExibicao()).isEqualTo("NickB");
-    }
 
     private void stubParticipanteAdmin() {
         Participante p = new Participante();

@@ -120,7 +120,12 @@
 		class="com.opendev.bolao.service.impl.ChatServiceImpl">
 		<property name="chatMensagemRepository" ref="chatMensagemRepository" />
 		<property name="participanteRepository" ref="participanteRepository" />
+		<property name="chatNotificationService" ref="chatNotificationService" />
 	</bean>
+
+	<bean id="chatNotificationService"
+		class="com.opendev.bolao.service.impl.ChatNotificationServiceImpl" />
+
 	<bean id="chatService" parent="transactionProxyTemplate">
 		<property name="proxyInterfaces">
 			<list><value>com.opendev.bolao.service.ChatService</value></list>

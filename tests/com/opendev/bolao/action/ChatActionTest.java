@@ -2,6 +2,7 @@ package com.opendev.bolao.action;
 
 import com.opendev.bolao.exception.BusinessException;
 import com.opendev.bolao.service.ChatService;
+import com.opendev.bolao.service.ChatNotificationService;
 import com.opendev.bolao.service.dto.ChatMensagemView;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +18,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class ChatActionTest {
@@ -25,6 +28,7 @@ class ChatActionTest {
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
     private ChatService chatService;
+    private com.opendev.bolao.service.ChatNotificationService chatNotificationService;
     private ChatAction action;
 
     @BeforeEach
@@ -34,8 +38,10 @@ class ChatActionTest {
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request, response));
 
         chatService = Mockito.mock(ChatService.class);
+        chatNotificationService = Mockito.mock(ChatNotificationService.class);
         action = new ChatAction();
         action.setChatService(chatService);
+        action.setChatNotificationService(chatNotificationService);
         action.withServletRequest(request);
         action.withServletResponse(response);
     }
@@ -70,7 +76,7 @@ class ChatActionTest {
         request.setUserPrincipal(() -> "admin");
         request.setMethod("POST");
         action.setChatMensagem("Ola");
-        when(chatService.criarMensagem(eq("admin"), any(), any(), any(), any()))
+        when(chatService.criarMensagem(eq("admin"), any(), any(), any()))
                 .thenThrow(new BusinessException(BusinessException.Code.CONFLICT, "Limite"));
 
         String resultado = action.enviarMensagemParcial();
@@ -85,7 +91,7 @@ class ChatActionTest {
         request.setUserPrincipal(() -> "admin");
         request.setMethod("POST");
         action.setChatMensagem("<b>x</b>");
-        when(chatService.criarMensagem(eq("admin"), any(), any(), any(), any()))
+        when(chatService.criarMensagem(eq("admin"), any(), any(), any()))
                 .thenThrow(new BusinessException(BusinessException.Code.INVALID_INPUT, "Mensagem inválida"));
 
         String resultado = action.enviarMensagemParcial();
@@ -114,7 +120,7 @@ class ChatActionTest {
         request.setUserPrincipal(() -> "admin");
         request.setMethod("POST");
         action.setChatMensagem("Ola");
-        when(chatService.criarMensagem(eq("admin"), any(), any(), any(), any()))
+        when(chatService.criarMensagem(eq("admin"), any(), any(), any()))
                 .thenThrow(new RuntimeException("Falha inesperada"));
 
         String resultado = action.enviarMensagemParcial();
@@ -173,5 +179,30 @@ class ChatActionTest {
         assertThat(action.getMensagensChat()).hasSize(2);
         assertThat(action.getChatUltimoId()).isEqualTo(12L);
         assertThat(action.getParticipantesOnlineChat()).containsExactly("Admin");
+    }
+
+    @Test
+    void deveBuscarNotificacoesDeMencoesParaUsuarioLogado() {
+        request.setUserPrincipal(() -> "admin");
+        when(chatNotificationService.buscarMencoesPendentes("admin"))
+                .thenReturn(List.of(new com.opendev.bolao.service.dto.MentionNotification("outro", "Outro", 1L, "Teste")));
+
+        String resultado = action.verificarMencoesPartial();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(action.getNotificacoesMencao()).hasSize(1);
+        assertThat(action.getNotificacoesMencao().get(0).getAutorNomeExibicao()).isEqualTo("Outro");
+    }
+
+    @Test
+    void deveRetornar204QuandoNaoExistemMencoesPendentes() {
+        request.setUserPrincipal(() -> "admin");
+        when(chatNotificationService.buscarMencoesPendentes("admin")).thenReturn(List.of());
+
+        String resultado = action.verificarMencoesPartial();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(response.getStatus()).isEqualTo(204);
+        assertThat(action.getNotificacoesMencao()).isEmpty();
     }
 }

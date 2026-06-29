@@ -1,8 +1,10 @@
 package com.opendev.bolao.action;
 
 import com.opendev.bolao.exception.BusinessException;
+import com.opendev.bolao.service.ChatNotificationService;
 import com.opendev.bolao.service.ChatService;
 import com.opendev.bolao.service.dto.ChatMensagemView;
+import com.opendev.bolao.service.dto.MentionNotification;
 import com.opendev.bolao.util.RequestUtils;
 import com.opendev.bolao.util.ValidacaoUtils;
 import org.apache.struts2.ActionSupport;
@@ -25,15 +27,16 @@ public class ChatAction extends ActionSupport implements ServletRequestAware, Se
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatAction.class);
 
     private ChatService chatService;
+    private ChatNotificationService chatNotificationService;
     private transient HttpServletRequest request;
     private transient HttpServletResponse response;
 
     private List<ChatMensagemView> mensagensChat = Collections.emptyList();
     private List<String> participantesOnlineChat = Collections.emptyList();
+    private List<MentionNotification> notificacoesMencao = Collections.emptyList();
     private String chatErro;
     private Long chatUltimoId;
     private String chatMensagem;
-    private String chatApelido;
 
     public String exibirChat() {
         String login = RequestUtils.getLoginParticipanteAutenticado();
@@ -41,6 +44,9 @@ public class ChatAction extends ActionSupport implements ServletRequestAware, Se
             return LOGIN;
         }
 
+        if (chatNotificationService != null) {
+            chatNotificationService.buscarMencoesPendentes(login);
+        }
         this.mensagensChat = chatService.buscarMensagensIniciais(login);
         this.participantesOnlineChat = chatService.buscarParticipantesOnline();
         this.chatUltimoId = obterMaiorId(this.mensagensChat, this.chatUltimoId);
@@ -73,6 +79,27 @@ public class ChatAction extends ActionSupport implements ServletRequestAware, Se
         }
     }
 
+    public String verificarMencoesPartial() {
+        marcarRespostaParcial();
+        String login = RequestUtils.getLoginParticipanteAutenticado();
+        if (ValidacaoUtils.isVazia(login)) {
+            return LOGIN;
+        }
+
+        try {
+            this.notificacoesMencao = chatNotificationService.buscarMencoesPendentes(login);
+            if (this.notificacoesMencao == null || this.notificacoesMencao.isEmpty()) {
+                setStatus(HttpServletResponse.SC_NO_CONTENT);
+            }
+            return SUCCESS;
+        } catch (Exception e) {
+            LOGGER.error("[CHAT][MENTION] erro ao buscar notificacoes", e);
+            setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            this.chatErro = texto("chat.error.load", "Não foi possível atualizar as notificações agora.");
+            return SUCCESS;
+        }
+    }
+
     public String enviarMensagemParcial() {
         marcarRespostaParcial();
         String login = RequestUtils.getLoginParticipanteAutenticado();
@@ -87,7 +114,7 @@ public class ChatAction extends ActionSupport implements ServletRequestAware, Se
 
         try {
             ChatMensagemView mensagem = chatService.criarMensagem(
-                    login, obterChaveSessaoChat(login), this.chatApelido, this.chatMensagem, RequestUtils.getIpDaRequisicao());
+                    login, obterChaveSessaoChat(login), this.chatMensagem, RequestUtils.getIpDaRequisicao());
             this.mensagensChat = Collections.singletonList(mensagem);
             this.participantesOnlineChat = chatService.buscarParticipantesOnline();
             this.chatUltimoId = mensagem.getId();
@@ -181,12 +208,20 @@ public class ChatAction extends ActionSupport implements ServletRequestAware, Se
         this.chatService = chatService;
     }
 
+    public void setChatNotificationService(ChatNotificationService chatNotificationService) {
+        this.chatNotificationService = chatNotificationService;
+    }
+
     public List<ChatMensagemView> getMensagensChat() {
         return mensagensChat;
     }
 
     public List<String> getParticipantesOnlineChat() {
         return participantesOnlineChat;
+    }
+
+    public List<MentionNotification> getNotificacoesMencao() {
+        return notificacoesMencao;
     }
 
     public String getChatErro() {
@@ -205,10 +240,5 @@ public class ChatAction extends ActionSupport implements ServletRequestAware, Se
     @StrutsParameter
     public void setChatMensagem(String chatMensagem) {
         this.chatMensagem = chatMensagem;
-    }
-
-    @StrutsParameter
-    public void setChatApelido(String chatApelido) {
-        this.chatApelido = chatApelido;
     }
 }

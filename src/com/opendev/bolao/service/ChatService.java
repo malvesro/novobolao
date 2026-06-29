@@ -12,7 +12,7 @@ public interface ChatService {
 
     List<String> buscarParticipantesOnline();
 
-    ChatMensagemView criarMensagem(String loginAtual, String chaveSessao, String apelido, String texto, String ipOrigem);
+    ChatMensagemView criarMensagem(String loginAtual, String chaveSessao, String texto, String ipOrigem);
 
     void atualizarPresenca(String loginAtual);
 }
