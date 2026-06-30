@@ -10,15 +10,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,7 +42,6 @@ class ChatNotificationServiceImplTest {
 
     @Test
     void deveRegistrarELerMencoesPendentesSemConsumirNoGetNoModoPersistente() {
-        when(repository.existsByDestinatarioLoginAndChatMensagemId("user", 1L)).thenReturn(false);
         when(repository.save(any(ChatMencao.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(repository.countByDestinatarioLoginAndDataConfirmacaoIsNull("user")).thenReturn(1L);
         when(repository.countByDestinatarioLogin("user")).thenReturn(1L);
@@ -90,7 +92,7 @@ class ChatNotificationServiceImplTest {
 
     @Test
     void deveAtivarFallbackMemoriaQuandoRepositorioFalha() {
-        when(repository.existsByDestinatarioLoginAndChatMensagemId("user", 10L))
+        when(repository.save(any(ChatMencao.class)))
                 .thenThrow(new RuntimeException("db offline"));
 
         service.registrarMencoes("admin", "Administrador", "oi @user", 10L, Set.of("user"));
@@ -107,8 +109,9 @@ class ChatNotificationServiceImplTest {
 
     @Test
     void devePersistirDestinatarioNormalizadoComUnicidadePorMensagem() {
-        when(repository.existsByDestinatarioLoginAndChatMensagemId("user", 77L)).thenReturn(false);
         when(repository.save(any(ChatMencao.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(repository.countByDestinatarioLoginAndDataConfirmacaoIsNull("user")).thenReturn(1L);
+        when(repository.countByDestinatarioLogin("user")).thenReturn(1L);
 
         service.registrarMencoes("admin", "Administrador", "msg", 77L, Set.of(" USER "));
 
@@ -124,6 +127,49 @@ class ChatNotificationServiceImplTest {
     void deveExporSinalizacaoDeModoEColdStartNoModoPersistente() {
         assertThat(service.isModoMemoriaLocal()).isFalse();
         assertThat(service.isColdStartAtivo()).isTrue();
+    }
+
+    @Test
+    void deveRecuperarAutomaticamenteFallbackParaPersistenciaComReplaySeguro() {
+        AtomicBoolean primeiraFalhaMensagemUm = new AtomicBoolean(true);
+        when(repository.save(any(ChatMencao.class))).thenAnswer(invocation -> {
+            ChatMencao mencao = invocation.getArgument(0);
+            if (Long.valueOf(1L).equals(mencao.getChatMensagemId()) && primeiraFalhaMensagemUm.getAndSet(false)) {
+                throw new RuntimeException("db offline");
+            }
+            return mencao;
+        });
+        when(repository.countByDestinatarioLoginAndDataConfirmacaoIsNull(any(String.class))).thenReturn(1L);
+        when(repository.countByDestinatarioLogin("user")).thenReturn(1L);
+
+        service.registrarMencoes("admin", "Administrador", "oi @user", 1L, Set.of("user"));
+        assertThat(service.isModoMemoriaLocal()).isTrue();
+        assertThat(service.buscarMencoesPendentes("user")).hasSize(1);
+
+        service.registrarMencoes("admin", "Administrador", "oi de novo @user", 2L, Set.of("user"));
+        assertThat(service.isModoMemoriaLocal()).isFalse();
+
+        ArgumentCaptor<ChatMencao> captor = ArgumentCaptor.forClass(ChatMencao.class);
+        verify(repository, atLeastOnce()).save(captor.capture());
+        long totalMensagem1 = captor.getAllValues().stream()
+                .filter(item -> Long.valueOf(1L).equals(item.getChatMensagemId()))
+                .count();
+        long totalMensagem2 = captor.getAllValues().stream()
+                .filter(item -> Long.valueOf(2L).equals(item.getChatMensagemId()))
+                .count();
+        assertThat(totalMensagem1).isGreaterThanOrEqualTo(2L);
+        assertThat(totalMensagem2).isEqualTo(1L);
+    }
+
+    @Test
+    void deveTratarDuplicidadeDeCorridaComoIdempotenteSemAtivarFallback() {
+        when(repository.save(any(ChatMencao.class)))
+                .thenThrow(new DataIntegrityViolationException(
+                        "duplicate key value violates unique constraint UK_CHT_MENCAO_DEST_MSG"));
+
+        service.registrarMencoes("admin", "Administrador", "oi @user", 99L, Set.of("user"));
+
+        assertThat(service.isModoMemoriaLocal()).isFalse();
     }
 
     private ChatMencao criarMencao(String destinatarioLogin,

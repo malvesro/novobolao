@@ -136,6 +136,7 @@ public class ChatServiceImpl implements ChatService {
                                                           String autorLogin,
                                                           Date dataInicio,
                                                           Date dataFim,
+                                                          Long cursorId,
                                                           int limite) {
         String loginSeguro = sanitizarLoginObrigatorio(loginAtual);
         atualizarPresenca(loginSeguro);
@@ -144,6 +145,7 @@ public class ChatServiceImpl implements ChatService {
         int limiteSeguro = Math.min(Math.max(limite, 1), 120);
         String termoSeguro = sanitizarTermoFiltro(termo);
         String autorSeguro = sanitizarAutorFiltro(autorLogin);
+        Long cursorSeguro = sanitizarCursorFiltro(cursorId);
         validarJanelaDatasFiltro(dataInicio, dataFim);
 
         List<ChatMensagem> mensagens = new ArrayList<>(chatMensagemRepository.buscarHistoricoFiltrado(
@@ -151,6 +153,7 @@ public class ChatServiceImpl implements ChatService {
                 autorSeguro,
                 dataInicio,
                 dataFim,
+                cursorSeguro,
                 PageRequest.of(0, limiteSeguro)
         ).getContent());
         mensagens.sort(Comparator.comparing(ChatMensagem::getId));
@@ -326,6 +329,16 @@ public class ChatServiceImpl implements ChatService {
         if (dataInicio != null && dataFim != null && dataInicio.after(dataFim)) {
             throw new BusinessException(BusinessException.Code.INVALID_INPUT, "Intervalo de datas inválido.");
         }
+    }
+
+    private Long sanitizarCursorFiltro(Long cursorId) {
+        if (cursorId == null) {
+            return null;
+        }
+        if (cursorId <= 0) {
+            throw new BusinessException(BusinessException.Code.INVALID_INPUT, "Cursor de histórico inválido.");
+        }
+        return cursorId;
     }
 
     private void aplicarRateLimitEnvio(String loginSeguro) {

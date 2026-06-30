@@ -26,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -338,14 +339,36 @@ class ChatServiceImplTest {
     @Test
     void deveConsultarHistoricoComFiltros() {
         ChatMensagem mensagem = criarMensagem(50L, "admin", "Busca por termo");
-        when(chatMensagemRepository.buscarHistoricoFiltrado(eq("termo"), eq("admin"), any(), any(), any()))
+        when(chatMensagemRepository.buscarHistoricoFiltrado(eq("termo"), eq("admin"), any(), any(), isNull(), any()))
                 .thenReturn(new PageImpl<>(List.of(mensagem)));
 
         List<ChatMensagemView> resultado = chatService.buscarHistoricoFiltrado(
-                "admin", "termo", "admin", new Date(System.currentTimeMillis() - 1_000L), new Date(), 20);
+                "admin", "termo", "admin", new Date(System.currentTimeMillis() - 1_000L), new Date(), null, 20);
 
         assertThat(resultado).hasSize(1);
         assertThat(resultado.get(0).getTexto()).contains("Busca");
+    }
+
+    @Test
+    void deveConsultarHistoricoComCursorQuandoInformado() {
+        ChatMensagem mensagem = criarMensagem(40L, "admin", "Mensagem antiga");
+        when(chatMensagemRepository.buscarHistoricoFiltrado(eq("gol"), eq("admin"), any(), any(), eq(50L), any()))
+                .thenReturn(new PageImpl<>(List.of(mensagem)));
+
+        List<ChatMensagemView> resultado = chatService.buscarHistoricoFiltrado(
+                "admin", "gol", "admin", new Date(System.currentTimeMillis() - 2_000L), new Date(), 50L, 20);
+
+        assertThat(resultado).hasSize(1);
+        assertThat(resultado.get(0).getId()).isEqualTo(40L);
+    }
+
+    @Test
+    void deveRejeitarCursorInvalidoNaConsultaDeHistorico() {
+        assertThatThrownBy(() -> chatService.buscarHistoricoFiltrado(
+                "admin", "gol", "admin", null, null, -1L, 20))
+                .isInstanceOf(BusinessException.class)
+                .extracting("code")
+                .isEqualTo(BusinessException.Code.INVALID_INPUT);
     }
 
     @Test

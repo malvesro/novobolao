@@ -5,8 +5,10 @@ import com.opendev.bolao.repository.ChatMencaoRepository;
 import com.opendev.bolao.service.ChatNotificationService;
 import com.opendev.bolao.service.dto.MentionNotification;
 import com.opendev.bolao.util.ValidacaoUtils;
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.ArrayDeque;
@@ -27,11 +29,18 @@ public class ChatNotificationServiceImpl implements ChatNotificationService {
     private static final int MAX_PENDING_NOTIFICATIONS = 50;
     private static final int MAX_HISTORY_NOTIFICATIONS = 100;
     private static final long COLD_START_WINDOW_MS = 300_000L;
+    private static final long RECOVERY_BASE_BACKOFF_MS = 5_000L;
+    private static final long RECOVERY_MAX_BACKOFF_MS = 60_000L;
+    private static final String RECOVERY_PROBE_LOGIN = "__chat_mention_healthcheck__";
+    private static final String UNIQUE_CONSTRAINT_MENCAO = "UK_CHT_MENCAO_DEST_MSG";
 
     private ChatMencaoRepository chatMencaoRepository;
     private final ConcurrentMap<String, Deque<MentionNotification>> mencoesPendentes = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Deque<MentionNotification>> historicoMencoes = new ConcurrentHashMap<>();
     private volatile boolean fallbackMemoriaAtivo;
+    private volatile long fallbackStartedAt;
+    private volatile long nextRecoveryAttemptAt;
+    private volatile int recoveryFailures;
     private final long startedAt = System.currentTimeMillis();
 
     public ChatNotificationServiceImpl() {
@@ -221,18 +230,13 @@ public class ChatNotificationServiceImpl implements ChatNotificationService {
                                          String mensagemPreview,
                                          Set<String> destinatarios) {
         for (String loginDestino : destinatarios) {
-            if (chatMencaoRepository.existsByDestinatarioLoginAndChatMensagemId(loginDestino, mensagemId)) {
+            PersistOutcome outcome = salvarMencaoDuravelIdempotente(
+                    loginDestino, autorLoginSeguro, autorNomeExibicao, mensagemId, mensagemPreview);
+            if (outcome == PersistOutcome.DUPLICATE_RACE_IGNORED) {
+                LOGGER.debug("[CHAT][MENTION][ENQUEUE] mode=PERSISTENT_DB from={} to={} messageId={} status=DUPLICATE_RACE_IGNORED",
+                        autorLoginSeguro, loginDestino, mensagemId);
                 continue;
             }
-
-            ChatMencao mencao = new ChatMencao();
-            mencao.setDestinatarioLogin(loginDestino);
-            mencao.setAutorLogin(autorLoginSeguro);
-            mencao.setAutorNomeExibicao(autorNomeExibicao);
-            mencao.setChatMensagemId(mensagemId);
-            mencao.setMensagemPreview(mensagemPreview);
-            mencao.setDataCriacao(new Date());
-            chatMencaoRepository.save(mencao);
 
             int descartadasPendentes = trimPendenciasSeNecessario(loginDestino);
             int descartadasHistorico = trimHistoricoSeNecessario(loginDestino);
@@ -342,7 +346,86 @@ public class ChatNotificationServiceImpl implements ChatNotificationService {
     }
 
     private boolean usarPersistenciaDuravel() {
-        return chatMencaoRepository != null && !fallbackMemoriaAtivo;
+        if (chatMencaoRepository == null) {
+            return false;
+        }
+        if (!fallbackMemoriaAtivo) {
+            return true;
+        }
+        tentarRecuperarPersistencia();
+        return !fallbackMemoriaAtivo;
+    }
+
+    private synchronized void tentarRecuperarPersistencia() {
+        if (!fallbackMemoriaAtivo || chatMencaoRepository == null) {
+            return;
+        }
+        long agora = System.currentTimeMillis();
+        if (agora < nextRecoveryAttemptAt) {
+            return;
+        }
+
+        LOGGER.info("[CHAT][MENTION][MODE] mode=MEMORY_LOCAL_EPHEMERAL status=RECOVERY_ATTEMPT failures={} pendingUsers={}",
+                recoveryFailures, mencoesPendentes.size());
+
+        try {
+            chatMencaoRepository.countByDestinatarioLoginAndDataConfirmacaoIsNull(RECOVERY_PROBE_LOGIN);
+            int replayed = replayPendenciasMemoriaParaPersistencia();
+            fallbackMemoriaAtivo = false;
+            nextRecoveryAttemptAt = 0L;
+            recoveryFailures = 0;
+            long degradadoMs = fallbackStartedAt > 0 ? (agora - fallbackStartedAt) : 0L;
+            fallbackStartedAt = 0L;
+            LOGGER.info("[CHAT][MENTION][MODE] mode=PERSISTENT_DB status=RECOVERED replayed={} degradedMs={}",
+                    replayed, degradadoMs);
+        } catch (RuntimeException ex) {
+            recoveryFailures++;
+            long backoff = calcularBackoffRecuperacao(recoveryFailures);
+            nextRecoveryAttemptAt = agora + backoff;
+            LOGGER.warn("[CHAT][MENTION][MODE] mode=MEMORY_LOCAL_EPHEMERAL status=RECOVERY_FAILED failures={} nextRetryMs={} cause={}",
+                    recoveryFailures, backoff, ex.getClass().getSimpleName());
+        }
+    }
+
+    private int replayPendenciasMemoriaParaPersistencia() {
+        int replayed = 0;
+        for (String loginDestino : mencoesPendentes.keySet()) {
+            Deque<MentionNotification> fila = mencoesPendentes.get(loginDestino);
+            if (fila == null) {
+                continue;
+            }
+            List<MentionNotification> snapshot;
+            synchronized (fila) {
+                if (fila.isEmpty()) {
+                    continue;
+                }
+                snapshot = new ArrayList<>(fila);
+            }
+            for (MentionNotification notificacao : snapshot) {
+                if (notificacao == null || notificacao.getChatMensagemId() == null) {
+                    continue;
+                }
+                PersistOutcome outcome = salvarMencaoDuravelIdempotente(
+                        loginDestino,
+                        notificacao.getAutorLogin(),
+                        notificacao.getAutorNomeExibicao(),
+                        notificacao.getChatMensagemId(),
+                        notificacao.getMensagemPreview());
+                if (outcome != PersistOutcome.ERROR) {
+                    replayed++;
+                }
+            }
+            synchronized (fila) {
+                fila.clear();
+            }
+        }
+        return replayed;
+    }
+
+    private long calcularBackoffRecuperacao(int failures) {
+        int expoente = Math.max(0, Math.min(8, failures - 1));
+        long backoff = RECOVERY_BASE_BACKOFF_MS * (1L << expoente);
+        return Math.min(backoff, RECOVERY_MAX_BACKOFF_MS);
     }
 
     private synchronized void ativarFallbackMemoria(String reason, RuntimeException ex) {
@@ -350,6 +433,9 @@ public class ChatNotificationServiceImpl implements ChatNotificationService {
             return;
         }
         fallbackMemoriaAtivo = true;
+        fallbackStartedAt = System.currentTimeMillis();
+        nextRecoveryAttemptAt = fallbackStartedAt + RECOVERY_BASE_BACKOFF_MS;
+        recoveryFailures = 0;
         LOGGER.warn("[CHAT][MENTION][MODE] mode=MEMORY_LOCAL_EPHEMERAL status=DEGRADED reason={} cause={}",
                 reason, ex.getClass().getSimpleName());
     }
@@ -372,5 +458,70 @@ public class ChatNotificationServiceImpl implements ChatNotificationService {
             return valor;
         }
         return valor.substring(0, 100).trim() + "...";
+    }
+
+    private PersistOutcome salvarMencaoDuravelIdempotente(String loginDestino,
+                                                          String autorLoginSeguro,
+                                                          String autorNomeExibicao,
+                                                          Long mensagemId,
+                                                          String mensagemPreview) {
+        ChatMencao mencao = new ChatMencao();
+        mencao.setDestinatarioLogin(loginDestino);
+        mencao.setAutorLogin(autorLoginSeguro);
+        mencao.setAutorNomeExibicao(normalizarTextoObrigatorio(autorNomeExibicao));
+        mencao.setChatMensagemId(mensagemId);
+        mencao.setMensagemPreview(normalizarTextoObrigatorio(mensagemPreview));
+        mencao.setDataCriacao(new Date());
+        try {
+            chatMencaoRepository.save(mencao);
+            return PersistOutcome.SAVED;
+        } catch (RuntimeException ex) {
+            if (isViolacaoUnicidadeMencao(ex)) {
+                return PersistOutcome.DUPLICATE_RACE_IGNORED;
+            }
+            throw ex;
+        }
+    }
+
+    private String normalizarTextoObrigatorio(String valor) {
+        return valor == null ? "" : valor;
+    }
+
+    private boolean isViolacaoUnicidadeMencao(RuntimeException ex) {
+        Throwable atual = ex;
+        while (atual != null) {
+            if (atual instanceof ConstraintViolationException) {
+                String constraint = ((ConstraintViolationException) atual).getConstraintName();
+                if (constraint != null && UNIQUE_CONSTRAINT_MENCAO.equalsIgnoreCase(constraint.trim())) {
+                    return true;
+                }
+            }
+            if (atual instanceof DataIntegrityViolationException) {
+                String msg = atual.getMessage();
+                if (msg != null && msg.toUpperCase(Locale.ROOT).contains(UNIQUE_CONSTRAINT_MENCAO)) {
+                    return true;
+                }
+            }
+            String msg = atual.getMessage();
+            if (msg != null) {
+                String normalizada = msg.toUpperCase(Locale.ROOT);
+                if (normalizada.contains(UNIQUE_CONSTRAINT_MENCAO)) {
+                    return true;
+                }
+                if ((normalizada.contains("DUPLICATE") || normalizada.contains("UNIQUE"))
+                        && normalizada.contains("CHM_DEST_LOGIN")
+                        && normalizada.contains("CHM_CHT_ID")) {
+                    return true;
+                }
+            }
+            atual = atual.getCause();
+        }
+        return false;
+    }
+
+    private enum PersistOutcome {
+        SAVED,
+        DUPLICATE_RACE_IGNORED,
+        ERROR
     }
 }

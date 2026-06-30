@@ -28,11 +28,13 @@ public interface ChatMensagemRepository extends JpaRepository<ChatMensagem, Long
               and (:autorLogin is null or m.loginAutor = :autorLogin)
               and (:dataInicio is null or m.dataEnvio >= :dataInicio)
               and (:dataFim is null or m.dataEnvio <= :dataFim)
+              and (:cursorId is null or m.id < :cursorId)
             order by m.id desc
             """)
     Page<ChatMensagem> buscarHistoricoFiltrado(@Param("termo") String termo,
                                                @Param("autorLogin") String autorLogin,
                                                @Param("dataInicio") Date dataInicio,
                                                @Param("dataFim") Date dataFim,
+                                               @Param("cursorId") Long cursorId,
                                                Pageable pageable);
 }

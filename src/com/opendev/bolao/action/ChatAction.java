@@ -31,6 +31,7 @@ public class ChatAction extends ActionSupport implements ServletRequestAware, Se
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LoggerFactory.getLogger(ChatAction.class);
     private static final int LIMITE_HISTORICO_MENCOES = 10;
+    private static final int TAMANHO_PAGINA_CONSULTA = 25;
 
     private ChatService chatService;
     private transient HttpServletRequest request;
@@ -50,6 +51,10 @@ public class ChatAction extends ActionSupport implements ServletRequestAware, Se
     private String chatBuscaAutor;
     private String chatBuscaDataInicio;
     private String chatBuscaDataFim;
+    private String chatBuscaCursorId;
+    private Long chatBuscaProximoCursorId;
+    private boolean chatBuscaTemMais;
+    private Long chatCitarMensagemId;
     private int chatMencoesPendentes;
     private boolean chatMencoesColdStartAtivo;
     private boolean chatMencoesModoDegradado;
@@ -226,17 +231,28 @@ public class ChatAction extends ActionSupport implements ServletRequestAware, Se
         try {
             Date dataInicio = parseDataFiltro(this.chatBuscaDataInicio, true);
             Date dataFim = parseDataFiltro(this.chatBuscaDataFim, false);
-            this.mensagensConsulta = chatService.buscarHistoricoFiltrado(
+            Long cursorId = parseCursorFiltro(this.chatBuscaCursorId);
+            List<ChatMensagemView> mensagens = chatService.buscarHistoricoFiltrado(
                     login,
                     this.chatBuscaTermo,
                     this.chatBuscaAutor,
                     dataInicio,
                     dataFim,
-                    80
+                    cursorId,
+                    TAMANHO_PAGINA_CONSULTA + 1
             );
-            if (this.mensagensConsulta == null) {
-                this.mensagensConsulta = Collections.emptyList();
+            if (mensagens == null) {
+                mensagens = Collections.emptyList();
             }
+            this.chatBuscaTemMais = mensagens.size() > TAMANHO_PAGINA_CONSULTA;
+            if (this.chatBuscaTemMais) {
+                mensagens = new ArrayList<>(mensagens);
+                mensagens.remove(0);
+            }
+            this.chatBuscaProximoCursorId = this.chatBuscaTemMais && !mensagens.isEmpty()
+                    ? mensagens.get(0).getId()
+                    : null;
+            this.mensagensConsulta = mensagens;
             return SUCCESS;
         } catch (BusinessException e) {
             setStatus(mapearStatusBusiness(e));
@@ -363,6 +379,23 @@ public class ChatAction extends ActionSupport implements ServletRequestAware, Se
         return Date.from(data.atTime(LocalTime.MAX).atZone(zoneId).toInstant());
     }
 
+    private Long parseCursorFiltro(String valor) {
+        if (ValidacaoUtils.isVazia(valor)) {
+            return null;
+        }
+        try {
+            long cursor = Long.parseLong(valor.trim());
+            if (cursor <= 0) {
+                throw new NumberFormatException("Cursor não positivo");
+            }
+            return cursor;
+        } catch (NumberFormatException e) {
+            throw new BusinessException(
+                    BusinessException.Code.INVALID_INPUT,
+                    texto("chat.error.query.invalidCursor", "Cursor inválido no histórico."));
+        }
+    }
+
     private void atualizarSinalizacaoRuntimeMencoes() {
         this.chatMencoesColdStartAtivo = chatService.isMencoesColdStartAtivo();
         this.chatMencoesModoDegradado = chatService.isMencoesModoDegradado();
@@ -412,6 +445,14 @@ public class ChatAction extends ActionSupport implements ServletRequestAware, Se
         return mensagensConsulta;
     }
 
+    public Long getChatBuscaProximoCursorId() {
+        return chatBuscaProximoCursorId;
+    }
+
+    public boolean isChatBuscaTemMais() {
+        return chatBuscaTemMais;
+    }
+
     public Long getChatUltimoId() {
         return chatUltimoId;
     }
@@ -444,6 +485,11 @@ public class ChatAction extends ActionSupport implements ServletRequestAware, Se
     }
 
     @StrutsParameter
+    public void setChatCitarMensagemId(Long chatCitarMensagemId) {
+        this.chatCitarMensagemId = chatCitarMensagemId;
+    }
+
+    @StrutsParameter
     public void setChatMencoesAckIds(String chatMencoesAckIds) {
         this.chatMencoesAckIds = chatMencoesAckIds;
     }
@@ -466,5 +512,10 @@ public class ChatAction extends ActionSupport implements ServletRequestAware, Se
     @StrutsParameter
     public void setChatBuscaDataFim(String chatBuscaDataFim) {
         this.chatBuscaDataFim = chatBuscaDataFim;
+    }
+
+    @StrutsParameter
+    public void setChatBuscaCursorId(String chatBuscaCursorId) {
+        this.chatBuscaCursorId = chatBuscaCursorId;
     }
 }

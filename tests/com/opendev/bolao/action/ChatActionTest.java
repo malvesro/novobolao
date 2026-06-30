@@ -393,7 +393,7 @@ class ChatActionTest {
         action.setChatBuscaAutor("admin");
         action.setChatBuscaDataInicio("2026-06-01");
         action.setChatBuscaDataFim("2026-06-29");
-        when(chatService.buscarHistoricoFiltrado(eq("admin"), eq("gol"), eq("admin"), any(), any(), eq(80)))
+        when(chatService.buscarHistoricoFiltrado(eq("admin"), eq("gol"), eq("admin"), any(), any(), isNull(), eq(26)))
                 .thenReturn(List.of(new ChatMensagemView(1L, "admin", "Admin", "gol do brasil", new Date(), true)));
 
         String resultado = action.consultarHistoricoParcial();
@@ -408,7 +408,7 @@ class ChatActionTest {
         request.setMethod("GET");
         request.addHeader("HX-Request", "true");
         action.setChatBuscaTermo("inexistente");
-        when(chatService.buscarHistoricoFiltrado(eq("admin"), eq("inexistente"), isNull(), any(), any(), eq(80)))
+        when(chatService.buscarHistoricoFiltrado(eq("admin"), eq("inexistente"), isNull(), any(), any(), isNull(), eq(26)))
                 .thenReturn(List.of());
 
         String resultado = action.consultarHistoricoParcial();
@@ -454,5 +454,62 @@ class ChatActionTest {
         assertThat(resultado).isEqualTo("success");
         assertThat(response.getStatus()).isEqualTo(400);
         assertThat(action.getChatErro()).isEqualTo("Data inválida no filtro de consulta.");
+    }
+
+    @Test
+    void deveRetornar400QuandoCursorConsultaForInvalido() {
+        request.setUserPrincipal(() -> "admin");
+        request.setMethod("GET");
+        request.addHeader("HX-Request", "true");
+        action.setChatBuscaCursorId("abc");
+
+        String resultado = action.consultarHistoricoParcial();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(response.getStatus()).isEqualTo(400);
+        assertThat(action.getChatErro()).isEqualTo("Cursor inválido no histórico.");
+    }
+
+    @Test
+    void deveExporProximoCursorQuandoConsultaTemMaisPaginas() {
+        request.setUserPrincipal(() -> "admin");
+        request.setMethod("GET");
+        request.addHeader("HX-Request", "true");
+        when(chatService.buscarHistoricoFiltrado(eq("admin"), isNull(), isNull(), isNull(), isNull(), isNull(), eq(26)))
+                .thenReturn(List.of(
+                        new ChatMensagemView(10L, "u1", "U1", "m1", new Date(), false),
+                        new ChatMensagemView(11L, "u1", "U1", "m2", new Date(), false),
+                        new ChatMensagemView(12L, "u1", "U1", "m3", new Date(), false),
+                        new ChatMensagemView(13L, "u1", "U1", "m4", new Date(), false),
+                        new ChatMensagemView(14L, "u1", "U1", "m5", new Date(), false),
+                        new ChatMensagemView(15L, "u1", "U1", "m6", new Date(), false),
+                        new ChatMensagemView(16L, "u1", "U1", "m7", new Date(), false),
+                        new ChatMensagemView(17L, "u1", "U1", "m8", new Date(), false),
+                        new ChatMensagemView(18L, "u1", "U1", "m9", new Date(), false),
+                        new ChatMensagemView(19L, "u1", "U1", "m10", new Date(), false),
+                        new ChatMensagemView(20L, "u1", "U1", "m11", new Date(), false),
+                        new ChatMensagemView(21L, "u1", "U1", "m12", new Date(), false),
+                        new ChatMensagemView(22L, "u1", "U1", "m13", new Date(), false),
+                        new ChatMensagemView(23L, "u1", "U1", "m14", new Date(), false),
+                        new ChatMensagemView(24L, "u1", "U1", "m15", new Date(), false),
+                        new ChatMensagemView(25L, "u1", "U1", "m16", new Date(), false),
+                        new ChatMensagemView(26L, "u1", "U1", "m17", new Date(), false),
+                        new ChatMensagemView(27L, "u1", "U1", "m18", new Date(), false),
+                        new ChatMensagemView(28L, "u1", "U1", "m19", new Date(), false),
+                        new ChatMensagemView(29L, "u1", "U1", "m20", new Date(), false),
+                        new ChatMensagemView(30L, "u1", "U1", "m21", new Date(), false),
+                        new ChatMensagemView(31L, "u1", "U1", "m22", new Date(), false),
+                        new ChatMensagemView(32L, "u1", "U1", "m23", new Date(), false),
+                        new ChatMensagemView(33L, "u1", "U1", "m24", new Date(), false),
+                        new ChatMensagemView(34L, "u1", "U1", "m25", new Date(), false),
+                        new ChatMensagemView(35L, "u1", "U1", "m26", new Date(), false)
+                ));
+
+        String resultado = action.consultarHistoricoParcial();
+
+        assertThat(resultado).isEqualTo("success");
+        assertThat(action.getMensagensConsulta()).hasSize(25);
+        assertThat(action.isChatBuscaTemMais()).isTrue();
+        assertThat(action.getChatBuscaProximoCursorId()).isEqualTo(11L);
     }
 }

@@ -33,6 +33,7 @@ public interface ChatService {
                                                    String autorLogin,
                                                    Date dataInicio,
                                                    Date dataFim,
+                                                   Long cursorId,
                                                    int limite);
 
     boolean isMencoesColdStartAtivo();
