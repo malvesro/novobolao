@@ -435,7 +435,104 @@ public class ParticipanteServiceImpl implements ParticipanteService {
         }
         return new GraficoBarraLideres(dataSet);
     }
-    
+
+    // Cache do dashboard de corrida (invalidado junto com os demais gráficos)
+    private Map<String, Object> cacheDashboardCorrida = null;
+    private long versaoCacheDashboardLocal = GraficoDesempenhoCacheControl.obterVersaoAtual();
+
+    public synchronized Map<String, Object> construirDadosDashboardCorrida() {
+        long versaoAtual = GraficoDesempenhoCacheControl.obterVersaoAtual();
+        if (versaoAtual != this.versaoCacheDashboardLocal) {
+            this.cacheDashboardCorrida = null;
+            this.versaoCacheDashboardLocal = versaoAtual;
+        }
+        if (this.cacheDashboardCorrida != null) {
+            return this.cacheDashboardCorrida;
+        }
+
+        LOGGER.info("[CACHE][DASHBOARD-CORRIDA] Reconstruindo dados do dashboard de corrida...");
+
+        // Coleta todos os participantes não-administradores
+        List<Participante> todosParticipantes = getParticipanteRepository().findAll();
+        List<Participante> participantes = new ArrayList<>();
+        for (Participante p : todosParticipantes) {
+            if (!p.isAdministrador()) {
+                participantes.add(p);
+            }
+        }
+
+        // Busca todos os jogos finalizados ordenados cronologicamente
+        List<Jogo> jogos = getJogoRepository().findJogosFinalizados();
+        Collections.sort(jogos);
+
+        // Busca os palpites dos participantes envolvidos em batch
+        List<Palpite> todosPalpites = getPalpiteRepository().findByParticipanteIn(participantes);
+        Map<Long, Map<Long, Palpite>> mapaPalpites = new HashMap<>();
+        for (Palpite p : todosPalpites) {
+            if (p.getParticipante() != null && p.getJogo() != null) {
+                mapaPalpites.computeIfAbsent(p.getParticipante().getId(), k -> new HashMap<>())
+                        .put(p.getJogo().getId(), p);
+            }
+        }
+
+        // Acumula pontuação por participante ao longo dos jogos
+        Map<Long, Long> pontosAcumulados = new HashMap<>();
+        for (Participante p : participantes) {
+            pontosAcumulados.put(p.getId(), 0L);
+        }
+
+        // Gera os frames jogo a jogo para a animação
+        List<Map<String, Object>> frames = new ArrayList<>();
+        for (Jogo jogo : jogos) {
+            for (Participante p : participantes) {
+                Map<Long, Palpite> palpitesDoParticipante = mapaPalpites.getOrDefault(p.getId(), Collections.emptyMap());
+                Palpite palpite = palpitesDoParticipante.get(jogo.getId());
+                if (palpite != null && palpite.getPontuacao() != null) {
+                    pontosAcumulados.merge(p.getId(), (long) palpite.getPontuacao().getPontuacao(), Long::sum);
+                }
+            }
+
+            // Snapshot do ranking neste frame
+            List<Map<String, Object>> rankingFrame = new ArrayList<>();
+            for (Participante p : participantes) {
+                Map<String, Object> entrada = new HashMap<>();
+                entrada.put("nome", p.getNomeFormatado());
+                entrada.put("pontos", pontosAcumulados.getOrDefault(p.getId(), 0L));
+                rankingFrame.add(entrada);
+            }
+            // Ordena por pontos desc para manter coerência com a classificação geral
+            rankingFrame.sort((a, b) -> Long.compare((Long) b.get("pontos"), (Long) a.get("pontos")));
+
+            // Label: nome curto do confronto + data
+            String label = jogo.getRepresentacaoEquipes();
+
+            Map<String, Object> frame = new HashMap<>();
+            frame.put("label", label);
+            frame.put("ranking", rankingFrame);
+            frames.add(frame);
+        }
+
+        // Pódio final (top 3 do último frame ou da classificação geral)
+        List<Map<String, Object>> podio = new ArrayList<>();
+        if (!frames.isEmpty()) {
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> ultimoRanking = (List<Map<String, Object>>) frames.get(frames.size() - 1).get("ranking");
+            for (int i = 0; i < Math.min(3, ultimoRanking.size()); i++) {
+                Map<String, Object> entrada = new HashMap<>(ultimoRanking.get(i));
+                entrada.put("posicao", i + 1);
+                podio.add(entrada);
+            }
+        }
+
+        Map<String, Object> resultado = new HashMap<>();
+        resultado.put("jogos", frames);
+        resultado.put("podio", podio);
+        resultado.put("cacheVersion", versaoAtual);
+
+        this.cacheDashboardCorrida = resultado;
+        return resultado;
+    }
+
     public ParticipanteRepository getParticipanteRepository() {
         return participanteRepository;
     }

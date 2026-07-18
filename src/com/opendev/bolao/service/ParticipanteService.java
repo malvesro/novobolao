@@ -1,6 +1,7 @@
 package com.opendev.bolao.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.opendev.bolao.exception.ValidacaoException;
@@ -32,5 +33,11 @@ public interface ParticipanteService {
     public GraficoComparativoDesempenho construirGraficoDesempenho(Participante participante, Long idRivail);
 
     public GraficoBarraLideres construirGraficoDeBarrasDosLideres();
+
+    /**
+     * Constrói os dados do dashboard de corrida de pontuação.
+     * Retorna um mapa com a lista de frames (jogo a jogo) e o pódio final (top 3).
+     */
+    public Map<String, Object> construirDadosDashboardCorrida();
 
 }
